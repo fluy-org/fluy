@@ -18,7 +18,7 @@ Sem tela de negócio ainda — as primeiras telas reais são do Bloco 1 (login c
 
 ### Setup geral
 
-- [ ] **0.1** Setup do mono-repo (workspaces npm, `docker-compose` com Postgres, scripts na raiz, `.env` template, `tsconfig` base com path mapping para `shared/`) — **🟣 Rudney**
+- [x] **0.1** Setup do mono-repo (workspaces npm, `docker-compose` com Postgres, scripts na raiz, `.env` template, `tsconfig` base com path mapping para `shared/`) — **🟣 Rudney**
 
 ### Backend (Nest)
 

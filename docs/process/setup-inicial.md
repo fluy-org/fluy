@@ -15,9 +15,11 @@ git clone https://github.com/fluy-org/fluy.git
 cd fluy
 ```
 
-Copia o `.env.example` pra `.env` (do jeito que preferir).
+Copia `backend/.env.example` pra `backend/.env` (do jeito que preferir).
 
-Se quiser mudar usuário/senha/porta do banco, edita o `.env` **antes** de subir o Docker. Se mudar, atualiza também a `DATABASE_URL` na mesma linha — ela não é montada automaticamente.
+O `.env` fica **dentro de `backend/`** — backend e docker-compose leem dali. O frontend (Angular) usa o padrão próprio dele (`environment.ts`), não `.env`.
+
+Se quiser mudar usuário/senha/porta do banco, edita antes de subir o Docker. Se mudar, atualiza também a `DATABASE_URL` na mesma linha — ela não é montada automaticamente.
 
 ## 2. Instalar dependências
 
