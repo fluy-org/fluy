@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fluy-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: fluy
+      POSTGRES_PASSWORD: fluy
+      POSTGRES_DB: fluy
+    volumes:
+      - fluy-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fluy -d fluy']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  fluy-postgres-data:

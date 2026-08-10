@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+build/
+.angular/
+.turbo/
+
+# TypeScript incremental cache
+*.tsbuildinfo
+
+# logs
+logs/
+*.log
+npm-debug.log*
+
+# env
+.env
+.env.local
+.env.*.local
+
+# coverage
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# runtime / temp
+.temp/
+.tmp/
+pids/
+*.pid
+*.seed
+*.pid.lock

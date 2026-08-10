@@ -1,0 +1,23 @@
+{
+  "name": "fluy",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Fluy — SaaS multi-tenant para salões de beleza",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared/*"
+  ],
+  "scripts": {
+    "dev:back": "npm run dev --workspace=backend",
+    "dev:front": "npm run start --workspace=frontend",
+    "dev:schema": "npm run build --workspace=@fluy/schema -- --watch",
+    "build:schema": "npm run build --workspace=@fluy/schema",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:push": "npm run db:push --workspace=backend",
+    "db:studio": "npm run db:studio --workspace=backend"
+  }
+}
