@@ -9,6 +9,10 @@ Documentação de "como trabalhamos", separada de `domain/`, `features/`, `fluxo
 
 Regra deliberada: a alocação alterna as stacks. Ninguém "vira" o dev do backend ou do frontend. Cada fatia é fullstack (backend + frontend juntos no mesmo PR).
 
+## Onboarding
+
+- [Setup inicial](./setup-inicial.md) — do zero: clone, `npm install`, subir back, criar Angular.
+
 ## Blocos
 
 - [Bloco 0 — Fundação](./bloco-0-fundacao.md)
@@ -53,5 +57,5 @@ Uma fatia é `[x]` quando:
 ## Ambiente de trabalho
 
 - **IDE:** Visual Studio 2022 ou 2026 tem atrito real com mono-repo Node + Angular + NestJS (sem template NestJS, sem multi-root workspace nativo, Solution Explorer não entende npm workspaces). Se optarem por manter, provavelmente vão usar terminal integrado a maior parte do tempo. Alternativa recomendada para esse projeto: **VS Code** (mesmo Windows, grátis, ecossistema Nest/Angular nativo).
-- **Banco local:** Postgres via Docker, `synchronize: false` (usar migrations). Uma migration inicial única cobre entidades do Bloco 0. A partir daí, migrations incrementais por fatia.
-- **Contrato back↔front:** DTOs vivem em `shared/` (npm workspace). Renomeou campo? TypeScript grita nos dois lados.
+- **Banco local:** Postgres via Docker. ORM = Drizzle. Em dev usamos `drizzle-kit push` (aplica schema direto, sem gerar migration file). Quando tiver staging pra valer, migra pra `drizzle-kit generate` + migrations versionadas.
+- **Contrato back↔front:** schema Drizzle vive em `shared/schema/` (pacote `@fluy/schema`). Renomeou coluna? TypeScript grita nos dois lados. Regra: `@fluy/schema` só pode ter deps de `drizzle-orm`, `drizzle-zod`, `zod` — nada de `pg`, `@nestjs/*`, senão vaza pro front.
