@@ -1,17 +1,17 @@
 {
-  "name": "frontend",
+  "name": "fluy-frontend",
   "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "private": true,
+  "description": "Fluy — app do cliente e painel do salão (Ionic + Angular + Capacitor)",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "20.3.25",
     "@angular/common": "20.3.25",
@@ -26,6 +26,7 @@
     "@capacitor/haptics": "8.0.2",
     "@capacitor/keyboard": "8.0.5",
     "@capacitor/status-bar": "8.0.3",
+    "@fluy/schema": "*",
     "@ionic/angular": "^8.0.0",
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
@@ -59,6 +60,5 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.9.0"
-  },
-  "description": "An Ionic project"
+  }
 }

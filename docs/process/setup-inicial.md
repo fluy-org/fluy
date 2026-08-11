@@ -17,7 +17,7 @@ cd fluy
 
 Copia `backend/.env.example` pra `backend/.env` (do jeito que preferir).
 
-O `.env` fica **dentro de `backend/`** — backend e docker-compose leem dali. O frontend (Angular) usa o padrão próprio dele (`environment.ts`), não `.env`.
+O `.env` fica **dentro de `backend/`** — backend e docker-compose leem dali. O frontend (Ionic + Angular) usa o padrão próprio do Angular (`environment.ts`), não `.env`.
 
 Se quiser mudar usuário/senha/porta do banco, edita antes de subir o Docker. Se mudar, atualiza também a `DATABASE_URL` na mesma linha — ela não é montada automaticamente.
 
@@ -39,26 +39,27 @@ npm run build:schema
 
 Isso compila o pacote `@fluy/schema` (o backend importa dele). Precisa rodar uma vez antes de subir o backend.
 
-## 4. Subir banco e backend
+## 4. Subir banco, backend e frontend
 
 ```bash
 npm run db:up     # sobe o Postgres via Docker
 npm run dev:back  # sobe o Nest em http://localhost:3000
+npm run dev:front # sobe o Ionic/Angular em http://localhost:4200
 ```
 
-Se tudo deu certo, Swagger tá em [http://localhost:3000/docs](http://localhost:3000/docs). 🎉
+Se tudo deu certo, Swagger tá em [http://localhost:3000/docs](http://localhost:3000/docs) e o app do frontend em [http://localhost:4200](http://localhost:4200). 🎉
 
 ---
 
 ## Dia a dia
 
-Depois do setup, abre 2 a 4 terminais na raiz:
+Depois do setup, abre 3 a 4 terminais na raiz:
 
 ```bash
 npm run db:up        # 1x por dia (só se derrubou o Docker)
 npm run dev:schema   # opcional: watch pra rebuildar shared/schema ao salvar
 npm run dev:back     # backend
-npm run dev:front    # frontend (quando existir)
+npm run dev:front    # frontend (Ionic + Angular)
 ```
 
 Pra parar o banco no fim do dia: `npm run db:down`.

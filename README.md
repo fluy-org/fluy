@@ -1,13 +1,13 @@
 # Fluy
 
-SaaS multi-tenant para salões de beleza. Mono-repo com backend (NestJS), frontend (Angular) e schema compartilhado (Drizzle).
+SaaS multi-tenant para salões de beleza. Mono-repo com backend (NestJS), frontend (Ionic + Angular + Capacitor) e schema compartilhado (Drizzle).
 
 ## Estrutura
 
 ```
 fluy/
 ├── backend/                  NestJS + Drizzle client
-├── frontend/                 Angular (será adicionado depois)
+├── frontend/                 Ionic + Angular + Capacitor
 ├── shared/
 │   └── schema/               @fluy/schema — pgTable + tipos + drizzle-zod
 ├── docs/
@@ -44,7 +44,7 @@ npm run dev:schema
 # terminal 3 — backend
 npm run dev:back
 
-# terminal 4 — frontend (quando existir)
+# terminal 4 — frontend (Ionic + Angular)
 npm run dev:front
 ```
 
@@ -64,7 +64,7 @@ npm run dev:front
 
 `@fluy/schema` só depende de `drizzle-orm`, `drizzle-zod` e `zod`. **Não adicionar** `pg`, `postgres`, `@nestjs/*` nesse pacote — vaza pro frontend.
 
-O backend importa `schema` e `Schema` de `@fluy/schema` pra passar ao `drizzle()`. O frontend (quando existir) importa tipos e validadores derivados.
+O backend importa `schema` e `Schema` de `@fluy/schema` pra passar ao `drizzle()`. O frontend importa tipos e validadores derivados.
 
 ## Documentação
 
