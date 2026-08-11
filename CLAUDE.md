@@ -15,6 +15,39 @@ Antes de codar, consulte `docs/`. Não invente regra de negócio que não esteja
 
 Só pode ter deps de `drizzle-orm`, `drizzle-zod` e `zod`. Nada de `pg`, `postgres`, `@nestjs/*`.
 
+Vive tudo que trafega HTTP entre frontend e backend: tabelas Drizzle, schemas Zod de request/response, DTOs, e enums que aparecem em colunas do banco.
+
+### Estrutura por tabela
+
+`shared/schema/{tabela}/`:
+
+- `{tabela}.table.ts` — Drizzle (DDL).
+- `{tabela}.schema.ts` — schemas Zod (`createInsertSchema`, `createUpdateSchema`, refines).
+- `{tabela}.dto.ts` — DTOs via `createZodDto` (consumidos pelo Nest).
+- `{tabela}.enums.ts` — array-enums que aparecem em colunas.
+- `index.ts` — barrel.
+
+### Array-enums (`.enums.ts`)
+
+`as const` + `type` derivado. Sem Zod. Sem dependência interna. É a folha do cone de imports — todo mundo importa dele, ele não importa de ninguém.
+
+```ts
+export const STATUS_SALAO = ['ativo', 'inativo', 'suspenso'] as const;
+export type StatusSalao = (typeof STATUS_SALAO)[number];
+```
+
+A tabela usa como `$type`; o schema Zod deriva com `z.enum(STATUS_SALAO)` quando precisar validar isoladamente.
+
+### Nunca usar `enum` nativo do TS
+
+Em código novo. `as const` + type derivado sempre.
+
+### O que NÃO entra em `shared/`
+
+- Tipos de estado de UI, props de componente, form schemas do frontend.
+- Tipos internos de service, contexto de transação, params de método privado do backend.
+- Regra: `shared/` só recebe o que **trafega HTTP**. O resto mora na feature que usa.
+
 ## Multi-tenant
 
 Toda query filtra por `salao_id`.
