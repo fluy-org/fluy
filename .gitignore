@@ -4,16 +4,32 @@ node_modules/
 # build outputs
 dist/
 build/
+out-tsc/
+bazel-out/
 .angular/
 .turbo/
+.nx/
+
+# Ionic
+/.ionic
+/www
+/.sourcemaps
+/.versions
+
+# Capacitor (nativo)
+/platforms
+/plugins
 
 # TypeScript incremental cache
 *.tsbuildinfo
+/typings
 
 # logs
 logs/
 *.log
 npm-debug.log*
+yarn-error.log
+testem.log
 
 # env
 .env
@@ -30,16 +46,39 @@ Thumbs.db
 
 # IDE
 .idea/
+.history/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.project
+.classpath
+.settings/
+*.launch
+.c9/
+*.sublime-project
+*.sublime-workspace
+
+# Xcode (iOS via Capacitor)
+UserInterfaceState.xcuserstate
+
+# CSS pre-processors
+.sass-cache/
 
 # runtime / temp
 .temp/
 .tmp/
+*.tmp
+*.tmp.*
 pids/
 *.pid
 *.seed
 *.pid.lock
+
+# editor backup / swap
+*~
+*.sw[mnpcod]
+
+# Windows recycle bin
+$RECYCLE.BIN/
