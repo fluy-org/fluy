@@ -36,6 +36,9 @@ Sem `forms/`, `ui/`, `elements/`, `blocks/`, `views/` até doer.
 
 Se um componente de `components/` começa a fazer fetch ou orquestrar navegação, sobe pra page.
 
+### Componentes de UI
+- **Exceção:** Além dos componentes do Ionic, o projeto pode utilizar um conjunto de componentes customizados com prefixo `app-*` (ex: `app-input-text`, `app-btn-salvar`) para agilizar o desenvolvimento de formulários e ações.
+
 ## Services
 
 - Um service central por feature (`{feature}.service.ts`). Auxiliares só quando doer.
@@ -107,6 +110,7 @@ Pergunta única: **trafega HTTP entre front e back?**
 - ❌ `NgModule` em código novo.
 - ❌ `enum` nativo do TS.
 - ❌ Result Pattern.
+- ❌ Herança de `BaseService`.
 - ❌ Wrapper `ApiService` envolvendo `HttpClient`.
 - ❌ Duplicar tipo que trafega HTTP no frontend.
 - ❌ `interface`/`type` exportado direto de service ou componente.
