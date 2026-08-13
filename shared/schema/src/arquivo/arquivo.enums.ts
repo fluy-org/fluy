@@ -1,0 +1,2 @@
+// Sem enums próprios.
+export {};

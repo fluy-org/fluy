@@ -19,8 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typecheck": "tsc --noEmit",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:push": "cross-env TSX_TSCONFIG_PATH=../shared/schema/tsconfig.json drizzle-kit push",
+    "db:studio": "cross-env TSX_TSCONFIG_PATH=../shared/schema/tsconfig.json drizzle-kit studio"
   },
   "dependencies": {
     "@fluy/schema": "*",
@@ -53,6 +53,7 @@
     "@types/node": "^24.0.0",
     "@types/pg": "^8.20.0",
     "@types/supertest": "^7.0.0",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.18.0",
