@@ -9,6 +9,7 @@
     "shared/*"
   ],
   "scripts": {
+    "dev": "concurrently -n schema,back,front -c gray,blue,magenta \"npm:dev:schema\" \"npm:dev:back\" \"npm:dev:front\"",
     "dev:back": "npm run dev --workspace=backend",
     "dev:front": "npm run start --workspace=frontend",
     "dev:schema": "npm run build --workspace=@fluy/schema -- --watch",
@@ -19,5 +20,8 @@
     "db:down": "docker compose down",
     "db:push": "npm run db:push --workspace=backend",
     "db:studio": "npm run db:studio --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
   }
 }
