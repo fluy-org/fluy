@@ -19,7 +19,13 @@
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:push": "npm run db:push --workspace=backend",
-    "db:studio": "npm run db:studio --workspace=backend"
+    "db:studio": "npm run db:studio --workspace=backend",
+    "i:back": "npm install --workspace=backend",
+    "i:back:dev": "npm install --save-dev --workspace=backend",
+    "i:front": "npm install --workspace=frontend",
+    "i:front:dev": "npm install --save-dev --workspace=frontend",
+    "i:schema": "npm install --workspace=@fluy/schema",
+    "i:schema:dev": "npm install --save-dev --workspace=@fluy/schema"
   },
   "devDependencies": {
     "concurrently": "^10.0.4"
