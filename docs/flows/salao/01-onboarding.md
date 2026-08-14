@@ -4,6 +4,14 @@
 
 Permitir que um novo salão se cadastre no Fluy de forma self-service, configure o mínimo necessário para começar a receber agendamentos e obtenha a URL pública para compartilhar com suas clientes.
 
+## Pré-condição de identidade
+
+Antes do onboarding, a pessoa cria a conta no Clerk, confirma o e-mail por
+link e o frontend chama `POST /usuarios` com o Bearer token da sessão ativa.
+Esse endpoint cria apenas o `usuario` global; ele não cria um salão. Se o
+cadastro local foi interrompido, o frontend consulta `GET /usuarios/eu` e
+repete o POST idempotente quando receber `404`.
+
 ## Passo a passo
 
 1. Dono do salão acessa a landing do Fluy.

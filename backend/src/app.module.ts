@@ -9,6 +9,10 @@ import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
 import type { Env } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { AuthGuard } from './modules/auth/guards/auth.guard';
+import { UsuarioModule } from './modules/usuario/usuario.module';
+import { ClerkModule } from './shared/providers/clerk/clerk.module';
 
 @Module({
   imports: [
@@ -40,11 +44,15 @@ import { DatabaseModule } from './database/database.module';
       }),
     }),
     DatabaseModule,
+    ClerkModule,
+    AuthModule,
+    UsuarioModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_PIPE, useClass: ZodValidationPipe },
+    { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })

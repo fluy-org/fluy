@@ -4,6 +4,10 @@ Todas as fatias necessárias para um salão se cadastrar, logar, e configurar o 
 
 ## Entregável do bloco
 
+A criação da conta global já ocorreu antes deste bloco pelo Clerk e
+`POST /usuarios`. Este bloco cria o salão e o vínculo `usuario_salao` de dono;
+ele não cria credenciais nem autentica senha.
+
 Ao final, um salão consegue:
 - Criar sua conta e virar dono.
 - Fazer login (com UX bonita).

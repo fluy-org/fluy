@@ -42,6 +42,12 @@ Usado por:
 
 ## Observações
 
+- Cadastro, senha, Google OAuth, verificação de e-mail e sessão pertencem ao
+  Clerk. Quando o Clerk conclui a sessão, o frontend chama `POST /usuarios`
+  para materializar a conta global da Fluy.
+- `GET /usuarios/eu` retorna apenas a conta global, sem decidir se ela possui
+  salão. A criação de salão é um fluxo posterior e independente.
+
 - Modelagem já deve prever multi-usuário por salão (papéis, permissões), mas a UI de convite/gestão de funcionários está fora do MVP.
 - No MVP, um usuário pode ter apenas um salão. Multi-salão para o mesmo dono está fora do escopo inicial.
 - Cobrança do SaaS está adiada — no MVP o salão usa gratuitamente. Ver PENDENCIAS.md item 2.

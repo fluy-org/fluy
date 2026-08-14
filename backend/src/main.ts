@@ -12,10 +12,17 @@ async function bootstrap() {
 
   const config = app.get(ConfigService<Env, true>);
 
+  app.enableCors({
+    origin: config.get('CORS_ORIGINS', { infer: true }),
+    allowedHeaders: ['Authorization', 'Content-Type'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  });
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Fluy API')
     .setDescription('API da plataforma Fluy')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, cleanupOpenApiDoc(document));

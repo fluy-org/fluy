@@ -50,7 +50,9 @@ Em código novo. `as const` + type derivado sempre.
 
 ## Multi-tenant
 
-Toda query filtra por `salao_id`.
+Toda query de dado pertencente a um salao filtra por `salao_id`. Entidades
+globais de identidade, como `usuario` e `identidade_autenticacao`, nao possuem
+`salao_id` e sao a excecao explicita a esta regra.
 
 ## Fuso horário
 
