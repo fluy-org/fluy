@@ -73,7 +73,7 @@ export class UsuarioService {
       nome: usuario.nome,
       sobrenome: usuario.sobrenome,
       email: usuario.email,
-      criado_em: usuario.criado_em,
+      criado_em: usuario.criado_em.toISOString(),
     };
   }
 }
