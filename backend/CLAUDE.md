@@ -13,6 +13,10 @@ Cada módulo Nest tem:
 
 DTOs, schemas e tabela Drizzle vivem em `shared/schema/{tabela}/`, nunca em `backend/src/`. Backend importa do `@fluy/schema`.
 
+Módulos transversais que não persistem dados nem expõem um recurso HTTP próprio
+podem omitir `repository.ts` e `controller.ts`. Eles mantêm `contracts/` e os
+providers necessários, como guards e decorators.
+
 ## Contracts
 
 Pasta `contracts/` desde o dia 1, mesmo com um arquivo só. Menu fixo:

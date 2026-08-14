@@ -4,6 +4,14 @@
 
 Autenticar o usuário do salão para acessar o painel administrativo, com suporte a email+senha e Google OAuth.
 
+## Atualização de autenticação
+
+Login por e-mail/senha e Google OAuth são executados pelo Clerk no frontend.
+O backend aceita somente o Bearer token emitido pelo Clerk e não expõe
+`POST /auth/login`. Após login normal, o frontend consulta `GET /usuarios/eu`;
+uma resposta `404` indica cadastro local ainda não materializado e direciona
+para a conclusão que chama `POST /usuarios`.
+
 ## Passo a passo
 
 1. Usuário acessa a URL de login do painel do salão.

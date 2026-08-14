@@ -57,6 +57,11 @@ Sem tela de negócio ainda — as primeiras telas reais são do Bloco 1 (login c
 
 ## Notas
 
+- A autenticação backend valida Bearer tokens emitidos pelo Clerk. O backend
+  não recebe senha nem implementa OAuth; ele expõe `POST /usuarios` para criar
+  de forma idempotente a conta global autenticada e `GET /usuarios/eu` para
+  consultá-la.
+
 - **0.4** cria o schema Drizzle completo do domínio em `shared/schema/` (todas as ~23 tabelas descritas em [docs/domain/](../domain/)), aplicado ao banco via `npm run db:push`. Motivo da mudança em relação ao plano original: o schema é fonte de verdade compartilhada entre backend e frontend (mono-repo), então gerar tudo de uma vez evita colisão de tabelas entre fatias e mantém `shared/schema/` coerente com o modelo de domínio já documentado. As tabelas nascem sem service/controller — cada fatia futura adiciona o seu módulo Nest sobre a tabela que já existe.
 - Depois desta criação inicial, alterações de schema entram como migrations incrementais geradas por `drizzle-kit` (`npm run db:push` em dev; `drizzle-kit generate` + apply para migrations versionadas quando entrar staging/prod).
 - **Sequência sugerida no Angular:** 0.5 → 0.6 → 0.7 → 0.8 → 0.9 (uma alimenta a próxima). Podem ir juntas em ~2-3 PRs se forem pequenas; ou uma por PR se preferir revisão fina.

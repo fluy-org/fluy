@@ -6,8 +6,9 @@
 // NADA de @nestjs/*, pg, postgres — se aparecer, vaza pro front.
 
 import * as salaoSchema from './salao/index.js';
+import * as usuarioSchema from './usuario/index.js';
 import * as usuarioSalaoSchema from './usuario_salao/index.js';
-import * as metodoAutenticacaoUsuarioSchema from './metodo_autenticacao_usuario/index.js';
+import * as identidadeAutenticacaoSchema from './identidade_autenticacao/index.js';
 import * as profissionalSchema from './profissional/index.js';
 import * as configuracaoSalaoSchema from './configuracao_salao/index.js';
 import * as janelaSemanalSchema from './janela_semanal/index.js';
@@ -30,8 +31,9 @@ import * as notaSchema from './nota/index.js';
 import * as lembreteSchema from './lembrete/index.js';
 
 export * from './salao/index.js';
+export * from './usuario/index.js';
 export * from './usuario_salao/index.js';
-export * from './metodo_autenticacao_usuario/index.js';
+export * from './identidade_autenticacao/index.js';
 export * from './profissional/index.js';
 export * from './configuracao_salao/index.js';
 export * from './janela_semanal/index.js';
@@ -55,8 +57,9 @@ export * from './lembrete/index.js';
 
 export const schema = {
   ...salaoSchema,
+  ...usuarioSchema,
   ...usuarioSalaoSchema,
-  ...metodoAutenticacaoUsuarioSchema,
+  ...identidadeAutenticacaoSchema,
   ...profissionalSchema,
   ...configuracaoSalaoSchema,
   ...janelaSemanalSchema,

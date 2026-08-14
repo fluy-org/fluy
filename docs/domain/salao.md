@@ -46,23 +46,24 @@ Representa um tenant do Fluy — um estabelecimento independente com sua própri
 
 ### Responsabilidade
 
-Representa uma pessoa com acesso ao painel administrativo de um salão. Guarda identidade (nome, email) e papel — **os métodos de autenticação vivem em entidade separada** (`metodo_autenticacao_usuario`), pelo mesmo motivo que `cliente` tem `sessao_cliente`: um usuário pode ter mais de uma forma de logar (email+senha e Google OAuth associados ao mesmo email, por exemplo) e novas formas podem entrar no futuro sem refatoração.
+Representa a membership de um `usuario` em um `salao`. É a referência de
+autoria e de permissões dentro do tenant, mas não guarda identidade nem
+credenciais.
 
 ### Atributos principais
 
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `id` | UUID | Sim | Identificador único. |
+| `usuario_id` | UUID | Sim | Usuário global vinculado. |
 | `salao_id` | UUID | Sim | Salão ao qual pertence. |
-| `nome` | string | Sim | Nome do usuário. |
-| `email` | string | Sim | Email do usuário (único no Fluy; base para associar métodos de login diferentes ao mesmo usuário). |
 | `papel` | papel_usuario_salao | Sim | Papel do usuário no salão. |
 | `criado_em` | timestamp | Sim | Data de criação. |
 
 ### Relacionamentos
 
-- Pertence a 1 `salao`.
-- Possui N `metodo_autenticacao_usuario`.
+- Pertence a 1 `usuario` e a 1 `salao`.
+- O par (`usuario_id`, `salao_id`) é único.
 
 ### Features relacionadas
 
@@ -74,26 +75,33 @@ Representa uma pessoa com acesso ao painel administrativo de um salão. Guarda i
 
 ---
 
-## `metodo_autenticacao_usuario`
+## `usuario` e `identidade_autenticacao`
 
 ### Responsabilidade
 
-Representa uma **forma pela qual um `usuario_salao` pode autenticar**. Segue lógica análoga à de `sessao_cliente` (cliente também tem múltiplas formas de ser identificada), mas com semântica diferente: aqui é login efetivo (usuário digita credencial), enquanto na cliente é identificação implícita. Um usuário pode ter N métodos (email+senha e Google OAuth simultâneos, por exemplo); novos métodos futuros (Apple, GitHub, magic link) entram como novos tipos sem refatoração.
+`usuario` é a conta global Fluy, independente de qualquer salão.
+`identidade_autenticacao` vincula essa conta a um provedor externo. No início,
+o único provedor é o Clerk; senha, OAuth, sessões e verificação de e-mail são
+responsabilidades desse provedor.
 
 ### Atributos principais
 
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `id` | UUID | Sim | Identificador único. |
-| `usuario_salao_id` | UUID | Sim | Usuário dono do método. |
-| `tipo` | tipo_autenticacao_usuario | Sim | Método de autenticação usado por essa credencial. |
-| `credencial` | string | Sim | Valor dependente do tipo. Para `senha`: hash da senha. Para `google_oauth`: id do usuário no Google. Único por `tipo`. |
-| `criado_em` | timestamp | Sim | Data de vínculo do método. |
-| `ultimo_uso_em` | timestamp | Não | Último uso bem-sucedido. |
+| `usuario.id` | UUID | Sim | Identificador único da conta global. |
+| `usuario.nome` | string | Sim | Primeiro nome retornado pelo Clerk. |
+| `usuario.sobrenome` | string | Sim | Sobrenome retornado pelo Clerk. |
+| `usuario.email` | string | Sim | E-mail primário verificado, único no Fluy. |
+| `usuario.criado_em` | timestamp | Sim | Data de materialização local. |
+| `identidade_autenticacao.usuario_id` | UUID | Sim | Conta global vinculada. |
+| `identidade_autenticacao.provedor` | string | Sim | `clerk` no MVP. |
+| `identidade_autenticacao.identificador_externo` | string | Sim | Identificador do usuário no provedor. |
+| `identidade_autenticacao.criado_em` | timestamp | Sim | Data de vínculo. |
 
 ### Relacionamentos
 
-- Pertence a 1 `usuario_salao`.
+- Um `usuario` possui N `identidade_autenticacao`.
+- O par (`provedor`, `identificador_externo`) é único.
 
 ### Features relacionadas
 
@@ -101,9 +109,9 @@ Representa uma **forma pela qual um `usuario_salao` pode autenticar**. Segue ló
 
 ### Observações
 
-- **Provedor de auth** (Supabase Auth, Better Auth, implementação própria, etc.) é decisão de implementação — não muda o domínio. Se usar Supabase, o id externo do usuário no Supabase vira credencial de um tipo específico (ex.: `supabase`).
-- **Recuperação de senha** (tokens temporários), **verificação de email** e **gestão de sessões ativas** são infra de auth — ficam fora do domínio.
-- **Um mesmo email** pode ter senha própria E Google OAuth: são dois `metodo_autenticacao_usuario` distintos apontando para o mesmo `usuario_salao`.
+- Uma identidade externa nova não pode materializar uma conta caso seu e-mail
+  já pertença a outro `usuario`.
+- A conta local é criada somente depois de o Clerk confirmar o e-mail primário.
 
 ---
 
@@ -186,12 +194,3 @@ Guarda os parâmetros operacionais que moldam o comportamento do sistema para aq
 |---|---|
 | `dono` | Dono do salão (único papel usado no MVP). |
 | `funcionario` | Funcionário com acesso ao painel (previsto para o futuro; UI de convite/gestão fora do MVP). |
-
-### `tipo_autenticacao_usuario`
-
-| Valor | Significado |
-|---|---|
-| `senha` | Email + senha; `credencial` guarda o hash da senha. |
-| `google_oauth` | Login via Google; `credencial` guarda o id do usuário no Google. |
-
-Novos métodos futuros (Apple, GitHub, magic link, provedor externo como Supabase) entram como novos valores sem migração de schema.

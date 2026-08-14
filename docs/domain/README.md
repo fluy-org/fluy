@@ -23,7 +23,7 @@ Este documento é a referência de **estrutura do domínio** — quais entidades
 
 O domínio está dividido em módulos por afinidade funcional. Cada arquivo detalha as entidades daquele módulo (responsabilidade, atributos, relacionamentos, features relacionadas).
 
-- [salao.md](./salao.md) — `salao`, `usuario_salao`, `metodo_autenticacao_usuario`, `profissional`, `configuracao_salao`
+- [salao.md](./salao.md) — `usuario`, `identidade_autenticacao`, `salao`, `usuario_salao`, `profissional`, `configuracao_salao`
 - [disponibilidade.md](./disponibilidade.md) — `janela_semanal`, `override_disponibilidade`
 - [procedimentos.md](./procedimentos.md) — `procedimento`
 - [clientes.md](./clientes.md) — `cliente`, `sessao_cliente`
@@ -37,8 +37,9 @@ O domínio está dividido em módulos por afinidade funcional. Cada arquivo deta
 
 | Relacionamento | Cardinalidade |
 |---|---|
+| `usuario` possui `identidade_autenticacao` | 1 → N |
+| `usuario` possui `usuario_salao` | 1 → N |
 | `salao` possui `usuario_salao` | 1 → N |
-| `usuario_salao` possui `metodo_autenticacao_usuario` | 1 → N |
 
 | `salao` possui `profissional` | 1 → N |
 | `salao` possui `configuracao_salao` | 1 → 1 |
@@ -67,8 +68,9 @@ O domínio está dividido em módulos por afinidade funcional. Cada arquivo deta
 
 ```mermaid
 erDiagram
+    usuario ||--o{ identidade_autenticacao : possui
+    usuario ||--o{ usuario_salao : vincula
     salao ||--o{ usuario_salao : possui
-    usuario_salao ||--o{ metodo_autenticacao_usuario : possui
     salao ||--o{ profissional : possui
     salao ||--|| configuracao_salao : possui
     salao ||--o{ procedimento : possui
@@ -110,20 +112,26 @@ erDiagram
         string endereco
         string fuso_horario
     }
+    usuario {
+        uuid id
+        string nome
+        string sobrenome
+        string email
+        timestamp criado_em
+    }
+    identidade_autenticacao {
+        uuid id
+        uuid usuario_id
+        string provedor
+        string identificador_externo
+        timestamp criado_em
+    }
     usuario_salao {
         uuid id
+        uuid usuario_id
         uuid salao_id
-        string nome
-        string email
         papel_usuario_salao papel
-    }
-    metodo_autenticacao_usuario {
-        uuid id
-        uuid usuario_salao_id
-        tipo_autenticacao_usuario tipo
-        string credencial
         timestamp criado_em
-        timestamp ultimo_uso_em
     }
     profissional {
         uuid id
@@ -294,6 +302,15 @@ erDiagram
         timestamp criado_em
     }
 ```
+
+## Atualização de identidade e membership
+
+`usuario` é a identidade global da Fluy. `identidade_autenticacao` conecta o
+usuário a um provedor externo, inicialmente Clerk. `usuario_salao` é o vínculo
+de um usuário com um salão e permanece a referência para autoria no tenant.
+
+Assim, `usuario` e `identidade_autenticacao` são globais; as demais queries de
+domínio continuam filtradas por `salao_id`.
 
 ## Decisões em aberto
 
