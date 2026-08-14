@@ -27,6 +27,10 @@ describe('UsuarioService', () => {
     email: 'ana@example.com',
     criado_em: new Date('2026-01-01T00:00:00.000Z'),
   };
+  const usuarioResponse = {
+    ...usuario,
+    criado_em: usuario.criado_em.toISOString(),
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -48,7 +52,7 @@ describe('UsuarioService', () => {
 
     expect(resultado).toEqual({
       criado: true,
-      usuario,
+      usuario: usuarioResponse,
     });
   });
 
@@ -68,7 +72,7 @@ describe('UsuarioService', () => {
 
     expect(resultado).toEqual({
       criado: false,
-      usuario,
+      usuario: usuarioResponse,
     });
   });
 
@@ -118,7 +122,9 @@ describe('UsuarioService', () => {
   });
 
   it('informa quando a conta local ainda não existe', async () => {
-    jest.spyOn(usuarioRepository, 'buscarPorIdentidade').mockResolvedValue(undefined);
+    jest
+      .spyOn(usuarioRepository, 'buscarPorIdentidade')
+      .mockResolvedValue(undefined);
 
     await esperarErro(
       () => service.buscarUsuarioAtual(identity),
