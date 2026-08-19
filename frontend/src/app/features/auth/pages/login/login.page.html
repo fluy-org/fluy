@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Fluy</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <main>
+    <ion-text>
+      <h1>Acesse seu painel</h1>
+      <p>Entre para gerenciar seu salao.</p>
+    </ion-text>
+
+    <ion-button expand="block" [disabled]="isSubmitting" (click)="iniciarLogin()">
+      {{ isSubmitting ? 'Redirecionando...' : 'Entrar' }}
+    </ion-button>
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p>{{ errorMessage }}</p>
+      </ion-text>
+    }
+  </main>
+</ion-content>

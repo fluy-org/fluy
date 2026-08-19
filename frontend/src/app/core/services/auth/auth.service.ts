@@ -30,7 +30,7 @@ export class AuthService {
       throw new Error('Clerk nao esta configurado.');
     }
 
-    await this.clerk.redirectToSignIn({ fallbackRedirectUrl: returnUrl });
+    await this.clerk.redirectToSignIn({ signInFallbackRedirectUrl: returnUrl });
   }
 
   async logout(): Promise<void> {
