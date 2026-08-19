@@ -335,7 +335,9 @@ Itens que impactam ou podem impactar o domínio e ainda precisam de decisão. Al
 ### Fora do escopo do MVP mas com espaço reservado
 
 - **Multi-usuário no salão** (papéis, permissões, convites): `usuario_salao.papel` já existe; UI e regras de permissão ficam para depois.
-- **Multi-salão para o mesmo dono**: MVP restringe 1 salão por `usuario_salao`. Escala natural do modelo é remover essa restrição.
+- **Multi-salão para a mesma pessoa**: o modelo já permite múltiplas
+  memberships por `usuario`; o MVP pode manter a UX focada em um salão por vez.
+  A definição de salão ativo e a UI de troca ficam para depois.
 - **Recuperação de acesso da cliente** que perdeu o UUID: no MVP, contato via WhatsApp. Quando entrar, novo `tipo` em `sessao_cliente` (ex.: `codigo_whatsapp`).
 - **Validação real de identidade da cliente** (código no WhatsApp): quando entrar, novo `tipo` em `sessao_cliente` + fluxo de verificação.
 - **Login para cliente** (email, Google OAuth): já previsto pela polimorfia de `sessao_cliente`; basta novos tipos.

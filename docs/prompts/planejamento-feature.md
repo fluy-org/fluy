@@ -7,7 +7,7 @@ Exemplo do que colar em `[FEATURE]`:
 ```
 Fatia 0.2 do Bloco 0: Setup NestJS.
 Config module, Drizzle apontando pro pacote @fluy/schema, module `salao`,
-entities salao, usuario_salao, metodo_autenticacao_usuario, configuracao_salao.
+entities usuario, identidade_autenticacao, salao, usuario_salao, configuracao_salao.
 Ver docs/processo/bloco-0-fundacao.md.
 ```
 

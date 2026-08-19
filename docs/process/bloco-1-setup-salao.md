@@ -4,12 +4,12 @@ Todas as fatias necessárias para um salão se cadastrar, logar, e configurar o 
 
 ## Entregável do bloco
 
-A criação da conta global já ocorreu antes deste bloco pelo Clerk e
-`POST /usuarios`. Este bloco cria o salão e o vínculo `usuario_salao` de dono;
-ele não cria credenciais nem autentica senha.
+A criação da conta global já ocorreu antes deste bloco: Clerk confirma o e-mail
+e o frontend chama `POST /usuarios`. Este bloco cria o salão e o vínculo
+`usuario_salao` de dono; ele não cria credenciais nem autentica senha.
 
 Ao final, um salão consegue:
-- Criar sua conta e virar dono.
+- Criar seu salão e virar dono.
 - Fazer login (com UX bonita).
 - Editar configuração (tolerância, granularidade, antecedências).
 - Cadastrar procedimentos com imagem.
@@ -19,8 +19,8 @@ Ao final, um salão consegue:
 
 ## Fatias
 
-- [ ] **1.1** `salao/01-onboarding` — tela "criar meu salão" (nome, subdomínio, whatsapp, endereço, fuso). Cria primeiro `usuario_salao` (dono). Popula `configuracao_salao` com defaults. Cria `profissional` automático para o dono. — **🟣 Rudney** — `[DEP: bloco 0]`
-- [ ] **1.2** `salao/02-login` — tela de login bonita (o endpoint já foi feito em 0.3; aqui é UX real, tratamento de erro, "esqueci senha" se aplicável) — **🔵 Leandro** — `[SEED-OK]`
+- [ ] **1.1** `salao/01-onboarding` — para uma conta global já concluída, tela "criar meu salão" (nome, subdomínio, whatsapp, endereço, fuso). Cria o salão e o vínculo `usuario_salao` como dono; popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney** — `[DEP: bloco 0]`
+- [ ] **1.2** `salao/02-login` — tela de login com Clerk (sessão, tratamento de erro e redirecionamento para conclusão de cadastro ou onboarding) — **🔵 Leandro** — `[SEED-OK]`
 - [ ] **1.3** `salao/04-procedimentos` — CRUD completo de procedimentos, sem imagem (imagem entra em 1.6). Fullstack. — **🔵 Leandro** — `[DEP: 1.1 OU SEED-OK]`
 - [ ] **1.4** `salao/03-disponibilidade` — janela semanal + override por data. Entities: `janela_semanal`, `override_disponibilidade`, `janela_override`. Fullstack. — **🟣 Rudney** — `[DEP: 1.1 OU SEED-OK]`
 - [ ] **1.5** Feature `configuracao-do-salao` — tela pra editar `configuracao_salao` (granularidade, tolerância, antecedências, mensagem de confirmação). Backend já tem defaults; aqui é a UI. — **🔵 Leandro** — `[DEP: 1.1]`
@@ -46,7 +46,7 @@ Fatias por dev:
 
 - [ ] Onde fica a imagem em 1.6? (S3 / R2 / disco local no Docker). Impacta setup de staging também.
 - [ ] Slugs de subdomínio em 1.1: validar formato? reservar palavras (`admin`, `www`, `api`)?
-- [ ] "Esqueci senha" em 1.2 entra no MVP? Se sim, canal (email SMTP? WhatsApp?).
+- [ ] "Esqueci senha" em 1.2 entra no MVP? Se sim, habilitar o fluxo correspondente no Clerk.
 
 ## Conflitos previstos e mitigação
 

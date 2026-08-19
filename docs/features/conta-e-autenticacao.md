@@ -2,25 +2,22 @@
 
 ## Objetivo
 
-Permitir que o dono do salão crie sua conta no Fluy, complete o setup mínimo para começar a operar (dados do salão, subdomínio público, primeiro procedimento, primeira janela de disponibilidade) e faça login posterior no painel administrativo com segurança.
+Permitir que uma pessoa crie e autentique sua conta global no Fluy antes de
+criar ou acessar um salão. O onboarding do salão é um fluxo posterior,
+independente da autenticação.
 
 ## Usuários envolvidos
 
-- Dono do salão (usuário administrativo)
+- Pessoa que criará ou acessará um salão (usuário administrativo)
 
 ## Capacidades entregues
 
-- Cadastrar nova conta com email + senha OU via Google OAuth.
-- Provisionar o "salão-vazio" associado à conta durante o onboarding.
-- Guiar o dono através do setup mínimo obrigatório (dados do salão, subdomínio, primeiro procedimento, primeira janela de disponibilidade) antes de habilitar recebimento de agendamentos.
-- Validar e reservar subdomínio único no Fluy (`nome-do-salao.fluy.app`).
-- Autenticar usuário existente por email + senha OU Google OAuth.
-- Manter sessão persistente do usuário no painel.
-- Oferecer logout explícito.
-- Oferecer recuperação de senha via email.
-- Associar múltiplos métodos de login (senha + Google) à mesma conta pelo email.
-- Suportar retomada de setup incompleto quando dono abandona no meio.
-- Suportar proteção contra brute force em tentativas de login.
+- Cadastrar e autenticar pelo Clerk com os provedores habilitados.
+- Exigir e-mail primário verificado antes de criar a conta local.
+- Materializar de forma idempotente o `usuario` global a partir do perfil Clerk.
+- Consultar a conta global sem inferir se ela possui salão.
+- Retomar a materialização da conta após interrupção do cadastro.
+- Direcionar uma conta global sem membership para o onboarding do salão.
 
 ## Documentos de referência
 
@@ -30,9 +27,8 @@ Permitir que o dono do salão crie sua conta no Fluy, complete o setup mínimo p
 ## Dependências
 
 Depende de:
-- Provisionamento de subdomínio wildcard SSL (infraestrutura)
-- Provedor de email transacional (recuperação de senha)
-- Google Cloud Console (credenciais OAuth)
+- Clerk configurado com os provedores de login escolhidos.
+- Frontend capaz de obter e enviar o Bearer token da sessão Clerk.
 
 Usado por:
 - [[configuracao-do-salao]]
@@ -42,13 +38,11 @@ Usado por:
 
 ## Observações
 
-- Cadastro, senha, Google OAuth, verificação de e-mail e sessão pertencem ao
-  Clerk. Quando o Clerk conclui a sessão, o frontend chama `POST /usuarios`
-  para materializar a conta global da Fluy.
+- Cadastro, senha, Google OAuth, verificação de e-mail, recuperação de senha
+  e sessão pertencem ao Clerk. Quando o Clerk conclui a sessão, o frontend
+  chama `POST /usuarios` para materializar a conta global da Fluy.
 - `GET /usuarios/eu` retorna apenas a conta global, sem decidir se ela possui
   salão. A criação de salão é um fluxo posterior e independente.
-
+- `usuario_salao` é membership de um `usuario` em um `salao`; não representa
+  conta, e-mail nem método de login.
 - Modelagem já deve prever multi-usuário por salão (papéis, permissões), mas a UI de convite/gestão de funcionários está fora do MVP.
-- No MVP, um usuário pode ter apenas um salão. Multi-salão para o mesmo dono está fora do escopo inicial.
-- Cobrança do SaaS está adiada — no MVP o salão usa gratuitamente. Ver PENDENCIAS.md item 2.
-- Dados fiscais do salão (CNPJ, razão social) não são coletados no MVP; entram quando começar cobrança.
