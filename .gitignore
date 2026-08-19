@@ -36,6 +36,9 @@ testem.log
 .env.local
 .env.*.local
 
+# Angular local configuration (contains machine-specific keys)
+frontend/src/environments/environment.local.ts
+
 # coverage
 coverage/
 .nyc_output/
