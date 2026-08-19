@@ -24,16 +24,16 @@ Sem tela de negócio ainda — as primeiras telas reais são do Bloco 1 (login c
 ### Backend (Nest)
 
 - [x] **0.2** Setup NestJS: config module, Drizzle (cliente + provider injetável), module `salao` inicial — **🟣 Rudney**
-- [ ] **0.3** Autenticação backend: endpoint `POST /auth/login` (email+senha) + endpoint `POST /auth/oauth/google` (mock por enquanto) + guard multi-tenant que injeta `salao_id` no request — **🟣 Rudney**
+- [x] **0.3** Autenticação backend: endpoint `POST /auth/login` (email+senha) + endpoint `POST /auth/oauth/google` (mock por enquanto) + guard multi-tenant que injeta `salao_id` no request — **🟣 Rudney**
 - [x] **0.4** Criação inicial do banco de dados — **🟣 Rudney**
 
 ### Frontend (Angular)
 
 - [x] **0.5** Criar projeto Angular no workspace (Angular CLI, strict mode, sem SSR, roteamento habilitado, SCSS ou CSS puro conforme decisão abaixo) — **🔵 Leandro**
 - [x] **0.6** Definir e aplicar estrutura de pastas: `core/` (services singleton, guards, interceptors), `shared/` (componentes reutilizáveis), `features/` (uma pasta por feature futura), `layouts/` (público e autenticado) — **🔵 Leandro** e **🟣Rudney**
-- [ ] **0.7** Sistema de rotas: rotas públicas (login, cadastro salão, página do cliente) vs. autenticadas (painel do salão). Guard de auth. Path mapping do `shared/` funcionando (importar DTOs sem `../../../`). — **🔵 Leandro**
-- [ ] **0.8** Service de autenticação + HttpInterceptor: login/logout, armazenar token, injetar Authorization no header, tratar 401 (deslogar). Consome `POST /auth/login` do 0.3. — **🔵 Leandro**
-- [ ] **0.9** Layouts (público e autenticado): shell autenticado com header, menu lateral vazio (features vão preencher depois), área com `<router-outlet>`. Layout público sem menu. — **🔵 Leandro**
+- [x] **0.7** Sistema de rotas: rotas públicas (login, cadastro salão, página do cliente) vs. autenticadas (painel do salão). Guard de auth. Path mapping do `shared/` funcionando (importar DTOs sem `../../../`). — **🔵 Leandro**
+- [x] **0.8** Service de autenticação + HttpInterceptor: login/logout, armazenar token, injetar Authorization no header, tratar 401 (deslogar). Consome `POST /auth/login` do 0.3. — **🔵 Leandro**
+- [x] **0.9** Layouts (público e autenticado): shell autenticado com header, menu lateral vazio (features vão preencher depois), área com `<router-outlet>`. Layout público sem menu. — **🔵 Leandro**
 
 ### Infra
 
