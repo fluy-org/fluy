@@ -4,6 +4,6 @@ export const ONBOARDING_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/cadastro/cadastro.page').then((m) => m.CadastroPage),
+      import('./pages/onboarding/onboarding.page').then((m) => m.OnboardingPage),
   },
 ];

@@ -1,23 +1,11 @@
-# Prompt — Planejamento de Feature
 
-Copia tudo daqui pra baixo (da linha `---` em diante) numa sessão nova do assistente. Substitui apenas o bloco `[FEATURE]` pelo texto da fatia (geralmente copiado direto do doc do bloco correspondente).
-
-Exemplo do que colar em `[FEATURE]`:
-
-```
-Fatia 0.2 do Bloco 0: Setup NestJS.
-Config module, Drizzle apontando pro pacote @fluy/schema, module `salao`,
-entities usuario, identidade_autenticacao, salao, usuario_salao, configuracao_salao.
-Ver docs/processo/bloco-0-fundacao.md.
-```
-
----
 
 # Planejamento de Feature — Fluy
 
 A seguir vou descrever a fatia/feature que quero implementar.
 
-[FEATURE]
+- [ ] **1.0** `auth/01-cadastro-e-conclusao` — telas de cadastro pelo Clerk e de `/concluir-cadastro`. Após confirmação do e-mail e sessão ativa, chama `POST /usuarios` para materializar a conta global e direciona para o onboarding. — **🟣 Rudney** — `[DEP: bloco 0]`
+
 
 ## Contexto do repositório
 

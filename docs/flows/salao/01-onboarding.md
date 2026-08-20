@@ -68,6 +68,7 @@ repete o POST idempotente quando receber `404`.
 - **A UX do MVP foca em um salão por vez.** O modelo permite múltiplas
   memberships para o mesmo `usuario`; troca de salão fica fora deste fluxo.
 - **Autenticação e confirmação de e-mail são responsabilidade do Clerk.**
+- **Verificação do telefone/WhatsApp é opcional no MVP.**
 - **Cobrança do SaaS** não existe no MVP — decisão adiada; salão usa gratuitamente.
 - **Modelagem já preparada para multi-usuário** no salão (dono + funcionários com papéis), mas UI de convite/gestão só entra em versão futura.
 
@@ -90,8 +91,6 @@ repete o POST idempotente quando receber `404`.
 
 ## Dúvidas em aberto
 
-- **Verificação de telefone durante onboarding:** obrigatório ou opcional? A
-  verificação do e-mail primário já é obrigatória antes de `POST /usuarios`.
 - **Trial gratuito x freemium x pago:** decisão adiada — MVP sem cobrança.
 - **Dado do salão para nota fiscal (CNPJ, razão social):** entra no onboarding ou depois quando começar a cobrar? Fora do MVP.
 - **Wizard vs formulário único no setup:** UX pura — não desenhamos aqui.

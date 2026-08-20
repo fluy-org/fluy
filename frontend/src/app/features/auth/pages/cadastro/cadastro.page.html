@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Criar conta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <main>
+    <ion-text>
+      <h1>Comece a usar o Fluy</h1>
+      <p>Crie sua conta para configurar seu salao.</p>
+    </ion-text>
+
+    @if (errorMessage()) {
+    <ion-text color="danger">
+      <p>{{ errorMessage() }}</p>
+    </ion-text>
+    } @else {
+    <div #clerkCadastro></div>
+    }
+  </main>
+</ion-content>

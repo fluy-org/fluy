@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Concluir cadastro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <main>
+    @if (submitting()) {
+      <ion-spinner aria-label="Concluindo cadastro"></ion-spinner>
+      <ion-text>
+        <p>Estamos preparando sua conta.</p>
+      </ion-text>
+    } @else if (erroExibivel(); as erro) {
+      <ion-text color="danger">
+        <h1>{{ erro.titulo }}</h1>
+        <p>{{ erro.descricao }}</p>
+      </ion-text>
+      <ion-button expand="block" (click)="executarAcaoErro()">
+        {{ erro.textoBotao }}
+      </ion-button>
+    }
+  </main>
+</ion-content>

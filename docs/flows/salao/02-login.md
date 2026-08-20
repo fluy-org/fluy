@@ -39,6 +39,7 @@ para a conclusão que chama `POST /usuarios`.
 - **E-mail é único no `usuario` global.**
 - A API só materializa a conta quando o Clerk retornar nome, sobrenome e e-mail
   primário verificado.
+- O MVP habilita login por e-mail/senha e Google OAuth; 2FA fica desabilitado.
 - Sessão, logout, recuperação de senha e regras de provedores pertencem ao Clerk.
 - A autenticação não define salão ativo nem carrega `usuario_salao`.
 
@@ -58,5 +59,4 @@ para a conclusão que chama `POST /usuarios`.
 
 ## Dúvidas em aberto
 
-- **Provedores e 2FA:** quais opções serão habilitadas no Clerk no MVP?
 - **Duração da sessão e login por WhatsApp:** decisões de configuração/roadmap do Clerk.
