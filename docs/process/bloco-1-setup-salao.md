@@ -10,6 +10,7 @@ cria o salão e o vínculo `usuario_salao` de dono. O frontend não cria
 credenciais nem autentica senha; essas responsabilidades continuam no Clerk.
 
 Ao final, um salão consegue:
+
 - Criar seu salão e virar dono.
 - Fazer login (com UX bonita).
 - Editar configuração (tolerância, granularidade, antecedências).
@@ -20,7 +21,7 @@ Ao final, um salão consegue:
 
 ## Fatias
 
-- [ ] **1.0** `auth/01-cadastro-e-conclusao` — telas de cadastro pelo Clerk e de `/concluir-cadastro`. Após confirmação do e-mail e sessão ativa, chama `POST /usuarios` para materializar a conta global e direciona para o onboarding. — **🟣 Rudney** — `[DEP: bloco 0]`
+- [x] **1.0** `auth/01-cadastro-e-conclusao` — telas de cadastro pelo Clerk e de `/concluir-cadastro`. Após confirmação do e-mail e sessão ativa, chama `POST /usuarios` para materializar a conta global e direciona para o onboarding. — **🟣 Rudney** — `[DEP: bloco 0]`
 - [ ] **1.1** `salao/01-onboarding` — para uma conta global já materializada, tela "criar meu salão" (nome, subdomínio, whatsapp, endereço, fuso). Cria o salão e o vínculo `usuario_salao` como dono; popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney** — `[DEP: 1.0]`
 - [ ] **1.2** `salao/02-login` — tela de login com Clerk: cria a sessão, consulta `GET /usuarios/eu` e direciona para conclusão de cadastro, onboarding ou painel conforme o estado. — **🔵 Leandro** — `[DEP: 1.0]`
 - [ ] **1.3** `salao/04-procedimentos` — CRUD completo de procedimentos, sem imagem (imagem entra em 1.6). Fullstack. — **🔵 Leandro** — `[DEP: 1.1 OU SEED-OK]`
@@ -40,6 +41,7 @@ Fatias por dev:
 **Balanceamento:** Rudney assume uma fatia a mais porque 1.0 e 1.1 formam o fluxo contínuo de criação de conta e salão. 1.1 vai ser mais longa, mas 1.6 também exige infra de storage nova (S3? disco local? decidir).
 
 **Sequência sugerida:**
+
 1. 🟣 Rudney começa 1.0, que materializa a conta global.
 2. 🟣 Rudney segue para 1.1; 🔵 Leandro inicia 1.2 assim que 1.0 estiver disponível.
 3. Quando 1.1 sair, os dois puxam de suas listas.

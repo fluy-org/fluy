@@ -27,7 +27,7 @@ independente da autenticação.
 ## Dependências
 
 Depende de:
-- Clerk configurado com os provedores de login escolhidos.
+- Clerk configurado com e-mail/senha e Google OAuth, sem 2FA no MVP.
 - Frontend capaz de obter e enviar o Bearer token da sessão Clerk.
 
 Usado por:
@@ -41,6 +41,8 @@ Usado por:
 - Cadastro, senha, Google OAuth, verificação de e-mail, recuperação de senha
   e sessão pertencem ao Clerk. Quando o Clerk conclui a sessão, o frontend
   chama `POST /usuarios` para materializar a conta global da Fluy.
+- O cadastro é exibido pelo componente `SignUp` do Clerk em `/cadastro`; após
+  uma sessão ativa, ele direciona para `/concluir-cadastro`.
 - `GET /usuarios/eu` retorna apenas a conta global, sem decidir se ela possui
   salão. A criação de salão é um fluxo posterior e independente.
 - `usuario_salao` é membership de um `usuario` em um `salao`; não representa
