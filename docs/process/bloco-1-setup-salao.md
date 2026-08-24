@@ -19,40 +19,58 @@ Ao final, um salão consegue:
 
 **Ainda não** consegue criar agendamento (isso é Bloco 2).
 
-## Fatias
+## Divisão do bloco
 
-- [x] **1.0** `auth/01-cadastro-e-conclusao` — telas de cadastro pelo Clerk e de `/concluir-cadastro`. Após confirmação do e-mail e sessão ativa, chama `POST /usuarios` para materializar a conta global e direciona para o onboarding. — **🟣 Rudney** — `[DEP: bloco 0]`
-- [ ] **1.1** `salao/01-onboarding` — para uma conta global já materializada, tela "criar meu salão" (nome, subdomínio, whatsapp, endereço, fuso). Cria o salão e o vínculo `usuario_salao` como dono; popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney** — `[DEP: 1.0]`
-- [ ] **1.2** `salao/02-login` — tela de login com Clerk: cria a sessão, consulta `GET /usuarios/eu` e direciona para conclusão de cadastro, onboarding ou painel conforme o estado. — **🔵 Leandro** — `[DEP: 1.0]`
-- [ ] **1.3** `salao/04-procedimentos` — CRUD completo de procedimentos, sem imagem (imagem entra em 1.6). Fullstack. — **🔵 Leandro** — `[DEP: 1.1 OU SEED-OK]`
-- [ ] **1.4** `salao/03-disponibilidade` — janela semanal + override por data. Entities: `janela_semanal`, `override_disponibilidade`, `janela_override`. Fullstack. — **🟣 Rudney** — `[DEP: 1.1 OU SEED-OK]`
-- [ ] **1.5** Feature `configuracao-do-salao` — tela pra editar `configuracao_salao` (granularidade, tolerância, antecedências, mensagem de confirmação). Backend já tem defaults; aqui é a UI. — **🔵 Leandro** — `[DEP: 1.1]`
-- [ ] **1.6** Módulo de anexos (backend) + upload de imagem em procedimento (frontend). Entities: `imagem_procedimento` (a `arquivo` já foi criada em 0.4). — **🟣 Rudney** — `[DEP: 1.3]`
+Diferente do plano original (fatias fullstack), este bloco fica dividido por camada:
 
-## Divisão e por quê
+- **🟣 Rudney** cuida do **backend** (endpoints, entities, regra de negócio, migrations).
+- **🔵 Leandro** cuida do **frontend** (telas, services HTTP, integração com Clerk).
 
-Fatias por dev:
+Motivo: no momento inicial 🟣 Rudney tem mais tempo pra codar, e 🔵 Leandro chega no front com API já pronta — menos bloqueio, mais velocidade. Cross-over acontece no fim do bloco (ver "Nota sobre cross-over" no final).
 
-**🔵 Leandro** (3): 1.2 (login UX — Angular puro), 1.3 (procedimentos — fullstack), 1.5 (config — mais frontend)
-**🟣 Rudney** (4): 1.0 (cadastro e conclusão), 1.1 (onboarding — fullstack, começa cedo porque desbloqueia todo mundo), 1.4 (disponibilidade — regra de negócio densa no back), 1.6 (anexos — infra de storage no back)
+## Fatias concluídas
 
-**Alternância de stack:** 🔵 Leandro alterna entre UX puro (1.2, 1.5) e fullstack real (1.3). 🟣 Rudney começa pelo fluxo Angular da conta (1.0), segue para o onboarding fullstack (1.1) e depois pega as fatias backend-heavy (1.4, 1.6).
+- [x] **1.0** `auth/01-cadastro-e-conclusao` — cadastro pelo Clerk + `POST /usuarios` materializando a conta global. — **🟣 Rudney**
+- [x] **1.1** `salao/01-onboarding` — para conta global materializada, cria salão + vínculo `usuario_salao` dono, popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney**
 
-**Balanceamento:** Rudney assume uma fatia a mais porque 1.0 e 1.1 formam o fluxo contínuo de criação de conta e salão. 1.1 vai ser mais longa, mas 1.6 também exige infra de storage nova (S3? disco local? decidir).
+## Fatias — Backend (🟣 Rudney)
 
-**Sequência sugerida:**
+- [ ] **1.2-BE** Login — endpoint `GET /usuarios/eu` (retorna estado: sem-cadastro, sem-salao, com-salao) pra o frontend decidir pra onde redirecionar depois do Clerk criar sessão. — `[DEP: 1.0]`
+- [ ] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
+- [ ] **1.4-BE** Disponibilidade — janela semanal + override por data. Entities: `janela_semanal`, `override_disponibilidade`, `janela_override`. Endpoints de leitura/escrita das janelas por profissional. — `[DEP: 1.1]`
+- [ ] **1.5-BE** Configuração do salão — endpoints `GET/PUT /salao/configuracao` (o salão já é criado com defaults em 1.1; aqui é só o CRUD de edição). — `[DEP: 1.1]`
+- [ ] **1.6-BE** Anexos — módulo de storage + upload/download de arquivos. Entity `imagem_procedimento` (a `arquivo` já foi criada em 0.4). Endpoints `POST /arquivos`, `POST /procedimentos/:id/imagem`, etc. — `[DEP: 1.3-BE]` `[DECIDIR: onde armazenar? S3, R2, disco local]`
 
-1. 🟣 Rudney começa 1.0, que materializa a conta global.
-2. 🟣 Rudney segue para 1.1; 🔵 Leandro inicia 1.2 assim que 1.0 estiver disponível.
-3. Quando 1.1 sair, os dois puxam de suas listas.
+## Fatias — Frontend (🔵 Leandro)
+
+- [ ] **1.2-FE** Tela de login com Clerk — usa Clerk SDK pra sessão, chama `GET /usuarios/eu` e direciona pra `/concluir-cadastro`, `/onboarding` ou `/painel` conforme o estado retornado. — `[DEP: 1.2-BE]` `[SEED-OK]`
+- [ ] **1.3-FE** Tela de procedimentos — lista + form de criar/editar/deletar. Consome API de 1.3-BE. — `[DEP: 1.3-BE]` `[SEED-OK]`
+- [ ] **1.4-FE** Tela de disponibilidade — grade semanal editável + calendário de exceções. Consome API de 1.4-BE. — `[DEP: 1.4-BE]` `[SEED-OK]`
+- [ ] **1.5-FE** Tela de configuração do salão — form pra editar granularidade, tolerância, antecedências, mensagem de confirmação. Consome API de 1.5-BE. — `[DEP: 1.5-BE]` `[SEED-OK]`
+- [ ] **1.6-FE** Upload de imagem em procedimento — componente de upload na tela de 1.3-FE, chama endpoint de 1.6-BE. — `[DEP: 1.3-FE, 1.6-BE]`
+
+## Sequência sugerida
+
+**🟣 Rudney** puxa as fatias BE em ordem: 1.2-BE → 1.3-BE → 1.4-BE → 1.5-BE → 1.6-BE. Cada uma destrava a FE correspondente.
+
+**🔵 Leandro** pega FE conforme a BE fica pronta. Ordem sugerida: 1.2-FE (mais crítica pro fluxo) → 1.3-FE → 1.5-FE → 1.4-FE → 1.6-FE. Se alguma BE atrasar, pode adiantar outra FE via `[SEED-OK]`.
+
+Se 🔵 Leandro terminar todas as FE antes de 🟣 Rudney terminar as BE, ele começa a olhar Bloco 2 do lado do frontend, ou entra numa fatia BE simples pra iniciar cross-over.
 
 ## Decisões pendentes deste bloco
 
-- [ ] Onde fica a imagem em 1.6? (S3 / R2 / disco local no Docker). Impacta setup de staging também.
-- [ ] Slugs de subdomínio em 1.1: validar formato? reservar palavras (`admin`, `www`, `api`)?
+- [ ] Onde fica a imagem em 1.6-BE (S3 / R2 / disco local no Docker). Impacta setup de staging também.
 - [ ] "Esqueci senha" em 1.2 entra no MVP? Se sim, habilitar o fluxo correspondente no Clerk.
 
 ## Conflitos previstos e mitigação
 
-- 1.3 e 1.6 tocam a mesma entity `procedimento` (1.6 adiciona campo `imagem_id`). 🟣 Rudney faz 1.6 **depois** de 1.3 mergeada. Se coincidir na mesma semana, coordena verbalmente.
-- Nenhum outro conflito esperado — telas e controllers diferentes.
+- 1.3-BE e 1.6-BE tocam a mesma entity `procedimento` (1.6 adiciona campo `imagem_id`). 🟣 Rudney faz 1.6-BE **depois** de 1.3-BE mergeada.
+- Nenhum outro conflito esperado — camadas separadas, telas separadas.
+
+## Nota sobre cross-over
+
+Este bloco quebra o padrão de "fatias fullstack alternando stacks". Aceito como fase inicial pra ganhar velocidade, mas com salvaguardas:
+
+1. **Code review cross-stack** — 🔵 Leandro revisa PRs de backend de 🟣 Rudney (mesmo sem mexer, só pra ver padrões emergindo) e vice-versa.
+2. **Padrões novos vão pra `CLAUDE.md`** — se um lado inventa uma convenção, documenta no `backend/CLAUDE.md` ou `frontend/CLAUDE.md` no mesmo PR, pra o outro lado achar quando chegar.
+3. **Última fatia trocada de propósito** — quando o Bloco 1 estiver quase fechando, a última fatia (a decidir qual) muda de dono: 🟣 Rudney pega uma FE, 🔵 Leandro pega uma BE. Ritual pra quebrar o hábito antes do Bloco 2.
