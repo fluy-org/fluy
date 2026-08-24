@@ -10,7 +10,7 @@ export const profissional = pgTable('profissional', {
   salao_id: uuid('salao_id')
     .notNull()
     .references(() => salao.id, { onDelete: 'restrict' }),
-  nome: varchar('nome', { length: 200 }).notNull(),
+  nome: varchar('nome', { length: 301 }).notNull(),
   ativo: boolean('ativo').notNull().default(true),
   criado_em: timestamp('criado_em', { withTimezone: true })
     .notNull()

@@ -1,5 +1,11 @@
-import { relations } from 'drizzle-orm';
-import { pgTable, uniqueIndex, uuid, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { relations, sql } from 'drizzle-orm';
+import {
+  pgTable,
+  uniqueIndex,
+  uuid,
+  varchar,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 import { salao } from '@schema/salao/salao.table.js';
 import { usuario } from '@schema/usuario/usuario.table.js';
 import type { PapelUsuarioSalao } from './usuario_salao.enums.js';
@@ -21,7 +27,12 @@ export const usuarioSalao = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [uniqueIndex('usuario_salao_usuario_salao_uq').on(t.usuario_id, t.salao_id)],
+  (t) => [
+    uniqueIndex('usuario_salao_usuario_salao_uq').on(t.usuario_id, t.salao_id),
+    uniqueIndex('usuario_salao_dono_usuario_uq')
+      .on(t.usuario_id)
+      .where(sql`${t.papel} = 'dono'`),
+  ],
 );
 
 export const usuarioSalaoRelations = relations(usuarioSalao, ({ one }) => ({

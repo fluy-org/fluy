@@ -6,6 +6,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
+import { apiErrorInterceptor } from './app/core/interceptors/api-error.interceptor';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { baseUrlInterceptor } from './app/core/interceptors/base-url.interceptor';
 import { AuthService } from './app/core/services/auth/auth.service';
@@ -24,7 +25,13 @@ bootstrapApplication(AppComponent, {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
-    provideHttpClient(withInterceptors([baseUrlInterceptor, authInterceptor])),
+    provideHttpClient(
+      withInterceptors([
+        baseUrlInterceptor,
+        apiErrorInterceptor,
+        authInterceptor,
+      ]),
+    ),
     { // Executa a verificação de auth ANTES do app iniciar
       provide: APP_INITIALIZER,
       useFactory: initializeAppFactory,

@@ -11,6 +11,7 @@ import type { Env } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
+import { SalaoModule } from './modules/salao/salao.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { ClerkModule } from './shared/providers/clerk/clerk.module';
 
@@ -47,6 +48,7 @@ import { ClerkModule } from './shared/providers/clerk/clerk.module';
     ClerkModule,
     AuthModule,
     UsuarioModule,
+    SalaoModule,
   ],
   controllers: [AppController],
   providers: [

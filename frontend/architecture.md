@@ -227,7 +227,9 @@ Exemplos que ficam na feature (não trafegam):
 ## Forms
 
 - `ReactiveFormsModule` como padrão.
-- Ponte com Zod fica pra decidir quando surgir o primeiro form. Direção provável: validator custom que roda `Schema.safeParse` no `FormControl`, derivando do schema canônico do `@fluy/schema` via `.pick`/`.omit`/`.extend`.
+- Validação de regras que trafegam HTTP usa `zodValidator` de `shared/utils/zod-validator.ts`, com o schema canônico do `@fluy/schema`. Não duplicar as regras com `Validators` nativos.
+- `updateOn` do Reactive Forms define quando validar (`change`, `blur` ou `submit`); `touched` e o estado de envio definem quando exibir o erro.
+- Use o schema do campo em cada `FormControl` e o schema completo no `FormGroup`. Assim, validações futuras entre campos continuam cobertas no envio.
 - `Validators` nativos do Angular só pra validação puramente de UI que não tem contrato com o backend.
 
 ## i18n

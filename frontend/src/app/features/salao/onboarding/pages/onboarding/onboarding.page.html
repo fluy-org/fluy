@@ -1,0 +1,138 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Crie seu salão</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <main>
+    <ion-text>
+      <h1>Vamos preparar seu salão</h1>
+      <p>Comece com as informações que suas clientes vão encontrar.</p>
+    </ion-text>
+
+    <form [formGroup]="formulario" (ngSubmit)="criar()">
+      <section aria-labelledby="dados-salao">
+        <h2 id="dados-salao">Sobre o salão</h2>
+
+        <ion-list lines="full">
+          <ion-item>
+            <ion-label position="stacked">Nome do salão</ion-label>
+            <ion-input
+              formControlName="nome"
+              autocomplete="organization"
+              inputmode="text"
+            ></ion-input>
+          </ion-item>
+          <app-field-error
+            [control]="formulario.controls.nome"
+          />
+
+          <ion-item>
+            <ion-label position="stacked">WhatsApp</ion-label>
+            <ion-input
+              [value]="formatarWhatsapp(formulario.controls.contato_whatsapp.value)"
+              autocomplete="tel"
+              inputmode="tel"
+              maxlength="15"
+              placeholder="(11) 99999-9999"
+              type="tel"
+              (ionBlur)="marcarWhatsappComoTocado()"
+              (ionInput)="atualizarWhatsapp($event)"
+            ></ion-input>
+          </ion-item>
+          <app-field-error
+            [control]="formulario.controls.contato_whatsapp"
+          />
+        </ion-list>
+      </section>
+
+      <section aria-labelledby="localizacao">
+        <h2 id="localizacao">Localização</h2>
+
+        <ion-list lines="full">
+          <ion-item>
+            <ion-label position="stacked">Endereço</ion-label>
+            <ion-textarea
+              formControlName="endereco"
+              autoGrow="true"
+              autocomplete="street-address"
+            ></ion-textarea>
+          </ion-item>
+          <app-field-error
+            [control]="formulario.controls.endereco"
+          />
+
+          <ion-item>
+            <ion-label position="stacked">Fuso horário</ion-label>
+            <ion-select formControlName="fuso_horario" interface="action-sheet">
+              @for (fusoHorario of fusosHorarios; track fusoHorario) {
+              <ion-select-option [value]="fusoHorario">
+                {{ rotulosFusoHorario[fusoHorario] }}
+              </ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+          <app-field-error
+            [control]="formulario.controls.fuso_horario"
+          />
+        </ion-list>
+      </section>
+
+      <section aria-labelledby="url-publica">
+        <h2 id="url-publica">Seu endereço público</h2>
+        <p class="section-description">
+          Escolha o endereço que suas clientes usarão para encontrar seu salão.
+        </p>
+
+        <ion-list lines="full">
+          <ion-item>
+            <ion-label position="stacked">Subdomínio</ion-label>
+            <ion-input
+              formControlName="subdominio"
+              autocapitalize="off"
+              autocomplete="off"
+              inputmode="url"
+              placeholder="meu-salao"
+              (ionInput)="limparSugestoesSubdominio()"
+            ></ion-input>
+          </ion-item>
+          <ion-note class="field-note">meu-salao.fluy.app</ion-note>
+          <app-field-error
+            [control]="formulario.controls.subdominio"
+          />
+        </ion-list>
+
+        @if (sugestoesSubdominio().length > 0) {
+        <ion-text color="danger">
+          <p>Esse subdomínio já está em uso. Tente uma destas opções:</p>
+        </ion-text>
+        <div class="suggestions">
+          @for (sugestao of sugestoesSubdominio(); track sugestao) {
+          <ion-button
+            fill="outline"
+            size="small"
+            type="button"
+            (click)="usarSugestao(sugestao)"
+          >
+            {{ sugestao }}
+          </ion-button>
+          }
+        </div>
+        }
+      </section>
+
+      @if (erroGeral(); as erro) {
+      <ion-text color="danger">
+        <p class="general-error">{{ erro }}</p>
+      </ion-text>
+      }
+
+      <ion-button expand="block" type="submit" [disabled]="enviando()">
+        @if (enviando()) {
+        <ion-spinner aria-label="Criando salão"></ion-spinner>
+        } @else { Criar meu salão }
+      </ion-button>
+    </form>
+  </main>
+</ion-content>

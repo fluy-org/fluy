@@ -22,6 +22,7 @@ Vive tudo que trafega HTTP entre frontend e backend: tabelas Drizzle, schemas Zo
 `shared/schema/{tabela}/`:
 
 - `{tabela}.table.ts` — Drizzle (DDL).
+- `{tabela}.constants.ts` — constantes puras reutilizadas por DDL e schemas; não importa Drizzle nem Zod.
 - `{tabela}.schema.ts` — schemas Zod (`createInsertSchema`, `createUpdateSchema`, refines).
 - `{tabela}.dto.ts` — DTOs via `createZodDto` (consumidos pelo Nest).
 - `{tabela}.enums.ts` — array-enums que aparecem em colunas.

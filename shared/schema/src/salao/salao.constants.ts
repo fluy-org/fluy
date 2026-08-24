@@ -1,0 +1,2 @@
+export const LIMITE_MINIMO_SUBDOMINIO = 3;
+export const LIMITE_SUBDOMINIO = 100;
