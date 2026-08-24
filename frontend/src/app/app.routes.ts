@@ -10,8 +10,9 @@ export const routes: Routes = [
     component: AuthenticatedLayoutComponent,
     canActivate: [authGuard],
     loadChildren: () =>
-      import('./layouts/authenticated/authenticated.routes')
-        .then((m) => m.AUTHENTICATED_ROUTES),
+      import('./layouts/authenticated/authenticated.routes').then(
+        (m) => m.AUTHENTICATED_ROUTES,
+      ),
   },
   {
     path: '',
@@ -23,17 +24,21 @@ export const routes: Routes = [
         path: 'onboarding',
         canActivate: [authGuard],
         loadChildren: () =>
-          import('./features/onboarding/onboarding.routes').then((m) => m.ONBOARDING_ROUTES),
+          import('./features/salao/onboarding/onboarding.routes').then(
+            (m) => m.ONBOARDING_ROUTES,
+          ),
       },
       {
         path: '',
-        loadChildren: () => import('./features/demo/demo.routes').then((m) => m.routes),
+        loadChildren: () =>
+          import('./features/demo/demo.routes').then((m) => m.routes),
       },
       {
         path: ':subdominio',
         loadChildren: () =>
-          import('./features/pagina-cliente/pagina-cliente.routes')
-            .then((m) => m.PAGINA_CLIENTE_ROUTES),
+          import('./features/pagina-cliente/pagina-cliente.routes').then(
+            (m) => m.PAGINA_CLIENTE_ROUTES,
+          ),
       },
     ],
   },

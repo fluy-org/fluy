@@ -6,14 +6,20 @@ import { configuracaoSalao } from '@schema/configuracao_salao/configuracao_salao
 import { procedimento } from '@schema/procedimento/procedimento.table.js';
 import { cliente } from '@schema/cliente/cliente.table.js';
 import { agendamento } from '@schema/agendamento/agendamento.table.js';
+import { LIMITE_SUBDOMINIO } from './salao.constants.js';
+import type { FusoHorarioBrasil } from './salao.enums.js';
 
 export const salao = pgTable('salao', {
   id: uuid('id').primaryKey().defaultRandom(),
   nome: varchar('nome', { length: 200 }).notNull(),
-  subdominio: varchar('subdominio', { length: 100 }).notNull().unique(),
+  subdominio: varchar('subdominio', { length: LIMITE_SUBDOMINIO })
+    .notNull()
+    .unique(),
   contato_whatsapp: varchar('contato_whatsapp', { length: 30 }).notNull(),
   endereco: text('endereco').notNull(),
-  fuso_horario: varchar('fuso_horario', { length: 60 }).notNull(),
+  fuso_horario: varchar('fuso_horario', { length: 60 })
+    .notNull()
+    .$type<FusoHorarioBrasil>(),
   criado_em: timestamp('criado_em', { withTimezone: true })
     .notNull()
     .defaultNow(),

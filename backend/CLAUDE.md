@@ -17,6 +17,15 @@ Módulos transversais que não persistem dados nem expõem um recurso HTTP próp
 podem omitir `repository.ts` e `controller.ts`. Eles mantêm `contracts/` e os
 providers necessários, como guards e decorators.
 
+## Mappers de resposta
+
+Quando uma feature expõe registro do banco por HTTP, use `{feature}.mapper.ts`:
+
+- É uma função pura que transforma o registro de persistência em resposta HTTP.
+- É chamada pelo controller na fronteira HTTP; service retorna dados de persistência e não depende de DTO de resposta.
+- Importa o tipo de resposta de `@fluy/schema`, seleciona explicitamente os campos públicos e faz conversões de transporte (ex.: `Date` para ISO).
+- Não é provider Nest e não valida o schema em runtime.
+
 ## Contracts
 
 Pasta `contracts/` desde o dia 1, mesmo com um arquivo só. Menu fixo:

@@ -13,6 +13,8 @@ export interface ErrorResponseBody {
   statusCode: number;
   error: string;
   messages: string[];
+  codigo?: string;
+  sugestoes?: string[];
   requestId?: string;
 }
 
@@ -30,7 +32,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const { statusCode, error, messages } = this.buildErrorPayload(exception);
+    const { statusCode, error, messages, codigo, sugestoes } =
+      this.buildErrorPayload(exception);
 
     this.logger.error(
       {
@@ -47,6 +50,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       error,
       messages,
     };
+    if (codigo) body.codigo = codigo;
+    if (sugestoes) body.sugestoes = sugestoes;
     const requestId = this.extractRequestId(request);
     if (requestId) {
       body.requestId = requestId;
@@ -66,6 +71,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     statusCode: number;
     error: string;
     messages: string[];
+    codigo?: string;
+    sugestoes?: string[];
   } {
     if (exception instanceof ZodValidationException) {
       return this.buildZodPayload(exception);
@@ -111,6 +118,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     statusCode: number;
     error: string;
     messages: string[];
+    codigo?: string;
+    sugestoes?: string[];
   } {
     const statusCode = exception.getStatus();
     const responseData = exception.getResponse();
@@ -121,7 +130,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (typeof responseData === 'string') {
       messages = [responseData];
     } else if (typeof responseData === 'object' && responseData !== null) {
-      const data = responseData as { message?: unknown; error?: unknown };
+      const data = responseData as {
+        message?: unknown;
+        error?: unknown;
+        codigo?: unknown;
+        sugestoes?: unknown;
+      };
 
       if (Array.isArray(data.message)) {
         messages = data.message.map((m) => String(m));
@@ -132,6 +146,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if (typeof data.error === 'string') {
         error = data.error;
       }
+
+      return {
+        statusCode,
+        error,
+        messages,
+        codigo: typeof data.codigo === 'string' ? data.codigo : undefined,
+        sugestoes: Array.isArray(data.sugestoes)
+          ? data.sugestoes.filter(
+              (sugestao): sugestao is string => typeof sugestao === 'string',
+            )
+          : undefined,
+      };
     }
 
     return { statusCode, error, messages };

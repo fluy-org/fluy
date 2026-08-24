@@ -92,7 +92,8 @@ Pergunta única: **trafega HTTP entre front e back?**
 ## Forms
 
 - `ReactiveFormsModule` como padrão.
-- Zod nos forms fica pra decidir quando surgir o primeiro form.
+- Regras que trafegam HTTP usam `zodValidator` de `shared/utils/zod-validator.ts` com o schema de `@fluy/schema`; não duplicar com `Validators` nativos.
+- `updateOn` define quando validar; `touched` e o estado de envio definem quando exibir o erro.
 - `Validators` nativos só pra validação puramente de UI sem contrato com backend.
 
 ## Nomeação

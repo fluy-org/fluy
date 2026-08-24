@@ -4,7 +4,8 @@
 
 A seguir vou descrever a fatia/feature que quero implementar.
 
-- [ ] **1.0** `auth/01-cadastro-e-conclusao` — telas de cadastro pelo Clerk e de `/concluir-cadastro`. Após confirmação do e-mail e sessão ativa, chama `POST /usuarios` para materializar a conta global e direciona para o onboarding. — **🟣 Rudney** — `[DEP: bloco 0]`
+
+- [ ] **1.1** `salao/01-onboarding` — para uma conta global já materializada, tela "criar meu salão" (nome, subdomínio, whatsapp, endereço, fuso). Cria o salão e o vínculo `usuario_salao` como dono; popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney** — `[DEP: 1.0]`
 
 
 ## Contexto do repositório
