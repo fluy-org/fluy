@@ -15,7 +15,7 @@ independente da autenticação.
 - Cadastrar e autenticar pelo Clerk com os provedores habilitados.
 - Exigir e-mail primário verificado antes de criar a conta local.
 - Materializar de forma idempotente o `usuario` global a partir do perfil Clerk.
-- Consultar a conta global sem inferir se ela possui salão.
+- Consultar a conta global e o estado de membership para direcionar o login.
 - Retomar a materialização da conta após interrupção do cadastro.
 - Direcionar uma conta global sem membership para o onboarding do salão.
 
@@ -43,8 +43,9 @@ Usado por:
   chama `POST /usuarios` para materializar a conta global da Fluy.
 - O cadastro é exibido pelo componente `SignUp` do Clerk em `/cadastro`; após
   uma sessão ativa, ele direciona para `/concluir-cadastro`.
-- `GET /usuarios/eu` retorna apenas a conta global, sem decidir se ela possui
-  salão. A criação de salão é um fluxo posterior e independente.
+- `GET /usuarios/eu` retorna `404` quando a conta local não existe. Para uma
+  conta existente, retorna seus dados e `estado: sem-salao` ou `com-salao`;
+  não seleciona nem retorna um salão ativo.
 - `usuario_salao` é membership de um `usuario` em um `salao`; não representa
   conta, e-mail nem método de login.
 - Modelagem já deve prever multi-usuário por salão (papéis, permissões), mas a UI de convite/gestão de funcionários está fora do MVP.

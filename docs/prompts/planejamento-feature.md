@@ -4,8 +4,7 @@
 
 A seguir vou descrever a fatia/feature que quero implementar.
 
-
-- [ ] **1.1** `salao/01-onboarding` — para uma conta global já materializada, tela "criar meu salão" (nome, subdomínio, whatsapp, endereço, fuso). Cria o salão e o vínculo `usuario_salao` como dono; popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney** — `[DEP: 1.0]`
+- [ ] **1.2-BACKEND** Login — endpoint `GET /usuarios/eu` (retorna estado: sem-cadastro, sem-salao, com-salao) pra o frontend decidir pra onde redirecionar depois do Clerk criar sessão. — `[DEP: 1.0]`
 
 
 ## Contexto do repositório

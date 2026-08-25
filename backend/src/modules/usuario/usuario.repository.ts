@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { identidadeAutenticacao, usuario } from '@fluy/schema';
+import { identidadeAutenticacao, usuario, usuarioSalao } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
 import { InjectDatabase } from '../../database/inject-database.decorator';
 import type { Database } from '../../database/database.provider';
@@ -35,6 +35,16 @@ export class UsuarioRepository {
     const [resultado] = resultados;
 
     return resultado?.usuario;
+  }
+
+  async possuiVinculoSalao(usuarioId: string): Promise<boolean> {
+    const resultados = await this.database
+      .select({ id: usuarioSalao.id })
+      .from(usuarioSalao)
+      .where(eq(usuarioSalao.usuario_id, usuarioId))
+      .limit(1);
+
+    return resultados.length > 0;
   }
 
   async criarOuObter(
@@ -74,14 +84,14 @@ export class UsuarioRepository {
         return { status: 'email_em_uso' };
       }
 
-      const usuariosCriados = (await tx
+      const usuariosCriados = await tx
         .insert(usuario)
         .values({
           nome: input.nome,
           sobrenome: input.sobrenome,
           email: input.email,
         })
-        .returning()) as UsuarioPersistido[];
+        .returning();
 
       const [usuarioCriado] = usuariosCriados;
 

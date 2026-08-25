@@ -1,4 +1,4 @@
-import type { usuario } from '@fluy/schema';
+import type { UsuarioAtualResponseDto, usuario } from '@fluy/schema';
 import type { AuthenticatedIdentity } from '../../auth/contracts';
 
 export type UsuarioPersistido = typeof usuario.$inferSelect;
@@ -13,3 +13,13 @@ export type CriarOuObterUsuarioInput = {
 export type ResultadoCriarOuObterUsuario =
   | { status: 'criado' | 'existente'; usuario: UsuarioPersistido }
   | { status: 'email_em_uso' };
+
+export type ResultadoCriarOuObterUsuarioAtual = {
+  usuario: UsuarioPersistido;
+  criado: boolean;
+};
+
+export type ResultadoBuscarUsuarioAtual = {
+  usuario: UsuarioPersistido;
+  estado: UsuarioAtualResponseDto['estado'];
+};

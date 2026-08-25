@@ -10,7 +10,8 @@ Antes do onboarding, a pessoa cria a conta no Clerk, confirma o e-mail por
 link e o frontend chama `POST /usuarios` com o Bearer token da sessão ativa.
 Esse endpoint cria apenas o `usuario` global; ele não cria um salão. Se o
 cadastro local foi interrompido, o frontend consulta `GET /usuarios/eu` e
-repete o POST idempotente quando receber `404`.
+repete o POST idempotente quando receber `404`. Quando a conta existir, o
+estado `sem-salao` direciona ao onboarding e `com-salao` direciona ao painel.
 
 ## Passo a passo
 
@@ -52,7 +53,8 @@ repete o POST idempotente quando receber `404`.
 - **Login com Google:** Clerk cria a sessão; após a confirmação exigida pelo
   provedor, segue para a conclusão da conta global e depois para os dados do salão.
 - **Subdomínio já em uso:** sistema pede outro; sugere variações (nome + cidade, nome + numero).
-- **Dono abandona no meio do setup:** conta criada mas salão incompleto; ao voltar, cai na etapa faltante.
+- **Dono abandona no meio do setup:** conta e salão já existem; ao voltar,
+  o login direciona ao painel. A conclusão do setup permanece disponível nele.
 - **Setup mínimo incompleto:** URL do salão pode existir mas mostra "salão em configuração" para clientes que acessarem.
 - **Email já cadastrado:** Clerk oferece login ou recuperação de acesso conforme
   sua configuração.

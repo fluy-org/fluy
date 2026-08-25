@@ -4,10 +4,13 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import type { UsuarioResponseDto } from '@fluy/schema';
 import { AuthService } from '../auth/auth.service';
 import type { AuthenticatedIdentity } from '../auth/contracts';
-import type { UsuarioPersistido } from './contracts';
+import type {
+  ResultadoBuscarUsuarioAtual,
+  ResultadoCriarOuObterUsuarioAtual,
+  UsuarioPersistido,
+} from './contracts';
 import { UsuarioRepository } from './usuario.repository';
 
 @Injectable()
@@ -19,7 +22,7 @@ export class UsuarioService {
 
   async criarOuObterUsuarioAtual(
     identity: AuthenticatedIdentity,
-  ): Promise<{ usuario: UsuarioResponseDto; criado: boolean }> {
+  ): Promise<ResultadoCriarOuObterUsuarioAtual> {
     const profile = await this.authService.getProfile(identity);
 
     if (
@@ -47,14 +50,14 @@ export class UsuarioService {
     }
 
     return {
-      usuario: this.toResponse(resultado.usuario),
+      usuario: resultado.usuario,
       criado: resultado.status === 'criado',
     };
   }
 
   async buscarUsuarioAtual(
     identity: AuthenticatedIdentity,
-  ): Promise<UsuarioResponseDto> {
+  ): Promise<UsuarioPersistido> {
     const usuario = await this.usuarioRepository.buscarPorIdentidade({
       provedor: identity.provider,
       identificadorExterno: identity.subject,
@@ -64,16 +67,20 @@ export class UsuarioService {
       throw new NotFoundException('Conta Fluy ainda não foi criada.');
     }
 
-    return this.toResponse(usuario);
+    return usuario;
   }
 
-  private toResponse(usuario: UsuarioPersistido): UsuarioResponseDto {
+  async buscarEstadoAtual(
+    identity: AuthenticatedIdentity,
+  ): Promise<ResultadoBuscarUsuarioAtual> {
+    const usuario = await this.buscarUsuarioAtual(identity);
+    const possuiVinculoSalao = await this.usuarioRepository.possuiVinculoSalao(
+      usuario.id,
+    );
+
     return {
-      id: usuario.id,
-      nome: usuario.nome,
-      sobrenome: usuario.sobrenome,
-      email: usuario.email,
-      criado_em: usuario.criado_em.toISOString(),
+      usuario,
+      estado: possuiVinculoSalao ? 'com-salao' : 'sem-salao',
     };
   }
 }
