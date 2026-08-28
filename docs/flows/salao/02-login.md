@@ -21,9 +21,9 @@ para a conclusão que chama `POST /usuarios`.
 4. Frontend obtém o Bearer token da sessão e consulta `GET /usuarios/eu`.
 5. Se a API responder `404`, direciona para a conclusão de cadastro, que chama
    `POST /usuarios` de forma idempotente.
-6. Com a conta global materializada, o frontend consulta a membership atual:
-   se não houver salão, direciona para o [onboarding](./01-onboarding.md); se
-   houver, direciona para o painel correspondente.
+6. Com a conta global materializada, a resposta `200` informa o estado:
+   `sem-salao` direciona para o [onboarding](./01-onboarding.md) e
+   `com-salao` direciona para o painel.
 
 ## Variações
 
@@ -41,7 +41,7 @@ para a conclusão que chama `POST /usuarios`.
   primário verificado.
 - O MVP habilita login por e-mail/senha e Google OAuth; 2FA fica desabilitado.
 - Sessão, logout, recuperação de senha e regras de provedores pertencem ao Clerk.
-- A autenticação não define salão ativo nem carrega `usuario_salao`.
+- A autenticação não define salão ativo nem retorna dados de salão.
 
 ## Dependências
 

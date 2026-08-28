@@ -21,6 +21,7 @@ export const envSchema = z.object({
   CLERK_SECRET_KEY: z.string().min(1),
   CLERK_AUTHORIZED_PARTIES: originsSchema,
   CORS_ORIGINS: originsSchema,
+  TENANT_BASE_DOMAIN: z.string().trim().min(1).toLowerCase(),
 
   THROTTLE_TTL_MS: z.coerce.number().int().positive().default(60_000),
   THROTTLE_LIMIT: z.coerce.number().int().positive().default(100),

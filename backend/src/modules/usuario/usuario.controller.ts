@@ -13,7 +13,8 @@ import {
 import type { Response } from 'express';
 import { CurrentIdentity } from '../auth/decorators/current-identity.decorator';
 import type { AuthenticatedIdentity } from '../auth/contracts';
-import { UsuarioResponseDto } from './contracts';
+import { UsuarioAtualResponseDto, UsuarioResponseDto } from './contracts';
+import { toUsuarioAtualResponse, toUsuarioResponse } from './usuario.mapper';
 import { UsuarioService } from './usuario.service';
 
 @ApiTags('Usu\u00e1rios')
@@ -55,14 +56,14 @@ export class UsuarioController {
       await this.usuarioService.criarOuObterUsuarioAtual(identity);
 
     response.status(resultado.criado ? HttpStatus.CREATED : HttpStatus.OK);
-    return resultado.usuario;
+    return toUsuarioResponse(resultado.usuario);
   }
 
   @Get('eu')
-  @ApiOperation({ summary: 'Obt\u00e9m a conta global autenticada' })
+  @ApiOperation({ summary: 'Obtém a conta e o estado do salão atual' })
   @ApiOkResponse({
-    description: 'Conta global da identidade autenticada.',
-    type: UsuarioResponseDto.Output,
+    description: 'Conta global e estado para direcionamento após o login.',
+    type: UsuarioAtualResponseDto.Output,
   })
   @ApiUnauthorizedResponse({
     description: 'Bearer token ausente ou inv\u00e1lido.',
@@ -70,7 +71,9 @@ export class UsuarioController {
   @ApiNotFoundResponse({
     description: 'A conta local ainda n\u00e3o foi criada.',
   })
-  buscarAtual(@CurrentIdentity() identity: AuthenticatedIdentity) {
-    return this.usuarioService.buscarUsuarioAtual(identity);
+  async buscarAtual(@CurrentIdentity() identity: AuthenticatedIdentity) {
+    return toUsuarioAtualResponse(
+      await this.usuarioService.buscarEstadoAtual(identity),
+    );
   }
 }

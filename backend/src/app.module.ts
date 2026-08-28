@@ -11,9 +11,12 @@ import type { Env } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
+import { ProcedimentoModule } from './modules/procedimento/procedimento.module';
 import { SalaoModule } from './modules/salao/salao.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { ClerkModule } from './shared/providers/clerk/clerk.module';
+import { TenantContextModule } from './shared/tenant-context/tenant-context.module';
+import { TenantContextGuard } from './shared/tenant-context/guards/tenant-context.guard';
 
 @Module({
   imports: [
@@ -47,14 +50,17 @@ import { ClerkModule } from './shared/providers/clerk/clerk.module';
     DatabaseModule,
     ClerkModule,
     AuthModule,
+    TenantContextModule,
     UsuarioModule,
     SalaoModule,
+    ProcedimentoModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: TenantContextGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })

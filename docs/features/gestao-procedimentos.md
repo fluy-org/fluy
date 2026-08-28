@@ -11,7 +11,8 @@ Manter o catálogo de serviços oferecidos pelo salão, com os dados essenciais 
 ## Capacidades entregues
 
 - Criar procedimento com: nome, duração estimada (min), preço, sinal (percentual ou fixo).
-- Adicionar informações opcionais ao procedimento: descrição, imagem, período de manutenção sugerido (dias).
+- Adicionar informações opcionais ao procedimento: descrição, informações pré-procedimento e período de manutenção sugerido (dias).
+- Adicionar imagem ao procedimento na fatia 1.6-BE.
 - Editar procedimento existente.
 - Ativar / desativar procedimento (soft — não há exclusão dura).
 - Ocultar procedimento inativo da vitrine pública da cliente, mantendo-o disponível para agendamento manual pelo salão.
@@ -41,6 +42,6 @@ Usado por:
 
 - Um procedimento por agendamento no MVP. Combos são cadastrados como procedimento único (ex.: "Corte + Escova").
 - Categorias/agrupamento estão fora do MVP — catálogo cresce achatado.
-- Ordem de exibição na vitrine da cliente ainda não está decidida (ver PENDENCIAS.md).
+- A vitrine da cliente exibe os procedimentos ativos por ordem de cadastro, do mais antigo ao mais novo.
 - Máximo 1 imagem por procedimento no MVP.
 - Alterações no catálogo não afetam agendamentos já existentes (valores congelados).

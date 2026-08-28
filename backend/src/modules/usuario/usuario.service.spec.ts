@@ -17,6 +17,7 @@ describe('UsuarioService', () => {
   const usuarioRepository = {
     criarOuObter: jest.fn(),
     buscarPorIdentidade: jest.fn(),
+    possuiVinculoSalao: jest.fn(),
   } as unknown as UsuarioRepository;
   const service = new UsuarioService(authService, usuarioRepository);
   const identity = { provider: 'clerk' as const, subject: 'user_123' };
@@ -27,11 +28,6 @@ describe('UsuarioService', () => {
     email: 'ana@example.com',
     criado_em: new Date('2026-01-01T00:00:00.000Z'),
   };
-  const usuarioResponse = {
-    ...usuario,
-    criado_em: usuario.criado_em.toISOString(),
-  };
-
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -52,7 +48,7 @@ describe('UsuarioService', () => {
 
     expect(resultado).toEqual({
       criado: true,
-      usuario: usuarioResponse,
+      usuario,
     });
   });
 
@@ -72,7 +68,7 @@ describe('UsuarioService', () => {
 
     expect(resultado).toEqual({
       criado: false,
-      usuario: usuarioResponse,
+      usuario,
     });
   });
 
@@ -127,9 +123,33 @@ describe('UsuarioService', () => {
       .mockResolvedValue(undefined);
 
     await esperarErro(
-      () => service.buscarUsuarioAtual(identity),
+      () => service.buscarEstadoAtual(identity),
       NotFoundException,
     );
+  });
+
+  it('informa conta sem salão', async () => {
+    jest
+      .spyOn(usuarioRepository, 'buscarPorIdentidade')
+      .mockResolvedValue(usuario);
+    jest.spyOn(usuarioRepository, 'possuiVinculoSalao').mockResolvedValue(false);
+
+    expect(await service.buscarEstadoAtual(identity)).toEqual({
+      usuario,
+      estado: 'sem-salao',
+    });
+  });
+
+  it('informa conta com salão', async () => {
+    jest
+      .spyOn(usuarioRepository, 'buscarPorIdentidade')
+      .mockResolvedValue(usuario);
+    jest.spyOn(usuarioRepository, 'possuiVinculoSalao').mockResolvedValue(true);
+
+    expect(await service.buscarEstadoAtual(identity)).toEqual({
+      usuario,
+      estado: 'com-salao',
+    });
   });
 });
 

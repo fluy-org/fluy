@@ -4,8 +4,7 @@
 
 A seguir vou descrever a fatia/feature que quero implementar.
 
-
-- [ ] **1.1** `salao/01-onboarding` — para uma conta global já materializada, tela "criar meu salão" (nome, subdomínio, whatsapp, endereço, fuso). Cria o salão e o vínculo `usuario_salao` como dono; popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney** — `[DEP: 1.0]`
+- [ ] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
 
 
 ## Contexto do repositório
