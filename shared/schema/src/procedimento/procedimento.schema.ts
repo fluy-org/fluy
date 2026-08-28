@@ -1,1 +1,111 @@
-export {};
+import { z } from "zod";
+import { TIPO_SINAL } from "./procedimento.enums.js";
+
+const MENSAGEM_NOME_INVALIDO = "Informe o nome do procedimento.";
+const MENSAGEM_VALOR_INVALIDO = "Informe um valor com até duas casas decimais.";
+
+const textoObrigatorioSchema = z
+  .string()
+  .refine((valor) => valor.trim().length > 0, MENSAGEM_NOME_INVALIDO);
+
+const valorMonetarioSchema = z
+  .number()
+  .nonnegative("Informe um valor maior ou igual a zero.")
+  .refine(
+    (valor) => valor === Number(valor.toFixed(2)),
+    MENSAGEM_VALOR_INVALIDO,
+  );
+
+const camposCriarProcedimento = {
+  nome: textoObrigatorioSchema.max(200, MENSAGEM_NOME_INVALIDO),
+  descricao: z.string().optional(),
+  info_pre_procedimento: z.string().optional(),
+  duracao_min: z
+    .number()
+    .int("Informe a duração em minutos inteiros.")
+    .positive("Informe uma duração maior que zero."),
+  preco: valorMonetarioSchema,
+  tipo_sinal: z.enum(TIPO_SINAL),
+  valor_sinal: valorMonetarioSchema,
+  periodo_manutencao_dias: z
+    .number()
+    .int("Informe o período em dias inteiros.")
+    .positive("Informe um período maior que zero.")
+    .optional(),
+};
+
+const dadosCriarProcedimentoSchema = z.object(camposCriarProcedimento);
+
+export const criarProcedimentoSchema = dadosCriarProcedimentoSchema
+  .superRefine(validarSinal)
+  .meta({ id: "CriarProcedimento" });
+
+export const atualizarProcedimentoSchema = z
+  .object({
+    ...camposCriarProcedimento,
+    descricao: z.string().nullable().optional(),
+    info_pre_procedimento: z.string().nullable().optional(),
+    periodo_manutencao_dias: z
+      .number()
+      .int("Informe o período em dias inteiros.")
+      .positive("Informe um período maior que zero.")
+      .nullable()
+      .optional(),
+    ativo: z.boolean().optional(),
+  })
+  .partial()
+  .refine((dados) => Object.keys(dados).length > 0, {
+    message: "Informe ao menos um campo para atualizar o procedimento.",
+  })
+  .meta({ id: "AtualizarProcedimento" });
+
+export const procedimentoResponseSchema = z
+  .object({
+    id: z.uuid(),
+    nome: z.string(),
+    descricao: z.string().nullable(),
+    info_pre_procedimento: z.string().nullable(),
+    duracao_min: z.number().int().positive(),
+    preco: z.number().nonnegative(),
+    tipo_sinal: z.enum(TIPO_SINAL),
+    valor_sinal: z.number().nonnegative(),
+    periodo_manutencao_dias: z.number().int().positive().nullable(),
+    ativo: z.boolean(),
+    criado_em: z.iso.datetime(),
+  })
+  .meta({ id: "ProcedimentoResponse" });
+
+export const procedimentoPublicoResponseSchema = z
+  .object({
+    id: z.uuid(),
+    nome: z.string(),
+    descricao: z.string().nullable(),
+    duracao_min: z.number().int().positive(),
+    preco: z.number().nonnegative(),
+  })
+  .meta({ id: "ProcedimentoPublicoResponse" });
+
+function validarSinal(
+  dados: z.infer<typeof dadosCriarProcedimentoSchema>,
+  contexto: z.RefinementCtx,
+) {
+  if (dados.tipo_sinal === "percentual" && dados.valor_sinal > 100) {
+    contexto.addIssue({
+      code: "custom",
+      path: ["valor_sinal"],
+      message: "O sinal percentual deve ser de no máximo 100%.",
+    });
+  }
+
+  if (
+    dados.tipo_sinal === "fixo" &&
+    dados.preco > 0 &&
+    dados.valor_sinal > dados.preco
+  ) {
+    contexto.addIssue({
+      code: "custom",
+      path: ["valor_sinal"],
+      message: "O sinal fixo não pode ser maior que o preço.",
+    });
+  }
+}

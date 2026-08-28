@@ -16,7 +16,8 @@ Permitir que o salão mantenha seu catálogo de procedimentos (serviços ofereci
    - **Preço** (obrigatório)
    - **Sinal** (obrigatório): percentual OU valor fixo
    - **Descrição** (opcional; visível para a cliente)
-   - **Imagem** (opcional; visível para a cliente)
+   - **Informações pré-procedimento** (opcional; exibidas à cliente na confirmação, não no catálogo)
+   - **Imagem** (opcional; visível para a cliente; entra na fatia 1.6-BE)
    - **Período de manutenção sugerido** em dias (opcional; usado para criar [lembrete](./12-lembretes.md) automático ao concluir atendimento)
 4. Sistema salva; procedimento entra ativo.
 
@@ -46,6 +47,7 @@ Permitir que o salão mantenha seu catálogo de procedimentos (serviços ofereci
 - **Duração é congelada no momento do agendamento.** Alterações posteriores no catálogo NÃO afetam agendamentos existentes.
 - **Preço também é congelado** no momento do agendamento (mesma lógica).
 - **Estado ativo/inativo** substitui exclusão. Preserva histórico e permite reativar.
+- **Vitrine da cliente:** exibe apenas procedimentos ativos, por ordem de cadastro, do mais antigo ao mais novo.
 - **Categoria/agrupamento NÃO entra no MVP** — decisão adiada; catálogo cresce achatado.
 - **Máximo 1 imagem por procedimento** no MVP (galeria de várias imagens fora do escopo).
 - **Um procedimento por agendamento** no MVP (combos podem ser cadastrados como "Corte+Escova" — um procedimento separado com preço/duração combinados).
@@ -64,14 +66,13 @@ Permitir que o salão mantenha seu catálogo de procedimentos (serviços ofereci
 - **Preço zero:** aceito? MVP: aceitar (procedimento de cortesia); sinal fica zero automaticamente.
 - **Sinal maior que preço total:** validação bloqueia.
 - **Sinal em percentual > 100%:** validação bloqueia.
-- **Nome duplicado no catálogo do mesmo salão:** aceitar? MVP: permitir (salão pode ter "Corte" duas vezes se quiser, embora estranho); alertar.
+- **Nome duplicado no catálogo do mesmo salão:** permitir. A API não emite alerta; a interface pode alertar o salão futuramente.
 - **Excluir imagem existente:** procedimento volta a não ter imagem; agendamentos passados perdem referência à imagem (ou copiam?). MVP: aceita perda; agendamentos exibem "sem imagem" retroativamente.
 - **Alterar sinal enquanto há agendamento em estado `Reservado`:** o cálculo do valor a pagar foi feito com o sinal antigo; manter o valor antigo até a reserva resolver.
 
 ## Dúvidas em aberto
 
 - **Máximo de procedimentos por salão:** limite técnico ou de plano? MVP sem cobrança → sem limite prático.
-- **Ordem de exibição para a cliente:** ordem de cadastro? Alfabética? Por preço? Ordem definida pelo salão via drag-and-drop? Não decidido.
 - **Categorias:** adiado, mas se catálogo crescer muito virá demanda.
 - **Procedimentos "com opções" (ex.: manicure com cor à escolha):** fora do MVP; se necessário, cadastrar como procedimentos separados.
 - **Cadastrar disponibilidade específica por procedimento** (ex.: "coloração só de segunda a quarta"): fora do MVP; disponibilidade é do salão inteiro.

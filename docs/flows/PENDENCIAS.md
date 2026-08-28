@@ -2,7 +2,7 @@
 
 Este documento consolida as decisões que foram **explicitamente adiadas** durante o desenho dos fluxos, bem como as principais dúvidas em aberto que aparecem espalhadas pelos MDs de cada fluxo. Serve como checklist antes de partir para modelagem/implementação de cada área.
 
-Última atualização: 2026-08-05
+Última atualização: 2026-08-27
 
 ---
 
@@ -136,7 +136,6 @@ Este documento consolida as decisões que foram **explicitamente adiadas** duran
 - **Multi-salão para o mesmo dono** — 1 salão por usuário no MVP.
 - **Pausar conta do salão temporariamente** (viagens, licença) — fora do MVP.
 - **Domínio próprio do salão** (white-label) — fora do MVP; só subdomínio `nome.fluy.app`.
-- **Ordem de exibição de procedimentos** — não decidido (alfabético? cadastro? preço? drag-and-drop?).
 - **Ordem padrão da lista de clientes** — não decidido.
 - **Cliente com múltiplos agendamentos simultâneos** — provavelmente permitir; confirmar.
 - **Horário de verão** — assumido inexistente (verdade em 2026); revisitar se voltar.

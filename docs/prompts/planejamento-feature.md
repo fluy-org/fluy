@@ -4,7 +4,7 @@
 
 A seguir vou descrever a fatia/feature que quero implementar.
 
-- [ ] **1.2-BACKEND** Login — endpoint `GET /usuarios/eu` (retorna estado: sem-cadastro, sem-salao, com-salao) pra o frontend decidir pra onde redirecionar depois do Clerk criar sessão. — `[DEP: 1.0]`
+- [ ] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
 
 
 ## Contexto do repositório
