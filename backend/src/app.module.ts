@@ -60,7 +60,7 @@ import { TenantContextGuard } from './shared/tenant-context/guards/tenant-contex
     AppService,
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     { provide: APP_GUARD, useClass: AuthGuard },
-    { provide: APP_GUARD, useClass: TenantContextGuard },
+    { provide: APP_GUARD, useExisting: TenantContextGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
