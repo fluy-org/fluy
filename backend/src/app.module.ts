@@ -12,7 +12,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
 import { ProcedimentoModule } from './modules/procedimento/procedimento.module';
-import { SalaoModule } from './modules/salao/salao.module';
+import { SalaoOnboardingModule } from './modules/salao-onboarding/salao-onboarding.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { ClerkModule } from './shared/providers/clerk/clerk.module';
 import { TenantContextModule } from './shared/tenant-context/tenant-context.module';
@@ -52,7 +52,7 @@ import { TenantContextGuard } from './shared/tenant-context/guards/tenant-contex
     AuthModule,
     TenantContextModule,
     UsuarioModule,
-    SalaoModule,
+    SalaoOnboardingModule,
     ProcedimentoModule,
   ],
   controllers: [AppController],

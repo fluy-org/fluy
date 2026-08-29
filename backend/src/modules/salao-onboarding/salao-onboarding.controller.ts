@@ -17,8 +17,8 @@ import {
   SalaoResponseDto,
   SubdominioIndisponivelResponseDto,
 } from './contracts';
-import { toSalaoResponse } from './salao.mapper';
-import { SalaoService } from './salao.service';
+import { toSalaoResponse } from './salao-onboarding.mapper';
+import { SalaoService } from './salao-onboarding.service';
 
 @ApiTags('Salões')
 @ApiBearerAuth()
