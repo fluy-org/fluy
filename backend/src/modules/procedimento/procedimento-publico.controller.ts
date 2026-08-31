@@ -5,11 +5,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import type { TenantContext } from '../../shared/tenant-context/contracts';
-import { TenantFromHost } from '../../shared/tenant-context/decorators/tenant-from-host.decorator';
-import { ProcedimentoPublicoResponseDto } from './contracts';
-import { toProcedimentoPublicoResponse } from './procedimento.mapper';
-import { ProcedimentoService } from './procedimento.service';
+import type { TenantContext } from '@/shared/tenant-context/contracts';
+import { TenantFromHost } from '@/shared/tenant-context/decorators/tenant-from-host.decorator';
+import { ProcedimentoPublicoResponseDto } from '@/modules/procedimento/contracts';
+import { toProcedimentoPublicoResponse } from '@/modules/procedimento/procedimento.mapper';
+import { ProcedimentoService } from '@/modules/procedimento/procedimento.service';
 
 @ApiTags('Catálogo público')
 @Controller('publico/procedimentos')

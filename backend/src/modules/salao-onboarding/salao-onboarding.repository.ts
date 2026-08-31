@@ -6,9 +6,9 @@ import {
   usuarioSalao,
 } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
-import { InjectDatabase } from '../../database/inject-database.decorator';
-import type { Database } from '../../database/database.provider';
-import type { CriarSalaoPersistenciaInput, SalaoPersistido } from './contracts';
+import { InjectDatabase } from '@/database/inject-database.decorator';
+import type { Database } from '@/database/database.provider';
+import type { CriarSalaoPersistenciaInput, SalaoPersistido } from '@/modules/salao-onboarding/contracts';
 
 @Injectable()
 export class SalaoRepository {

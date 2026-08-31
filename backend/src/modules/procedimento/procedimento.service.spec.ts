@@ -7,10 +7,10 @@ import type {
   BuscarProcedimentoInput,
   CriarProcedimentoInput,
   ProcedimentoPersistido,
-} from './contracts';
-import { ProcedimentoRepository } from './procedimento.repository';
-import { ProcedimentoService } from './procedimento.service';
-import { ProcedimentoValidator } from './procedimento.validator';
+} from '@/modules/procedimento/contracts';
+import { ProcedimentoRepository } from '@/modules/procedimento/procedimento.repository';
+import { ProcedimentoService } from '@/modules/procedimento/procedimento.service';
+import { ProcedimentoValidator } from '@/modules/procedimento/procedimento.validator';
 
 describe('ProcedimentoService', () => {
   const repository = {

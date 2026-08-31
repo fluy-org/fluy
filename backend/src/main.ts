@@ -3,8 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { cleanupOpenApiDoc } from 'nestjs-zod';
-import { AppModule } from './app.module';
-import type { Env } from './config/env.schema';
+import { AppModule } from '@/app.module';
+import type { Env } from '@/config/env.schema';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });

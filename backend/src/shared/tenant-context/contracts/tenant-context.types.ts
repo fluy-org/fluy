@@ -1,4 +1,4 @@
-import type { AuthenticatedIdentity } from '../../../modules/auth/contracts';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
 import type { Request } from 'express';
 
 export type TenantContext = {

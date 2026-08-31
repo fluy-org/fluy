@@ -8,14 +8,14 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import type { TenantContext } from '../../shared/tenant-context/contracts';
-import { TenantFromOwner } from '../../shared/tenant-context/decorators/tenant-from-owner.decorator';
+import type { TenantContext } from '@/shared/tenant-context/contracts';
+import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
 import {
   AtualizarSalaoConfiguracaoRequestDto,
   SalaoConfiguracaoResponseDto,
-} from './contracts';
-import { toSalaoConfiguracaoResponse } from './salao-configuracao.mapper';
-import { SalaoConfiguracaoService } from './salao-configuracao.service';
+} from '@/modules/salao-configuracao/contracts';
+import { toSalaoConfiguracaoResponse } from '@/modules/salao-configuracao/salao-configuracao.mapper';
+import { SalaoConfiguracaoService } from '@/modules/salao-configuracao/salao-configuracao.service';
 
 @ApiTags('Configuração do salão')
 @ApiBearerAuth()

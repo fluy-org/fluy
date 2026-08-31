@@ -1,13 +1,13 @@
 import { and, eq } from 'drizzle-orm';
 import { identidadeAutenticacao, usuario, usuarioSalao } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
-import { InjectDatabase } from '../../database/inject-database.decorator';
-import type { Database } from '../../database/database.provider';
+import { InjectDatabase } from '@/database/inject-database.decorator';
+import type { Database } from '@/database/database.provider';
 import type {
   CriarOuObterUsuarioInput,
   ResultadoCriarOuObterUsuario,
   UsuarioPersistido,
-} from './contracts';
+} from '@/modules/usuario/contracts';
 
 @Injectable()
 export class UsuarioRepository {

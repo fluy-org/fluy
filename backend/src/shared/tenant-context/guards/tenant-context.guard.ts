@@ -9,9 +9,9 @@ import {
   type TenantContext,
   type TenantRequest,
   type TenantResolutionSource,
-} from '../contracts';
-import { TENANT_RESOLUTION_SOURCE_KEY } from '../decorators/tenant-context.decorator';
-import { TenantContextResolver } from '../tenant-context.resolver';
+} from '@/shared/tenant-context/contracts';
+import { TENANT_RESOLUTION_SOURCE_KEY } from '@/shared/tenant-context/decorators/tenant-context.decorator';
+import { TenantContextResolver } from '@/shared/tenant-context/tenant-context.resolver';
 
 type ResolverTenantInput = {
   request: TenantRequest;

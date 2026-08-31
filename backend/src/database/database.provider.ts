@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { schema, type Schema } from '@fluy/schema';
-import type { Env } from '../config/env.schema';
+import type { Env } from '@/config/env.schema';
 
 export const DATABASE = Symbol('DATABASE');
 

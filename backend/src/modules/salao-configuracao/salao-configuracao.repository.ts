@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { configuracaoSalao } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
-import { InjectDatabase } from '../../database/inject-database.decorator';
-import type { Database } from '../../database/database.provider';
+import { InjectDatabase } from '@/database/inject-database.decorator';
+import type { Database } from '@/database/database.provider';
 import type {
   AtualizarSalaoConfiguracaoInput,
   SalaoConfiguracaoPersistida,
-} from './contracts';
+} from '@/modules/salao-configuracao/contracts';
 
 @Injectable()
 export class SalaoConfiguracaoRepository {

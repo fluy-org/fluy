@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { SalaoConfiguracaoController } from './salao-configuracao.controller';
-import { SalaoConfiguracaoRepository } from './salao-configuracao.repository';
-import { SalaoConfiguracaoService } from './salao-configuracao.service';
-import { SalaoConfiguracaoValidator } from './salao-configuracao.validator';
+import { SalaoConfiguracaoController } from '@/modules/salao-configuracao/salao-configuracao.controller';
+import { SalaoConfiguracaoRepository } from '@/modules/salao-configuracao/salao-configuracao.repository';
+import { SalaoConfiguracaoService } from '@/modules/salao-configuracao/salao-configuracao.service';
+import { SalaoConfiguracaoValidator } from '@/modules/salao-configuracao/salao-configuracao.validator';
 
 @Module({
   controllers: [SalaoConfiguracaoController],

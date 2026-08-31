@@ -1,10 +1,10 @@
 import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
-import { IS_PUBLIC_KEY } from '../../../modules/auth/decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '@/modules/auth/decorators/public.decorator';
 import type {
   TenantContext,
   TenantRequest,
   TenantResolutionSource,
-} from '../contracts';
+} from '@/shared/tenant-context/contracts';
 
 export const TENANT_RESOLUTION_SOURCE_KEY = 'tenantResolutionSource';
 

@@ -1,5 +1,5 @@
 import type { UsuarioAtualResponseDto, usuario } from '@fluy/schema';
-import type { AuthenticatedIdentity } from '../../auth/contracts';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
 
 export type UsuarioPersistido = typeof usuario.$inferSelect;
 

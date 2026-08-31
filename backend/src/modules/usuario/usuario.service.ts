@@ -4,14 +4,14 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { AuthService } from '../auth/auth.service';
-import type { AuthenticatedIdentity } from '../auth/contracts';
+import { AuthService } from '@/modules/auth/auth.service';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
 import type {
   ResultadoBuscarUsuarioAtual,
   ResultadoCriarOuObterUsuarioAtual,
   UsuarioPersistido,
-} from './contracts';
-import { UsuarioRepository } from './usuario.repository';
+} from '@/modules/usuario/contracts';
+import { UsuarioRepository } from '@/modules/usuario/usuario.repository';
 
 @Injectable()
 export class UsuarioService {

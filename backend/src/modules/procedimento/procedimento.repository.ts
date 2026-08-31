@@ -1,14 +1,14 @@
 import { and, asc, eq } from 'drizzle-orm';
 import { procedimento } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
-import { InjectDatabase } from '../../database/inject-database.decorator';
-import type { Database } from '../../database/database.provider';
+import { InjectDatabase } from '@/database/inject-database.decorator';
+import type { Database } from '@/database/database.provider';
 import type {
   AtualizarProcedimentoInput,
   BuscarProcedimentoInput,
   CriarProcedimentoInput,
   ProcedimentoPersistido,
-} from './contracts';
+} from '@/modules/procedimento/contracts';
 
 @Injectable()
 export class ProcedimentoRepository {

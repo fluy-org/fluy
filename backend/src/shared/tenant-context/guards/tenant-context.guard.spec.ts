@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
-import type { TenantRequest } from '../contracts';
-import { TenantContextResolver } from '../tenant-context.resolver';
-import { TenantContextGuard } from './tenant-context.guard';
+import type { TenantRequest } from '@/shared/tenant-context/contracts';
+import { TenantContextResolver } from '@/shared/tenant-context/tenant-context.resolver';
+import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-context.guard';
 
 describe('TenantContextGuard', () => {
   const reflector = {

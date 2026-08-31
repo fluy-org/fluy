@@ -10,15 +10,15 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { CurrentIdentity } from '../auth/decorators/current-identity.decorator';
-import type { AuthenticatedIdentity } from '../auth/contracts';
+import { CurrentIdentity } from '@/modules/auth/decorators/current-identity.decorator';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
 import {
   CriarSalaoRequestDto,
   SalaoResponseDto,
   SubdominioIndisponivelResponseDto,
-} from './contracts';
-import { toSalaoResponse } from './salao-onboarding.mapper';
-import { SalaoService } from './salao-onboarding.service';
+} from '@/modules/salao-onboarding/contracts';
+import { toSalaoResponse } from '@/modules/salao-onboarding/salao-onboarding.mapper';
+import { SalaoService } from '@/modules/salao-onboarding/salao-onboarding.service';
 
 @ApiTags('Salões')
 @ApiBearerAuth()

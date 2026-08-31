@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
-import { AUTHENTICATION_PROVIDER } from '../../../modules/auth/contracts';
-import { ClerkAuthenticator } from './clerk-authenticator.provider';
-import { clerkClientProvider } from './clerk-client.provider';
+import { AUTHENTICATION_PROVIDER } from '@/modules/auth/contracts';
+import { ClerkAuthenticator } from '@/shared/providers/clerk/clerk-authenticator.provider';
+import { clerkClientProvider } from '@/shared/providers/clerk/clerk-client.provider';
 
 @Global()
 @Module({

@@ -2,8 +2,8 @@ import { BadRequestException } from '@nestjs/common';
 
 jest.mock('@fluy/schema', () => ({}), { virtual: true });
 
-import type { SalaoConfiguracaoPersistida } from './contracts';
-import { SalaoConfiguracaoValidator } from './salao-configuracao.validator';
+import type { SalaoConfiguracaoPersistida } from '@/modules/salao-configuracao/contracts';
+import { SalaoConfiguracaoValidator } from '@/modules/salao-configuracao/salao-configuracao.validator';
 
 describe('SalaoConfiguracaoValidator', () => {
   const validator = new SalaoConfiguracaoValidator();

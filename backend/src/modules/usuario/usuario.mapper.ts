@@ -2,7 +2,7 @@ import type { UsuarioAtualResponseDto, UsuarioResponseDto } from '@fluy/schema';
 import type {
   ResultadoBuscarUsuarioAtual,
   UsuarioPersistido,
-} from './contracts';
+} from '@/modules/usuario/contracts';
 
 export function toUsuarioResponse(usuario: UsuarioPersistido): UsuarioResponseDto {
   return {

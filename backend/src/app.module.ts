@@ -4,20 +4,20 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConfigModule } from './config/config.module';
-import type { Env } from './config/env.schema';
-import { DatabaseModule } from './database/database.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { AuthGuard } from './modules/auth/guards/auth.guard';
-import { ProcedimentoModule } from './modules/procedimento/procedimento.module';
-import { SalaoConfiguracaoModule } from './modules/salao-configuracao/salao-configuracao.module';
-import { SalaoOnboardingModule } from './modules/salao-onboarding/salao-onboarding.module';
-import { UsuarioModule } from './modules/usuario/usuario.module';
-import { ClerkModule } from './shared/providers/clerk/clerk.module';
-import { TenantContextModule } from './shared/tenant-context/tenant-context.module';
-import { TenantContextGuard } from './shared/tenant-context/guards/tenant-context.guard';
+import { AppController } from '@/app.controller';
+import { AppService } from '@/app.service';
+import { ConfigModule } from '@/config/config.module';
+import type { Env } from '@/config/env.schema';
+import { DatabaseModule } from '@/database/database.module';
+import { AuthModule } from '@/modules/auth/auth.module';
+import { AuthGuard } from '@/modules/auth/guards/auth.guard';
+import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
+import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-configuracao.module';
+import { SalaoOnboardingModule } from '@/modules/salao-onboarding/salao-onboarding.module';
+import { UsuarioModule } from '@/modules/usuario/usuario.module';
+import { ClerkModule } from '@/shared/providers/clerk/clerk.module';
+import { TenantContextModule } from '@/shared/tenant-context/tenant-context.module';
+import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-context.guard';
 
 @Module({
   imports: [

@@ -6,7 +6,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import type {
   DadosSinalProcedimento,
   ValidarAtualizacaoProcedimentoInput,
-} from './contracts';
+} from '@/modules/procedimento/contracts';
 
 @Injectable()
 export class ProcedimentoValidator {
