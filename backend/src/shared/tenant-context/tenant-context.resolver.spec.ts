@@ -1,7 +1,7 @@
 import type { ConfigService } from '@nestjs/config';
-import type { Env } from '../../config/env.schema';
-import { TenantContextRepository } from './tenant-context.repository';
-import { TenantContextResolver } from './tenant-context.resolver';
+import type { Env } from '@/config/env.schema';
+import { TenantContextRepository } from '@/shared/tenant-context/tenant-context.repository';
+import { TenantContextResolver } from '@/shared/tenant-context/tenant-context.resolver';
 
 describe('TenantContextResolver', () => {
   const config = {

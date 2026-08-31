@@ -4,7 +4,7 @@ import {
   type AuthenticatedIdentity,
   type AuthenticationProfile,
   type AuthenticationProvider,
-} from './contracts';
+} from '@/modules/auth/contracts';
 
 @Injectable()
 export class AuthService {

@@ -10,10 +10,14 @@ jest.mock('drizzle-orm', () => ({
   eq: jest.fn(),
 }));
 
+jest.mock('@/database/database.provider', () => ({
+  DATABASE: Symbol('DATABASE'),
+}));
+
 import { eq } from 'drizzle-orm';
 import { configuracaoSalao } from '@fluy/schema';
-import type { Database } from '../../database/database.provider';
-import { SalaoConfiguracaoRepository } from './salao-configuracao.repository';
+import type { Database } from '@/database/database.provider';
+import { SalaoConfiguracaoRepository } from '@/modules/salao-configuracao/salao-configuracao.repository';
 
 describe('SalaoConfiguracaoRepository', () => {
   const limit = jest.fn();

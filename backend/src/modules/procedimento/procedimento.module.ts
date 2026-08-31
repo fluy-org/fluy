@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ProcedimentoController } from './procedimento.controller';
-import { ProcedimentoPublicoController } from './procedimento-publico.controller';
-import { ProcedimentoRepository } from './procedimento.repository';
-import { ProcedimentoService } from './procedimento.service';
-import { ProcedimentoValidator } from './procedimento.validator';
+import { ProcedimentoController } from '@/modules/procedimento/procedimento.controller';
+import { ProcedimentoPublicoController } from '@/modules/procedimento/procedimento-publico.controller';
+import { ProcedimentoRepository } from '@/modules/procedimento/procedimento.repository';
+import { ProcedimentoService } from '@/modules/procedimento/procedimento.service';
+import { ProcedimentoValidator } from '@/modules/procedimento/procedimento.validator';
 
 @Module({
   controllers: [ProcedimentoController, ProcedimentoPublicoController],

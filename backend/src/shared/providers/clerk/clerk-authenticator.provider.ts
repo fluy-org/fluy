@@ -6,13 +6,13 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Env } from '../../../config/env.schema';
+import type { Env } from '@/config/env.schema';
 import type {
   AuthenticatedIdentity,
   AuthenticationProfile,
   AuthenticationProvider,
-} from '../../../modules/auth/contracts';
-import { CLERK_CLIENT } from './clerk-client.provider';
+} from '@/modules/auth/contracts';
+import { CLERK_CLIENT } from '@/shared/providers/clerk/clerk-client.provider';
 
 @Injectable()
 export class ClerkAuthenticator implements AuthenticationProvider {

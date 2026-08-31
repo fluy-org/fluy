@@ -1,6 +1,6 @@
 import type { AtualizarConfiguracaoSalaoDto } from '@fluy/schema';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import type { ValidarAtualizacaoSalaoConfiguracaoInput } from './contracts';
+import type { ValidarAtualizacaoSalaoConfiguracaoInput } from '@/modules/salao-configuracao/contracts';
 
 @Injectable()
 export class SalaoConfiguracaoValidator {

@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
-import type { ProcedimentoPersistido } from './contracts';
-import { ProcedimentoValidator } from './procedimento.validator';
+import type { ProcedimentoPersistido } from '@/modules/procedimento/contracts';
+import { ProcedimentoValidator } from '@/modules/procedimento/procedimento.validator';
 
 describe('ProcedimentoValidator', () => {
   const validator = new ProcedimentoValidator();

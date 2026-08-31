@@ -18,15 +18,15 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import type { TenantContext } from '../../shared/tenant-context/contracts';
-import { TenantFromOwner } from '../../shared/tenant-context/decorators/tenant-from-owner.decorator';
+import type { TenantContext } from '@/shared/tenant-context/contracts';
+import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
 import {
   AtualizarProcedimentoRequestDto,
   CriarProcedimentoRequestDto,
   ProcedimentoResponseDto,
-} from './contracts';
-import { toProcedimentoResponse } from './procedimento.mapper';
-import { ProcedimentoService } from './procedimento.service';
+} from '@/modules/procedimento/contracts';
+import { toProcedimentoResponse } from '@/modules/procedimento/procedimento.mapper';
+import { ProcedimentoService } from '@/modules/procedimento/procedimento.service';
 
 @ApiTags('Procedimentos')
 @ApiBearerAuth()

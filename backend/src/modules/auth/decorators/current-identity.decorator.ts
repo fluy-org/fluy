@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';
-import type { AuthenticatedIdentity } from '../contracts';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
 
 type AuthenticatedRequest = Request & {
   authenticatedIdentity?: AuthenticatedIdentity;

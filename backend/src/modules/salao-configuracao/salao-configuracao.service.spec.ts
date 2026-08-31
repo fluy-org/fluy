@@ -5,10 +5,10 @@ jest.mock('@fluy/schema', () => ({}), { virtual: true });
 import type {
   AtualizarSalaoConfiguracaoInput,
   SalaoConfiguracaoPersistida,
-} from './contracts';
-import { SalaoConfiguracaoRepository } from './salao-configuracao.repository';
-import { SalaoConfiguracaoService } from './salao-configuracao.service';
-import { SalaoConfiguracaoValidator } from './salao-configuracao.validator';
+} from '@/modules/salao-configuracao/contracts';
+import { SalaoConfiguracaoRepository } from '@/modules/salao-configuracao/salao-configuracao.repository';
+import { SalaoConfiguracaoService } from '@/modules/salao-configuracao/salao-configuracao.service';
+import { SalaoConfiguracaoValidator } from '@/modules/salao-configuracao/salao-configuracao.validator';
 
 describe('SalaoConfiguracaoService', () => {
   const buscarPorSalaoId = jest.fn();

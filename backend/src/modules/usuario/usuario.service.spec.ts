@@ -6,9 +6,9 @@ import {
 
 jest.mock('@fluy/schema', () => ({}));
 
-import { AuthService } from '../auth/auth.service';
-import { UsuarioRepository } from './usuario.repository';
-import { UsuarioService } from './usuario.service';
+import { AuthService } from '@/modules/auth/auth.service';
+import { UsuarioRepository } from '@/modules/usuario/usuario.repository';
+import { UsuarioService } from '@/modules/usuario/usuario.service';
 
 describe('UsuarioService', () => {
   const authService = {

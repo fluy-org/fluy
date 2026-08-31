@@ -1,5 +1,5 @@
 import type { ConfiguracaoSalaoResponseDto } from '@fluy/schema';
-import type { SalaoConfiguracaoPersistida } from './contracts';
+import type { SalaoConfiguracaoPersistida } from '@/modules/salao-configuracao/contracts';
 
 export function toSalaoConfiguracaoResponse(
   configuracao: SalaoConfiguracaoPersistida,

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UsuarioModule } from '../usuario/usuario.module';
-import { SalaoController } from './salao-onboarding.controller';
-import { SalaoRepository } from './salao-onboarding.repository';
-import { SalaoService } from './salao-onboarding.service';
+import { UsuarioModule } from '@/modules/usuario/usuario.module';
+import { SalaoController } from '@/modules/salao-onboarding/salao-onboarding.controller';
+import { SalaoRepository } from '@/modules/salao-onboarding/salao-onboarding.repository';
+import { SalaoService } from '@/modules/salao-onboarding/salao-onboarding.service';
 
 @Module({
   imports: [UsuarioModule],
