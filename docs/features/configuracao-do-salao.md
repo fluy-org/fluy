@@ -17,10 +17,16 @@ Manter os parâmetros operacionais que moldam o comportamento do sistema para o 
 - Configurar tolerância global de atraso (usada como gate para marcar no-show; default 15min).
 - Configurar antecedência mínima para agendamento pela cliente (default 2h).
 - Configurar antecedência máxima para agendamento pela cliente (default 60 dias).
-- Configurar informações pré-procedimento exibidas na confirmação do agendamento (texto).
 - Configurar mensagem personalizada exibida na confirmação do agendamento.
 - Configurar política/aviso de atraso apresentado à cliente.
 - Aceitar defaults sensatos ao final do onboarding, permitindo edição posterior a qualquer momento.
+
+## Regras de edição
+
+- A edição operacional cobre granularidade, prazo de reserva, tolerância de atraso, antecedências e os textos de confirmação e política de atraso.
+- Cada atualização altera ao menos um campo. Os valores numéricos são inteiros positivos.
+- Os textos não aceitam valor em branco; `null` remove o texto e a omissão do campo preserva o valor atual.
+- A antecedência mínima em horas não pode exceder a antecedência máxima em dias convertida para horas.
 
 ## Documentos de referência
 
@@ -47,3 +53,4 @@ Usado por:
 - Horário de verão é assumido inexistente para o MVP (verdade em 2026).
 - Tolerância é global no MVP — não varia por procedimento.
 - No futuro multi-profissional, alguns parâmetros podem passar a ser por profissional.
+- Informações pré-procedimento são configuradas por `procedimento`, não globalmente pelo salão.
