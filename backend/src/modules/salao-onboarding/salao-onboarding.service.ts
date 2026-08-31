@@ -3,9 +3,12 @@ import type { CriarSalaoDto } from '@fluy/schema';
 import type { AuthenticatedIdentity } from '../auth/contracts';
 import { UsuarioService } from '../usuario/usuario.service';
 import type { ResultadoCriarOuObterSalao } from './contracts';
-import { QUANTIDADE_SUGESTOES_SUBDOMINIO } from './salao-data';
-import { SalaoRepository } from './salao.repository';
-import { ehViolacaoUnicidade, gerarSugestaoSubdominio } from './salao-utils';
+import { QUANTIDADE_SUGESTOES_SUBDOMINIO } from './salao-onboarding-data';
+import { SalaoRepository } from './salao-onboarding.repository';
+import {
+  ehViolacaoUnicidade,
+  gerarSugestaoSubdominio,
+} from './salao-onboarding-utils';
 
 @Injectable()
 export class SalaoService {
