@@ -35,10 +35,10 @@ Motivo: no momento inicial 🟣 Rudney tem mais tempo pra codar, e 🔵 Leandro 
 
 ## Fatias — Backend (🟣 Rudney)
 
-- [ ] **1.2-BE** Login — endpoint `GET /usuarios/eu` (`404` para sem-cadastro; retorna estado `sem-salao` ou `com-salao` para conta existente) pra o frontend decidir pra onde redirecionar depois do Clerk criar sessão. — `[DEP: 1.0]`
-- [ ] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
+- [x] **1.2-BE** Login — endpoint `GET /usuarios/eu` (`404` para sem-cadastro; retorna estado `sem-salao` ou `com-salao` para conta existente) pra o frontend decidir pra onde redirecionar depois do Clerk criar sessão. — `[DEP: 1.0]`
+- [x] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
 - [ ] **1.4-BE** Disponibilidade — janela semanal + override por data. Entities: `janela_semanal`, `override_disponibilidade`, `janela_override`. Endpoints de leitura/escrita das janelas por profissional. — `[DEP: 1.1]`
-- [ ] **1.5-BE** Configuração do salão — endpoints `GET/PUT /salao/configuracao` (o salão já é criado com defaults em 1.1; aqui é só o CRUD de edição). — `[DEP: 1.1]`
+- [x] **1.5-BE** Configuração do salão — endpoints `GET/PUT /salao/configuracao` (o salão já é criado com defaults em 1.1; aqui é só o CRUD de edição). — `[DEP: 1.1]`
 - [ ] **1.6-BE** Anexos — módulo de storage + upload/download de arquivos. Entity `imagem_procedimento` (a `arquivo` já foi criada em 0.4). Endpoints `POST /arquivos`, `POST /procedimentos/:id/imagem`, etc. — `[DEP: 1.3-BE]` `[DECIDIR: onde armazenar? S3, R2, disco local]`
 
 ## Fatias — Frontend (🔵 Leandro)

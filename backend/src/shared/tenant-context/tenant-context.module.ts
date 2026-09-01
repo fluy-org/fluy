@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { TenantContextGuard } from './guards/tenant-context.guard';
-import { TenantContextRepository } from './tenant-context.repository';
-import { TenantContextResolver } from './tenant-context.resolver';
+import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-context.guard';
+import { TenantContextRepository } from '@/shared/tenant-context/tenant-context.repository';
+import { TenantContextResolver } from '@/shared/tenant-context/tenant-context.resolver';
 
 @Module({
   providers: [

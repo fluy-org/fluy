@@ -1,10 +1,10 @@
 import { and, eq } from 'drizzle-orm';
 import { identidadeAutenticacao, salao, usuarioSalao } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
-import { InjectDatabase } from '../../database/inject-database.decorator';
-import type { Database } from '../../database/database.provider';
-import type { AuthenticatedIdentity } from '../../modules/auth/contracts';
-import type { TenantContext } from './contracts';
+import { InjectDatabase } from '@/database/inject-database.decorator';
+import type { Database } from '@/database/database.provider';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
+import type { TenantContext } from '@/shared/tenant-context/contracts';
 
 @Injectable()
 export class TenantContextRepository {

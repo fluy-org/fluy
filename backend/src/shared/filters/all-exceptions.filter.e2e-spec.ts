@@ -1,8 +1,8 @@
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { App } from 'supertest/types';
-import { createTestApp } from '../../test/app-factory';
-import { cleanDatabase } from '../../test/db-clean';
+import { createTestApp } from '@/test/app-factory';
+import { cleanDatabase } from '@/test/db-clean';
 
 interface ErrorBody {
   statusCode: number;

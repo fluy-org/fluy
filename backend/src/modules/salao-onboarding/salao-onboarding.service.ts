@@ -1,11 +1,14 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import type { CriarSalaoDto } from '@fluy/schema';
-import type { AuthenticatedIdentity } from '../auth/contracts';
-import { UsuarioService } from '../usuario/usuario.service';
-import type { ResultadoCriarOuObterSalao } from './contracts';
-import { QUANTIDADE_SUGESTOES_SUBDOMINIO } from './salao-data';
-import { SalaoRepository } from './salao.repository';
-import { ehViolacaoUnicidade, gerarSugestaoSubdominio } from './salao-utils';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
+import { UsuarioService } from '@/modules/usuario/usuario.service';
+import type { ResultadoCriarOuObterSalao } from '@/modules/salao-onboarding/contracts';
+import { QUANTIDADE_SUGESTOES_SUBDOMINIO } from '@/modules/salao-onboarding/salao-onboarding-data';
+import { SalaoRepository } from '@/modules/salao-onboarding/salao-onboarding.repository';
+import {
+  ehViolacaoUnicidade,
+  gerarSugestaoSubdominio,
+} from '@/modules/salao-onboarding/salao-onboarding-utils';
 
 @Injectable()
 export class SalaoService {

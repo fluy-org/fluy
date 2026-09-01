@@ -11,11 +11,11 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { CurrentIdentity } from '../auth/decorators/current-identity.decorator';
-import type { AuthenticatedIdentity } from '../auth/contracts';
-import { UsuarioAtualResponseDto, UsuarioResponseDto } from './contracts';
-import { toUsuarioAtualResponse, toUsuarioResponse } from './usuario.mapper';
-import { UsuarioService } from './usuario.service';
+import { CurrentIdentity } from '@/modules/auth/decorators/current-identity.decorator';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
+import { UsuarioAtualResponseDto, UsuarioResponseDto } from '@/modules/usuario/contracts';
+import { toUsuarioAtualResponse, toUsuarioResponse } from '@/modules/usuario/usuario.mapper';
+import { UsuarioService } from '@/modules/usuario/usuario.service';
 
 @ApiTags('Usu\u00e1rios')
 @ApiBearerAuth()

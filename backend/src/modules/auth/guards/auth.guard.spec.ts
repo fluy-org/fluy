@@ -2,8 +2,8 @@ import { UnauthorizedException } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
-import { AuthService } from '../auth.service';
-import { AuthGuard } from './auth.guard';
+import { AuthService } from '@/modules/auth/auth.service';
+import { AuthGuard } from '@/modules/auth/guards/auth.guard';
 
 describe('AuthGuard', () => {
   const reflector = {

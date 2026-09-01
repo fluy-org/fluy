@@ -1,5 +1,5 @@
 import type { SalaoResponseDto } from '@fluy/schema';
-import type { SalaoPersistido } from './contracts';
+import type { SalaoPersistido } from '@/modules/salao-onboarding/contracts';
 
 export function toSalaoResponse(salao: SalaoPersistido): SalaoResponseDto {
   return {

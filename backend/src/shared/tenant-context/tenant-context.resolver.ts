@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Env } from '../../config/env.schema';
-import type { AuthenticatedIdentity } from '../../modules/auth/contracts';
-import type { TenantContext } from './contracts';
-import { TenantContextRepository } from './tenant-context.repository';
+import type { Env } from '@/config/env.schema';
+import type { AuthenticatedIdentity } from '@/modules/auth/contracts';
+import type { TenantContext } from '@/shared/tenant-context/contracts';
+import { TenantContextRepository } from '@/shared/tenant-context/tenant-context.repository';
 
 @Injectable()
 export class TenantContextResolver {

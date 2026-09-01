@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { envSchema } from './env.schema';
+import { envSchema } from '@/config/env.schema';
 
 // Em dev/prod, este arquivo roda a partir de backend/dist/config,
 // então subir 3 níveis chega em backend/.env.

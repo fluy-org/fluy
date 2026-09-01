@@ -4,9 +4,9 @@ import type {
   BuscarProcedimentoInput,
   CriarProcedimentoInput,
   ProcedimentoPersistido,
-} from './contracts';
-import { ProcedimentoRepository } from './procedimento.repository';
-import { ProcedimentoValidator } from './procedimento.validator';
+} from '@/modules/procedimento/contracts';
+import { ProcedimentoRepository } from '@/modules/procedimento/procedimento.repository';
+import { ProcedimentoValidator } from '@/modules/procedimento/procedimento.validator';
 
 @Injectable()
 export class ProcedimentoService {

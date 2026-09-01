@@ -2,7 +2,7 @@ import type {
   ProcedimentoPublicoResponseDto,
   ProcedimentoResponseDto,
 } from '@fluy/schema';
-import type { ProcedimentoPersistido } from './contracts';
+import type { ProcedimentoPersistido } from '@/modules/procedimento/contracts';
 
 export function toProcedimentoResponse(
   procedimento: ProcedimentoPersistido,
