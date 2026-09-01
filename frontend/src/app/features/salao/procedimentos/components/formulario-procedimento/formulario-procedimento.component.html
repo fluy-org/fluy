@@ -1,0 +1,103 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ titulo() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form
+    class="formulario-procedimento"
+    [formGroup]="formulario"
+    (ngSubmit)="enviarFormulario()"
+  >
+    <!-- Base visual: os controles reativos e validacoes entram depois. -->
+    <ion-list lines="full">
+      <ion-input
+        label="Nome"
+        labelPlacement="stacked"
+        placeholder="Ex.: Corte feminino"
+        formControlName="nome"
+      ></ion-input>
+
+      <ion-textarea
+        label="Descrição"
+        labelPlacement="stacked"
+        placeholder="Descreva o procedimento"
+        [autoGrow]="true"
+        formControlName="descricao"
+      ></ion-textarea>
+
+      <ion-textarea
+        label="Orientações antes do procedimento"
+        labelPlacement="stacked"
+        placeholder="Ex.: Chegar com o cabelo seco"
+        [autoGrow]="true"
+        formControlName="info_pre_procedimento"
+      ></ion-textarea>
+
+      <ion-input
+        type="number"
+        label="Duração em minutos"
+        labelPlacement="stacked"
+        placeholder="60"
+        formControlName="duracao_min"
+      ></ion-input>
+
+      <ion-input
+        type="number"
+        label="Preço"
+        labelPlacement="stacked"
+        placeholder="0,00"
+        formControlName="preco"
+      ></ion-input>
+
+      <ion-select
+        label="Tipo do sinal"
+        labelPlacement="stacked"
+        formControlName="tipo_sinal"
+      >
+        <ion-select-option value="fixo">Valor fixo</ion-select-option>
+        <ion-select-option value="percentual">Percentual</ion-select-option>
+      </ion-select>
+
+      <ion-input
+        type="number"
+        label="Valor do sinal"
+        labelPlacement="stacked"
+        placeholder="0,00"
+        formControlName="valor_sinal"
+      ></ion-input>
+
+      <ion-input
+        type="number"
+        label="Periodo de manutenção em dias"
+        labelPlacement="stacked"
+        placeholder="30"
+        formControlName="periodo_manutencao_dias"
+      ></ion-input>
+    </ion-list>
+
+    @if (erroValidacao(); as erro) {
+      <p class="validation-error">{{ erro }}</p>
+    }
+
+    @if (erroExterno(); as erro) {
+      <p class="validation-error">{{ erro }}</p>
+    }
+
+    <div class="formulario-actions">
+      <ion-button
+        type="button"
+        fill="outline"
+        color="medium"
+        [disabled]="salvando()"
+        (click)="cancelarFormulario()"
+      >
+        Cancelar
+      </ion-button>
+      <ion-button type="submit" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando...' : 'Salvar procedimento' }}
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

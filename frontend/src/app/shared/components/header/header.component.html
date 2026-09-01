@@ -1,0 +1,22 @@
+<ion-toolbar class="header-toolbar">
+  <ion-buttons slot="start">
+    <ion-menu-button color="light"></ion-menu-button>
+  </ion-buttons>
+
+  <ion-row class="header-row">
+    <ion-col>
+      <ion-item class="header-identification" lines="none">
+        <ion-label>{{ titulo() }}</ion-label>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+  <!-- Permite que cada tela acrescente botoes sem alterar este componente. -->
+  <ion-buttons slot="end">
+    <ng-content select="[header-actions]"></ng-content>
+    <!-- A navegacao sera ligada quando a rota de perfil for criada. -->
+    <ion-button class="profile-button" aria-label="Acessar perfil" title="Perfil">
+      <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>

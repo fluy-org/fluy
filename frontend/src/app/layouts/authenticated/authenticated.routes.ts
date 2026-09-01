@@ -8,6 +8,14 @@ export const AUTHENTICATED_ROUTES: Routes = [
   // A rota vazia dentro do painel redireciona para o dashboard/agenda.
   { path: '', redirectTo: 'agenda', pathMatch: 'full' },
   { path: 'agenda', component: Tab1Page },
+  // Como filha de /painel, a pagina herda o layout autenticado e o authGuard.
+  {
+    path: 'procedimentos',
+    loadComponent: () =>
+      import(
+        '../../features/salao/procedimentos/pages/procedimentos/procedimentos.page'
+      ).then((m) => m.ProcedimentosPage),
+  },
   { path: 'configuracao', redirectTo: 'agenda', pathMatch: 'full' },
   // { path: 'configuracao', component: ConfiguracaoComponent }, // Exemplo para fatia 1.5
 ];

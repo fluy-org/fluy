@@ -1,0 +1,45 @@
+<!-- O menu permanece acessivel pelo botao, mas nao fica fixo no desktop. -->
+<ion-split-pane contentId="main-content" [when]="false">
+  <ion-menu contentId="main-content" type="overlay">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Fluy</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <ion-list>
+        <ion-menu-toggle auto-hide="false">
+          <ion-item
+            routerLink="/painel/agenda"
+            routerDirection="root"
+            lines="none"
+          >
+            <ion-label>Agenda</ion-label>
+          </ion-item>
+
+          <ion-item
+            routerLink="/painel/procedimentos"
+            routerDirection="root"
+            lines="none"
+          >
+            <ion-label>Procedimentos</ion-label>
+          </ion-item>
+
+          <ion-item
+            routerLink="/painel/configuracao"
+            routerDirection="root"
+            lines="none"
+          >
+            <ion-label>Configura&ccedil;&atilde;o</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
+  <div class="ion-page" id="main-content">
+    <!-- Cada pagina filha fornece seu app-header e seu ion-content. -->
+    <ion-router-outlet></ion-router-outlet>
+  </div>
+</ion-split-pane>

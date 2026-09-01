@@ -34,4 +34,8 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/*
+ * O modo escuro automatico fica desativado enquanto o tema do Fluy e
+ * controlado pelos tokens definidos em theme/variables.scss.
+ */
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */

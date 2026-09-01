@@ -1,2 +1,143 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// Ionic theming: https://ionicframework.com/docs/theming/
+
+/*
+ * Design tokens globais do Fluy.
+ * Componentes devem consumir estes tokens, nunca repetir valores visuais.
+ */
+:root {
+  /* Marca */
+  --fluy-color-primary: #9f5f70;
+  --fluy-color-primary-rgb: 159, 95, 112;
+  --fluy-color-primary-hover: #844b5a;
+  --fluy-color-primary-shade: #8c5463;
+  --fluy-color-primary-tint: #a96f7e;
+  --fluy-color-on-primary: #ffffff;
+
+  /* Acento champanhe para detalhes e acoes secundarias */
+  --fluy-color-accent: #c9956c;
+  --fluy-color-accent-rgb: 201, 149, 108;
+  --fluy-color-accent-hover: #af7d57;
+  --fluy-color-accent-tint: #cea17b;
+  --fluy-color-on-accent: #2f221a;
+
+  /* Superficies */
+  --fluy-color-background: #fcf8f7;
+  --fluy-color-surface: #ffffff;
+  --fluy-color-surface-muted: #f7edef;
+  --fluy-color-input: #ffffff;
+  --fluy-color-overlay: rgba(63, 48, 55, 0.48);
+
+  /* Textos */
+  --fluy-color-title: #3f3037;
+  --fluy-color-body: #594a50;
+  --fluy-color-label: #594a50;
+  --fluy-color-muted: #85737a;
+  --fluy-color-placeholder: #aa969d;
+  --fluy-color-on-dark: #ffffff;
+
+  /* Bordas */
+  --fluy-color-border: #eadcdf;
+  --fluy-color-border-soft: #f2e8ea;
+  --fluy-color-focus: #bb7b8a;
+
+  /* Estados semanticos */
+  --fluy-color-success: #16836d;
+  --fluy-color-success-rgb: 22, 131, 109;
+  --fluy-color-success-bg: #effbf7;
+  --fluy-color-success-border: #91d9c7;
+
+  --fluy-color-warning: #b7791f;
+  --fluy-color-warning-rgb: 183, 121, 31;
+  --fluy-color-warning-bg: #fffaeb;
+  --fluy-color-warning-border: #fedf89;
+
+  --fluy-color-danger: #e13232;
+  --fluy-color-danger-rgb: 225, 50, 50;
+  --fluy-color-danger-bg: #fff7f7;
+  --fluy-color-danger-border: #ffb3b3;
+
+  --fluy-color-info: #2563eb;
+  --fluy-color-info-rgb: 37, 99, 235;
+  --fluy-color-info-bg: #eff6ff;
+  --fluy-color-info-border: #bfdbfe;
+
+  /* Tipografia */
+  --fluy-font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --fluy-font-size-title: 1.25rem;
+  --fluy-font-size-subtitle: 1rem;
+  --fluy-font-size-body: 0.875rem;
+  --fluy-font-size-label: 0.875rem;
+  --fluy-font-size-small: 0.75rem;
+  --fluy-font-weight-regular: 400;
+  --fluy-font-weight-medium: 500;
+  --fluy-font-weight-semibold: 600;
+  --fluy-font-weight-bold: 700;
+  --fluy-line-height-title: 1.3;
+  --fluy-line-height-body: 1.5;
+
+  /* Espacamento */
+  --fluy-space-1: 4px;
+  --fluy-space-2: 8px;
+  --fluy-space-3: 12px;
+  --fluy-space-4: 16px;
+  --fluy-space-5: 20px;
+  --fluy-space-6: 24px;
+  --fluy-space-8: 32px;
+
+  /* Formas e elevacao */
+  --fluy-radius-sm: 6px;
+  --fluy-radius-md: 8px;
+  --fluy-radius-lg: 12px;
+  --fluy-radius-pill: 999px;
+  --fluy-shadow-sm: 0 1px 2px rgba(31, 41, 55, 0.05);
+  --fluy-shadow-md: 0 1px 2px rgba(31, 41, 55, 0.03),
+    0 2px 8px rgba(31, 41, 55, 0.05);
+  --fluy-shadow-lg: 0 12px 32px rgba(31, 41, 55, 0.12);
+
+  /* Mapeamento para os componentes Ionic */
+  --ion-font-family: var(--fluy-font-family);
+  --ion-background-color: var(--fluy-color-background);
+  --ion-text-color: var(--fluy-color-body);
+  --ion-border-color: var(--fluy-color-border);
+  --ion-item-background: var(--fluy-color-surface);
+  --ion-card-background: var(--fluy-color-surface);
+
+  --ion-color-primary: var(--fluy-color-primary);
+  --ion-color-primary-rgb: var(--fluy-color-primary-rgb);
+  --ion-color-primary-contrast: var(--fluy-color-on-primary);
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: var(--fluy-color-primary-shade);
+  --ion-color-primary-tint: var(--fluy-color-primary-tint);
+
+  --ion-color-secondary: var(--fluy-color-accent);
+  --ion-color-secondary-rgb: var(--fluy-color-accent-rgb);
+  --ion-color-secondary-contrast: var(--fluy-color-on-accent);
+  --ion-color-secondary-contrast-rgb: 47, 34, 26;
+  --ion-color-secondary-shade: var(--fluy-color-accent-hover);
+  --ion-color-secondary-tint: var(--fluy-color-accent-tint);
+
+  --ion-color-success: var(--fluy-color-success);
+  --ion-color-success-rgb: var(--fluy-color-success-rgb);
+  --ion-color-danger: var(--fluy-color-danger);
+  --ion-color-danger-rgb: var(--fluy-color-danger-rgb);
+  --ion-color-warning: var(--fluy-color-warning);
+  --ion-color-warning-rgb: var(--fluy-color-warning-rgb);
+
+  /* Aliases temporarios para telas criadas antes da padronizacao. */
+  --fluy-primary: var(--fluy-color-primary);
+  --fluy-primary-dark: var(--fluy-color-primary-hover);
+  --fluy-background: var(--fluy-color-background);
+  --fluy-surface: var(--fluy-color-surface);
+  --fluy-border: var(--fluy-color-border);
+  --fluy-border-soft: var(--fluy-color-border-soft);
+  --fluy-text: var(--fluy-color-title);
+  --fluy-text-secondary: var(--fluy-color-muted);
+  --fluy-success: var(--fluy-color-success);
+  --fluy-success-bg: var(--fluy-color-success-bg);
+  --fluy-success-border: var(--fluy-color-success-border);
+  --fluy-danger: var(--fluy-color-danger);
+  --fluy-danger-bg: var(--fluy-color-danger-bg);
+  --fluy-danger-border: var(--fluy-color-danger-border);
+  --fluy-shadow: var(--fluy-shadow-md);
+}

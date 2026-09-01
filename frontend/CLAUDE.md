@@ -45,6 +45,9 @@ Se um componente de `components/` começa a fazer fetch ou orquestrar navegaçã
 - `providedIn: 'root'` como default.
 - Estado dentro do service via signals. Escrita privada (`_x`), leitura readonly (`x`).
 - Signal = substantivo. Método = verbo.
+- Services de CRUD usam os nomes `getLista`, `getEntidade`, `setEntidade`,
+  `updateEntidade` e `deleteEntidade`. Services que nao representam CRUD usam
+  nomes de acao do dominio.
 
 ## Mutação: update local com retorno do backend
 

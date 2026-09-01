@@ -11,9 +11,16 @@
       <p>Entre para gerenciar seu salao.</p>
     </ion-text>
 
-    <ion-button expand="block" [disabled]="isSubmitting" (click)="iniciarLogin()">
-      {{ isSubmitting ? 'Redirecionando...' : 'Entrar' }}
-    </ion-button>
+    @if (verificandoConta) {
+      <div class="checking-account">
+        <ion-spinner aria-label="Verificando conta"></ion-spinner>
+        <p>Preparando seu painel...</p>
+      </div>
+    } @else {
+      <ion-button expand="block" [disabled]="isSubmitting" (click)="iniciarLogin()">
+        {{ isSubmitting ? 'Redirecionando...' : 'Entrar' }}
+      </ion-button>
+    }
 
     @if (errorMessage) {
       <ion-text color="danger">

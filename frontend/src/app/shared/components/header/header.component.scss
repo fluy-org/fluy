@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.header-toolbar {
+  --background: var(--fluy-primary);
+  --color: var(--fluy-surface);
+  --min-height: 56px;
+}
+
+.header-row {
+  height: 56px;
+  align-items: center;
+}
+
+.header-identification {
+  --background: transparent;
+  --color: var(--fluy-surface);
+  --min-height: 44px;
+  --padding-start: 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.profile-button {
+  --color: var(--fluy-surface);
+  font-size: 24px;
+}

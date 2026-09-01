@@ -34,7 +34,12 @@ export class AuthService {
   }
 
   async iniciarLogin(returnUrl: string): Promise<void> {
-    await this.getClerk().redirectToSignIn({ signInFallbackRedirectUrl: returnUrl });
+    const retornoLogin = `/login?returnUrl=${encodeURIComponent(returnUrl)}`;
+
+    await this.getClerk().redirectToSignIn({
+      signInFallbackRedirectUrl: retornoLogin,
+      signInForceRedirectUrl: retornoLogin,
+    });
   }
 
   montarCadastro(element: HTMLDivElement): void {
