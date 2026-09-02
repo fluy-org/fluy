@@ -1,0 +1,2 @@
+ALTER TABLE "arquivo" ADD COLUMN "salao_id" uuid NOT NULL;--> statement-breakpoint
+ALTER TABLE "arquivo" ADD CONSTRAINT "arquivo_salao_id_salao_id_fk" FOREIGN KEY ("salao_id") REFERENCES "public"."salao"("id") ON DELETE restrict ON UPDATE no action;

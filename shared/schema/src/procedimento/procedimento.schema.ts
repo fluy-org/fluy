@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { imagemProcedimentoInputSchema } from "../imagem_procedimento/imagem_procedimento.schema.js";
 import { TIPO_SINAL } from "./procedimento.enums.js";
 
 const MENSAGEM_NOME_INVALIDO = "Informe o nome do procedimento.";
 const MENSAGEM_VALOR_INVALIDO = "Informe um valor com até duas casas decimais.";
+const LIMITE_INTEIRO_POSTGRES = 2_147_483_647;
 
 const textoObrigatorioSchema = z
   .string()
@@ -23,14 +25,20 @@ const camposCriarProcedimento = {
   duracao_min: z
     .number()
     .int("Informe a duração em minutos inteiros.")
-    .positive("Informe uma duração maior que zero."),
+    .positive("Informe uma duração maior que zero.")
+    .max(
+      LIMITE_INTEIRO_POSTGRES,
+      "Informe uma duração dentro do limite aceito.",
+    ),
   preco: valorMonetarioSchema,
   tipo_sinal: z.enum(TIPO_SINAL),
   valor_sinal: valorMonetarioSchema,
+  imagem: imagemProcedimentoInputSchema.optional(),
   periodo_manutencao_dias: z
     .number()
     .int("Informe o período em dias inteiros.")
     .positive("Informe um período maior que zero.")
+    .max(LIMITE_INTEIRO_POSTGRES, "Informe um período dentro do limite aceito.")
     .optional(),
 };
 
@@ -49,6 +57,10 @@ export const atualizarProcedimentoSchema = z
       .number()
       .int("Informe o período em dias inteiros.")
       .positive("Informe um período maior que zero.")
+      .max(
+        LIMITE_INTEIRO_POSTGRES,
+        "Informe um período dentro do limite aceito.",
+      )
       .nullable()
       .optional(),
     ativo: z.boolean().optional(),
@@ -70,6 +82,7 @@ export const procedimentoResponseSchema = z
     tipo_sinal: z.enum(TIPO_SINAL),
     valor_sinal: z.number().nonnegative(),
     periodo_manutencao_dias: z.number().int().positive().nullable(),
+    imagem_url: z.url().nullable(),
     ativo: z.boolean(),
     criado_em: z.iso.datetime(),
   })
@@ -82,6 +95,7 @@ export const procedimentoPublicoResponseSchema = z
     descricao: z.string().nullable(),
     duracao_min: z.number().int().positive(),
     preco: z.number().nonnegative(),
+    imagem_url: z.url().nullable(),
   })
   .meta({ id: "ProcedimentoPublicoResponse" });
 

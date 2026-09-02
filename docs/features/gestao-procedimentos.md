@@ -12,7 +12,9 @@ Manter o catálogo de serviços oferecidos pelo salão, com os dados essenciais 
 
 - Criar procedimento com: nome, duração estimada (min), preço, sinal (percentual ou fixo).
 - Adicionar informações opcionais ao procedimento: descrição, informações pré-procedimento e período de manutenção sugerido (dias).
-- Adicionar imagem ao procedimento na fatia 1.6-BE.
+- Associar uma imagem opcional ao criar ou editar o procedimento por `imagem.arquivo_id`.
+- Substituir a imagem ao informar outro arquivo e removê-la por comando dedicado.
+- Expor a imagem por URL pública direta no catálogo, inclusive quando o procedimento estiver inativo.
 - Editar procedimento existente.
 - Ativar / desativar procedimento (soft — não há exclusão dura).
 - Ocultar procedimento inativo da vitrine pública da cliente, mantendo-o disponível para agendamento manual pelo salão.
@@ -39,6 +41,11 @@ Usado por:
 - [[pagamentos]] (sinal por procedimento)
 
 ## Observações
+
+### Imagem do procedimento
+
+- O arquivo associado precisa pertencer ao mesmo salão do procedimento.
+- Remover a imagem elimina apenas o vínculo; o arquivo órfão é removido posteriormente pela limpeza de anexos.
 
 - Um procedimento por agendamento no MVP. Combos são cadastrados como procedimento único (ex.: "Corte + Escova").
 - Categorias/agrupamento estão fora do MVP — catálogo cresce achatado.

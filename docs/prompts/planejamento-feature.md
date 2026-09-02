@@ -4,7 +4,9 @@
 
 A seguir vou descrever a fatia/feature que quero implementar.
 
-- [ ] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
+- [ ] **1.6-BE** Anexos — módulo de storage + upload/download de arquivos. Entity `imagem_procedimento` (a `arquivo` já foi criada em 0.4). Endpoints `POST /arquivos`, `POST /procedimentos/:id/imagem`, etc. — `[DEP: 1.3-BE]` `[DECIDIR: onde armazenar? S3, R2, disco local]`
+
+OBS: É importante q o storage seja agnostico ao provider de storage. Similar com o auth q n depende e n conhece o clerk
 
 
 ## Contexto do repositório

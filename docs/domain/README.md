@@ -16,7 +16,7 @@ Este documento é a referência de **estrutura do domínio** — quais entidades
 - **Timestamps:** sufixo `_em` (ex.: `criado_em`, `confirmado_em`).
 - **Valores monetários:** tipo numérico com precisão explícita. MVP atende apenas Brasil (BRL); campo de moeda será adicionado se surgir necessidade de outras moedas.
 - **Enums:** cada enum tem nome próprio (padrão `<contexto>_<campo>`, ex.: `estado_agendamento`, `metodo_pagamento_manual`) e é definido em uma seção **"Enums"** ao final do arquivo do módulo onde é usado. Tabelas de atributos referenciam o enum pelo nome, não repetem os valores.
-- **Multi-tenant:** todo dado pertence a um `salao` (direta ou indiretamente via FK). Entidades genéricas de infra (como `arquivo`) não carregam `salao_id`; o vínculo com o salão emerge das tabelas que se relacionam com elas.
+- **Multi-tenant:** todo dado operacional pertence a um `salao` (direta ou indiretamente via FK). `arquivo` pertence diretamente ao salão que realizou o upload; entidades globais de identidade são a exceção explícita.
 - **Fuso horário:** armazenamento em UTC; interpretação sempre no fuso do salão.
 
 ## Módulos
@@ -35,16 +35,17 @@ O domínio está dividido em módulos por afinidade funcional. Cada arquivo deta
 
 ## Resumo dos relacionamentos
 
-| Relacionamento | Cardinalidade |
-|---|---|
-| `usuario` possui `identidade_autenticacao` | 1 → N |
-| `usuario` possui `usuario_salao` | 1 → N |
-| `salao` possui `usuario_salao` | 1 → N |
+| Relacionamento                             | Cardinalidade |
+| ------------------------------------------ | ------------- |
+| `usuario` possui `identidade_autenticacao` | 1 → N         |
+| `usuario` possui `usuario_salao`           | 1 → N         |
+| `salao` possui `usuario_salao`             | 1 → N         |
 
 | `salao` possui `profissional` | 1 → N |
 | `salao` possui `configuracao_salao` | 1 → 1 |
 | `salao` possui `procedimento` | 1 → N |
 | `salao` possui `cliente` | 1 → N |
+| `salao` possui `arquivo` | 1 → N |
 | `profissional` possui `janela_semanal` | 1 → N |
 | `profissional` possui `override_disponibilidade` | 1 → N |
 | `override_disponibilidade` possui `janela_override` | 1 → N |
@@ -75,6 +76,7 @@ erDiagram
     salao ||--|| configuracao_salao : possui
     salao ||--o{ procedimento : possui
     salao ||--o{ cliente : possui
+    salao ||--o{ arquivo : possui
 
     profissional ||--o{ janela_semanal : possui
     profissional ||--o{ override_disponibilidade : possui
@@ -269,6 +271,7 @@ erDiagram
     }
     arquivo {
         uuid id
+        uuid salao_id
         string url_storage
         string mime_type
         int tamanho_bytes

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
@@ -11,11 +12,13 @@ import type { Env } from '@/config/env.schema';
 import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { AuthGuard } from '@/modules/auth/guards/auth.guard';
+import { ArquivoModule } from '@/modules/arquivo/arquivo.module';
 import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
 import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-configuracao.module';
 import { SalaoOnboardingModule } from '@/modules/salao-onboarding/salao-onboarding.module';
 import { UsuarioModule } from '@/modules/usuario/usuario.module';
 import { ClerkModule } from '@/shared/providers/clerk/clerk.module';
+import { R2StorageModule } from '@/shared/providers/r2/r2-storage.module';
 import { TenantContextModule } from '@/shared/tenant-context/tenant-context.module';
 import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-context.guard';
 
@@ -48,9 +51,12 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
         ],
       }),
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     ClerkModule,
+    R2StorageModule,
     AuthModule,
+    ArquivoModule,
     TenantContextModule,
     UsuarioModule,
     SalaoOnboardingModule,

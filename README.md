@@ -29,8 +29,12 @@ cp .env.example .env
 npm install
 npm run build:schema
 npm run db:up
-npm run db:push
+npm run db:migrate
 ```
+
+> Banco local criado anteriormente com `db:push` e que precisa preservar dados:
+> execute uma única vez `npm run db:adopt-local` antes de `npm run db:migrate`.
+> Banco novo deve executar diretamente `npm run db:migrate`.
 
 ## Rodar dev
 
@@ -56,7 +60,10 @@ npm run dev:front
 - `npm run build:schema` — builda o pacote schema (necessário antes do backend consumir).
 - `npm run dev:schema` — schema em modo watch (rebuilda ao salvar).
 - `npm run db:up` / `db:down` — sobe/desce Postgres.
-- `npm run db:push` — aplica schema atual no banco (dev; sem gerar migration file).
+- `npm run db:generate -- --name <nome>` — gera migration a partir do schema.
+- `npm run db:adopt-local` — registra o baseline em banco local legado criado por `db:push`; uso único.
+- `npm run db:migrate` — aplica migrations versionadas no banco.
+- `npm run db:push` — sincroniza o schema diretamente em banco local descartável; não substitui migration versionada.
 - `npm run db:studio` — abre Drizzle Studio.
 - `npm run typecheck` — roda tsc --noEmit em todos os workspaces.
 

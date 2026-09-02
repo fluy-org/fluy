@@ -39,7 +39,7 @@ Motivo: no momento inicial 🟣 Rudney tem mais tempo pra codar, e 🔵 Leandro 
 - [x] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
 - [ ] **1.4-BE** Disponibilidade — janela semanal + override por data. Entities: `janela_semanal`, `override_disponibilidade`, `janela_override`. Endpoints de leitura/escrita das janelas por profissional. — `[DEP: 1.1]`
 - [x] **1.5-BE** Configuração do salão — endpoints `GET/PUT /salao/configuracao` (o salão já é criado com defaults em 1.1; aqui é só o CRUD de edição). — `[DEP: 1.1]`
-- [ ] **1.6-BE** Anexos — módulo de storage + upload/download de arquivos. Entity `imagem_procedimento` (a `arquivo` já foi criada em 0.4). Endpoints `POST /arquivos`, `POST /procedimentos/:id/imagem`, etc. — `[DEP: 1.3-BE]` `[DECIDIR: onde armazenar? S3, R2, disco local]`
+- [x] **1.6-BE** Anexos — módulo de storage + upload de arquivos. Entity `imagem_procedimento`. Endpoints `POST /arquivos`, `POST/PUT /procedimentos` com `imagem.arquivo_id`, `DELETE /procedimentos/:id/imagem` e rota pública direta da imagem. — `[DEP: 1.3-BE]` `[STORAGE: Cloudflare R2 via adapter S3-compatible]`
 
 ## Fatias — Frontend (🔵 Leandro)
 

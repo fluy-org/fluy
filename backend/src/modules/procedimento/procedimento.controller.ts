@@ -3,21 +3,26 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import type { Env } from '@/config/env.schema';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
 import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
 import {
@@ -32,7 +37,10 @@ import { ProcedimentoService } from '@/modules/procedimento/procedimento.service
 @ApiBearerAuth()
 @Controller('procedimentos')
 export class ProcedimentoController {
-  constructor(private readonly procedimentoService: ProcedimentoService) {}
+  constructor(
+    private readonly procedimentoService: ProcedimentoService,
+    private readonly config: ConfigService<Env, true>,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Cria um procedimento do salão atual' })
@@ -48,12 +56,13 @@ export class ProcedimentoController {
     @TenantFromOwner() tenant: TenantContext,
     @Body() dados: CriarProcedimentoRequestDto,
   ) {
-    return toProcedimentoResponse(
-      await this.procedimentoService.criar({
+    return toProcedimentoResponse({
+      procedimento: await this.procedimentoService.criar({
         dados,
         salaoId: tenant.salaoId,
       }),
-    );
+      apiPublicUrl: this.apiPublicUrl,
+    });
   }
 
   @Get()
@@ -69,7 +78,12 @@ export class ProcedimentoController {
   async listar(@TenantFromOwner() tenant: TenantContext) {
     const procedimentos = await this.procedimentoService.listar(tenant.salaoId);
 
-    return procedimentos.map(toProcedimentoResponse);
+    return procedimentos.map((procedimento) =>
+      toProcedimentoResponse({
+        procedimento,
+        apiPublicUrl: this.apiPublicUrl,
+      }),
+    );
   }
 
   @Put(':id')
@@ -88,13 +102,32 @@ export class ProcedimentoController {
     @TenantFromOwner() tenant: TenantContext,
     @Body() dados: AtualizarProcedimentoRequestDto,
   ) {
-    return toProcedimentoResponse(
-      await this.procedimentoService.atualizar({
+    return toProcedimentoResponse({
+      procedimento: await this.procedimentoService.atualizar({
         dados,
         id,
         salaoId: tenant.salaoId,
       }),
-    );
+      apiPublicUrl: this.apiPublicUrl,
+    });
+  }
+
+  @Delete(':id/imagem')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Remove a imagem de um procedimento do salao' })
+  @ApiNoContentResponse({ description: 'Imagem removida do procedimento.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou invalido.',
+  })
+  @ApiNotFoundResponse({ description: 'Procedimento nao encontrado.' })
+  async removerImagem(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+  ): Promise<void> {
+    await this.procedimentoService.removerImagem({
+      id,
+      salaoId: tenant.salaoId,
+    });
   }
 
   @Delete(':id')
@@ -111,11 +144,16 @@ export class ProcedimentoController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @TenantFromOwner() tenant: TenantContext,
   ) {
-    return toProcedimentoResponse(
-      await this.procedimentoService.desativar({
+    return toProcedimentoResponse({
+      procedimento: await this.procedimentoService.desativar({
         id,
         salaoId: tenant.salaoId,
       }),
-    );
+      apiPublicUrl: this.apiPublicUrl,
+    });
+  }
+
+  private get apiPublicUrl(): string {
+    return this.config.get('API_PUBLIC_URL', { infer: true });
   }
 }

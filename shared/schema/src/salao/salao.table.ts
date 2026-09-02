@@ -6,6 +6,7 @@ import { configuracaoSalao } from '@schema/configuracao_salao/configuracao_salao
 import { procedimento } from '@schema/procedimento/procedimento.table.js';
 import { cliente } from '@schema/cliente/cliente.table.js';
 import { agendamento } from '@schema/agendamento/agendamento.table.js';
+import { arquivo } from '@schema/arquivo/arquivo.table.js';
 import { LIMITE_SUBDOMINIO } from './salao.constants.js';
 import type { FusoHorarioBrasil } from './salao.enums.js';
 
@@ -32,4 +33,5 @@ export const salaoRelations = relations(salao, ({ many, one }) => ({
   procedimentos: many(procedimento),
   clientes: many(cliente),
   agendamentos: many(agendamento),
+  arquivos: many(arquivo),
 }));
