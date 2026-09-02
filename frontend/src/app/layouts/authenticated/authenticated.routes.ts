@@ -16,6 +16,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         '../../features/salao/procedimentos/pages/procedimentos/procedimentos.page'
       ).then((m) => m.ProcedimentosPage),
   },
-  { path: 'configuracao', redirectTo: 'agenda', pathMatch: 'full' },
-  // { path: 'configuracao', component: ConfiguracaoComponent }, // Exemplo para fatia 1.5
+  {
+    // A configuracao pertence ao painel e reutiliza o layout autenticado.
+    path: 'configuracao',
+    loadComponent: () =>
+      import(
+        '../../features/salao/configuracao/pages/configuracao/configuracao.page'
+      ).then((m) => m.ConfiguracaoPage),
+  },
 ];

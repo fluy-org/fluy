@@ -6,26 +6,29 @@
  */
 :root {
   /* Marca */
-  --fluy-color-primary: #9f5f70;
-  --fluy-color-primary-rgb: 159, 95, 112;
-  --fluy-color-primary-hover: #844b5a;
-  --fluy-color-primary-shade: #8c5463;
-  --fluy-color-primary-tint: #a96f7e;
-  --fluy-color-on-primary: #ffffff;
+  --fluy-color-primary: #e57d90;
+  --fluy-color-primary-rgb: 229, 125, 144;
+  --fluy-color-primary-hover: #cc6478;
+  --fluy-color-primary-shade: #ca6e7f;
+  --fluy-color-primary-tint: #e88a9b;
+  --fluy-color-on-primary: #3f3037;
 
-  /* Acento champanhe para detalhes e acoes secundarias */
-  --fluy-color-accent: #c9956c;
-  --fluy-color-accent-rgb: 201, 149, 108;
-  --fluy-color-accent-hover: #af7d57;
-  --fluy-color-accent-tint: #cea17b;
-  --fluy-color-on-accent: #2f221a;
+  /* Tons complementares da identidade Fluy */
+  --fluy-color-accent: #f1889b;
+  --fluy-color-accent-rgb: 241, 136, 155;
+  --fluy-color-accent-hover: #db7185;
+  --fluy-color-accent-tint: #f9aaaa;
+  --fluy-color-on-accent: #3f3037;
+  --fluy-color-decorative: #f9aaaa;
+  --fluy-color-decorative-soft: #fdb4bf;
+  --fluy-color-decorative-light: #ffccd4;
 
   /* Superficies */
-  --fluy-color-background: #fcf8f7;
+  --fluy-color-background: #fff8f9;
   --fluy-color-surface: #ffffff;
-  --fluy-color-surface-muted: #f7edef;
+  --fluy-color-surface-muted: #ffccd4;
   --fluy-color-input: #ffffff;
-  --fluy-color-overlay: rgba(63, 48, 55, 0.48);
+  --fluy-color-overlay: rgba(63, 48, 55, 0.52);
 
   /* Textos */
   --fluy-color-title: #3f3037;
@@ -36,9 +39,9 @@
   --fluy-color-on-dark: #ffffff;
 
   /* Bordas */
-  --fluy-color-border: #eadcdf;
-  --fluy-color-border-soft: #f2e8ea;
-  --fluy-color-focus: #bb7b8a;
+  --fluy-color-border: #fdb4bf;
+  --fluy-color-border-soft: #ffccd4;
+  --fluy-color-focus: #e57d90;
 
   /* Estados semanticos */
   --fluy-color-success: #16836d;
@@ -106,14 +109,14 @@
   --ion-color-primary: var(--fluy-color-primary);
   --ion-color-primary-rgb: var(--fluy-color-primary-rgb);
   --ion-color-primary-contrast: var(--fluy-color-on-primary);
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-contrast-rgb: 63, 48, 55;
   --ion-color-primary-shade: var(--fluy-color-primary-shade);
   --ion-color-primary-tint: var(--fluy-color-primary-tint);
 
   --ion-color-secondary: var(--fluy-color-accent);
   --ion-color-secondary-rgb: var(--fluy-color-accent-rgb);
   --ion-color-secondary-contrast: var(--fluy-color-on-accent);
-  --ion-color-secondary-contrast-rgb: 47, 34, 26;
+  --ion-color-secondary-contrast-rgb: 63, 48, 55;
   --ion-color-secondary-shade: var(--fluy-color-accent-hover);
   --ion-color-secondary-tint: var(--fluy-color-accent-tint);
 
