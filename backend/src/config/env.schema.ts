@@ -15,8 +15,15 @@ export const envSchema = z.object({
     .enum(['development', 'test', 'production'])
     .default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
+  API_PUBLIC_URL: z.string().url(),
 
   DATABASE_URL: z.string().url(),
+
+  STORAGE_ENDPOINT: z.string().url(),
+  STORAGE_BUCKET: z.string().trim().min(1),
+  STORAGE_ACCESS_KEY_ID: z.string().min(1),
+  STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
+  STORAGE_REGION: z.string().trim().min(1).default('auto'),
 
   CLERK_SECRET_KEY: z.string().min(1),
   CLERK_AUTHORIZED_PARTIES: originsSchema,

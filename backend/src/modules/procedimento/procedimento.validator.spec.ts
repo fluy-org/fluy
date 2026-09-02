@@ -62,5 +62,6 @@ function criarProcedimentoPersistido(
     ativo: true,
     criado_em: new Date('2026-01-01T00:00:00.000Z'),
     ...input,
+    imagem: input.imagem ?? null,
   };
 }

@@ -26,6 +26,12 @@ Permitir que o salão mantenha seu catálogo de procedimentos (serviços ofereci
 1. Salão seleciona um procedimento existente.
 2. Altera campos e salva.
 
+### Imagem do procedimento
+
+1. Salão informa `imagem.arquivo_id` ao criar ou editar o procedimento.
+2. Outro arquivo substitui a imagem atual.
+3. A remoção usa comando próprio e desvincula o arquivo do procedimento.
+
 ### Ativar/Desativar
 
 1. Salão marca um procedimento como **inativo**.

@@ -1,6 +1,6 @@
 # Anexos
 
-Modela arquivos vinculados a procedimentos e agendamentos. A entidade `arquivo` guarda apenas os dados técnicos do arquivo em si; as tabelas de vínculo (`imagem_procedimento`, `anexo_agendamento`) trazem o contexto de posse e visibilidade.
+Modela arquivos vinculados a procedimentos e agendamentos. A entidade `arquivo` guarda os dados técnicos e a propriedade do salão que realizou o upload; as tabelas de vínculo (`imagem_procedimento`, `anexo_agendamento`) representam o uso específico e a visibilidade do arquivo.
 
 ---
 
@@ -8,20 +8,22 @@ Modela arquivos vinculados a procedimentos e agendamentos. A entidade `arquivo` 
 
 ### Responsabilidade
 
-Representa **um arquivo enviado ao sistema** — a coisa em si. Não sabe quem o possui nem para que serve; essa informação vive nas tabelas que se relacionam com ele. Deliberadamente **não carrega `salao_id`**: o multi-tenant emerge das entidades de vínculo (que já pertencem a algum salão).
+Representa **um arquivo enviado ao sistema** — a coisa em si. Guarda os dados técnicos, o salão que realizou o upload e não conhece seu uso específico; esse contexto continua nas tabelas de vínculo. `salao_id` estabelece a propriedade no momento do upload e é usado para validar qualquer vínculo posterior dentro do mesmo tenant.
 
 ### Atributos principais
 
-| Campo | Tipo | Obrigatório | Descrição |
-|---|---|---|---|
-| `id` | UUID | Sim | Identificador único. |
-| `url_storage` | string | Sim | URL/caminho no storage. |
-| `mime_type` | string | Sim | Tipo MIME. |
-| `tamanho_bytes` | int | Sim | Tamanho em bytes. |
-| `uploaded_em` | timestamp | Sim | Momento do upload. |
+| Campo           | Tipo      | Obrigatório | Descrição                    |
+| --------------- | --------- | ----------- | ---------------------------- |
+| `id`            | UUID      | Sim         | Identificador único.         |
+| `salao_id`      | UUID      | Sim         | Salão que realizou o upload. |
+| `url_storage`   | string    | Sim         | URL/caminho no storage.      |
+| `mime_type`     | string    | Sim         | Tipo MIME.                   |
+| `tamanho_bytes` | int       | Sim         | Tamanho em bytes.            |
+| `uploaded_em`   | timestamp | Sim         | Momento do upload.           |
 
 ### Relacionamentos
 
+- Pertence a 1 `salao`.
 - Pode ser referenciado por 0 ou 1 `imagem_procedimento`.
 - Pode ser referenciado por 0 ou 1 `anexo_agendamento`.
 
@@ -32,7 +34,7 @@ Representa **um arquivo enviado ao sistema** — a coisa em si. Não sabe quem o
 ### Observações
 
 - **Arquivo órfão** (upload iniciado e não vinculado) é candidato natural a garbage collection — regra de implementação, não de domínio.
-- **Novos usos futuros** (foto de perfil do salão, comprovante de pagamento, etc.) reaproveitam `arquivo` — basta uma nova tabela de vínculo, sem duplicar campos técnicos.
+- **Novos usos futuros** (foto de perfil do salão, comprovante de pagamento, etc.) reaproveitam `arquivo` dentro do mesmo salão — basta uma nova tabela de vínculo, sem duplicar campos técnicos.
 
 ---
 
@@ -44,10 +46,10 @@ Vincula um `arquivo` a um `procedimento` como a **imagem única** que aparece na
 
 ### Atributos principais
 
-| Campo | Tipo | Obrigatório | Descrição |
-|---|---|---|---|
-| `procedimento_id` | UUID | Sim | Procedimento dono da imagem (**único**). |
-| `arquivo_id` | UUID | Sim | Arquivo referenciado. |
+| Campo             | Tipo | Obrigatório | Descrição                                |
+| ----------------- | ---- | ----------- | ---------------------------------------- |
+| `procedimento_id` | UUID | Sim         | Procedimento dono da imagem (**único**). |
+| `arquivo_id`      | UUID | Sim         | Arquivo referenciado.                    |
 
 ### Relacionamentos
 
@@ -61,7 +63,7 @@ Vincula um `arquivo` a um `procedimento` como a **imagem única** que aparece na
 
 ### Observações
 
-- **Salão como dono** emerge naturalmente: a imagem pertence ao procedimento, que pertence ao salão.
+- A imagem só pode ser vinculada a procedimento do mesmo `salao_id` do arquivo.
 - **Galeria de múltiplas imagens por procedimento** fica fora do MVP.
 - **Agendamentos passados perdem referência** quando salão remove a imagem — comportamento aceito (feature `anexos.md`).
 
@@ -75,13 +77,13 @@ Vincula um `arquivo` a um `agendamento`. Cobre **os dois casos** de anexo em age
 
 ### Atributos principais
 
-| Campo | Tipo | Obrigatório | Descrição |
-|---|---|---|---|
-| `id` | UUID | Sim | Identificador único. |
-| `agendamento_id` | UUID | Sim | Agendamento associado. |
-| `arquivo_id` | UUID | Sim | Arquivo referenciado. |
-| `visibilidade` | visibilidade_anexo | Sim | Quem pode ver o anexo. |
-| `criado_em` | timestamp | Sim | Momento do vínculo. |
+| Campo            | Tipo               | Obrigatório | Descrição              |
+| ---------------- | ------------------ | ----------- | ---------------------- |
+| `id`             | UUID               | Sim         | Identificador único.   |
+| `agendamento_id` | UUID               | Sim         | Agendamento associado. |
+| `arquivo_id`     | UUID               | Sim         | Arquivo referenciado.  |
+| `visibilidade`   | visibilidade_anexo | Sim         | Quem pode ver o anexo. |
+| `criado_em`      | timestamp          | Sim         | Momento do vínculo.    |
 
 ### Relacionamentos
 
@@ -106,7 +108,7 @@ Vincula um `arquivo` a um `agendamento`. Cobre **os dois casos** de anexo em age
 
 ### `visibilidade_anexo`
 
-| Valor | Significado |
-|---|---|
+| Valor                  | Significado                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `publica_para_cliente` | Anexo é visível tanto para a cliente quanto para o salão (típico das imagens de referência enviadas pela cliente). |
-| `interna_do_salao` | Anexo é visível somente para o salão (típico das fotos internas do resultado do atendimento). |
+| `interna_do_salao`     | Anexo é visível somente para o salão (típico das fotos internas do resultado do atendimento).                      |
