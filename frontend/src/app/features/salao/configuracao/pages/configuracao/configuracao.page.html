@@ -1,0 +1,162 @@
+<ion-header>
+  <app-header titulo="Configurações do salão"></app-header>
+</ion-header>
+
+<ion-content class="configuration-page">
+  <main class="page-content">
+    @if (carregando()) {
+      <div class="feedback" role="status">
+        <ion-spinner aria-label="Carregando configurações"></ion-spinner>
+        <ion-text><p>Carregando configurações...</p></ion-text>
+      </div>
+    } @else if (erroCarregamento(); as erro) {
+      <div class="feedback" role="alert">
+        <ion-text color="danger"><p>{{ erro }}</p></ion-text>
+      </div>
+    } @else {
+      <div class="page-introduction">
+        <h1>Regras de funcionamento</h1>
+        <p>
+          Defina como os horários, reservas e mensagens serão apresentados às
+          suas clientes.
+        </p>
+      </div>
+
+      <form [formGroup]="formulario" (ngSubmit)="salvarConfiguracao()">
+        <div class="configuration-grid">
+          <ion-card class="configuration-card">
+            <ion-card-header>
+              <ion-card-title>Agenda e reservas</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <div class="field-grid">
+                <ion-input
+                  formControlName="granularidade_min"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  step="1"
+                  fill="outline"
+                  label="Intervalo entre horários (minutos)"
+                  labelPlacement="stacked"
+                  helperText="Exemplo: 30 oferece horários às 09:00, 09:30 e 10:00."
+                ></ion-input>
+
+                <ion-input
+                  formControlName="prazo_reserva_min"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  step="1"
+                  fill="outline"
+                  label="Prazo da reserva (minutos)"
+                  labelPlacement="stacked"
+                  helperText="Tempo que o horário aguarda a confirmação do pagamento."
+                ></ion-input>
+
+                <ion-input
+                  formControlName="antecedencia_min_horas"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  step="1"
+                  fill="outline"
+                  label="Antecedência mínima (horas)"
+                  labelPlacement="stacked"
+                  helperText="Tempo mínimo necessário antes de um novo agendamento."
+                ></ion-input>
+
+                <ion-input
+                  formControlName="antecedencia_max_dias"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  step="1"
+                  fill="outline"
+                  label="Antecedência máxima (dias)"
+                  labelPlacement="stacked"
+                  helperText="Limite de dias futuros disponíveis para agendamento."
+                ></ion-input>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="configuration-card">
+            <ion-card-header>
+              <ion-card-title>Atendimento</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <div class="field-stack">
+                <ion-input
+                  formControlName="tolerancia_atraso_min"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  step="1"
+                  fill="outline"
+                  label="Tolerância de atraso (minutos)"
+                  labelPlacement="stacked"
+                  helperText="Após esse período, o atendimento poderá ser marcado como falta."
+                ></ion-input>
+
+                <ion-textarea
+                  formControlName="politica_atraso"
+                  fill="outline"
+                  label="Política de atraso"
+                  labelPlacement="stacked"
+                  rows="5"
+                  autoGrow="true"
+                  placeholder="Explique às clientes como o salão trata atrasos."
+                ></ion-textarea>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="configuration-card communication-card">
+            <ion-card-header>
+              <ion-card-title>Comunicação</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <ion-textarea
+                formControlName="mensagem_confirmacao"
+                fill="outline"
+                label="Mensagem de confirmação"
+                labelPlacement="stacked"
+                rows="5"
+                autoGrow="true"
+                placeholder="Escreva uma mensagem para a confirmação do agendamento."
+              ></ion-textarea>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <div class="form-feedback" aria-live="polite">
+          @if (erroFormulario(); as erro) {
+            <ion-text color="danger"><p>{{ erro }}</p></ion-text>
+          }
+
+          @if (mensagemSucesso(); as mensagem) {
+            <ion-text class="success-message"><p>{{ mensagem }}</p></ion-text>
+          }
+        </div>
+
+        <div class="form-actions">
+          <ion-button
+            type="submit"
+            [disabled]="salvando()"
+            class="save-button"
+          >
+            @if (salvando()) {
+              <ion-spinner name="crescent" aria-label="Salvando"></ion-spinner>
+            } @else {
+              Salvar configurações
+            }
+          </ion-button>
+        </div>
+      </form>
+    }
+  </main>
+</ion-content>

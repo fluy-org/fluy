@@ -46,7 +46,7 @@ Motivo: no momento inicial 🟣 Rudney tem mais tempo pra codar, e 🔵 Leandro 
 - [x] **1.2-FE** Tela de login com Clerk — usa Clerk SDK pra sessão, chama `GET /usuarios/eu` e direciona pra `/concluir-cadastro`, `/onboarding` ou `/painel` conforme o estado retornado. — `[DEP: 1.2-BE]` `[SEED-OK]`
 - [x] **1.3-FE** Tela de procedimentos — lista + form de criar/editar/deletar. Consome API de 1.3-BE. — `[DEP: 1.3-BE]` `[SEED-OK]`
 - [ ] **1.4-FE** Tela de disponibilidade — grade semanal editável + calendário de exceções. Consome API de 1.4-BE. — `[DEP: 1.4-BE]` `[SEED-OK]`
-- [ ] **1.5-FE** Tela de configuração do salão — form pra editar granularidade, tolerância, antecedências, mensagem de confirmação. Consome API de 1.5-BE. — `[DEP: 1.5-BE]` `[SEED-OK]`
+- [x]  **1.5-FE** Tela de configuração do salão — form pra editar granularidade, tolerância, antecedências, mensagem de confirmação. Consome API de 1.5-BE. — `[DEP: 1.5-BE]` `[SEED-OK]` 
 - [ ] **1.6-FE** Upload de imagem em procedimento — componente de upload na tela de 1.3-FE, chama endpoint de 1.6-BE. — `[DEP: 1.3-FE, 1.6-BE]`
 
 ## Sequência sugerida
