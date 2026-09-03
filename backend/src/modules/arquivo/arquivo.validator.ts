@@ -4,13 +4,11 @@ import type {
   ArquivoRecebido,
   ArquivoValidado,
 } from '@/modules/arquivo/contracts';
-import { TAMANHO_MAXIMO_ARQUIVO_BYTES } from '@/modules/arquivo/contracts';
-
-const TIPOS_DE_IMAGEM_PERMITIDOS = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-]);
+import {
+  LIMITE_TAMANHO_ARQUIVO_RECEBIDO_MIB,
+  TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES,
+} from '@/modules/arquivo/arquivo-data';
+import { ehTipoMimeImagem } from '@/modules/arquivo/arquivo-utils';
 
 @Injectable()
 export class ArquivoValidator {
@@ -21,15 +19,17 @@ export class ArquivoValidator {
       throw new BadRequestException('Envie um arquivo.');
     }
 
-    if (arquivo.tamanhoBytes > TAMANHO_MAXIMO_ARQUIVO_BYTES) {
-      throw new BadRequestException('O arquivo deve ter no maximo 5 MiB.');
+    if (arquivo.tamanhoBytes > TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES) {
+      throw new BadRequestException(
+        `O arquivo deve ter no maximo ${LIMITE_TAMANHO_ARQUIVO_RECEBIDO_MIB} MiB.`,
+      );
     }
 
     const tipoDetectado = await fileTypeFromBuffer(arquivo.buffer);
 
     if (
       !tipoDetectado ||
-      !TIPOS_DE_IMAGEM_PERMITIDOS.has(tipoDetectado.mime) ||
+      !ehTipoMimeImagem(tipoDetectado.mime) ||
       tipoDetectado.mime !== arquivo.mimeType
     ) {
       throw new BadRequestException(

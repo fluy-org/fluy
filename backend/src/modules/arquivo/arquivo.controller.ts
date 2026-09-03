@@ -17,10 +17,8 @@ import {
 } from '@nestjs/swagger';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
 import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
-import {
-  ArquivoUploadResponseDto,
-  TAMANHO_MAXIMO_ARQUIVO_BYTES,
-} from '@/modules/arquivo/contracts';
+import { ArquivoUploadResponseDto } from '@/modules/arquivo/contracts';
+import { TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES } from '@/modules/arquivo/arquivo-data';
 import { ArquivoService } from '@/modules/arquivo/arquivo.service';
 
 @ApiTags('Arquivos')
@@ -32,7 +30,7 @@ export class ArquivoController {
   @Post()
   @UseInterceptors(
     FileInterceptor('arquivo', {
-      limits: { fileSize: TAMANHO_MAXIMO_ARQUIVO_BYTES, files: 1 },
+      limits: { fileSize: TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES, files: 1 },
     }),
   )
   @ApiOperation({ summary: 'Envia uma imagem do salao atual' })
