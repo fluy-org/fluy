@@ -8,6 +8,7 @@ jest.mock('file-type', () => ({ fileTypeFromBuffer: jest.fn() }), {
 });
 jest.mock('node:crypto', () => ({ randomUUID: () => 'chave-storage' }));
 
+import sharp from 'sharp';
 import type {
   ArquivoPersistido,
   ArquivoRecebido,
@@ -55,11 +56,21 @@ describe('ArquivoService', () => {
     jest.resetAllMocks();
   });
 
-  it('persiste o arquivo no salao autenticado antes do upload', async () => {
+  it('comprime o arquivo antes de persistir e enviar ao storage', async () => {
+    const bufferOriginal = await sharp({
+      create: {
+        width: 2_500,
+        height: 100,
+        channels: 3,
+        background: { r: 20, g: 80, b: 160 },
+      },
+    })
+      .jpeg({ quality: 100 })
+      .toBuffer();
     const arquivoRecebido: ArquivoRecebido = {
-      buffer: Buffer.from('imagem'),
-      mimeType: 'image/png',
-      tamanhoBytes: 6,
+      buffer: bufferOriginal,
+      mimeType: 'image/jpeg',
+      tamanhoBytes: bufferOriginal.byteLength,
     };
     const input: EnviarArquivoInput = {
       arquivo: arquivoRecebido,
@@ -67,8 +78,8 @@ describe('ArquivoService', () => {
     };
     const arquivoValidado: ArquivoValidado = {
       buffer: arquivoRecebido.buffer,
-      mimeType: 'image/png',
-      tamanhoBytes: 6,
+      mimeType: 'image/jpeg',
+      tamanhoBytes: bufferOriginal.byteLength,
     };
     const arquivoPersistido = criarArquivoPersistido({
       salao_id: input.salaoId,
@@ -81,21 +92,53 @@ describe('ArquivoService', () => {
     expect(await service.enviar(input)).toEqual({
       arquivo_id: arquivoPersistido.id,
     });
-    expect(criar).toHaveBeenCalledWith({
-      mimeType: arquivoValidado.mimeType,
+    const arquivoCriado = criar.mock.calls[0][0];
+    const objetoEnviado = putObject.mock.calls[0][0];
+
+    expect(arquivoCriado).toEqual({
+      mimeType: 'image/jpeg',
       salaoId: input.salaoId,
-      tamanhoBytes: arquivoValidado.tamanhoBytes,
+      tamanhoBytes: objetoEnviado.body.byteLength,
       urlStorage: 'chave-storage',
     });
-
-    expect(putObject).toHaveBeenCalledWith({
-      body: arquivoValidado.buffer,
-      contentType: arquivoValidado.mimeType,
+    expect(objetoEnviado).toMatchObject({
+      contentType: 'image/jpeg',
       key: 'chave-storage',
     });
+    expect((await sharp(objetoEnviado.body).metadata()).width).toBe(2_000);
     expect(criar.mock.invocationCallOrder[0]).toBeLessThan(
       putObject.mock.invocationCallOrder[0],
     );
+  });
+
+  it('recusa a imagem que continua maior que o limite apos a compressao', async () => {
+    const pixels = Buffer.allocUnsafe(2_000 * 2_000 * 3);
+    let semente = 123_456_789;
+
+    for (let indice = 0; indice < pixels.length; indice += 1) {
+      semente = (Math.imul(semente, 1_664_525) + 1_013_904_223) >>> 0;
+      pixels[indice] = semente >>> 24;
+    }
+
+    const bufferOriginal = await sharp(pixels, {
+      raw: { width: 2_000, height: 2_000, channels: 3 },
+    })
+      .png()
+      .toBuffer();
+    const arquivoRecebido: ArquivoRecebido = {
+      buffer: bufferOriginal,
+      mimeType: 'image/png',
+      tamanhoBytes: bufferOriginal.byteLength,
+    };
+
+    validar.mockResolvedValue(arquivoRecebido);
+
+    await expect(
+      service.enviar({ arquivo: arquivoRecebido, salaoId: 'salao-ana' }),
+    ).rejects.toThrow('A imagem processada deve ter no maximo 5 MiB.');
+
+    expect(criar).not.toHaveBeenCalled();
+    expect(putObject).not.toHaveBeenCalled();
   });
 
   it('ignora a validacao de pertencimento quando nao ha arquivo informado', async () => {
