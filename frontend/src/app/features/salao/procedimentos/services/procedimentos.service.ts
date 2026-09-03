@@ -4,6 +4,7 @@ import type {
   AtualizarProcedimentoDto,
   CriarProcedimentoDto,
   ProcedimentoResponseDto,
+  UploadArquivoResponseDto,
 } from '@fluy/schema';
 import { firstValueFrom } from 'rxjs';
 
@@ -26,6 +27,32 @@ export class ProcedimentosService {
   getEntidade(id: string): ProcedimentoResponseDto | undefined {
     // A API ainda nao possui GET /procedimentos/:id; consulta o estado carregado.
     return this._procedimentos().find((procedimento) => procedimento.id === id);
+  }
+
+  async enviarImagem(arquivo: File): Promise<UploadArquivoResponseDto> {
+    const formulario = new FormData();
+
+    // O nome arquivo precisa corresponder ao campo esperado pelo backend.
+    formulario.append('arquivo', arquivo);
+
+    return firstValueFrom(
+      this.http.post<UploadArquivoResponseDto>('/arquivos', formulario),
+    );
+  }
+
+  async removerImagem(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete<void>(`/procedimentos/${id}/imagem`),
+    );
+
+    // O endpoint retorna 204; atualiza apenas a imagem no estado ja carregado.
+    this._procedimentos.update((procedimentos) =>
+      procedimentos.map((procedimento) =>
+        procedimento.id === id
+          ? { ...procedimento, imagem_url: null }
+          : procedimento,
+      ),
+    );
   }
 
   async setEntidade(

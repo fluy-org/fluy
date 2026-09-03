@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   input,
+  OnDestroy,
   output,
   signal,
 } from '@angular/core';
@@ -27,6 +28,9 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 
+const TAMANHO_MAXIMO_IMAGEM_BYTES = 5 * 1024 * 1024;
+const TIPOS_IMAGEM_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
+
 @Component({
   selector: 'app-formulario-procedimento',
   templateUrl: './formulario-procedimento.component.html',
@@ -47,7 +51,7 @@ import {
     ReactiveFormsModule,
   ],
 })
-export class FormularioProcedimentoComponent {
+export class FormularioProcedimentoComponent implements OnDestroy {
   // Quando recebe um procedimento, o mesmo formulario passa a operar em edicao.
   readonly procedimento = input<ProcedimentoResponseDto | null>(null);
   readonly salvando = input(false);
@@ -55,7 +59,14 @@ export class FormularioProcedimentoComponent {
 
   readonly salvar = output<CriarProcedimentoDto>();
   readonly cancelar = output<void>();
+  readonly alterarImagem = output<File | null>();
+  readonly solicitarRemocaoImagem = output<void>();
   readonly erroValidacao = signal<string | null>(null);
+  readonly erroImagem = signal<string | null>(null);
+  readonly arquivoImagem = signal<File | null>(null);
+  readonly urlPreviewImagem = signal<string | null>(null);
+
+  private urlTemporariaImagem: string | null = null;
 
   readonly titulo = computed(() =>
     this.procedimento() ? 'Editar procedimento' : 'Novo procedimento',
@@ -77,7 +88,57 @@ export class FormularioProcedimentoComponent {
 
   constructor() {
     // Mantem o mesmo formulario preparado tanto para criacao quanto para edicao.
-    effect(() => this.preencherFormulario(this.procedimento()));
+    effect(() => {
+      const procedimento = this.procedimento();
+
+      this.preencherFormulario(procedimento);
+      this.limparSelecaoImagem(procedimento?.imagem_url ?? null);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.revogarUrlTemporaria();
+  }
+
+  selecionarImagem(evento: Event): void {
+    const inputArquivo = evento.target as HTMLInputElement;
+    const arquivo = inputArquivo.files?.[0];
+
+    this.erroImagem.set(null);
+
+    if (!arquivo) {
+      return;
+    }
+
+    if (!TIPOS_IMAGEM_PERMITIDOS.includes(arquivo.type)) {
+      this.erroImagem.set('Selecione uma imagem JPEG, PNG ou WebP.');
+      inputArquivo.value = '';
+      return;
+    }
+
+    if (arquivo.size > TAMANHO_MAXIMO_IMAGEM_BYTES) {
+      this.erroImagem.set('A imagem deve ter no maximo 5 MiB.');
+      inputArquivo.value = '';
+      return;
+    }
+
+    this.revogarUrlTemporaria();
+    this.urlTemporariaImagem = URL.createObjectURL(arquivo);
+    this.arquivoImagem.set(arquivo);
+    this.urlPreviewImagem.set(this.urlTemporariaImagem);
+    this.alterarImagem.emit(arquivo);
+  }
+
+  removerSelecaoImagem(inputArquivo: HTMLInputElement): void {
+    inputArquivo.value = '';
+    this.erroImagem.set(null);
+    this.limparSelecaoImagem(this.procedimento()?.imagem_url ?? null);
+    this.alterarImagem.emit(null);
+  }
+
+  removerImagemAtual(): void {
+    this.urlPreviewImagem.set(null);
+    this.solicitarRemocaoImagem.emit();
   }
 
   enviarFormulario(): void {
@@ -137,6 +198,22 @@ export class FormularioProcedimentoComponent {
             periodo_manutencao_dias: null,
           },
     );
+  }
+
+  private limparSelecaoImagem(urlImagemAtual: string | null): void {
+    this.revogarUrlTemporaria();
+    this.arquivoImagem.set(null);
+    this.urlPreviewImagem.set(urlImagemAtual);
+    this.erroImagem.set(null);
+  }
+
+  private revogarUrlTemporaria(): void {
+    if (!this.urlTemporariaImagem) {
+      return;
+    }
+
+    URL.revokeObjectURL(this.urlTemporariaImagem);
+    this.urlTemporariaImagem = null;
   }
 
   private dadosFormulario(): unknown {

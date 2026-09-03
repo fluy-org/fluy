@@ -12,6 +12,62 @@
   >
     <!-- Base visual: os controles reativos e validacoes entram depois. -->
     <ion-list lines="full">
+      <section class="campo-imagem" aria-labelledby="titulo-imagem-procedimento">
+        <div class="campo-imagem-cabecalho">
+          <div>
+            <strong id="titulo-imagem-procedimento">
+              Imagem do procedimento
+            </strong>
+            <p>JPEG, PNG ou WebP de ate 5 MiB.</p>
+          </div>
+
+          <label class="seletor-imagem">
+            {{ arquivoImagem() ? "Trocar imagem" : "Selecionar imagem" }}
+            <input
+              #inputImagem
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              [disabled]="salvando()"
+              (change)="selecionarImagem($event)"
+            />
+          </label>
+        </div>
+
+        @if (urlPreviewImagem(); as urlImagem) {
+          <div class="preview-imagem">
+            <img [src]="urlImagem" alt="Previa da imagem do procedimento" />
+
+            @if (arquivoImagem()) {
+              <ion-button
+                type="button"
+                fill="clear"
+                color="medium"
+                size="small"
+                [disabled]="salvando()"
+                (click)="removerSelecaoImagem(inputImagem)"
+              >
+                Remover selecao
+              </ion-button>
+            } @else if (procedimento()?.imagem_url) {
+              <ion-button
+                type="button"
+                fill="clear"
+                color="danger"
+                size="small"
+                [disabled]="salvando()"
+                (click)="removerImagemAtual()"
+              >
+                Remover imagem
+              </ion-button>
+            }
+          </div>
+        }
+
+        @if (erroImagem(); as erro) {
+          <p class="validation-error">{{ erro }}</p>
+        }
+      </section>
+
       <ion-input
         label="Nome"
         labelPlacement="stacked"
@@ -96,7 +152,7 @@
         Cancelar
       </ion-button>
       <ion-button type="submit" [disabled]="salvando()">
-        {{ salvando() ? 'Salvando...' : 'Salvar procedimento' }}
+        {{ salvando() ? "Salvando..." : "Salvar procedimento" }}
       </ion-button>
     </div>
   </form>

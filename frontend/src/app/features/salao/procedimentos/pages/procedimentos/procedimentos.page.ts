@@ -62,6 +62,8 @@ export class ProcedimentosPage implements OnInit {
   readonly erro = signal<string | null>(null);
   readonly formularioAberto = signal(false);
   readonly procedimentoEmEdicao = signal<ProcedimentoResponseDto | null>(null);
+  readonly imagemSelecionada = signal<File | null>(null);
+  readonly removerImagemAoSalvar = signal(false);
   readonly salvandoFormulario = signal(false);
   readonly erroFormulario = signal<string | null>(null);
   readonly procedimentoAlterandoStatusId = signal<string | null>(null);
@@ -126,6 +128,8 @@ export class ProcedimentosPage implements OnInit {
   abrirFormulario(procedimento: ProcedimentoResponseDto | null = null): void {
     // Sem procedimento abre em criacao; com procedimento abre preenchido para edicao.
     this.procedimentoEmEdicao.set(procedimento);
+    this.imagemSelecionada.set(null);
+    this.removerImagemAoSalvar.set(false);
     this.erroFormulario.set(null);
     this.formularioAberto.set(true);
   }
@@ -136,6 +140,8 @@ export class ProcedimentosPage implements OnInit {
     }
 
     this.erroFormulario.set(null);
+    this.imagemSelecionada.set(null);
+    this.removerImagemAoSalvar.set(false);
     this.procedimentoEmEdicao.set(null);
     this.formularioAberto.set(false);
   }
@@ -143,8 +149,24 @@ export class ProcedimentosPage implements OnInit {
   aoFecharFormulario(): void {
     // Sincroniza o signal quando o usuario fecha o modal por gesto ou backdrop.
     this.erroFormulario.set(null);
+    this.imagemSelecionada.set(null);
+    this.removerImagemAoSalvar.set(false);
     this.procedimentoEmEdicao.set(null);
     this.formularioAberto.set(false);
+  }
+
+  definirImagem(arquivo: File | null): void {
+    // A page guarda o arquivo porque ela e responsavel por orquestrar o upload.
+    this.imagemSelecionada.set(arquivo);
+
+    if (arquivo) {
+      this.removerImagemAoSalvar.set(false);
+    }
+  }
+
+  marcarRemocaoImagem(): void {
+    this.imagemSelecionada.set(null);
+    this.removerImagemAoSalvar.set(true);
   }
 
   async confirmarFormulario(dados: CriarProcedimentoDto): Promise<void> {
@@ -158,13 +180,33 @@ export class ProcedimentosPage implements OnInit {
     try {
       // A page orquestra a mutacao; o componente cuida somente do formulario.
       const procedimento = this.procedimentoEmEdicao();
+      const imagem = this.imagemSelecionada();
+      let dadosComImagem: CriarProcedimentoDto = dados;
 
-      if (procedimento) {
-        await this.procedimentosService.updateEntidade(procedimento.id, dados);
-      } else {
-        await this.procedimentosService.setEntidade(dados);
+      if (procedimento && this.removerImagemAoSalvar()) {
+        await this.procedimentosService.removerImagem(procedimento.id);
       }
 
+      if (imagem) {
+        // Primeiro envia o binario; depois vincula o arquivo ao procedimento.
+        const arquivo = await this.procedimentosService.enviarImagem(imagem);
+        dadosComImagem = {
+          ...dados,
+          imagem: { arquivo_id: arquivo.arquivo_id },
+        };
+      }
+
+      if (procedimento) {
+        await this.procedimentosService.updateEntidade(
+          procedimento.id,
+          dadosComImagem,
+        );
+      } else {
+        await this.procedimentosService.setEntidade(dadosComImagem);
+      }
+
+      this.imagemSelecionada.set(null);
+      this.removerImagemAoSalvar.set(false);
       this.formularioAberto.set(false);
     } catch (error) {
       if (!(error instanceof ApiError)) {

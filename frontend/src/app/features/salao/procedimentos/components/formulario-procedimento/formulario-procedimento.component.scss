@@ -26,6 +26,62 @@ ion-select {
   margin-bottom: var(--fluy-space-2);
 }
 
+.campo-imagem {
+  padding: var(--fluy-space-4) 0;
+  border-bottom: 1px solid var(--fluy-color-border);
+}
+
+.campo-imagem-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fluy-space-4);
+}
+
+.campo-imagem-cabecalho p {
+  margin: var(--fluy-space-1) 0 0;
+  color: var(--fluy-color-text-muted);
+  font-size: var(--fluy-font-size-small);
+}
+
+.seletor-imagem {
+  flex-shrink: 0;
+  padding: var(--fluy-space-2) var(--fluy-space-4);
+  border: 1px solid var(--ion-color-primary);
+  border-radius: var(--fluy-radius-md);
+  color: var(--ion-color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.seletor-imagem:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.seletor-imagem input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.preview-imagem {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--fluy-space-3);
+  margin-top: var(--fluy-space-4);
+}
+
+.preview-imagem img {
+  width: 112px;
+  height: 112px;
+  border-radius: var(--fluy-radius-md);
+  object-fit: cover;
+}
+
 .formulario-actions {
   display: flex;
   justify-content: flex-end;
@@ -46,5 +102,15 @@ ion-select {
 
   .formulario-actions {
     flex-direction: column-reverse;
+  }
+
+  .campo-imagem-cabecalho,
+  .preview-imagem {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .seletor-imagem {
+    text-align: center;
   }
 }

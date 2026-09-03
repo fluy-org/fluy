@@ -71,8 +71,16 @@
       @for (procedimento of procedimentosFiltrados(); track procedimento.id) {
       <div class="table-row">
         <div class="procedure-name">
-          <span class="procedure-icon" aria-hidden="true"></span
-          ><strong>{{ procedimento.nome }}</strong>
+          @if (procedimento.imagem_url) {
+            <img
+              class="procedure-image"
+              [src]="procedimento.imagem_url"
+              [alt]="'Imagem de ' + procedimento.nome"
+            />
+          } @else {
+            <span class="procedure-icon" aria-hidden="true"></span>
+          }
+          <strong>{{ procedimento.nome }}</strong>
         </div>
         <span class="description"
           >{{ procedimento.descricao || 'Sem descrição' }}</span
@@ -116,7 +124,15 @@
       <ion-card class="mobile-procedure-card"
         ><ion-card-content>
           <div class="mobile-card-top">
-            <span class="procedure-icon" aria-hidden="true"></span>
+            @if (procedimento.imagem_url) {
+              <img
+                class="procedure-image"
+                [src]="procedimento.imagem_url"
+                [alt]="'Imagem de ' + procedimento.nome"
+              />
+            } @else {
+              <span class="procedure-icon" aria-hidden="true"></span>
+            }
             <div class="mobile-card-info">
               <h2>{{ procedimento.nome }}</h2>
               <p>{{ procedimento.descricao || 'Sem descrição' }}</p>
@@ -165,6 +181,8 @@
         [salvando]="salvandoFormulario()"
         [erroExterno]="erroFormulario()"
         (cancelar)="fecharFormulario()"
+        (alterarImagem)="definirImagem($event)"
+        (solicitarRemocaoImagem)="marcarRemocaoImagem()"
         (salvar)="confirmarFormulario($event)"
       ></app-formulario-procedimento>
     </ng-template>
