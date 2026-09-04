@@ -35,8 +35,8 @@ estado `sem-salao` direciona ao onboarding e `com-salao` direciona ao painel.
    - Nome, duração, preço (obrigatórios)
    - Sinal (percentual ou fixo)
    - Descrição, imagem (opcionais)
-11. Sistema conduz para configurar **janela de disponibilidade padrão** (template semanal):
-   - Para cada dia da semana: uma ou mais janelas (ex.: seg-sex 09:00-18:00) OU "sem atendimento"
+11. A configuração de disponibilidade fica disponível no painel após a criação
+    do salão; ela não integra a conclusão do onboarding.
 12. Demais configurações **assumem defaults sensatos** e ficam disponíveis para ajuste posterior:
    - Granularidade: 30min
    - Prazo de reserva sem pagamento: 15min
@@ -44,12 +44,13 @@ estado `sem-salao` direciona ao onboarding e `com-salao` direciona ao painel.
    - Antecedência mínima: 2h
    - Antecedência máxima: 60 dias
    - Informações pré-procedimento, mensagem personalizada: vazios (opcional editar)
-13. Setup mínimo concluído — sistema exibe a URL pública do salão para compartilhar.
+13. Onboarding concluído — sistema exibe a URL pública do salão para compartilhar.
 14. Salão pode explorar demais configurações no painel a qualquer momento.
 
 ## Variações
 
-- **Sucesso, salão pronto:** URL ativa, aceita agendamentos.
+- **Sucesso, salão criado:** URL ativa; o salão só recebe agendamentos quando
+  concluir os requisitos mínimos de procedimento e disponibilidade.
 - **Login com Google:** Clerk cria a sessão; após a confirmação exigida pelo
   provedor, segue para a conclusão da conta global e depois para os dados do salão.
 - **Subdomínio já em uso:** sistema pede outro; sugere variações (nome + cidade, nome + numero).
@@ -61,10 +62,12 @@ estado `sem-salao` direciona ao onboarding e `com-salao` direciona ao painel.
 
 ## Regras de negócio
 
-- **Setup mínimo obrigatório** antes de o salão poder receber agendamentos:
+- **Requisitos mínimos obrigatórios** antes de o salão poder receber agendamentos:
   1. Dados do salão (nome, contato, endereço)
   2. Pelo menos 1 procedimento ativo
   3. Pelo menos 1 janela de disponibilidade
+- A validação técnica desses requisitos entra com o fluxo de agendamento no
+  Bloco 2.
 - **Subdomínio é único no Fluy** — first-come, first-served.
 - **Formato do subdomínio:** apenas letras minúsculas, números, hífen. Sem acento ou espaço.
 - **A UX do MVP foca em um salão por vez.** O modelo permite múltiplas
@@ -86,7 +89,7 @@ estado `sem-salao` direciona ao onboarding e `com-salao` direciona ao painel.
 - **Dono cria conta com email de outro salão:** vira conta pessoal do usuário; salão criado é dele, não do outro salão. (Sem transferência de propriedade no MVP.)
 - **Provedor de login falha ou não retorna e-mail verificável:** Clerk interrompe
   o cadastro; o frontend não cria a conta local.
-- **Dono não configura janela padrão:** salão não aceita agendamentos, mas fica "criado" no sistema.
+- **Dono não configura janela padrão:** salão não aceita agendamentos, mas fica "criado" no sistema; a janela é configurada posteriormente no painel.
 - **Dono desativa todos os procedimentos:** URL pública exibe "sem procedimentos disponíveis"; clientes não conseguem agendar.
 - **Ataque/spam de cadastros falsos:** sem cobrança, precisa considerar CAPTCHA e/ou verificação de email.
 - **Subdomínio com termo ofensivo/proibido:** precisa lista de palavras bloqueadas ou moderação. Fora do MVP.
