@@ -1,12 +1,21 @@
 import { randomUUID } from 'node:crypto';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import sharp from 'sharp';
 import type {
   BuscarArquivoDoSalaoInput,
   EnviarArquivoInput,
+  ArquivoValidado,
   ValidarArquivoOpcionalDoSalaoInput,
 } from '@/modules/arquivo/contracts';
 import { DURACAO_RETENCAO_ARQUIVO_ORFAO_MS } from '@/modules/arquivo/contracts';
+import {
+  CONFIGURACOES_COMPRESSAO_IMAGEM,
+  LADO_MAXIMO_IMAGEM_PX,
+  LIMITE_MAXIMO_PIXELS_IMAGEM,
+  LIMITE_TAMANHO_ARQUIVO_PROCESSADO_MIB,
+  TAMANHO_MAXIMO_ARQUIVO_PROCESSADO_BYTES,
+} from '@/modules/arquivo/arquivo-data';
 import { ArquivoRepository } from '@/modules/arquivo/arquivo.repository';
 import { ArquivoValidator } from '@/modules/arquivo/arquivo.validator';
 import {
@@ -25,17 +34,18 @@ export class ArquivoService {
 
   async enviar({ arquivo, salaoId }: EnviarArquivoInput) {
     const arquivoValidado = await this.arquivoValidator.validar(arquivo);
+    const arquivoProcessado = await this.comprimirImagem(arquivoValidado);
     const chaveStorage = randomUUID();
     const arquivoPersistido = await this.arquivoRepository.criar({
-      mimeType: arquivoValidado.mimeType,
+      mimeType: arquivoProcessado.mimeType,
       salaoId,
-      tamanhoBytes: arquivoValidado.tamanhoBytes,
+      tamanhoBytes: arquivoProcessado.tamanhoBytes,
       urlStorage: chaveStorage,
     });
 
     await this.storage.putObject({
-      body: arquivoValidado.buffer,
-      contentType: arquivoValidado.mimeType,
+      body: arquivoProcessado.buffer,
+      contentType: arquivoProcessado.mimeType,
       key: chaveStorage,
     });
 
@@ -79,6 +89,47 @@ export class ArquivoService {
     for (const arquivo of arquivos) {
       await this.storage.deleteObject(arquivo.url_storage);
       await this.arquivoRepository.removerSeOrfao(arquivo.id);
+    }
+  }
+
+  private async comprimirImagem(
+    arquivo: ArquivoValidado,
+  ): Promise<ArquivoValidado> {
+    try {
+      const imagem = sharp(arquivo.buffer, {
+        limitInputPixels: LIMITE_MAXIMO_PIXELS_IMAGEM,
+      })
+        .autoOrient()
+        .resize({
+          width: LADO_MAXIMO_IMAGEM_PX,
+          height: LADO_MAXIMO_IMAGEM_PX,
+          fit: 'inside',
+          withoutEnlargement: true,
+        });
+
+      const configuracao = CONFIGURACOES_COMPRESSAO_IMAGEM[arquivo.mimeType];
+
+      const buffer = await imagem
+        .toFormat(configuracao.formato, configuracao.opcoes)
+        .toBuffer();
+
+      if (buffer.byteLength > TAMANHO_MAXIMO_ARQUIVO_PROCESSADO_BYTES) {
+        throw new BadRequestException(
+          `A imagem processada deve ter no maximo ${LIMITE_TAMANHO_ARQUIVO_PROCESSADO_MIB} MiB.`,
+        );
+      }
+
+      return {
+        buffer,
+        mimeType: arquivo.mimeType,
+        tamanhoBytes: buffer.byteLength,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new BadRequestException('Nao foi possivel processar a imagem.');
     }
   }
 }
