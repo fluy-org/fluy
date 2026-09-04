@@ -29,10 +29,46 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) => ({
         pinoHttp: {
-          level:
-            config.get('NODE_ENV', { infer: true }) === 'production'
+          // `debug` faz o pino-http registrar todas as leituras. Alem de
+          // poluir o console, a serializacao padrao inclui os headers da
+          // requisicao (por exemplo, Authorization).
+          level: 'info',
+          serializers: {
+            req: (request) => ({
+              id: request.id,
+              method: request.method,
+              // Query strings podem carregar credenciais em integracoes.
+              url: request.url?.split('?')[0],
+            }),
+            res: (response) => ({ statusCode: response.statusCode }),
+          },
+          // Defesa em profundidade caso algum log futuro inclua esses campos.
+          redact: {
+            paths: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'req.headers.x-api-key',
+              'req.body.password',
+              'req.body.token',
+              'req.body.accessToken',
+              'req.body.refreshToken',
+              'req.body.secret',
+              'res.headers.set-cookie',
+            ],
+            remove: true,
+          },
+          customLogLevel: (request, response, error) => {
+            if (error || response.statusCode >= 500) return 'error';
+            if (response.statusCode >= 400) return 'warn';
+
+            // Escritas bem-sucedidas são o trilho de auditoria; leituras
+            // rotineiras não precisam ocupar o console.
+            return ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
+              request.method ?? '',
+            )
               ? 'info'
-              : 'debug',
+              : 'silent';
+          },
           transport:
             config.get('NODE_ENV', { infer: true }) === 'development'
               ? { target: 'pino-pretty', options: { singleLine: true } }

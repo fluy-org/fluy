@@ -35,15 +35,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const { statusCode, error, messages, codigo, sugestoes } =
       this.buildErrorPayload(exception);
 
-    this.logger.error(
-      {
-        err: exception,
-        statusCode,
-        method: request.method,
-        url: request.url,
-      },
-      messages.join('; '),
-    );
+    // Respostas 4xx são esperadas (validação, autenticação, recurso ausente)
+    // e já são registradas pelo pino-http como `warn`. Guardamos o erro e a
+    // stack somente para falhas inesperadas, que realmente ajudam no debug.
+    if (statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      this.logger.error(
+        {
+          err: exception,
+          statusCode,
+          requestId: this.extractRequestId(request),
+          method: request.method,
+          // Não permitir que query string com dados sensíveis vá ao log.
+          url: request.url.split('?')[0],
+        },
+        'Falha inesperada ao processar a requisição',
+      );
+    }
 
     const body: ErrorResponseBody = {
       statusCode,
