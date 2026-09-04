@@ -57,7 +57,10 @@ globais de identidade, como `usuario` e `identidade_autenticacao`, nao possuem
 
 ## Fuso horário
 
-Datas armazenadas em UTC. Exibição/cálculo no fuso de `salao.fuso_horario` via helper único (backend) e pipe único (frontend).
+Instantes reais, como timestamps e agendamentos, são armazenados em UTC.
+Datas e horas civis de disponibilidade (`date` e `time`) são armazenadas e
+trafegam no fuso de `salao.fuso_horario`, sem conversão UTC. Exibição e cálculo
+de instantes usam helper único (backend) e pipe único (frontend).
 
 ## Testes
 

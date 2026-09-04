@@ -27,11 +27,14 @@ Permitir que o salão defina quando está disponível para atendimentos, atravé
 
 ## Variações
 
-- **Configuração inicial** (durante onboarding): salão define pelo menos o template semanal.
+- **Configuração inicial:** após o onboarding, salão define o template semanal
+  pelo painel antes de receber agendamentos.
 - **Ajuste rotineiro:** salão altera o template para mudança permanente (ex.: passa a abrir também aos domingos).
 - **Bloqueio pontual:** salão marca 1 dia como fechado (feriado, viagem).
 - **Horário estendido pontual:** salão adiciona janela extra em 1 dia.
-- **Salão altera template semanal e há agendamentos no horário removido:** sistema exibe alerta com a lista de conflitos e salão decide caso a caso o que fazer (manter, remarcar, cancelar).
+- **Salão altera template semanal e há agendamentos no horário removido:** o
+  alerta de conflitos entra com o motor de agendamentos no Bloco 2; a alteração
+  nunca cancela agendamentos automaticamente.
 
 ## Regras de negócio
 
@@ -40,14 +43,16 @@ Permitir que o salão defina quando está disponível para atendimentos, atravé
 - **Overrides ficam registrados na data**, mesmo quando iguais ao template (para que salão possa "desativá-los" e voltar ao padrão).
 - **Não há limite de janelas por dia** — salão pode definir 3, 4 janelas se quiser (embora prática comum sejam 1 ou 2).
 - **Uma janela é definida por hora_inicio e hora_fim.** Não pode ter janelas sobrepostas no mesmo dia.
-- **Alterar disponibilidade NÃO cancela automaticamente agendamentos conflitantes** — sistema avisa e salão decide.
-- **Cálculo de disponibilidade para agendamento** usa: janelas do dia (via template + override) − agendamentos existentes.
+- **Alterar disponibilidade NÃO cancela automaticamente agendamentos conflitantes.** O alerta entra com o motor de agendamentos no Bloco 2.
+- **Cálculo de disponibilidade para agendamento** usa: janelas do dia (via template + override) − agendamentos existentes. Esse cálculo entra no Bloco 2.
+- **Disponibilidade é por profissional na API e na modelagem.** No MVP, a interface usa o profissional inicial; gestão de múltiplos profissionais fica para depois.
+- **Copiar configuração entre dias** é uma conveniência local da tela: ela copia os dados antes de enviar o PUT, sem endpoint próprio.
 
 ## Dependências
 
-- **Onboarding do salão** — configuração inicial acontece aqui.
+- **Onboarding do salão** — cria o profissional inicial; a disponibilidade é configurada depois pelo painel.
 - **Cálculo de horários disponíveis** para clientes (fluxo de criação de agendamento).
-- **Notificação/aviso de conflito** ao alterar janelas com agendamentos existentes.
+- **Notificação/aviso de conflito** ao alterar janelas com agendamentos existentes (Bloco 2).
 
 ## Casos extremos (edge cases)
 
@@ -56,13 +61,6 @@ Permitir que o salão defina quando está disponível para atendimentos, atravé
 - **Salão define janela cruzando meia-noite** (ex.: "22:00-02:00"): fora do MVP — validação bloqueia; sistema não suporta janelas noturnas cruzando dias.
 - **Override no passado:** permitir? Sim, mas não altera agendamentos passados; só afeta relatório de "estava aberto/fechado".
 - **Salão configura template todo vazio ("sem atendimento" em todos os dias):** aceito, mas URL pública mostra "sem horários disponíveis".
-- **Fuso horário:** todas as horas são interpretadas no fuso do salão (armazenamento em UTC — ver [decisões](../../memory)).
+- **Fuso horário:** datas e horas de disponibilidade são valores civis no fuso do salão e não sofrem conversão UTC. Instantes de agendamento seguem a regra de UTC.
 - **Horário de verão:** decisão adiada — MVP assume que Brasil não tem horário de verão (verdade em 2026).
 - **Salão altera template durante uma reserva temporária de cliente em andamento:** ver casos extremos do fluxo de agendamento.
-
-## Dúvidas em aberto
-
-- **Recorrência de override** (ex.: "toda última sexta do mês é folga"): fora do MVP; salão precisa cadastrar data a data.
-- **Copiar configuração de um dia para outro** (ex.: "aplicar configuração de terça em todas as quartas"): UX que ajuda muito, mas não decidido no MVP.
-- **Antecedência mínima para alterar disponibilidade:** salão pode fechar amanhã com clientes já agendados; regra? MVP: permite, mas alerta conflitos.
-- **Configuração de disponibilidade por profissional:** modelagem já prevê multi-profissional (ver [contexto do produto](../README.md)); MVP tem apenas 1 profissional por salão, então template é do salão. Quando multi, será por profissional.

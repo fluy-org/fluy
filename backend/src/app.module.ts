@@ -13,6 +13,7 @@ import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { AuthGuard } from '@/modules/auth/guards/auth.guard';
 import { ArquivoModule } from '@/modules/arquivo/arquivo.module';
+import { DisponibilidadeModule } from '@/modules/disponibilidade/disponibilidade.module';
 import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
 import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-configuracao.module';
 import { SalaoOnboardingModule } from '@/modules/salao-onboarding/salao-onboarding.module';
@@ -93,6 +94,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
     R2StorageModule,
     AuthModule,
     ArquivoModule,
+    DisponibilidadeModule,
     TenantContextModule,
     UsuarioModule,
     SalaoOnboardingModule,
