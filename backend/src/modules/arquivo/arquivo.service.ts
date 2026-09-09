@@ -15,6 +15,7 @@ import {
   LIMITE_MAXIMO_PIXELS_IMAGEM,
   LIMITE_TAMANHO_ARQUIVO_PROCESSADO_MIB,
   TAMANHO_MAXIMO_ARQUIVO_PROCESSADO_BYTES,
+  TAMANHO_LOTE_LIMPEZA_ORFAOS,
 } from '@/modules/arquivo/arquivo-data';
 import { ArquivoRepository } from '@/modules/arquivo/arquivo.repository';
 import { ArquivoValidator } from '@/modules/arquivo/arquivo.validator';
@@ -84,11 +85,25 @@ export class ArquivoService {
   @Cron(CronExpression.EVERY_HOUR)
   async limparOrfaosExpirados(): Promise<void> {
     const limite = new Date(Date.now() - DURACAO_RETENCAO_ARQUIVO_ORFAO_MS);
-    const arquivos = await this.arquivoRepository.listarOrfaosExpirados(limite);
 
-    for (const arquivo of arquivos) {
-      await this.storage.deleteObject(arquivo.url_storage);
-      await this.arquivoRepository.removerSeOrfao(arquivo.id);
+    while (true) {
+      const arquivos = await this.arquivoRepository.listarOrfaosExpirados(
+        limite,
+        TAMANHO_LOTE_LIMPEZA_ORFAOS,
+      );
+
+      if (arquivos.length === 0) {
+        return;
+      }
+
+      for (const arquivo of arquivos) {
+        await this.storage.deleteObject(arquivo.url_storage);
+        await this.arquivoRepository.removerSeOrfao(arquivo.id);
+      }
+
+      if (arquivos.length < TAMANHO_LOTE_LIMPEZA_ORFAOS) {
+        return;
+      }
     }
   }
 

@@ -9,6 +9,7 @@ import type {
   CriarProcedimentoInput,
   DesativarProcedimentoInput,
   ProcedimentoPersistido,
+  ProcedimentoPublicoPersistido,
 } from '@/modules/procedimento/contracts';
 
 @Injectable()
@@ -35,11 +36,18 @@ export class ProcedimentoRepository {
     }));
   }
 
-  async listarAtivos(salaoId: string): Promise<ProcedimentoPersistido[]> {
-    const procedimentos = await this.database
+  listarAtivos(salaoId: string): Promise<ProcedimentoPublicoPersistido[]> {
+    return this.database
       .select({
-        procedimento,
-        imagem: imagemProcedimento,
+        id: procedimento.id,
+        salao_id: procedimento.salao_id,
+        nome: procedimento.nome,
+        descricao: procedimento.descricao,
+        duracao_min: procedimento.duracao_min,
+        preco: procedimento.preco,
+        imagem: {
+          procedimento_id: imagemProcedimento.procedimento_id,
+        },
       })
       .from(procedimento)
       .leftJoin(
@@ -50,11 +58,6 @@ export class ProcedimentoRepository {
         and(eq(procedimento.salao_id, salaoId), eq(procedimento.ativo, true)),
       )
       .orderBy(asc(procedimento.criado_em));
-
-    return procedimentos.map(({ procedimento, imagem }) => ({
-      ...procedimento,
-      imagem,
-    }));
   }
 
   async buscarPorId(

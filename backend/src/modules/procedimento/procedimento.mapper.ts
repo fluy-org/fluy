@@ -2,7 +2,11 @@ import type {
   ProcedimentoPublicoResponseDto,
   ProcedimentoResponseDto,
 } from '@fluy/schema';
-import type { ProcedimentoPersistido } from '@/modules/procedimento/contracts';
+import type {
+  ProcedimentoComImagem,
+  ProcedimentoPersistido,
+  ProcedimentoPublicoPersistido,
+} from '@/modules/procedimento/contracts';
 
 export function toProcedimentoResponse({
   procedimento,
@@ -31,7 +35,7 @@ export function toProcedimentoPublicoResponse({
   procedimento,
   apiPublicUrl,
 }: {
-  procedimento: ProcedimentoPersistido;
+  procedimento: ProcedimentoPublicoPersistido;
   apiPublicUrl: string;
 }): ProcedimentoPublicoResponseDto {
   return {
@@ -48,7 +52,7 @@ function criarUrlImagemProcedimento({
   procedimento,
   apiPublicUrl,
 }: {
-  procedimento: ProcedimentoPersistido;
+  procedimento: ProcedimentoComImagem;
   apiPublicUrl: string;
 }): string | null {
   if (!procedimento.imagem) {

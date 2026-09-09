@@ -15,6 +15,13 @@
       "when": 1788389858453,
       "tag": "0001_adicionar_propriedade_salao_ao_arquivo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788991635361,
+      "tag": "0002_otimizar_consultas_repositories",
+      "breakpoints": true
     }
   ]
 }

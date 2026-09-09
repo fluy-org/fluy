@@ -1,10 +1,11 @@
 import { anexoAgendamento, arquivo, imagemProcedimento } from '@fluy/schema';
-import { and, eq, isNull, lt, notExists } from 'drizzle-orm';
+import { and, asc, eq, lt, notExists } from 'drizzle-orm';
 import { Injectable } from '@nestjs/common';
 import { InjectDatabase } from '@/database/inject-database.decorator';
 import type { Database } from '@/database/database.provider';
 import type {
   ArquivoPersistido,
+  ArquivoOrfaoExpirado,
   BuscarArquivoDoSalaoInput,
   CriarArquivoInput,
 } from '@/modules/arquivo/contracts';
@@ -40,24 +41,31 @@ export class ArquivoRepository {
     return arquivos[0];
   }
 
-  async listarOrfaosExpirados(limite: Date): Promise<ArquivoPersistido[]> {
-    const arquivos = await this.database
-      .select({ arquivo })
+  listarOrfaosExpirados(
+    limite: Date,
+    tamanhoLote: number,
+  ): Promise<ArquivoOrfaoExpirado[]> {
+    const imagemVinculada = this.database
+      .select({ id: imagemProcedimento.procedimento_id })
+      .from(imagemProcedimento)
+      .where(eq(imagemProcedimento.arquivo_id, arquivo.id));
+    const anexoVinculado = this.database
+      .select({ id: anexoAgendamento.id })
+      .from(anexoAgendamento)
+      .where(eq(anexoAgendamento.arquivo_id, arquivo.id));
+
+    return this.database
+      .select({ id: arquivo.id, url_storage: arquivo.url_storage })
       .from(arquivo)
-      .leftJoin(
-        imagemProcedimento,
-        eq(imagemProcedimento.arquivo_id, arquivo.id),
-      )
-      .leftJoin(anexoAgendamento, eq(anexoAgendamento.arquivo_id, arquivo.id))
       .where(
         and(
           lt(arquivo.uploaded_em, limite),
-          isNull(imagemProcedimento.procedimento_id),
-          isNull(anexoAgendamento.id),
+          notExists(imagemVinculada),
+          notExists(anexoVinculado),
         ),
-      );
-
-    return arquivos.map((registro) => registro.arquivo);
+      )
+      .orderBy(asc(arquivo.uploaded_em), asc(arquivo.id))
+      .limit(tamanhoLote);
   }
 
   async removerSeOrfao(id: string): Promise<boolean> {
