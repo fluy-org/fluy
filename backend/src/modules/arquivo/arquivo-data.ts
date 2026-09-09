@@ -18,6 +18,7 @@ export const LIMITE_MAXIMO_PIXELS_IMAGEM = 50_000_000;
 export const LADO_MAXIMO_IMAGEM_PX = 2_000;
 export const QUALIDADE_JPEG = 88;
 export const QUALIDADE_WEBP = 86;
+export const TAMANHO_LOTE_LIMPEZA_ORFAOS = 100;
 
 export const CONFIGURACOES_COMPRESSAO_IMAGEM: Readonly<
   Record<TipoMimeImagem, ConfiguracaoCompressaoImagem>

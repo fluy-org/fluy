@@ -5,6 +5,11 @@ export const DURACAO_RETENCAO_ARQUIVO_ORFAO_MS = 24 * 60 * 60 * 1000;
 
 export type ArquivoPersistido = typeof arquivo.$inferSelect;
 
+export type ArquivoOrfaoExpirado = Pick<
+  ArquivoPersistido,
+  'id' | 'url_storage'
+>;
+
 export type ArquivoRecebido = {
   buffer: Buffer;
   mimeType: string;

@@ -10,6 +10,22 @@ export type ProcedimentoPersistido = typeof procedimento.$inferSelect & {
   imagem: typeof imagemProcedimento.$inferSelect | null;
 };
 
+export type ProcedimentoComImagem = Pick<
+  typeof procedimento.$inferSelect,
+  'id' | 'salao_id'
+> & {
+  imagem: Pick<
+    typeof imagemProcedimento.$inferSelect,
+    'procedimento_id'
+  > | null;
+};
+
+export type ProcedimentoPublicoPersistido = Pick<
+  typeof procedimento.$inferSelect,
+  'nome' | 'descricao' | 'duracao_min' | 'preco'
+> &
+  ProcedimentoComImagem;
+
 export type BuscarProcedimentoInput = {
   id: string;
   salaoId: string;

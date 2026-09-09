@@ -10,6 +10,7 @@ jest.mock('node:crypto', () => ({ randomUUID: () => 'chave-storage' }));
 
 import sharp from 'sharp';
 import type {
+  ArquivoOrfaoExpirado,
   ArquivoPersistido,
   ArquivoRecebido,
   ArquivoValidado,
@@ -19,6 +20,7 @@ import type {
 import { ArquivoRepository } from '@/modules/arquivo/arquivo.repository';
 import { ArquivoService } from '@/modules/arquivo/arquivo.service';
 import { ArquivoValidator } from '@/modules/arquivo/arquivo.validator';
+import { TAMANHO_LOTE_LIMPEZA_ORFAOS } from '@/modules/arquivo/arquivo-data';
 import type {
   PutStorageObjectInput,
   StorageProvider,
@@ -131,7 +133,10 @@ describe('ArquivoService', () => {
       tamanhoBytes: bufferOriginal.byteLength,
     };
 
-    validar.mockResolvedValue(arquivoRecebido);
+    validar.mockResolvedValue({
+      ...arquivoRecebido,
+      mimeType: 'image/png',
+    });
 
     await expect(
       service.enviar({ arquivo: arquivoRecebido, salaoId: 'salao-ana' }),
@@ -165,6 +170,41 @@ describe('ArquivoService', () => {
       id: arquivoId,
       salaoId: 'salao-ana',
     });
+  });
+
+  it('limpa os arquivos orfaos em lotes', async () => {
+    const primeiroLote: ArquivoOrfaoExpirado[] = Array.from(
+      { length: TAMANHO_LOTE_LIMPEZA_ORFAOS },
+      (_, indice) => ({
+        id: `arquivo-${indice}`,
+        url_storage: `arquivo-${indice}`,
+      }),
+    );
+    const ultimoArquivo: ArquivoOrfaoExpirado = {
+      id: 'arquivo-final',
+      url_storage: 'segundo-arquivo',
+    };
+
+    listarOrfaosExpirados
+      .mockResolvedValueOnce(primeiroLote)
+      .mockResolvedValueOnce([ultimoArquivo]);
+    deleteObject.mockResolvedValue(undefined);
+    removerSeOrfao.mockResolvedValue(true);
+
+    await service.limparOrfaosExpirados();
+
+    expect(listarOrfaosExpirados).toHaveBeenNthCalledWith(
+      1,
+      expect.any(Date),
+      TAMANHO_LOTE_LIMPEZA_ORFAOS,
+    );
+    expect(listarOrfaosExpirados).toHaveBeenCalledTimes(2);
+    expect(deleteObject).toHaveBeenCalledTimes(TAMANHO_LOTE_LIMPEZA_ORFAOS + 1);
+    expect(deleteObject).toHaveBeenCalledWith(ultimoArquivo.url_storage);
+    expect(removerSeOrfao).toHaveBeenCalledTimes(
+      TAMANHO_LOTE_LIMPEZA_ORFAOS + 1,
+    );
+    expect(removerSeOrfao).toHaveBeenCalledWith(ultimoArquivo.id);
   });
 });
 
