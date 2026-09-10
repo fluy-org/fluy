@@ -23,7 +23,7 @@ Ao final, a cliente do salão consegue:
 
 ### 4.3 Criacao de agendamento
 
-- [ ] `cliente/03-criacao-agendamento` — **parte sem pagamento**: cliente escolhe procedimento → escolhe horário → confirma. Reserva vai direto para `agendado` (pulando `reservado` e sinal). Reutiliza motor de agendamento de 2.2. — **🟣 Rudney** — [DEP: 4.1](#41-primeiro-acesso) · [DEP: 2.2](./bloco-2-motor.md#22-agendamento-manual) · [DEP: 1.3](./bloco-1-setup-salao.md#13-be-procedimentos) · [DEP: 1.4](./bloco-1-setup-salao.md#14-be-disponibilidade) `[BLOQ:gateway — cobrar sinal + estado reservado + expira_em fica para 5.2]`
+- [ ] `cliente/03-criacao-agendamento` — **parte sem pagamento**: cliente escolhe procedimento → escolhe horário → confirma. Reserva vai direto para `agendado` (pulando `reservado` e sinal). Reutiliza o motor de criação de agendamentos da 2.2b. — **🟣 Rudney** — [DEP: 4.1](#41-primeiro-acesso) · [DEP: 2.2b](./bloco-2-motor.md#22b-motor-de-agendamento) · [DEP: 1.3](./bloco-1-setup-salao.md#13-be-procedimentos) · [DEP: 1.4](./bloco-1-setup-salao.md#14-be-disponibilidade) `[BLOQ:gateway — cobrar sinal + estado reservado + expira_em fica para 5.2]`
 
 ### 4.4 Cancelamento pela cliente
 
@@ -37,9 +37,9 @@ Ao final, a cliente do salão consegue:
 
 **🔵 Leandro** (3): 4.1 (primeiro acesso — raiz do bloco, tela mobile densa), 4.2 (embutido em 4.1), 4.4 (cancelamento cliente — tela).
 
-**🟣 Rudney** (2): 4.3 (agendamento cliente — reutiliza motor de 2.2 mas parte cliente é nova), 4.5 (notificações — infra nova, service worker, push).
+**🟣 Rudney** (2): 4.3 (agendamento cliente — reutiliza o motor de criação da 2.2b, mas a parte cliente é nova), 4.5 (notificações — infra nova, service worker, push).
 
-**Alternância:** 🔵 Leandro sai do faturamento (3.2, mais analítico) para telas mobile (mudança total de contexto). 🟣 Rudney sai de lembretes (3.1) para reaproveitar motor de agendamento (2.2) — casa com o que ele conhece.
+**Alternância:** 🔵 Leandro sai do faturamento (3.2, mais analítico) para telas mobile (mudança total de contexto). 🟣 Rudney sai de lembretes (3.1) para reaproveitar motor de agendamento (2.2b) — casa com o que ele conhece.
 
 **Balanceamento:** 3 x 2, mas 4.2 é quase de graça (embutido em 4.1), então na prática é 2 x 2. 4.5 é a mais pesada do bloco (push notification + service worker é bicho novo); 🟣 Rudney tem menos itens mas mais complexos.
 

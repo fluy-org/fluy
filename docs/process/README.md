@@ -44,7 +44,6 @@ Regra deliberada: a alocação alterna as stacks. Ninguém "vira" o dev do backe
 
 - Alternar stacks. Se puxou uma fatia que é mais Angular, próxima puxa uma mais Nest.
 - Fatias fullstack (a maioria) não têm essa distinção — livre.
-- Fatias marcadas "par obrigatório" fazem juntos (2.2 é o único caso).
 
 ## Definição de "pronto" (DoD)
 

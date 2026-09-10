@@ -19,7 +19,7 @@ Ao final:
 
 ### 5.2 Pagamento de sinal
 
-- [ ] Alterar `cliente/03-criacao-agendamento` — introduzir estado `reservado`, `expira_em`, tela de pagamento do sinal, callback de confirmação. Alterações em 4.3 e no motor de 2.2. — **🔵 Leandro** (frontend do checkout) + **🟣 Rudney** (integração com 5.1) — [DEP: 5.1](#51-modulo-de-pagamento) · [DEP: 4.3](./bloco-4-cliente-final.md#43-criacao-de-agendamento)
+- [ ] Alterar `cliente/03-criacao-agendamento` — introduzir estado `reservado`, `expira_em`, tela de pagamento do sinal, callback de confirmação. Alterações em 4.3 e no motor de criação da 2.2b. — **🔵 Leandro** (frontend do checkout) + **🟣 Rudney** (integração com 5.1) — [DEP: 5.1](#51-modulo-de-pagamento) · [DEP: 4.3](./bloco-4-cliente-final.md#43-criacao-de-agendamento)
 
 ### 5.3 Reembolso automatico
 
