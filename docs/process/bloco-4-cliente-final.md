@@ -13,11 +13,25 @@ Ao final, a cliente do salão consegue:
 
 ## Fatias
 
-- [ ] **4.1** `cliente/01-primeiro-acesso` — página pública do salão (`subdominio.fluy.app`), identificação por UUID de dispositivo + WhatsApp. Entities: `sessao_cliente`. — **🔵 Leandro** — `[DEP: bloco 0, 1.1]` `[DECIDIR: LGPD mínimo — pelo menos consentimento básico + política de privacidade]`
-- [ ] **4.2** `cliente/02-retorno` — cliente com UUID salvo reconhecida automaticamente. Sem tela nova; lógica no serviço de identificação. Praticamente embutida em 4.1. — **🔵 Leandro** — `[DEP: 4.1]`
-- [ ] **4.3** `cliente/03-criacao-agendamento` — **parte sem pagamento**: cliente escolhe procedimento → escolhe horário → confirma. Reserva vai direto para `agendado` (pulando `reservado` e sinal). Reutiliza motor de agendamento de 2.2. — **🟣 Rudney** — `[DEP: 4.1, 2.2, 1.3, 1.4]` `[BLOQ:gateway — cobrar sinal + estado reservado + expira_em fica para 5.2]`
-- [ ] **4.4** `cliente/04-cancelamento` — cliente cancela seu próprio agendamento (janela de cancelamento respeita `configuracao_salao.antecedencia`). — **🔵 Leandro** — `[DEP: 4.3]`
-- [ ] **4.5** `cliente/05-notificacao-alteracao` + módulo de notificações — quando salão altera algo, cliente é avisada. — **🟣 Rudney** — `[DEP: 4.1, 2.6, 2.7]` `[DECIDIR: canal de notificação — push PWA vs. .ics vs. WhatsApp — ambig #13, #14]`
+### 4.1 Primeiro acesso
+
+- [ ] `cliente/01-primeiro-acesso` — página pública do salão (`subdominio.fluy.app`), identificação por UUID de dispositivo + WhatsApp. Entities: `sessao_cliente`. — **🔵 Leandro** — [DEP: bloco 0](./bloco-0-fundacao.md) · [DEP: 1.1](./bloco-1-setup-salao.md#11-onboarding) `[DECIDIR: LGPD mínimo — pelo menos consentimento básico + política de privacidade]`
+
+### 4.2 Retorno
+
+- [ ] `cliente/02-retorno` — cliente com UUID salvo reconhecida automaticamente. Sem tela nova; lógica no serviço de identificação. Praticamente embutida em 4.1. — **🔵 Leandro** — [DEP: 4.1](#41-primeiro-acesso)
+
+### 4.3 Criacao de agendamento
+
+- [ ] `cliente/03-criacao-agendamento` — **parte sem pagamento**: cliente escolhe procedimento → escolhe horário → confirma. Reserva vai direto para `agendado` (pulando `reservado` e sinal). Reutiliza motor de agendamento de 2.2. — **🟣 Rudney** — [DEP: 4.1](#41-primeiro-acesso) · [DEP: 2.2](./bloco-2-motor.md#22-agendamento-manual) · [DEP: 1.3](./bloco-1-setup-salao.md#13-be-procedimentos) · [DEP: 1.4](./bloco-1-setup-salao.md#14-be-disponibilidade) `[BLOQ:gateway — cobrar sinal + estado reservado + expira_em fica para 5.2]`
+
+### 4.4 Cancelamento pela cliente
+
+- [ ] `cliente/04-cancelamento` — cliente cancela seu próprio agendamento (janela de cancelamento respeita `configuracao_salao.antecedencia`). — **🔵 Leandro** — [DEP: 4.3](#43-criacao-de-agendamento)
+
+### 4.5 Notificacao de alteracao
+
+- [ ] `cliente/05-notificacao-alteracao` + módulo de notificações — quando salão altera algo, cliente é avisada. — **🟣 Rudney** — [DEP: 4.1](#41-primeiro-acesso) · [DEP: 2.6](./bloco-2-motor.md#26-cancelamento) · [DEP: 2.7](./bloco-2-motor.md#27-remarcacao) `[DECIDIR: canal de notificação — push PWA vs. .ics vs. WhatsApp — ambig #13, #14]`
 
 ## Divisão e por quê
 

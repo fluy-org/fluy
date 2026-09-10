@@ -17,15 +17,41 @@ Ao final, um salão consegue:
 
 ## Fatias
 
-- [ ] **2.1** `cliente` entity + CRUD backend + tela mínima de listagem — **🔵 Leandro** — `[DEP: 1.1]`
-- [ ] **2.2** `salao/05-agendamento-manual` — **PAR OBRIGATÓRIO (🔵 Leandro + 🟣 Rudney)**. Motor central. Entities: `agendamento`, `evento_agendamento`. Fluxo: escolher cliente (ou criar inline) → escolher procedimento → escolher horário livre → criar agendamento. Vai direto para `agendado` (sem `reservado`/sinal). — `[DEP: 1.3, 1.4, 2.1]` `[BLOQ:pagamento-sinal-desabilitado — parte "cobrar sinal" fica para Bloco 5]`
-- [ ] **2.3** `salao/06-agenda-dia` — visualização diária + navegação semanal. Só leitura + navegação (ações são das outras fatias). — **🟣 Rudney** — `[DEP: 2.2 OU SEED-OK]`
-- [ ] **2.4** `salao/07-conclusao-atendimento` — marcar concluído, registrar pagamento manual (dinheiro/PIX). Entities: `cobranca_manual`, `pagamento_agendamento`. — **🔵 Leandro** — `[DEP: 2.2]` `[DECIDIR: permite conclusão em data futura? (ambig #1)]`
-- [ ] **2.5** `salao/10-no-show` — marcar falta. — **🟣 Rudney** — `[DEP: 2.2]` `[DECIDIR: marcar antes de expirar tolerância? (ambig #4)]`
-- [ ] **2.6** `salao/08-cancelamento` — cancelar pelo salão. Parte sem reembolso (só registra estado). — **🔵 Leandro** — `[DEP: 2.2]` `[BLOQ:gateway — reembolso automático fica para 5.3]`
-- [ ] **2.7** `salao/09-remarcacao` — remarcar (mudar horário, mesmo agendamento). — **🟣 Rudney** — `[DEP: 2.2]` `[DECIDIR: override de janela ao remarcar? (ambig #2)]`
-- [ ] **2.8** `salao/11-clientes-historico` — ficha da cliente + histórico de agendamentos + notas. Entities: `nota`. — **🔵 Leandro** — `[DEP: 2.1, 2.2]` `[SEED-OK]`
-- [ ] **2.9** Anexos em agendamento — upload de imagem interna/pública. Entities: `anexo_agendamento`. — **🟣 Rudney** — `[DEP: 1.6, 2.2]`
+### 2.1 Clientes
+
+- [ ] `cliente` entity + CRUD backend + tela mínima de listagem — **🔵 Leandro** — [DEP: 1.1](./bloco-1-setup-salao.md#11-onboarding)
+
+### 2.2 Agendamento manual
+
+- [ ] `salao/05-agendamento-manual` — **PAR OBRIGATÓRIO (🔵 Leandro + 🟣 Rudney)**. Motor central. Entities: `agendamento`, `evento_agendamento`. Fluxo: escolher cliente (ou criar inline) → escolher procedimento → escolher horário livre → criar agendamento. Vai direto para `agendado` (sem `reservado`/sinal). — [DEP: 1.3](./bloco-1-setup-salao.md#13-be-procedimentos) · [DEP: 1.4](./bloco-1-setup-salao.md#14-be-disponibilidade) · [DEP: 2.1](#21-clientes) `[BLOQ:pagamento-sinal-desabilitado — parte "cobrar sinal" fica para Bloco 5]`
+
+### 2.3 Agenda do dia
+
+- [ ] `salao/06-agenda-dia` — visualização diária + navegação semanal. Só leitura + navegação (ações são das outras fatias). — **🟣 Rudney** — [DEP: 2.2](#22-agendamento-manual) OU `[SEED-OK]`
+
+### 2.4 Conclusao de atendimento
+
+- [ ] `salao/07-conclusao-atendimento` — marcar concluído, registrar pagamento manual (dinheiro/PIX). Entities: `cobranca_manual`, `pagamento_agendamento`. — **🔵 Leandro** — [DEP: 2.2](#22-agendamento-manual) `[DECIDIR: permite conclusão em data futura? (ambig #1)]`
+
+### 2.5 No-show
+
+- [ ] `salao/10-no-show` — marcar falta. — **🟣 Rudney** — [DEP: 2.2](#22-agendamento-manual) `[DECIDIR: marcar antes de expirar tolerância? (ambig #4)]`
+
+### 2.6 Cancelamento
+
+- [ ] `salao/08-cancelamento` — cancelar pelo salão. Parte sem reembolso (só registra estado). — **🔵 Leandro** — [DEP: 2.2](#22-agendamento-manual) `[BLOQ:gateway — reembolso automático fica para 5.3]`
+
+### 2.7 Remarcacao
+
+- [ ] `salao/09-remarcacao` — remarcar (mudar horário, mesmo agendamento). — **🟣 Rudney** — [DEP: 2.2](#22-agendamento-manual) `[DECIDIR: override de janela ao remarcar? (ambig #2)]`
+
+### 2.8 Historico de clientes
+
+- [ ] `salao/11-clientes-historico` — ficha da cliente + histórico de agendamentos + notas. Entities: `nota`. — **🔵 Leandro** — [DEP: 2.1](#21-clientes) · [DEP: 2.2](#22-agendamento-manual) `[SEED-OK]`
+
+### 2.9 Anexos em agendamento
+
+- [ ] Anexos em agendamento — upload de imagem interna/pública. Entities: `anexo_agendamento`. — **🟣 Rudney** — [DEP: 1.6](./bloco-1-setup-salao.md#16-be-anexos) · [DEP: 2.2](#22-agendamento-manual)
 
 ## Divisão e por quê
 

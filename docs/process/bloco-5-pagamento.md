@@ -13,10 +13,21 @@ Ao final:
 
 ## Fatias
 
-- [ ] **5.1** Módulo `pagamento` — integração com o gateway escolhido. Entities: `webhook_gateway_evento`, `cobranca_gateway`, `reembolso`. Endpoints: criar cobrança, receber webhook, dedupe. — **🟣 Rudney** — `[BLOQ:gateway]`
-- [ ] **5.2** Alterar `cliente/03-criacao-agendamento` — introduzir estado `reservado`, `expira_em`, tela de pagamento do sinal, callback de confirmação. Alterações em 4.3 e no motor de 2.2. — **🔵 Leandro** (frontend do checkout) + **🟣 Rudney** (integração com 5.1) — `[DEP: 5.1, 4.3]`
-- [ ] **5.3** Alterar `salao/08-cancelamento` — reembolso automático quando aplicável. Altera 2.6. — **🟣 Rudney** — `[DEP: 5.1, 2.6]` `[DECIDIR: política de reembolso — ambig #3]`
-- [ ] **5.4** Alterar `salao/07-conclusao-atendimento` — se ainda faltar valor, opção de gerar cobrança online para o restante. Altera 2.4. — **🔵 Leandro** — `[DEP: 5.1, 2.4]`
+### 5.1 Modulo de pagamento
+
+- [ ] Módulo `pagamento` — integração com o gateway escolhido. Entities: `webhook_gateway_evento`, `cobranca_gateway`, `reembolso`. Endpoints: criar cobrança, receber webhook, dedupe. — **🟣 Rudney** — `[BLOQ:gateway]`
+
+### 5.2 Pagamento de sinal
+
+- [ ] Alterar `cliente/03-criacao-agendamento` — introduzir estado `reservado`, `expira_em`, tela de pagamento do sinal, callback de confirmação. Alterações em 4.3 e no motor de 2.2. — **🔵 Leandro** (frontend do checkout) + **🟣 Rudney** (integração com 5.1) — [DEP: 5.1](#51-modulo-de-pagamento) · [DEP: 4.3](./bloco-4-cliente-final.md#43-criacao-de-agendamento)
+
+### 5.3 Reembolso automatico
+
+- [ ] Alterar `salao/08-cancelamento` — reembolso automático quando aplicável. Altera 2.6. — **🟣 Rudney** — [DEP: 5.1](#51-modulo-de-pagamento) · [DEP: 2.6](./bloco-2-motor.md#26-cancelamento) `[DECIDIR: política de reembolso — ambig #3]`
+
+### 5.4 Cobranca online do restante
+
+- [ ] Alterar `salao/07-conclusao-atendimento` — se ainda faltar valor, opção de gerar cobrança online para o restante. Altera 2.4. — **🔵 Leandro** — [DEP: 5.1](#51-modulo-de-pagamento) · [DEP: 2.4](./bloco-2-motor.md#24-conclusao-de-atendimento)
 
 ## Divisão e por quê
 
