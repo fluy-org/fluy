@@ -11,8 +11,13 @@ Ao final, salão consegue:
 
 ## Fatias
 
-- [ ] **3.1** `salao/12-lembretes` — lembretes automáticos (criados ao concluir se `procedimento.periodo_manutencao_dias > 0`) + manuais. Entities: `lembrete`. — **🟣 Rudney** — `[DEP: 2.4]`
-- [ ] **3.2** `salao/13-faturamento` — dashboard com totais do período (concluídos, cancelados, no-show, sinais retidos, entradas manuais). Cálculo derivado sobre `agendamento` + `pagamento` + `evento_agendamento`. Sem entidade nova. — **🔵 Leandro** — `[DEP: 2.4, 2.5, 2.6]`
+### 3.1 Lembretes
+
+- [ ] `salao/12-lembretes` — lembretes automáticos (criados ao concluir se `procedimento.periodo_manutencao_dias > 0`) + manuais. Entities: `lembrete`. — **🟣 Rudney** — [DEP: 2.4](./bloco-2-motor.md#24-conclusao-de-atendimento)
+
+### 3.2 Faturamento
+
+- [ ] `salao/13-faturamento` — dashboard com totais do período (concluídos, cancelados, no-show, sinais retidos, entradas manuais). Cálculo derivado sobre `agendamento` + `pagamento` + `evento_agendamento`. Sem entidade nova. — **🔵 Leandro** — [DEP: 2.4](./bloco-2-motor.md#24-conclusao-de-atendimento) · [DEP: 2.5](./bloco-2-motor.md#25-no-show) · [DEP: 2.6](./bloco-2-motor.md#26-cancelamento)
 
 ## Divisão e por quê
 

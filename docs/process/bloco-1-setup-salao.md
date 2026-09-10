@@ -30,24 +30,56 @@ Motivo: no momento inicial 🟣 Rudney tem mais tempo pra codar, e 🔵 Leandro 
 
 ## Fatias concluídas
 
-- [x] **1.0** `auth/01-cadastro-e-conclusao` — cadastro pelo Clerk + `POST /usuarios` materializando a conta global. — **🟣 Rudney**
-- [x] **1.1** `salao/01-onboarding` — para conta global materializada, cria salão + vínculo `usuario_salao` dono, popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney**
+### 1.0 Cadastro e conclusao
+
+- [x] `auth/01-cadastro-e-conclusao` — cadastro pelo Clerk + `POST /usuarios` materializando a conta global. — **🟣 Rudney**
+### 1.1 Onboarding
+
+- [x] `salao/01-onboarding` — para conta global materializada, cria salão + vínculo `usuario_salao` dono, popula `configuracao_salao` com defaults e cria o `profissional` inicial. — **🟣 Rudney**
 
 ## Fatias — Backend (🟣 Rudney)
 
-- [x] **1.2-BE** Login — endpoint `GET /usuarios/eu` (`404` para sem-cadastro; retorna estado `sem-salao` ou `com-salao` para conta existente) pra o frontend decidir pra onde redirecionar depois do Clerk criar sessão. — `[DEP: 1.0]`
-- [x] **1.3-BE** Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — `[DEP: 1.1]`
-- [x] **1.4-BE** Disponibilidade — janela semanal + override por data. Entities: `janela_semanal`, `override_disponibilidade`, `janela_override`. Endpoints de leitura/escrita das janelas por profissional. — `[DEP: 1.1]`
-- [x] **1.5-BE** Configuração do salão — endpoints `GET/PUT /salao/configuracao` (o salão já é criado com defaults em 1.1; aqui é só o CRUD de edição). — `[DEP: 1.1]`
-- [x] **1.6-BE** Anexos — módulo de storage + upload de arquivos. Entity `imagem_procedimento`. Endpoints `POST /arquivos`, `POST/PUT /procedimentos` com `imagem.arquivo_id`, `DELETE /procedimentos/:id/imagem` e rota pública direta da imagem. — `[DEP: 1.3-BE]` `[STORAGE: Cloudflare R2 via adapter S3-compatible]`
+### 1.2-BE Login
+
+- [x] Login — endpoint `GET /usuarios/eu` (`404` para sem-cadastro; retorna estado `sem-salao` ou `com-salao` para conta existente) pra o frontend decidir pra onde redirecionar depois do Clerk criar sessão. — [DEP: 1.0](#10-cadastro-e-conclusao)
+
+### 1.3-BE Procedimentos
+
+- [x] Procedimentos — CRUD completo de procedimentos (sem imagem, imagem entra em 1.6-BE). Entity `procedimento`. Endpoints: `POST/GET/PUT/DELETE /procedimentos`. — [DEP: 1.1](#11-onboarding)
+
+### 1.4-BE Disponibilidade
+
+- [x] Disponibilidade — janela semanal + override por data. Entities: `janela_semanal`, `override_disponibilidade`, `janela_override`. Endpoints de leitura/escrita das janelas por profissional. — [DEP: 1.1](#11-onboarding)
+
+### 1.5-BE Configuracao do salao
+
+- [x] Configuração do salão — endpoints `GET/PUT /salao/configuracao` (o salão já é criado com defaults em 1.1; aqui é só o CRUD de edição). — [DEP: 1.1](#11-onboarding)
+
+### 1.6-BE Anexos
+
+- [x] Anexos — módulo de storage + upload de arquivos. Entity `imagem_procedimento`. Endpoints `POST /arquivos`, `POST/PUT /procedimentos` com `imagem.arquivo_id`, `DELETE /procedimentos/:id/imagem` e rota pública direta da imagem. — [DEP: 1.3-BE](#13-be-procedimentos) `[STORAGE: Cloudflare R2 via adapter S3-compatible]`
 
 ## Fatias — Frontend (🔵 Leandro)
 
-- [x] **1.2-FE** Tela de login com Clerk — usa Clerk SDK pra sessão, chama `GET /usuarios/eu` e direciona pra `/concluir-cadastro`, `/onboarding` ou `/painel` conforme o estado retornado. — `[DEP: 1.2-BE]` `[SEED-OK]`
-- [x] **1.3-FE** Tela de procedimentos — lista + form de criar/editar/deletar. Consome API de 1.3-BE. — `[DEP: 1.3-BE]` `[SEED-OK]`
-- [ ] **1.4-FE** Tela de disponibilidade — grade semanal editável + calendário de exceções. Consome API de 1.4-BE. — `[DEP: 1.4-BE]` `[SEED-OK]`
-- [x] **1.5-FE** Tela de configuração do salão — form pra editar granularidade, tolerância, antecedências, mensagem de confirmação. Consome API de 1.5-BE. — `[DEP: 1.5-BE]` `[SEED-OK]`
-- [x] ⚡ **1.6-FE** Upload de imagem em procedimento — componente de upload na tela de 1.3-FE, chama endpoint de 1.6-BE. — `[DEP: 1.3-FE, 1.6-BE]`
+### 1.2-FE Tela de login
+
+- [x] Tela de login com Clerk — usa Clerk SDK pra sessão, chama `GET /usuarios/eu` e direciona pra `/concluir-cadastro`, `/onboarding` ou `/painel` conforme o estado retornado. — [DEP: 1.2-BE](#12-be-login) `[SEED-OK]`
+
+### 1.3-FE Tela de procedimentos
+
+- [x] Tela de procedimentos — lista + form de criar/editar/deletar. Consome API de 1.3-BE. — [DEP: 1.3-BE](#13-be-procedimentos) `[SEED-OK]`
+
+### 1.4-FE Tela de disponibilidade
+
+- [x] Tela de disponibilidade — grade semanal editável + calendário de exceções. Consome API de 1.4-BE. — [DEP: 1.4-BE](#14-be-disponibilidade) `[SEED-OK]`
+
+### 1.5-FE Tela de configuracao
+
+- [x] Tela de configuração do salão — form pra editar granularidade, tolerância, antecedências, mensagem de confirmação. Consome API de 1.5-BE. — [DEP: 1.5-BE](#15-be-configuracao-do-salao) `[SEED-OK]`
+
+### 1.6-FE Upload de imagem
+
+- [x] ⚡ Upload de imagem em procedimento — componente de upload na tela de 1.3-FE, chama endpoint de 1.6-BE. — [DEP: 1.3-FE](#13-fe-tela-de-procedimentos) · [DEP: 1.6-BE](#16-be-anexos)
 
 ## Sequência sugerida
 

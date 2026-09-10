@@ -35,7 +35,7 @@ Regra deliberada: a alocação alterna as stacks. Ninguém "vira" o dev do backe
 - `[ ]` — pendente
 - `[x]` — concluída (PR mergeado + deploy em staging + outro dev conseguiu executar)
 - `⚡` no início da linha — em andamento agora
-- `[DEP:X.Y]` — depende da fatia X.Y estar pronta
+- `[DEP: X.Y](...)` — depende da fatia X.Y; clique no selo para abrir a fatia correspondente
 - `[SEED-OK]` — pode ser feita isoladamente com seed manual, mesmo sem a dependência
 - `[BLOQ:xxx]` — bloqueada por decisão externa (gateway, LGPD, etc.)
 - `[DECIDIR: xxx]` — tem uma ambiguidade a resolver antes/durante
@@ -44,7 +44,6 @@ Regra deliberada: a alocação alterna as stacks. Ninguém "vira" o dev do backe
 
 - Alternar stacks. Se puxou uma fatia que é mais Angular, próxima puxa uma mais Nest.
 - Fatias fullstack (a maioria) não têm essa distinção — livre.
-- Fatias marcadas "par obrigatório" fazem juntos (2.2 é o único caso).
 
 ## Definição de "pronto" (DoD)
 
