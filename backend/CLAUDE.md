@@ -1,63 +1,55 @@
-# CLAUDE.md — backend
+# Backend
 
-Complementa a raiz. Regras específicas de backend.
+API NestJS/TypeScript com PostgreSQL via Drizzle e contratos HTTP definidos em
+`@fluy/schema`. Complementa o `CLAUDE.md` da raiz.
 
-## Estrutura de módulo
+## Navegação
 
-Cada módulo Nest tem:
+- `src/main.ts`: CORS, logging e Swagger em `/docs`.
+- `src/app.module.ts`: composição dos módulos e guards/pipes globais.
+- `src/config/`: validação e leitura do ambiente.
+- `src/database/`: cliente Drizzle tipado.
+- `src/modules/`: features de domínio e rotas HTTP.
+- `src/shared/`: infraestrutura transversal.
+- `drizzle/`: migrações SQL e metadados do Drizzle Kit.
 
-- `repository.ts` — Drizzle. CRUD wrappers (`findAll`, `findById`, `create`, etc.).
-- `service.ts` — regra de negócio.
-- `controller.ts` — HTTP, delega pro service.
-- `contracts/` — tipos internos do módulo (ver abaixo).
+Leia o `CLAUDE.md` da subpasta antes de alterar uma dessas áreas.
 
-DTOs, schemas e tabela Drizzle vivem em `shared/schema/{tabela}/`, nunca em `backend/src/`. Backend importa do `@fluy/schema`.
+## Contratos
 
-Módulos transversais que não persistem dados nem expõem um recurso HTTP próprio
-podem omitir `repository.ts` e `controller.ts`. Eles mantêm `contracts/` e os
-providers necessários, como guards e decorators.
+`@fluy/schema` é a fonte de tabelas Drizzle, schemas Zod, tipos de request e
+response e enums persistidos. O backend consome esse pacote; não recrie schema
+HTTP ou tabela em `src/`.
 
-## Mappers de resposta
+As classes Nest que adaptam schemas para pipes e Swagger ficam em
+`contracts/` da feature e apenas usam `createZodDto`. Tipos de persistência,
+inputs internos e integrações também vivem ali e não são expostos pela API.
 
-Quando uma feature expõe registro do banco por HTTP, use `{feature}.mapper.ts`:
+## Regras
 
-- É uma função pura que transforma o registro de persistência em resposta HTTP.
-- É chamada pelo controller na fronteira HTTP; service retorna dados de persistência e não depende de DTO de resposta.
-- Importa o tipo de resposta de `@fluy/schema`, seleciona explicitamente os campos públicos e faz conversões de transporte (ex.: `Date` para ISO).
-- Não é provider Nest e não valida o schema em runtime.
+- Use `@/` para imports a partir de `src/`.
+- Use arquivos em `kebab-case` e `as const` com tipo derivado para enums novos.
+- Métodos com dois ou mais argumentos recebem um objeto de input; um único
+  identificador simples pode ser parâmetro direto.
+- Mappers convertem persistência para HTTP. Controller não retorna registro
+  Drizzle e service não depende de DTO de resposta.
+- Dados do salão recebem `salaoId` até o repository, que filtra a query. As
+  entidades globais de identidade são a exceção definida na raiz.
 
-## Contracts
+## Verificação
 
-Pasta `contracts/` desde o dia 1, mesmo com um arquivo só. Menu fixo:
-
-- `{feature}.enums.ts` — array-enums internos do backend (`as const` + type derivado). Sem Zod.
-- `{feature}.types.ts` — tipos que **não** são enum: contextos, params de método privado, retornos de query custom, tipos de infra da feature.
-- `index.ts` — barrel. Porta única de import.
-
-Regra: se o type é derivado de um array `as const`, mora no `.enums.ts`. Se não, mora no `.types.ts`.
-
-Enum de domínio (aparece em coluna) mora em `shared/schema/{tabela}/{tabela}.enums.ts` e é importado, não recriado.
-
-## Tipos
-
-Nunca exporte `interface`/`type` de service ou controller. Se for compartilhado dentro da feature, mora em `contracts/`. Se trafega HTTP, mora em `@fluy/schema`.
-
-Nunca usar `enum` nativo do TS em código novo. `as const` + type derivado sempre.
-
-## Assinatura de métodos
-
-≥2 parâmetros = objeto único. 1 param pode ser flat.
-
-```ts
-async cadastrarCliente(input: { salaoId: string; nome: string; whatsapp: string }) { ... }
-async removerCliente(id: string) { ... }
+```bash
+npm run typecheck
+npm test -- <arquivo-afetado>
 ```
 
-## Nomeação
+Use `npm run lint`, `npm run build` e `npm run test:e2e` quando o escopo pedir.
+Para schema, use os scripts `db:*` e consulte `drizzle/CLAUDE.md`.
 
-- Arquivos em `kebab-case`.
+## Atenção
 
-## Auxiliares e constantes
+Pare e reavalie se:
 
-- Funções auxiliares fora do arquivo principal → `[feature]-utils.ts`.
-- Constantes de configuração → `[feature]-data.ts`.
+- a mudança duplica um contrato de `@fluy/schema`;
+- uma query de entidade do salão não recebe/faz filtro por `salaoId`;
+- a alteração exige modificar uma migração já aplicada.
