@@ -71,7 +71,7 @@ Motivo: no momento inicial 🟣 Rudney tem mais tempo pra codar, e 🔵 Leandro 
 
 ### 1.4-FE Tela de disponibilidade
 
-- [ ] Tela de disponibilidade — grade semanal editável + calendário de exceções. Consome API de 1.4-BE. — [DEP: 1.4-BE](#14-be-disponibilidade) `[SEED-OK]`
+- [x] Tela de disponibilidade — grade semanal editável + calendário de exceções. Consome API de 1.4-BE. — [DEP: 1.4-BE](#14-be-disponibilidade) `[SEED-OK]`
 
 ### 1.5-FE Tela de configuracao
 
@@ -79,7 +79,7 @@ Motivo: no momento inicial 🟣 Rudney tem mais tempo pra codar, e 🔵 Leandro 
 
 ### 1.6-FE Upload de imagem
 
-- [ ] ⚡ Upload de imagem em procedimento — componente de upload na tela de 1.3-FE, chama endpoint de 1.6-BE. — [DEP: 1.3-FE](#13-fe-tela-de-procedimentos) · [DEP: 1.6-BE](#16-be-anexos)
+- [x] ⚡ Upload de imagem em procedimento — componente de upload na tela de 1.3-FE, chama endpoint de 1.6-BE. — [DEP: 1.3-FE](#13-fe-tela-de-procedimentos) · [DEP: 1.6-BE](#16-be-anexos)
 
 ## Sequência sugerida
 

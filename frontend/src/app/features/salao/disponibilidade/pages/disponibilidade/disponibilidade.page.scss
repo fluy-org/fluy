@@ -1,0 +1,311 @@
+:host {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
+  color: var(--fluy-color-body);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.availability-page {
+  --background: var(--fluy-color-background);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.page-content {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: var(--fluy-space-5);
+}
+
+.professional-select {
+  --background: var(--fluy-color-surface);
+  --border-color: var(--fluy-color-border);
+  --highlight-color-focused: var(--fluy-color-focus);
+  width: 100%;
+  margin-bottom: var(--fluy-space-3);
+}
+
+.professional-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--fluy-space-3);
+  margin-bottom: var(--fluy-space-3);
+  padding: var(--fluy-space-4);
+  border: 1px solid var(--fluy-color-border);
+  border-radius: var(--fluy-radius-lg);
+  background: var(--fluy-color-surface);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.professional-avatar {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--fluy-color-decorative-light);
+  color: var(--fluy-color-primary-hover);
+  font-size: var(--fluy-font-size-title);
+  font-weight: var(--fluy-font-weight-bold);
+}
+
+.professional-info,
+.exceptions-heading div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--fluy-space-1);
+}
+
+.professional-info strong,
+.exceptions-heading strong {
+  color: var(--fluy-color-title);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.professional-info span,
+.exceptions-heading span {
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-small);
+}
+
+.days-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluy-space-3);
+}
+
+.day-card,
+.exceptions-card {
+  margin: 0;
+  border: 1px solid var(--fluy-color-border);
+  border-radius: var(--fluy-radius-lg);
+  background: var(--fluy-color-surface);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.day-card-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--fluy-space-3);
+  padding: var(--fluy-space-3) var(--fluy-space-4);
+}
+
+.day-title {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--fluy-space-1);
+}
+
+.day-title ion-card-title {
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.day-title span {
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-small);
+}
+
+.closed-day {
+  background: color-mix(
+    in srgb,
+    var(--fluy-color-surface) 88%,
+    var(--fluy-color-border-soft)
+  );
+}
+
+.day-card-content {
+  padding: 0 var(--fluy-space-4) var(--fluy-space-3);
+}
+
+.period-label {
+  display: block;
+  margin-bottom: var(--fluy-space-2);
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-small);
+}
+
+.periods-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluy-space-2);
+}
+
+.period-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) auto minmax(130px, 1fr) auto;
+  align-items: center;
+  gap: var(--fluy-space-3);
+}
+
+.period-row ion-input {
+  --background: var(--fluy-color-input);
+  --border-color: var(--fluy-color-border-soft);
+  --highlight-color-focused: var(--fluy-color-focus);
+  --padding-start: var(--fluy-space-3);
+  min-height: 42px;
+}
+
+.period-separator {
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-body);
+}
+
+.remove-period-button {
+  --border-color: var(--fluy-color-border);
+  --color: var(--fluy-color-primary-hover);
+  width: 42px;
+  height: 42px;
+  margin: 0;
+}
+
+.add-period-button {
+  --color: var(--fluy-color-primary-hover);
+  margin: var(--fluy-space-2) 0 0;
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.copy-day-action {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--fluy-space-3) var(--fluy-space-2);
+}
+
+.copy-day-button {
+  --color: var(--fluy-color-muted);
+  margin: 0;
+  font-size: var(--fluy-font-size-small);
+}
+
+.exceptions-card {
+  margin-top: var(--fluy-space-3);
+}
+
+.exceptions-card ion-card-content {
+  padding: var(--fluy-space-4);
+}
+
+.exceptions-heading {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--fluy-space-3);
+}
+
+.exceptions-heading > ion-icon {
+  color: var(--fluy-color-primary-hover);
+  font-size: 28px;
+}
+
+.exceptions-empty {
+  margin-top: var(--fluy-space-3);
+  padding: var(--fluy-space-4);
+  border: 1px dashed var(--fluy-color-border);
+  border-radius: var(--fluy-radius-md);
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-body);
+  text-align: center;
+}
+
+.form-feedback {
+  min-height: 28px;
+  padding: var(--fluy-space-3) 0;
+  font-size: var(--fluy-font-size-body);
+  text-align: center;
+}
+
+.success-message {
+  color: var(--fluy-color-success);
+}
+
+.page-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fluy-space-3);
+  padding-bottom: calc(var(--fluy-space-6) + env(safe-area-inset-bottom));
+}
+
+.cancel-button,
+.save-button {
+  min-height: 46px;
+  margin: 0;
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.cancel-button {
+  --border-color: var(--fluy-color-primary);
+  --color: var(--fluy-color-primary-hover);
+}
+
+.save-button {
+  --background: var(--fluy-color-primary);
+  --background-hover: var(--fluy-color-primary-hover);
+  --color: var(--fluy-color-on-primary);
+}
+
+.feedback,
+.empty-card {
+  min-height: 280px;
+}
+
+.feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fluy-space-3);
+  text-align: center;
+}
+
+.empty-card {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 620px) {
+  .page-content {
+    padding: var(--fluy-space-4) var(--fluy-space-3);
+  }
+
+  .professional-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .period-row {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+    gap: var(--fluy-space-2);
+  }
+}
+
+@media (max-width: 420px) {
+  .period-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .period-separator {
+    display: none;
+  }
+
+  .remove-period-button {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .page-actions {
+    grid-template-columns: 1fr;
+  }
+}
