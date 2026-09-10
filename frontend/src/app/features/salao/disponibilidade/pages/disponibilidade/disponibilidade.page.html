@@ -1,0 +1,184 @@
+<ion-header>
+  <app-header titulo="Disponibilidade de horarios"></app-header>
+</ion-header>
+
+<ion-content class="availability-page">
+  <main class="page-content">
+    <ion-select
+      class="professional-select"
+      fill="outline"
+      label="Profissional"
+      label-placement="stacked"
+      interface="popover"
+      [value]="profissionalSelecionadoId()"
+      [disabled]="carregando()"
+      (ionChange)="selecionarProfissional($event.detail.value)"
+    >
+      @for (profissional of profissionais(); track profissional.id) {
+      <ion-select-option
+        [value]="profissional.id"
+        [disabled]="!profissional.ativo"
+      >
+        {{ profissional.nome }}{{ profissional.ativo ? '' : ' (inativo)' }}
+      </ion-select-option>
+      }
+    </ion-select>
+
+    @if (carregando()) {
+    <section class="feedback" aria-live="polite">
+      <ion-spinner></ion-spinner>
+      <ion-text>Carregando disponibilidade...</ion-text>
+    </section>
+    } @else if (erro()) {
+    <section class="feedback" aria-live="assertive">
+      <ion-text color="danger">{{ erro() }}</ion-text>
+      <ion-button fill="outline" (click)="carregarPagina()">
+        Tentar novamente
+      </ion-button>
+    </section>
+    } @else if (profissionais().length === 0) {
+    <ion-card class="empty-card">
+      <ion-card-header>
+        <ion-card-title>Nenhum profissional cadastrado</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        Cadastre um profissional antes de configurar horários de atendimento.
+      </ion-card-content>
+    </ion-card>
+    } @else {
+    <section class="professional-card">
+      <div class="professional-avatar" aria-hidden="true">
+        {{ profissionalSelecionado()?.nome?.charAt(0) }}
+      </div>
+      <div class="professional-info">
+        <strong>{{ profissionalSelecionado()?.nome }}</strong>
+        <span>Disponibilidade semanal</span>
+      </div>
+      <ion-badge color="success">Ativo</ion-badge>
+    </section>
+
+    <section class="days-list" aria-label="Disponibilidade semanal">
+      @for (dia of diasSemana(); track dia.valor) {
+      <ion-card class="day-card" [class.closed-day]="dia.janelas.length === 0">
+        <ion-card-header class="day-card-header">
+          <ion-toggle
+            [checked]="dia.janelas.length > 0"
+            (ionChange)="alterarDiaAtivo(dia.valor, $event.detail.checked)"
+            aria-label="Atendimento em {{ dia.nome }}"
+          ></ion-toggle>
+
+          <div class="day-title">
+            <ion-card-title>{{ dia.nome }}</ion-card-title>
+            @if (dia.janelas.length === 0) {
+            <span>Sem atendimento neste dia</span>
+            } @else {
+            <span>Adicione varios periodos para horarios flexiveis.</span>
+            }
+          </div>
+        </ion-card-header>
+
+        @if (dia.janelas.length > 0) {
+        <ion-card-content class="day-card-content">
+          <strong class="period-label">Periodos do dia</strong>
+
+          <div class="periods-list">
+            @for (janela of dia.janelas; track $index) {
+            <div class="period-row">
+              <ion-input
+                type="time"
+                fill="outline"
+                aria-label="Horário inicial"
+                [formControl]="janela.controls.hora_inicio"
+              ></ion-input>
+
+              <span class="period-separator">as</span>
+
+              <ion-input
+                type="time"
+                fill="outline"
+                aria-label="Horário final"
+                [formControl]="janela.controls.hora_fim"
+              ></ion-input>
+
+              <ion-button
+                class="remove-period-button"
+                fill="outline"
+                size="small"
+                aria-label="Remover período"
+                (click)="removerIntervalo(janela)"
+              >
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-button>
+            </div>
+            }
+          </div>
+
+          <ion-button
+            class="add-period-button"
+            fill="clear"
+            size="small"
+            (click)="adicionarIntervalo(dia.valor)"
+          >
+            <ion-icon slot="start" name="add-outline"></ion-icon>
+            Adicionar período
+          </ion-button>
+        </ion-card-content>
+        }
+
+        <div class="copy-day-action">
+          <ion-button
+            class="copy-day-button"
+            fill="clear"
+            size="small"
+            (click)="aplicarAoProximoDia(dia.valor)"
+          >
+            Aplicar ao próximo dia
+          </ion-button>
+        </div>
+      </ion-card>
+      }
+    </section>
+
+    <ion-card class="exceptions-card">
+      <ion-card-content>
+        <div class="exceptions-heading">
+          <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+          <div>
+            <strong>Exceções e bloqueios</strong>
+            <span>Cadastre folgas, feriados e horários especiais.</span>
+          </div>
+        </div>
+        <div class="exceptions-empty">Nenhuma exceção cadastrada.</div>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="form-feedback" aria-live="polite">
+      @if (erroFormulario()) {
+      <ion-text color="danger">{{ erroFormulario() }}</ion-text>
+      } @else if (mensagemSucesso()) {
+      <ion-text class="success-message">{{ mensagemSucesso() }}</ion-text>
+      }
+    </div>
+
+    <footer class="page-actions">
+      <ion-button
+        class="cancel-button"
+        fill="outline"
+        [disabled]="salvando()"
+        (click)="cancelarAlteracoes()"
+      >
+        Cancelar
+      </ion-button>
+      <ion-button
+        class="save-button"
+        [disabled]="salvando()"
+        (click)="salvarDisponibilidade()"
+      >
+        @if (salvando()) {
+        <ion-spinner name="lines-small"></ion-spinner>
+        } @else { Salvar disponibilidade }
+      </ion-button>
+    </footer>
+    }
+  </main>
+</ion-content>

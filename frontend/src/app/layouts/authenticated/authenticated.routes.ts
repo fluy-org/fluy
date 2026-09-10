@@ -24,4 +24,12 @@ export const AUTHENTICATED_ROUTES: Routes = [
         '../../features/salao/configuracao/pages/configuracao/configuracao.page'
       ).then((m) => m.ConfiguracaoPage),
   },
+  {
+    // A disponibilidade contem dados privados e reutiliza o layout autenticado.
+    path: 'disponibilidade',
+    loadComponent: () =>
+      import(
+        '../../features/salao/disponibilidade/pages/disponibilidade/disponibilidade.page'
+      ).then((m) => m.DisponibilidadePage),
+  },
 ];
