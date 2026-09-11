@@ -1,5 +1,5 @@
 <ion-header>
-  <app-header titulo="Gest&atilde;o de procedimentos"></app-header>
+  <app-header titulo="Gestão de procedimentos"></app-header>
 </ion-header>
 
 <ion-content class="procedures-page">
@@ -72,13 +72,13 @@
       <div class="table-row">
         <div class="procedure-name">
           @if (procedimento.imagem_url) {
-            <img
-              class="procedure-image"
-              [src]="procedimento.imagem_url"
-              [alt]="'Imagem de ' + procedimento.nome"
-            />
+          <img
+            class="procedure-image"
+            [src]="procedimento.imagem_url"
+            [alt]="'Imagem de ' + procedimento.nome"
+          />
           } @else {
-            <span class="procedure-icon" aria-hidden="true"></span>
+          <span class="procedure-icon" aria-hidden="true"></span>
           }
           <strong>{{ procedimento.nome }}</strong>
         </div>
@@ -125,13 +125,13 @@
         ><ion-card-content>
           <div class="mobile-card-top">
             @if (procedimento.imagem_url) {
-              <img
-                class="procedure-image"
-                [src]="procedimento.imagem_url"
-                [alt]="'Imagem de ' + procedimento.nome"
-              />
+            <img
+              class="procedure-image"
+              [src]="procedimento.imagem_url"
+              [alt]="'Imagem de ' + procedimento.nome"
+            />
             } @else {
-              <span class="procedure-icon" aria-hidden="true"></span>
+            <span class="procedure-icon" aria-hidden="true"></span>
             }
             <div class="mobile-card-info">
               <h2>{{ procedimento.nome }}</h2>

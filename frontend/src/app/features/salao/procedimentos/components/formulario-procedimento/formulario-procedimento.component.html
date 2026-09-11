@@ -38,15 +38,8 @@
             <img [src]="urlImagem" alt="Previa da imagem do procedimento" />
 
             @if (arquivoImagem()) {
-              <ion-button
-                type="button"
-                fill="clear"
-                color="medium"
-                size="small"
-                [disabled]="salvando()"
-                (click)="removerSelecaoImagem(inputImagem)"
-              >
-                Remover selecao
+              <ion-button type="button" fill="clear" color="medium" size="small" [disabled]="salvando()" (click)="removerSelecaoImagem(inputImagem)">
+                Remover seleção
               </ion-button>
             } @else if (procedimento()?.imagem_url) {
               <ion-button
