@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, lte } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, lte } from 'drizzle-orm';
 import {
   janelaOverride,
   janelaSemanal,
@@ -54,6 +54,80 @@ export class DisponibilidadeRepository {
       .limit(1);
 
     return profissionais[0];
+  }
+
+  listarProfissionaisAtivos(salaoId: string): Promise<Array<{ id: string }>> {
+    return this.database
+      .select({ id: profissional.id })
+      .from(profissional)
+      .where(
+        and(eq(profissional.salao_id, salaoId), eq(profissional.ativo, true)),
+      )
+      .orderBy(asc(profissional.criado_em));
+  }
+
+  listarJanelasSemanaisDoDia({
+    profissionalIds,
+    diaSemana,
+  }: {
+    profissionalIds: string[];
+    diaSemana: number;
+  }): Promise<
+    Array<{
+      profissional_id: string;
+      hora_inicio: string;
+      hora_fim: string;
+    }>
+  > {
+    return this.database
+      .select({
+        profissional_id: janelaSemanal.profissional_id,
+        hora_inicio: janelaSemanal.hora_inicio,
+        hora_fim: janelaSemanal.hora_fim,
+      })
+      .from(janelaSemanal)
+      .where(
+        and(
+          inArray(janelaSemanal.profissional_id, profissionalIds),
+          eq(janelaSemanal.dia_semana, diaSemana),
+        ),
+      )
+      .orderBy(asc(janelaSemanal.hora_inicio));
+  }
+
+  listarOverridesDoDia({
+    profissionalIds,
+    data,
+  }: {
+    profissionalIds: string[];
+    data: string;
+  }): Promise<
+    Array<{
+      profissional_id: string;
+      fechado: boolean;
+      hora_inicio: string | null;
+      hora_fim: string | null;
+    }>
+  > {
+    return this.database
+      .select({
+        profissional_id: overrideDisponibilidade.profissional_id,
+        fechado: overrideDisponibilidade.fechado,
+        hora_inicio: janelaOverride.hora_inicio,
+        hora_fim: janelaOverride.hora_fim,
+      })
+      .from(overrideDisponibilidade)
+      .leftJoin(
+        janelaOverride,
+        eq(janelaOverride.override_id, overrideDisponibilidade.id),
+      )
+      .where(
+        and(
+          inArray(overrideDisponibilidade.profissional_id, profissionalIds),
+          eq(overrideDisponibilidade.data, data),
+        ),
+      )
+      .orderBy(asc(janelaOverride.hora_inicio));
   }
 
   listarJanelasSemanais(

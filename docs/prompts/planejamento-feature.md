@@ -4,9 +4,9 @@
 
 A seguir vou descrever a fatia/feature que quero implementar.
 
-- [ ] **1.6-BE** Anexos — módulo de storage + upload/download de arquivos. Entity `imagem_procedimento` (a `arquivo` já foi criada em 0.4). Endpoints `POST /arquivos`, `POST /procedimentos/:id/imagem`, etc. — `[DEP: 1.3-BE]` `[DECIDIR: onde armazenar? S3, R2, disco local]`
+### 2.2b Motor de agendamento
 
-OBS: É importante q o storage seja agnostico ao provider de storage. Similar com o auth q n depende e n conhece o clerk
+- [ ] API de horários livres e criação transacional: compõe janelas + overrides + duração, revalida o slot, aloca profissional e cria direto em `agendado` com duração/preços congelados. Testa com cliente seed, sem depender do CRUD 2.1. — **🟣 Rudney** — [DEP: 1.3-BE](./bloco-1-setup-salao.md#13-be-procedimentos) · [DEP: 1.4-BE](./bloco-1-setup-salao.md#14-be-disponibilidade) `[SEED-OK]` `[BLOQ:pagamento-sinal-desabilitado — sinal e gateway ficam para Bloco 5]`
 
 
 ## Contexto do repositório

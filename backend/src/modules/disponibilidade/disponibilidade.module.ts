@@ -11,5 +11,6 @@ import { DisponibilidadeValidator } from '@/modules/disponibilidade/disponibilid
     DisponibilidadeService,
     DisponibilidadeValidator,
   ],
+  exports: [DisponibilidadeService],
 })
 export class DisponibilidadeModule {}
