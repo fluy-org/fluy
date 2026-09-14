@@ -50,7 +50,7 @@ Permitir que o salão registre agendamentos criados fora do fluxo digital (clien
 
 - **Cliente sem WhatsApp válido** (encaixe presencial rápido, salão só sabe o nome): permitir criar com WhatsApp opcional ou placeholder? MVP: exigir sempre (WhatsApp é a chave). Se salão realmente não tem, orienta a pegar.
 - **Duas Marias com WhatsApps diferentes:** cadastros separados — não há confusão.
-- **Salão cria agendamento no passado:** permitir? Sim, para registrar atendimentos históricos que aconteceram sem sistema. Já entra em `Concluído`. Útil na migração.
+- **Salão cria agendamento no passado:** permitir com aviso e confirmação explícita; cria em `Agendado`. O registro retroativo já concluído fica para um fluxo específico de migração, fora desta fatia.
 - **Salão cria agendamento em horário já em `Reservado` por cliente online:** conflito; sistema bloqueia.
 - **Salão cria agendamento com sinal manual acima do preço:** validação bloqueia.
 - **Cliente que a salão cria manualmente já existia no sistema com WhatsApp igual:** sistema oferece reutilizar cadastro em vez de duplicar.

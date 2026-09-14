@@ -14,5 +14,6 @@ import { ProcedimentoValidator } from '@/modules/procedimento/procedimento.valid
     ProcedimentoService,
     ProcedimentoValidator,
   ],
+  exports: [ProcedimentoService],
 })
 export class ProcedimentoModule {}

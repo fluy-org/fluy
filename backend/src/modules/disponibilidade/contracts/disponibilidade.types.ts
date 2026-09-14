@@ -12,6 +12,19 @@ export type ProfissionalResumoPersistido = Pick<
   ProfissionalPersistido,
   'id' | 'nome' | 'ativo'
 >;
+
+export type ProfissionalComJanelasNoDia = {
+  id: string;
+  janelas: Array<{
+    hora_inicio: string;
+    hora_fim: string;
+  }>;
+};
+
+export type ListarProfissionaisComJanelasNoDiaInput = {
+  salaoId: string;
+  data: string;
+};
 export type JanelaSemanalPersistida = typeof janelaSemanal.$inferSelect;
 export type JanelaOverridePersistida = typeof janelaOverride.$inferSelect;
 export type OverrideDisponibilidadePersistido =

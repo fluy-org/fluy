@@ -1,0 +1,1 @@
+CREATE INDEX "agendamento_profissional_inicio_ocupado_idx" ON "agendamento" USING btree ("profissional_id","inicio_em") WHERE "agendamento"."estado" in ('reservado', 'agendado');

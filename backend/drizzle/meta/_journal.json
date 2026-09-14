@@ -22,6 +22,13 @@
       "when": 1788991635361,
       "tag": "0002_otimizar_consultas_repositories",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789409534463,
+      "tag": "0003_adicionar_indice_agendamento_ocupado",
+      "breakpoints": true
     }
   ]
 }
