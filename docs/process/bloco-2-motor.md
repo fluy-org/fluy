@@ -31,7 +31,7 @@ Ao final, um salão consegue:
 
 ### 2.2b Motor de agendamento
 
-- [ ] API de horários livres e criação transacional: compõe janelas + overrides + duração, revalida o slot, aloca profissional e cria direto em `agendado` com duração/preços congelados. Testa com cliente seed, sem depender do CRUD 2.1. — **🟣 Rudney** — [DEP: 1.3-BE](./bloco-1-setup-salao.md#13-be-procedimentos) · [DEP: 1.4-BE](./bloco-1-setup-salao.md#14-be-disponibilidade) `[SEED-OK]` `[BLOQ:pagamento-sinal-desabilitado — sinal e gateway ficam para Bloco 5]`
+- [x] API de horários livres e criação transacional: compõe janelas + overrides + duração, revalida o slot, aloca profissional e cria direto em `agendado` com duração/preços congelados. Testa com cliente seed, sem depender do CRUD 2.1. — **🟣 Rudney** — [DEP: 1.3-BE](./bloco-1-setup-salao.md#13-be-procedimentos) · [DEP: 1.4-BE](./bloco-1-setup-salao.md#14-be-disponibilidade) `[SEED-OK]` `[BLOQ:pagamento-sinal-desabilitado — sinal e gateway ficam para Bloco 5]`
 
 ### 2.2c Integrar fluxo manual
 
