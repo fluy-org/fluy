@@ -58,10 +58,10 @@ Nenhuma decisão foi inventada. Os pontos abaixo emergiram da leitura dos fluxos
 
 ### Ambiguidades no material atual
 
-1. **"Sistema NÃO exige conclusão em tempo real"** (07-conclusao-atendimento.md) vs. edge case **"marcar concluído em agendamento futuro… recomendo permitir apenas se data ≤ hoje"**: a regra aceita retardar, mas a recomendação sugere bloquear datas futuras. Precisa ser decidido antes de implementar o botão de conclusão.
-2. **Override de janela** ao criar agendamento manual (05-agendamento-manual.md) e ao remarcar (09-remarcacao.md): recomendação atual é permitir com aviso; PENDENCIAS.md marca como pendente. Vai bloquear, permitir com aviso, ou permitir silenciosamente? Impacta o design de UI de ambos os fluxos.
+1. ~~**Conclusão em agendamento futuro**~~ — **decidido (2026-09-14): permitir com aviso.** A regra vive agora em [gestao-agendamentos.md](./gestao-agendamentos.md) e no fluxo 07.
+2. ~~**Override de janela**~~ ao criar agendamento manual e ao remarcar — **decidido (2026-09-14): permitir com aviso**, mesma regra nos dois fluxos. Data com override "sem atendimento" continua bloqueada.
 3. **Tratamento do sinal no cancelamento pelo salão** (08-cancelamento.md): PENDENCIAS.md aponta que sistema precisa decidir entre "reembolso automático via gateway" ou "reembolso manual". Trava com a escolha do gateway.
-4. **Marcar no-show antes de expirar a tolerância** (06-agenda-dia.md e 10-no-show.md): 10 diz "proibido"; 06 diz "botão bloqueado até o momento certo (ou permitido com aviso — decidir)". Divergência entre os dois fluxos.
+4. ~~**Marcar no-show antes de expirar a tolerância**~~ — **decidido (2026-09-14): permitir com aviso.** A divergência entre os fluxos 06 e 10 foi resolvida nos dois; antes de `hora_agendada` continua bloqueado.
 5. **Cancelamento de agendamento passado pelo salão** (08-cancelamento.md): descrito como variação legítima ("correção de registros"); precisa alinhar com "cancelamento é irreversível" e com faturamento (rebate no período atual vs. reabrir).
 6. **Comportamento offline do painel do salão** (06-agenda-dia.md): edge case levanta "ações bufferizadas ou bloqueadas (decidir)". Sem decisão, agenda pode se comportar diferente em cada tela.
 7. **"Salão pode marcar agendamento manual como 'não avisar a cliente'"** (05-agendamento-manual.md) — sugerido como checkbox opcional; ninguém confirmou se entra no MVP.

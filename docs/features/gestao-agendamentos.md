@@ -51,7 +51,7 @@ Cobrir o motor central do sistema: nascer, mover, encerrar (com ou sem atendimen
 - Escolher tratamento do sinal: "sem sinal", "sinal registrado como pago" (dinheiro/manual), ou "gerar link de sinal para cliente" (usa o gateway como o fluxo público).
 - Criar diretamente em `Agendado` (sem sinal ou sinal registrado como pago) OU em `Reservado` (link de sinal).
 - Notificar a cliente via [[notificacoes]] como se fosse fluxo digital.
-- Permitir override consciente de janela (encaixe fora do horário) — recomendado com aviso; decisão final pendente.
+- Permitir override consciente de janela (encaixe fora do horário), **com aviso** — decidido; mesma regra na remarcação.
 - Permitir criação retroativa de agendamentos passados (migração de agenda antiga) — entra direto em `Concluído`.
 
 ### Cancelamento pela cliente
@@ -73,6 +73,7 @@ Cobrir o motor central do sistema: nascer, mover, encerrar (com ou sem atendimen
 ### Remarcação pelo salão
 
 - Oferecer seletor de nova data/hora considerando disponibilidade real e mesma duração do procedimento original.
+- Permitir encaixe fora da janela **com aviso**; bloquear data com override "sem atendimento".
 - Manter o mesmo ID e UID; incrementar `SEQUENCE` do `.ics` para gerar update.
 - Preservar cliente, procedimento, duração, sinal pago, valor pendente, imagens de referência, notas.
 - Liberar slot antigo imediatamente e ocupar o novo.
@@ -82,7 +83,7 @@ Cobrir o motor central do sistema: nascer, mover, encerrar (com ou sem atendimen
 
 ### Marcação de no-show
 
-- Disponibilizar botão apenas após `hora_agendada + tolerância` (config em [[configuracao-do-salao]]).
+- Disponibilizar a marcação a partir de `hora_agendada`, **com aviso enquanto `hora_agendada + tolerância` não expirar** (config em [[configuracao-do-salao]]). Antes de `hora_agendada`, bloqueado.
 - Confirmação exibe valor do sinal a ser retido.
 - Transitar para `No-show`; sinal fica com o salão.
 - Registrar no histórico da cliente em [[gestao-clientes]].
@@ -91,6 +92,7 @@ Cobrir o motor central do sistema: nascer, mover, encerrar (com ou sem atendimen
 ### Conclusão do atendimento
 
 - Disponível apenas para `Agendado`.
+- Permitir conclusão de agendamento cuja data ainda não chegou, **com aviso** de que ele entra no faturamento do período atual.
 - Modal exibe valor total, sinal pago (método), valor pendente destacado.
 - Exigir registro do método de pagamento do restante via [[pagamentos]] (ou marcar "não recebeu" com aviso).
 - Não existe estado "em atendimento" — vai direto de `Agendado` para `Concluído`.

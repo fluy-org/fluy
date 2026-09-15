@@ -35,6 +35,7 @@ Registrar que o atendimento foi realizado, capturar o pagamento do valor restant
 ## Regras de negócio
 
 - **Conclusão só disponível para agendamentos em estado `Agendado`.**
+- **Concluir agendamento cuja data ainda não chegou é permitido, com aviso explícito** de que o atendimento entra no faturamento do período atual.
 - **Sistema NÃO exige conclusão em tempo real** — salão pode marcar minutos ou horas depois (mesmo dias, com penalidade de dado impreciso).
 - **NÃO existe estado "em atendimento"** (decidido) — vai direto de `Agendado` para `Concluído`.
 - **Duração é apenas referência**; ao concluir, sistema não recalcula nada de agenda.
@@ -52,7 +53,7 @@ Registrar que o atendimento foi realizado, capturar o pagamento do valor restant
 
 ## Casos extremos (edge cases)
 
-- **Salão marca concluído em agendamento futuro** (data ainda não chegou): permitir com aviso? MVP: recomendo permitir apenas se data ≤ hoje.
+- **Salão marca concluído em agendamento futuro** (data ainda não chegou): permitido, com aviso. Regra em "Regras de negócio".
 - **Cliente pagou sinal em cartão, valor restante em PIX:** dois registros de pagamento no mesmo agendamento (um automático via gateway, outro manual). Faturamento agrupa por método.
 - **Cliente pagou sinal e não veio (foi no-show mas salão marcou como concluído por engano):** salão pode reverter? Fora do MVP; abrir suporte. Estado é considerado terminal.
 - **Duração real muito diferente da estimada** (ex.: procedimento previsto 1h durou 3h): sistema não faz nada; próximos agendamentos podem ter conflitado com o próprio salão em atraso.

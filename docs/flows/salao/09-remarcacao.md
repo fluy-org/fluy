@@ -45,6 +45,7 @@ Permitir que o salão mova um agendamento existente para outra data/horário (a 
 - **Cliente é sempre notificada.**
 - **Slot antigo é liberado imediatamente**; slot novo é ocupado imediatamente.
 - **Cliente NÃO pode remarcar sozinha pelo app** (decisão MVP) — precisa pedir ao salão via WhatsApp.
+- **Encaixe fora da janela de disponibilidade é permitido, com aviso** (decidido). Data com override "sem atendimento" continua bloqueada — ali o salão decidiu conscientemente fechar.
 
 ## Dependências
 
@@ -55,9 +56,9 @@ Permitir que o salão mova um agendamento existente para outra data/horário (a 
 
 ## Casos extremos (edge cases)
 
-- **Novo horário está fora da janela de disponibilidade:** bloquear ou permitir override? Recomendo permitir override com aviso (encaixe fora do horário é caso real).
-- **Novo horário ultrapassa fim da janela:** mesma decisão.
-- **Novo horário cai em data com override "sem atendimento":** bloquear ou permitir com aviso? Recomendo bloquear (foi decisão consciente do salão de fechar).
+- **Novo horário está fora da janela de disponibilidade:** permitido, com aviso (encaixe fora do horário é caso real).
+- **Novo horário ultrapassa fim da janela:** mesma regra — permitido com aviso.
+- **Novo horário cai em data com override "sem atendimento":** bloqueado.
 - **Cliente muda de WhatsApp entre agendamento e remarcação:** notificação vai pro WhatsApp cadastrado no momento do agendamento (não muda automaticamente).
 - **Salão remarca para o mesmo horário** (sem mudança real): validação bloqueia ou aceita como no-op.
 - **Salão remarca para o passado:** bloquear (não faz sentido); exceção: correção de dados.
