@@ -2,6 +2,20 @@
 
 Complementa a raiz. Regras específicas de frontend. Contexto e "porquê" vivem em `architecture.md`.
 
+## Implementação de referência
+
+O frontend é menos padronizado que o backend. Antes de criar estrutura nova,
+olhe o que já existe e siga:
+
+- `features/salao/disponibilidade/` — feature mais completa: `pages/`,
+  `services/`, `contracts/` e constantes próprias.
+- `features/salao/procedimentos/` — page + componente apresentacional +
+  service, incluindo o upload de imagem.
+- `features/auth/` — integração com o Clerk e uso de `core/`.
+
+Nenhuma feature tem hoje a estrutura completa descrita abaixo. Ausência de uma
+pasta significa que ainda não foi necessária — não que a regra mudou.
+
 ## Standalone e signals
 
 - Nada de `NgModule` em código novo. Standalone sempre.
