@@ -14,6 +14,9 @@ import { DisponibilidadeValidator } from '@/modules/disponibilidade/disponibilid
 describe('DisponibilidadeService', () => {
   const repository = {
     listarProfissionais: jest.fn(),
+    listarProfissionaisAtivos: jest.fn(),
+    listarJanelasSemanaisDoDia: jest.fn(),
+    listarOverridesDoDia: jest.fn(),
     buscarProfissional: jest.fn(),
     listarJanelasSemanais: jest.fn(),
     substituirJanelasSemanais: jest.fn(),
@@ -41,8 +44,65 @@ describe('DisponibilidadeService', () => {
     expect(repository.listarProfissionais).toHaveBeenCalledWith('salao-ana');
   });
 
+  it('prioriza override sobre as janelas semanais do profissional', async () => {
+    jest
+      .spyOn(repository, 'listarProfissionaisAtivos')
+      .mockResolvedValue([{ id: profissional.id }]);
+    jest.spyOn(repository, 'listarJanelasSemanaisDoDia').mockResolvedValue([
+      {
+        profissional_id: profissional.id,
+        hora_inicio: '09:00',
+        hora_fim: '18:00',
+      },
+    ]);
+    jest.spyOn(repository, 'listarOverridesDoDia').mockResolvedValue([
+      {
+        profissional_id: profissional.id,
+        fechado: false,
+        hora_inicio: '12:00',
+        hora_fim: '16:00',
+      },
+    ]);
+
+    await expect(
+      service.listarProfissionaisComJanelasNoDia({
+        salaoId: profissional.salao_id,
+        data: '2026-12-25',
+      }),
+    ).resolves.toEqual([
+      {
+        id: profissional.id,
+        janelas: [{ hora_inicio: '12:00', hora_fim: '16:00' }],
+      },
+    ]);
+  });
+
+  it('fecha o dia quando o override está marcado como fechado', async () => {
+    jest
+      .spyOn(repository, 'listarProfissionaisAtivos')
+      .mockResolvedValue([{ id: profissional.id }]);
+    jest.spyOn(repository, 'listarJanelasSemanaisDoDia').mockResolvedValue([]);
+    jest.spyOn(repository, 'listarOverridesDoDia').mockResolvedValue([
+      {
+        profissional_id: profissional.id,
+        fechado: true,
+        hora_inicio: null,
+        hora_fim: null,
+      },
+    ]);
+
+    await expect(
+      service.listarProfissionaisComJanelasNoDia({
+        salaoId: profissional.salao_id,
+        data: '2026-12-25',
+      }),
+    ).resolves.toEqual([{ id: profissional.id, janelas: [] }]);
+  });
+
   it('busca janelas somente após confirmar o profissional no salão', async () => {
-    jest.spyOn(repository, 'buscarProfissional').mockResolvedValue(profissional);
+    jest
+      .spyOn(repository, 'buscarProfissional')
+      .mockResolvedValue(profissional);
     jest.spyOn(repository, 'listarJanelasSemanais').mockResolvedValue([]);
 
     await service.buscarJanelasSemanais({
@@ -54,7 +114,9 @@ describe('DisponibilidadeService', () => {
       profissionalId: profissional.id,
       salaoId: profissional.salao_id,
     });
-    expect(repository.listarJanelasSemanais).toHaveBeenCalledWith(profissional.id);
+    expect(repository.listarJanelasSemanais).toHaveBeenCalledWith(
+      profissional.id,
+    );
   });
 
   it('retorna 404 e não altera disponibilidade de profissional fora do salão', async () => {
@@ -75,14 +137,16 @@ describe('DisponibilidadeService', () => {
 
   it('substitui o template validado do profissional do salão', async () => {
     const dados = {
-      janelas: [
-        { dia_semana: 1, hora_inicio: '09:00', hora_fim: '18:00' },
-      ],
+      janelas: [{ dia_semana: 1, hora_inicio: '09:00', hora_fim: '18:00' }],
     };
     const janelas = [criarJanelaSemanal()];
-    jest.spyOn(repository, 'buscarProfissional').mockResolvedValue(profissional);
+    jest
+      .spyOn(repository, 'buscarProfissional')
+      .mockResolvedValue(profissional);
     jest.spyOn(validator, 'validarAtualizacaoSemanal').mockReturnValue(dados);
-    jest.spyOn(repository, 'substituirJanelasSemanais').mockResolvedValue(janelas);
+    jest
+      .spyOn(repository, 'substituirJanelasSemanais')
+      .mockResolvedValue(janelas);
 
     expect(
       await service.atualizarJanelasSemanais({
@@ -104,7 +168,9 @@ describe('DisponibilidadeService', () => {
       janelas: [{ hora_inicio: '09:00', hora_fim: '18:00' }],
     };
     const override = criarOverride();
-    jest.spyOn(repository, 'buscarProfissional').mockResolvedValue(profissional);
+    jest
+      .spyOn(repository, 'buscarProfissional')
+      .mockResolvedValue(profissional);
     jest.spyOn(validator, 'validarAtualizacaoOverride').mockReturnValue(dados);
     jest.spyOn(validator, 'validarData').mockReturnValue('2026-12-25');
     jest.spyOn(repository, 'substituirOverride').mockResolvedValue(override);
@@ -126,7 +192,9 @@ describe('DisponibilidadeService', () => {
   });
 
   it('remove override sem exigir que ele exista', async () => {
-    jest.spyOn(repository, 'buscarProfissional').mockResolvedValue(profissional);
+    jest
+      .spyOn(repository, 'buscarProfissional')
+      .mockResolvedValue(profissional);
     jest.spyOn(validator, 'validarData').mockReturnValue('2026-12-25');
     jest.spyOn(repository, 'removerOverride').mockResolvedValue();
 

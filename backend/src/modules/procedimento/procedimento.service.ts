@@ -44,6 +44,16 @@ export class ProcedimentoService {
     return this.procedimentoRepository.listarAtivos(salaoId);
   }
 
+  async buscarParaAgendamentoManual(input: BuscarProcedimentoInput) {
+    const procedimento = await this.procedimentoRepository.buscarPorId(input);
+
+    if (!procedimento) {
+      throw new NotFoundException('Procedimento não encontrado.');
+    }
+
+    return procedimento;
+  }
+
   async atualizar(
     input: AtualizarProcedimentoInput,
   ): Promise<ProcedimentoPersistido> {

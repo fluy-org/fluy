@@ -11,5 +11,6 @@ import { SalaoConfiguracaoValidator } from '@/modules/salao-configuracao/salao-c
     SalaoConfiguracaoService,
     SalaoConfiguracaoValidator,
   ],
+  exports: [SalaoConfiguracaoService],
 })
 export class SalaoConfiguracaoModule {}

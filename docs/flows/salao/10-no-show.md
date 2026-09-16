@@ -26,7 +26,7 @@ Registrar que a cliente não compareceu ao agendamento dentro do horário + tole
 
 ## Regras de negócio
 
-- **Botão de marcar no-show só disponível após `hora_agendada + tolerância`.**
+- **Marcar no-show é permitido a partir de `hora_agendada`.** Enquanto `hora_agendada + tolerância` não expirar, a ação é liberada **com aviso explícito** de que a tolerância ainda não passou. Antes de `hora_agendada` continua bloqueado.
 - **Toleraância é global do salão** — mesmo valor para todos os procedimentos.
 - **Marcação é manual** — sistema NÃO marca automaticamente (evita falsos positivos).
 - **Sinal é retido em qualquer no-show** (independe de motivo).
@@ -43,8 +43,7 @@ Registrar que a cliente não compareceu ao agendamento dentro do horário + tole
 
 ## Casos extremos (edge cases)
 
-- **Salão marca no-show antes de expirar tolerância:** botão bloqueado até o momento.
-- **Salão marca no-show em cima da hora sem esperar tolerância:** proibido.
+- **Salão marca no-show antes de expirar tolerância:** permitido, com aviso de que o prazo ainda não passou.
 - **Cliente aparece após ser marcada como no-show:** salão precisa reverter ou atender mesmo assim? MVP: registro fica; salão atende por gentileza mas não altera o sistema. Ou abre suporte.
 - **Cliente cancela ao mesmo tempo que salão marca no-show (race):** o que chegar primeiro vence.
 - **Salão marca no-show para agendamento futuro (data ainda não chegou):** proibido.
@@ -53,6 +52,7 @@ Registrar que a cliente não compareceu ao agendamento dentro do horário + tole
 
 ## Dúvidas em aberto
 
+- ~~**Marcar no-show antes da tolerância**~~ — decidido: permitir com aviso. Regra movida para "Regras de negócio".
 - **Reversão de no-show:** cliente apareceu depois; salão quer atender e marcar como concluído. Não previsto no MVP. Se necessário, abrir suporte / admin.
 - **Bloqueio de clientes com N no-shows:** ex.: cliente com 3 no-shows não pode agendar de novo sem contato. Fora do MVP; interessante para v2.
 - **Notificar a cliente sobre o no-show:** MVP não envia. Vale considerar mensagem automática ("sentimos sua falta, gostaria de remarcar?") — mas depende de canal (WhatsApp API).

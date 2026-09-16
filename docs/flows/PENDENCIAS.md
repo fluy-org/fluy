@@ -2,7 +2,7 @@
 
 Este documento consolida as decisões que foram **explicitamente adiadas** durante o desenho dos fluxos, bem como as principais dúvidas em aberto que aparecem espalhadas pelos MDs de cada fluxo. Serve como checklist antes de partir para modelagem/implementação de cada área.
 
-Última atualização: 2026-08-27
+Última atualização: 2026-09-14
 
 ---
 
@@ -115,7 +115,6 @@ Este documento consolida as decisões que foram **explicitamente adiadas** duran
 - **Combos / múltiplos procedimentos por agendamento** — decisão MVP: 1 por agendamento; salão cria "Corte+Escova" como procedimento único.
 - **Categorias de procedimentos** — adiado; catálogo achatado no MVP.
 - **Recorrência de disponibilidade** (ex.: "toda última sexta é folga") — cadastro data a data no MVP.
-- **Override de janela ao criar agendamento manual** (agendar fora do horário) — permitir com aviso ou bloquear? Recomendação atual: permitir com aviso.
 - **Cliente aceitar/recusar remarcação** — MVP: não; salão decide, cliente é comunicada.
 - **Reversão de conclusão / no-show** — MVP: terminal; correção via suporte se necessário.
 - **Múltiplos pagamentos parciais no valor restante** — MVP: um método só.

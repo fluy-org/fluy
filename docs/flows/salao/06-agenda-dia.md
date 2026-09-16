@@ -16,7 +16,7 @@ Fornecer ao salão uma visão operacional dos agendamentos do dia (ou semana), p
    - Valor total + sinal pago + valor pendente
    - Indicador se tem imagens de referência da cliente
    - Indicador se tem observações
-3. Salão pode filtrar/mudar para outros dias ou visão semanal.
+3. Salão pode navegar para outros dias. **Visão semanal está fora do MVP** (decidido) — a agenda nasce só diária, mobile-first.
 4. Salão clica em um agendamento para ver detalhes completos.
 
 ## Passo a passo (ações rápidas em um agendamento)
@@ -46,9 +46,10 @@ Ao abrir o detalhe:
 - **Home padrão do salão exibe agendamentos do dia atual.**
 - **Cards de agendamentos incluem estados intermediários (`Reservado`)** para o salão saber o que está "quase confirmado".
 - **Salão vê tudo do dia — sem paginação de horários** (dia inteiro em uma tela).
+- **Apenas visão diária no MVP.** Visão semanal fica como evolução futura.
 - **Ações disponíveis dependem do estado**:
   - `Reservado`: apenas visualizar (aguarda pagamento).
-  - `Agendado`: concluir, cancelar, remarcar, marcar no-show (após hora + tolerância).
+  - `Agendado`: concluir, cancelar, remarcar, marcar no-show (a partir da hora agendada; com aviso enquanto a tolerância não expirar — ver [no-show](./10-no-show.md)).
   - `Concluído` / `Cancelado` / `No-show`: só visualizar (estados terminais).
 - **Ordem de exibição:** por horário crescente.
 - **Notificações em tempo real** para eventos: novo agendamento, cancelamento pela cliente, `Reservado` expirando.
@@ -63,8 +64,8 @@ Ao abrir o detalhe:
 ## Casos extremos (edge cases)
 
 - **Múltiplos dispositivos do salão abertos simultaneamente:** cada um vê a mesma agenda; ações em um refletem em tempo real no outro (idealmente via websocket ou polling curto).
-- **Salão marca no-show ANTES de expirar tolerância:** botão bloqueado até o momento certo (ou permitido com aviso — decidir).
-- **Salão marca concluído em agendamento futuro** (dias adiante): permitir? Provavelmente bloquear até chegar a data, ou pelo menos alertar.
+- **Salão marca no-show ANTES de expirar tolerância:** permitido, com aviso (ver [no-show](./10-no-show.md)).
+- **Salão marca concluído em agendamento futuro** (dias adiante): permitido, com aviso (ver [conclusão](./07-conclusao-atendimento.md)).
 - **Salão tenta cancelar um agendamento que a cliente também está cancelando (race):** o que chegar primeiro vence; segundo recebe "já cancelado".
 - **Reserva expira e slot libera enquanto salão vê a agenda:** card some ou muda de estado; atualização em tempo real ideal.
 - **Salão sem conexão de internet:** UI mostra "offline"; ações bufferizadas ou bloqueadas (decidir).
@@ -72,7 +73,6 @@ Ao abrir o detalhe:
 
 ## Dúvidas em aberto
 
-- **Visão semanal vs. só diária:** ambas no MVP? Só diária? Recomendo: começar com diária (mobile-first) e adicionar semanal como enhancement.
 - **Filtro por profissional** (quando multi-profissional): fora do MVP, mas UI precisa prever.
 - **Impressão da agenda / export:** demanda comum em salões físicos; fora do MVP.
 - **Modo "encaixe rápido"** (visualizar buracos livres do dia com destaque): útil para agenda cheia; considerar.
