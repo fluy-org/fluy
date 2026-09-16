@@ -17,6 +17,13 @@ export const AUTHENTICATED_ROUTES: Routes = [
       ).then((m) => m.ProcedimentosPage),
   },
   {
+    path: 'clientes',
+    loadComponent: () =>
+      import(
+        '../../features/salao/clientes/pages/clientes/clientes.page'
+      ).then((m) => m.ClientesPage),
+  },
+  {
     // A configuracao pertence ao painel e reutiliza o layout autenticado.
     path: 'configuracao',
     loadComponent: () =>

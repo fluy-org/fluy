@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
     "paths": {
+      "@app/*": ["./src/app/*"],
       "@fluy/schema": ["../shared/schema/src/index.ts"],
       "@fluy/schema/*": ["../shared/schema/src/*"],
       "@schema/*": ["../shared/schema/src/*"]

@@ -19,7 +19,10 @@ Ao final, um salão consegue:
 
 ### 2.1 Clientes
 
-- [ ] `cliente` entity + CRUD backend + tela mínima de listagem — **🔵 Leandro** — [DEP: 1.1](./bloco-1-setup-salao.md#11-onboarding)
+- [x] `cliente` entity + CRUD backend + tela mínima de listagem — **🔵 Leandro** — [DEP: 1.1](./bloco-1-setup-salao.md#11-onboarding)
+
+  Clientes usam inativação lógica para preservar o histórico. A listagem permite
+  filtrar ativos, inativos ou todos, e clientes inativos podem ser reativados.
 
 ### 2.2a Tela de agendamento manual
 

@@ -42,4 +42,8 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'clientes',
+    loadComponent: () => import('./features/salao/clientes/pages/clientes/clientes.page').then( m => m.ClientesPage)
+  },
 ];

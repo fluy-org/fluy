@@ -1,0 +1,119 @@
+<ion-header>
+  <app-header titulo="Clientes"></app-header>
+</ion-header>
+
+<ion-content class="clientes-page">
+  <section class="page-content">
+    <div class="clientes-toolbar">
+      <ion-searchbar
+        aria-label="Buscar clientes"
+        placeholder="Buscar por nome ou WhatsApp"
+        (ionInput)="atualizarPesquisa($event.detail.value)"
+      ></ion-searchbar>
+
+      <ion-select
+        aria-label="Filtrar clientes por status"
+        [value]="statusSelecionado()"
+        (ionChange)="alterarStatus($event.detail.value)"
+      >
+        <ion-select-option value="ativos">Ativos</ion-select-option>
+        <ion-select-option value="inativos">Inativos</ion-select-option>
+        <ion-select-option value="todos">Todos</ion-select-option>
+      </ion-select>
+
+      <ion-button (click)="abrirFormulario()">Adicionar cliente</ion-button>
+    </div>
+
+    @if (erroAcao()) {
+    <ion-text color="danger"><p class="erro-acao">{{ erroAcao() }}</p></ion-text>
+    }
+
+    @switch (estadoPagina()) { @case ('carregando') {
+    <div class="feedback">
+      <ion-spinner aria-label="Carregando clientes"></ion-spinner>
+      <ion-text><p>Carregando clientes...</p></ion-text>
+    </div>
+    } @case ('erro') {
+    <div class="feedback">
+      <ion-text color="danger"><p>{{ erro() }}</p></ion-text>
+    </div>
+    } @case ('vazio') {
+    <ion-card class="feedback-card">
+      <ion-card-content> Nenhum cliente cadastrado. </ion-card-content>
+    </ion-card>
+    } @case ('sem-resultados') {
+    <ion-card class="feedback-card">
+      <ion-card-content>
+        Nenhum cliente encontrado para esta pesquisa.
+      </ion-card-content>
+    </ion-card>
+    } @case ('lista') {
+    <section class="clientes-lista" aria-label="Lista de clientes">
+      @for (cliente of clientesFiltrados(); track cliente.id) {
+      <ion-card class="cliente-card">
+        <ion-card-content>
+          <div class="cliente-dados">
+            <div class="cliente-identificacao">
+              <h2>{{ cliente.nome }}</h2>
+              <ion-badge [color]="cliente.ativo ? 'success' : 'medium'">
+                {{ cliente.ativo ? 'Ativo' : 'Inativo' }}
+              </ion-badge>
+            </div>
+            <p>{{ formatarWhatsapp(cliente.whatsapp) }}</p>
+          </div>
+
+          @if (cliente.observacoes) {
+          <p class="cliente-observacoes">{{ cliente.observacoes }}</p>
+          }
+
+          <div class="cliente-acoes">
+            <ion-button
+              fill="outline"
+              size="small"
+              [disabled]="!cliente.ativo"
+              (click)="editarCliente(cliente)"
+            >
+              Editar
+            </ion-button>
+            @if (cliente.ativo) {
+            <ion-button
+              fill="clear"
+              size="small"
+              color="medium"
+              (click)="confirmarInativacao(cliente)"
+            >
+              Inativar
+            </ion-button>
+            } @else {
+            <ion-button
+              fill="clear"
+              size="small"
+              color="success"
+              (click)="reativarCliente(cliente)"
+            >
+              Reativar
+            </ion-button>
+            }
+          </div>
+        </ion-card-content>
+      </ion-card>
+      }
+    </section>
+    } }
+  </section>
+</ion-content>
+
+<ion-modal
+  [isOpen]="formularioAberto()"
+  (didDismiss)="fecharFormulario()"
+>
+  <ng-template>
+    <app-formulario-cliente
+      [cliente]="clienteEmEdicao()"
+      [salvando]="salvandoCliente()"
+      [erroExterno]="erroFormulario()"
+      (salvar)="salvarCliente($event)"
+      (cancelar)="fecharFormulario()"
+    ></app-formulario-cliente>
+  </ng-template>
+</ion-modal>

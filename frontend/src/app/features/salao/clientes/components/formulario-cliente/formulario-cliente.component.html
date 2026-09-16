@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ titulo() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content style="max-height: 90%;">
+  <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
+    <ion-input
+      formControlName="nome"
+      label="Nome"
+      labelPlacement="stacked"
+      maxlength="200"
+      placeholder="Nome do cliente"
+    ></ion-input>
+
+    <ion-input
+      formControlName="whatsapp"
+      label="WhatsApp"
+      labelPlacement="stacked"
+      inputmode="tel"
+      maxlength="15"
+      placeholder="(11) 99999-9999"
+      (ionInput)="formatarCampoWhatsapp($event.detail.value)"
+    ></ion-input>
+
+    <ion-textarea
+      formControlName="observacoes"
+      label="Observações"
+      labelPlacement="stacked"
+      autoGrow="true"
+      placeholder="Informações relevantes sobre o cliente"
+    ></ion-textarea>
+
+    @if (erroValidacao()) {
+      <p class="mensagem-erro">{{ erroValidacao() }}</p>
+    }
+
+    @if (erroExterno()) {
+      <p class="mensagem-erro">{{ erroExterno() }}</p>
+    }
+
+    <div class="acoes-formulario">
+      <ion-button
+        type="button"
+        fill="outline"
+        [disabled]="salvando()"
+        (click)="cancelarFormulario()"
+      >
+        Cancelar
+      </ion-button>
+
+      <ion-button type="submit" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando...' : 'Salvar cliente' }}
+      </ion-button>
+    </div>
+  </form>
+</ion-content>
