@@ -1,0 +1,35 @@
+<div class="navegacao">
+  <ion-button
+    fill="clear"
+    aria-label="Dia anterior"
+    [disabled]="desabilitado()"
+    (click)="irParaDiaAnterior()"
+  >
+    <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+  </ion-button>
+
+  <ion-button fill="clear" [disabled]="desabilitado()" (click)="abrirSeletor()">
+    <ion-icon slot="start" name="calendar-outline"></ion-icon>
+    <span class="dia">{{ dataPorExtenso() }}</span>
+  </ion-button>
+
+  <ion-button
+    fill="clear"
+    aria-label="Próximo dia"
+    [disabled]="desabilitado()"
+    (click)="irParaProximoDia()"
+  >
+    <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+  </ion-button>
+</div>
+
+<ion-modal [isOpen]="seletorAberto()" (didDismiss)="fecharSeletor()">
+  <ng-template>
+    <ion-datetime
+      presentation="date"
+      locale="pt-BR"
+      [value]="data()"
+      (ionChange)="selecionarData($event.detail.value)"
+    ></ion-datetime>
+  </ng-template>
+</ion-modal>

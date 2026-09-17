@@ -1,0 +1,110 @@
+.cartao {
+  --background: var(--fluy-color-surface);
+  margin: 0 0 var(--fluy-space-3);
+  border-radius: var(--fluy-radius-lg);
+  border-left: 4px solid var(--cor-estado, var(--fluy-color-border));
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.conteudo {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--fluy-space-3);
+  padding: var(--fluy-space-4);
+}
+
+// O horário é a âncora de leitura da agenda: fica em coluna própria para o
+// salão varrer o dia na vertical sem ler o resto do cartão.
+.quando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluy-space-1);
+}
+
+.quando__hora {
+  font-size: 1.375rem;
+  font-weight: var(--fluy-font-weight-semibold);
+  line-height: var(--fluy-line-height-title);
+  color: var(--fluy-color-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.quando__duracao {
+  font-size: var(--fluy-font-size-small);
+  color: var(--fluy-color-muted);
+}
+
+.info {
+  min-width: 0;
+}
+
+.info__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fluy-space-2);
+}
+
+.cliente {
+  margin: 0;
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+  line-height: var(--fluy-line-height-title);
+  color: var(--fluy-color-title);
+}
+
+.procedimento {
+  margin: var(--fluy-space-1) 0 0;
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-muted);
+}
+
+.valores {
+  margin-top: var(--fluy-space-3);
+  padding-top: var(--fluy-space-2);
+  border-top: 1px solid var(--fluy-color-border-soft);
+}
+
+.valores__linha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--fluy-space-2);
+}
+
+.valores__rotulo {
+  font-size: var(--fluy-font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fluy-color-muted);
+}
+
+.valores__rotulo--quitado {
+  color: var(--fluy-color-success);
+}
+
+.valores__destaque {
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+  color: var(--fluy-color-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.valores__destaque--quitado {
+  color: var(--fluy-color-success);
+}
+
+.valores__apoio {
+  margin: var(--fluy-space-1) 0 0;
+  font-size: var(--fluy-font-size-small);
+  color: var(--fluy-color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.indicadores {
+  display: flex;
+  gap: var(--fluy-space-2);
+  margin-top: var(--fluy-space-2);
+  font-size: 1rem;
+  color: var(--fluy-color-muted);
+}

@@ -1,0 +1,34 @@
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fluy-space-3);
+  padding: var(--fluy-space-8) var(--fluy-space-4);
+  text-align: center;
+  color: var(--fluy-color-muted);
+}
+
+.titulo-grupo {
+  display: flex;
+  align-items: center;
+  gap: var(--fluy-space-3);
+  margin: var(--fluy-space-6) 0 var(--fluy-space-3);
+  font-size: var(--fluy-font-size-small);
+  font-weight: var(--fluy-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fluy-color-muted);
+}
+
+// A régua ocupa o espaço restante e separa os encerrados dos ativos sem
+// precisar de um cabeçalho pesado.
+.titulo-grupo::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--fluy-color-border-soft);
+}
+
+.encerrados {
+  opacity: 0.72;
+}

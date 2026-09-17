@@ -24,6 +24,17 @@ export const AVISO_AVALIACAO_AGENDAMENTO = [
 export type AvisoAvaliacaoAgendamento =
   (typeof AVISO_AVALIACAO_AGENDAMENTO)[number];
 
+export const ACAO_AGENDAMENTO = [
+  'concluir',
+  'cancelar',
+  'remarcar',
+  'marcar_falta',
+] as const;
+export type AcaoAgendamento = (typeof ACAO_AGENDAMENTO)[number];
+
+export const AVISO_ACAO_AGENDAMENTO = ['falta_antes_da_tolerancia'] as const;
+export type AvisoAcaoAgendamento = (typeof AVISO_ACAO_AGENDAMENTO)[number];
+
 export const BLOQUEIO_AVALIACAO_AGENDAMENTO = [
   'fora_da_grade',
   'sem_profissional_disponivel',

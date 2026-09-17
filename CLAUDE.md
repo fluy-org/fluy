@@ -15,7 +15,7 @@ Antes de codar, consulte `docs/`. Não invente regra de negócio que não esteja
 
 Só pode ter deps de `drizzle-orm`, `drizzle-zod` e `zod`. Nada de `pg`, `postgres`, `@nestjs/*`.
 
-Vive tudo que trafega HTTP entre frontend e backend: tabelas Drizzle, schemas Zod de request/response, DTOs, e enums que aparecem em colunas do banco.
+Vive tudo que trafega HTTP entre frontend e backend: tabelas Drizzle, schemas Zod de request/response, DTOs, e enums que aparecem em colunas do banco ou que trafegam HTTP.
 
 ### Estrutura por tabela
 
@@ -25,7 +25,7 @@ Vive tudo que trafega HTTP entre frontend e backend: tabelas Drizzle, schemas Zo
 - `{tabela}.constants.ts` — constantes puras reutilizadas por DDL e schemas; não importa Drizzle nem Zod.
 - `{tabela}.schema.ts` — schemas Zod (`createInsertSchema`, `createUpdateSchema`, refines).
 - `{tabela}.dto.ts` — DTOs via `createZodDto` (consumidos pelo Nest).
-- `{tabela}.enums.ts` — array-enums que aparecem em colunas.
+- `{tabela}.enums.ts` — array-enums que aparecem em colunas do banco ou que trafegam HTTP.
 - `index.ts` — barrel.
 
 ### Array-enums (`.enums.ts`)
@@ -38,6 +38,21 @@ export type StatusSalao = (typeof STATUS_SALAO)[number];
 ```
 
 A tabela usa como `$type`; o schema Zod deriva com `z.enum(STATUS_SALAO)` quando precisar validar isoladamente.
+
+### Entidade relacionada em schema de response
+
+Quando o response carrega **dois ou mais campos** de uma entidade relacionada, agrupe em objeto aninhado em vez de achatar com prefixo.
+
+```ts
+// ✅
+cliente: z.object({ id: z.uuid(), nome: z.string() }),
+
+// ❌
+cliente_id: z.uuid(),
+cliente_nome: z.string(),
+```
+
+Campo único derivado do relacionamento vai direto, sem objeto — é o caso de `imagem_url` em `procedimento`.
 
 ### Nunca usar `enum` nativo do TS
 

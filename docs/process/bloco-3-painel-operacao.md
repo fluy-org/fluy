@@ -85,9 +85,13 @@ tabela — o que entra é schema Zod de request/response, módulo Nest e tela.
 - Os **indicadores de imagens e de observações existem na resposta e no card, mas sempre vêm falsos** — as entidades que os alimentam chegam no [Bloco 8](./bloco-8-anexos-agendamento.md) (`anexo_agendamento`) e no [Bloco 5](./bloco-5-ficha-cliente.md) (`nota`). Sair com o campo desde já evita mexer no contrato depois.
 - **Visão semanal — fora do MVP** (decidido). A agenda nasce só diária, mobile-first.
 
-**Decisões que precisam estar fechadas antes**
+**Decisões fechadas**
 
-- **Ambig #6** — comportamento offline: bufferizar ações ou bloquear? Recomendação: bloquear e avisar. *(única em aberto nesta fatia)*
+- **Ambig #6** — comportamento offline: **decidido, bloquear e avisar**. Nada é bufferizado. Registrado em [`flows/salao/06-agenda-dia.md`](../flows/salao/06-agenda-dia.md) e em [`features/agenda-do-dia.md`](../features/agenda-do-dia.md).
+- **Estados terminais na listagem** — permanecem no dia, agrupados e com destaque reduzido; "sair da agenda ativa" é mudança de grupo, não remoção.
+- **Valores do card** — `preco_total`, `valor_sinal` (congelado), `valor_pago` (soma das cobranças confirmadas) e `valor_pendente`. O card exibe o **pago**, não o sinal congelado.
+- **Contrato de ações do detalhe** — `acoes_permitidas[]` + `avisos[]`, array-enums em `agendamento.enums.ts`, computados no backend com o instante do servidor. É o contrato que 3.2 a 3.4 consomem.
+- **Fuso no frontend** — a resposta da listagem carrega `fuso_horario` no envelope; o parâmetro `data` é opcional e, omitido, o backend resolve "hoje" no fuso do salão e ecoa o dia resolvido.
 
 **Critério de conclusão**
 
@@ -97,6 +101,48 @@ e conferir que um agendamento criado via API aparece no horário correto do fuso
 do salão com um dispositivo em outro fuso.
 
 **Tamanho estimado:** ~55-65 arquivos.
+
+---
+
+### 3.1b Dias com agendamento marcados no seletor
+
+- [ ] Seletor de data marca quais dias do mês têm agendamento, para o salão não navegar às cegas. — **🟣 Rudney** — [DEP: 3.1](#31-agenda-do-dia-e-detalhe-do-agendamento)
+
+**Por que existe:** a 3.1 entregou navegação por setas e seletor de mês, mas o
+seletor não diferencia dia cheio de dia vazio. Achar o próximo atendimento
+significa avançar dia a dia. **Não é visão semanal** — a agenda segue diária;
+muda só a navegação.
+
+**O que deve existir**
+
+*Backend*
+
+- Rota de dias com agendamento num período: `de` e `ate` em data civil, resposta com os dias que têm ao menos um agendamento.
+- O agrupamento é por **data civil no fuso do salão**, não pela data UTC de `inicio_em`.
+- Estados considerados: os mesmos que a listagem da 3.1 devolve, sem filtro por estado.
+- Filtro por `salao_id` na query.
+
+*Frontend*
+
+- `highlightedDates` do `ion-datetime` alimentado pelos dias retornados.
+- Carrega uma janela ao abrir o seletor (mês atual mais anterior e seguinte), porque o `ion-datetime` **não emite evento de mudança de mês** — navegar para fora da janela deixa os dias sem marcação até recarregar.
+
+*Shared schema*
+
+- Schemas Zod de query e resposta em `agendamento.schema.ts`.
+
+**Fora desta fatia**
+
+- Contagem de agendamentos por dia ou indicação de "agenda cheia". Só marca se tem ou não tem.
+- Qualquer mudança no layout da agenda diária.
+
+**Critério de conclusão**
+
+Abrir o seletor e ver marcados os dias com agendamento, conferindo que um
+agendamento às 23h em fuso que difere do UTC aparece marcado no dia civil do
+salão, não no dia seguinte.
+
+**Tamanho estimado:** ~13-18 arquivos.
 
 ---
 
@@ -269,6 +315,10 @@ e a fatia de cancelamento pela cliente do
 
 3.1 → 3.2 → 3.3 → 3.4. Estritamente nessa ordem: 3.1 cria a tela onde as ações
 moram e 3.2 fixa o padrão de transição que as outras seguem.
+
+A [3.1b](#31b-dias-com-agendamento-marcados-no-seletor) é melhoria de navegação
+e **não bloqueia ninguém**: depende só da 3.1 e pode entrar a qualquer momento
+depois dela, inclusive em paralelo com 3.2 a 3.4.
 
 ## Notas
 
