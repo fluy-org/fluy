@@ -95,8 +95,9 @@ export function adicionarDiasNaData({
   const [ano, mes, dia] = data.split('-').map(Number);
   const resultado = new Date(Date.UTC(ano, mes - 1, dia + dias));
 
-  return `${resultado.getUTCFullYear().toString().padStart(4, '0')}-${resultado
-    .getUTCMonth()
+  const mesResultado = resultado.getUTCMonth() + 1;
+
+  return `${resultado.getUTCFullYear().toString().padStart(4, '0')}-${mesResultado
     .toString()
     .padStart(2, '0')}-${resultado.getUTCDate().toString().padStart(2, '0')}`;
 }

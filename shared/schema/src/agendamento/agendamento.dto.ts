@@ -1,10 +1,14 @@
 import type { z } from 'zod';
 import type {
+  agendaDiaResponseSchema,
+  agendamentoAgendaResponseSchema,
+  agendamentoDetalheResponseSchema,
   agendamentoResponseSchema,
   avaliacaoHorarioAgendamentoResponseSchema,
   avaliarHorarioAgendamentoQuerySchema,
   criarAgendamentoSchema,
   horariosLivresResponseSchema,
+  listarAgendaDiaQuerySchema,
   listarHorariosLivresQuerySchema,
 } from './agendamento.schema.js';
 
@@ -23,4 +27,14 @@ export type AvaliacaoHorarioAgendamentoResponseDto = z.infer<
 >;
 export type AgendamentoResponseDto = z.infer<
   typeof agendamentoResponseSchema
+>;
+export type ListarAgendaDiaQueryDto = z.infer<
+  typeof listarAgendaDiaQuerySchema
+>;
+export type AgendamentoAgendaResponseDto = z.infer<
+  typeof agendamentoAgendaResponseSchema
+>;
+export type AgendaDiaResponseDto = z.infer<typeof agendaDiaResponseSchema>;
+export type AgendamentoDetalheResponseDto = z.infer<
+  typeof agendamentoDetalheResponseSchema
 >;

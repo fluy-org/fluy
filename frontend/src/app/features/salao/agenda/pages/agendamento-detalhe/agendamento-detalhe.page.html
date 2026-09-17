@@ -1,0 +1,107 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/painel/agenda"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Agendamento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @switch (estadoPagina()) {
+    @case ('carregando') {
+      <div class="estado">
+        <ion-spinner></ion-spinner>
+      </div>
+    }
+
+    @case ('offline') {
+      <div class="estado">
+        <ion-text color="medium">
+          <p>Sem conexão. O agendamento não pôde ser carregado.</p>
+        </ion-text>
+        <ion-button fill="outline" (click)="recarregar()">
+          Tentar novamente
+        </ion-button>
+      </div>
+    }
+
+    @case ('erro') {
+      <div class="estado">
+        <ion-text color="danger">
+          <p>{{ erro() }}</p>
+        </ion-text>
+        <ion-button fill="outline" (click)="recarregar()">
+          Tentar novamente
+        </ion-button>
+      </div>
+    }
+
+    @case ('detalhe') {
+      @if (agendamento(); as detalhe) {
+        <section class="destaque" [style.--cor-estado]="estilo()?.corCss">
+          <p class="destaque__data">{{ dataPorExtenso() }}</p>
+          <div class="destaque__linha">
+            <span class="destaque__hora">
+              {{ detalhe.inicio_em | horaSalao: detalhe.fuso_horario }}
+            </span>
+            <ion-badge [color]="estilo()?.cor">{{ estilo()?.rotulo }}</ion-badge>
+          </div>
+          <p class="destaque__duracao">{{ duracao() }} de atendimento</p>
+        </section>
+
+        <section class="bloco">
+          <h2 class="bloco__titulo">Cliente</h2>
+          <p class="bloco__principal">{{ detalhe.cliente.nome }}</p>
+          <p class="bloco__apoio">{{ whatsapp() }}</p>
+        </section>
+
+        <section class="bloco">
+          <h2 class="bloco__titulo">Procedimento</h2>
+          <p class="bloco__principal">{{ detalhe.procedimento.nome }}</p>
+          <p class="bloco__apoio">{{ duracao() }}</p>
+        </section>
+
+        <section class="bloco">
+          <h2 class="bloco__titulo">Valores</h2>
+          <dl class="recibo">
+            <dt>Total</dt>
+            <dd>{{ valorFormatado(detalhe.preco_total) }}</dd>
+
+            <dt>Sinal</dt>
+            <dd>{{ valorFormatado(detalhe.valor_sinal) }}</dd>
+
+            <dt>Pago</dt>
+            <dd>{{ valorFormatado(detalhe.valor_pago) }}</dd>
+
+            <div class="recibo__divisor"></div>
+
+            <dt class="recibo__saldo">Pendente</dt>
+            <dd
+              class="recibo__saldo"
+              [class.recibo__saldo--quitado]="detalhe.valor_pendente === 0"
+            >
+              {{ valorFormatado(detalhe.valor_pendente) }}
+            </dd>
+          </dl>
+        </section>
+
+        <section class="bloco">
+          <h2 class="bloco__titulo">Ações</h2>
+
+          @for (aviso of avisos(); track aviso) {
+            <p class="aviso">{{ aviso }}</p>
+          }
+
+          @for (acao of acoes(); track acao.acao) {
+            <ion-button expand="block" fill="outline" disabled="true">
+              {{ acao.rotulo }}
+            </ion-button>
+          } @empty {
+            <p class="bloco__apoio">Este estado não permite nenhuma ação.</p>
+          }
+        </section>
+      }
+    }
+  }
+</ion-content>

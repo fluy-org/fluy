@@ -1,0 +1,131 @@
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fluy-space-3);
+  padding: var(--fluy-space-8) var(--fluy-space-4);
+  text-align: center;
+}
+
+.destaque {
+  padding: var(--fluy-space-4);
+  margin-bottom: var(--fluy-space-5);
+  background: var(--fluy-color-surface);
+  border-left: 4px solid var(--cor-estado, var(--fluy-color-border));
+  border-radius: var(--fluy-radius-lg);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.destaque__data {
+  margin: 0;
+  font-size: var(--fluy-font-size-small);
+  text-transform: capitalize;
+  color: var(--fluy-color-muted);
+}
+
+.destaque__linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fluy-space-3);
+  margin-top: var(--fluy-space-1);
+}
+
+.destaque__hora {
+  font-size: 2rem;
+  font-weight: var(--fluy-font-weight-bold);
+  line-height: var(--fluy-line-height-title);
+  color: var(--fluy-color-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.destaque__duracao {
+  margin: var(--fluy-space-1) 0 0;
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-muted);
+}
+
+.bloco {
+  margin-bottom: var(--fluy-space-5);
+}
+
+.bloco__titulo {
+  margin: 0 0 var(--fluy-space-2);
+  font-size: var(--fluy-font-size-small);
+  font-weight: var(--fluy-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fluy-color-muted);
+}
+
+.bloco__principal {
+  margin: 0;
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-medium);
+  color: var(--fluy-color-title);
+}
+
+.bloco__apoio {
+  margin: var(--fluy-space-1) 0 0;
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-muted);
+}
+
+// Valores como recibo: rótulo à esquerda, número alinhado à direita, para
+// comparar as linhas na vertical sem esforço.
+.recibo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--fluy-space-2) var(--fluy-space-4);
+  margin: 0;
+  padding: var(--fluy-space-3) var(--fluy-space-4);
+  background: var(--fluy-color-surface);
+  border-radius: var(--fluy-radius-lg);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.recibo dt {
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-muted);
+}
+
+.recibo dd {
+  margin: 0;
+  text-align: right;
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-body);
+  font-variant-numeric: tabular-nums;
+}
+
+// A régua ocupa as duas colunas: com `border-top` nas células, o `gap` do grid
+// partia a linha ao meio.
+.recibo__divisor {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: var(--fluy-space-1) 0;
+  background: var(--fluy-color-border-soft);
+}
+
+.recibo__saldo {
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+  color: var(--fluy-color-title);
+}
+
+.recibo__saldo--quitado {
+  color: var(--fluy-color-success);
+}
+
+.aviso {
+  margin: 0 0 var(--fluy-space-3);
+  padding: var(--fluy-space-3);
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-warning);
+  background: var(--fluy-color-warning-bg);
+  border: 1px solid var(--fluy-color-warning-border);
+  border-radius: var(--fluy-radius-md);
+}
+
+ion-button {
+  margin-bottom: var(--fluy-space-2);
+}

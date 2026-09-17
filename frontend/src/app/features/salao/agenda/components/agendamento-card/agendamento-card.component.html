@@ -1,0 +1,64 @@
+@let dados = agendamento();
+
+<ion-card
+  button
+  class="cartao"
+  [style.--cor-estado]="estilo().corCss"
+  (click)="abrir.emit(dados.id)"
+>
+  <ion-card-content class="conteudo">
+    <div class="quando">
+      <span class="quando__hora">
+        {{ dados.inicio_em | horaSalao: fusoHorario() }}
+      </span>
+      <span class="quando__duracao">{{ duracao() }}</span>
+    </div>
+
+    <div class="info">
+      <div class="info__cabecalho">
+        <p class="cliente">{{ dados.cliente.nome }}</p>
+        <ion-badge [color]="estilo().cor">{{ estilo().rotulo }}</ion-badge>
+      </div>
+
+      <p class="procedimento">{{ dados.procedimento.nome }}</p>
+
+      <div class="valores">
+        @if (dados.valor_pendente > 0) {
+          <div class="valores__linha">
+            <span class="valores__rotulo">Pendente</span>
+            <strong class="valores__destaque">{{ valorPendente() }}</strong>
+          </div>
+          <p class="valores__apoio">
+            {{ valorPago() }} pagos de {{ precoTotal() }}
+          </p>
+        } @else {
+          <div class="valores__linha">
+            <span class="valores__rotulo valores__rotulo--quitado">
+              Pago integralmente
+            </span>
+            <strong class="valores__destaque valores__destaque--quitado">
+              {{ precoTotal() }}
+            </strong>
+          </div>
+        }
+      </div>
+
+      @if (dados.tem_imagens_referencia || dados.tem_observacoes) {
+        <div class="indicadores">
+          @if (dados.tem_imagens_referencia) {
+            <ion-icon
+              name="images-outline"
+              aria-label="Tem imagens de referência"
+            ></ion-icon>
+          }
+          @if (dados.tem_observacoes) {
+            <ion-icon
+              name="chatbubble-ellipses-outline"
+              aria-label="Tem observações"
+            ></ion-icon>
+          }
+        </div>
+      }
+    </div>
+  </ion-card-content>
+</ion-card>

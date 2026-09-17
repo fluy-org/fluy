@@ -13,7 +13,7 @@ Fornecer ao salão uma visão operacional dos agendamentos do dia (ou semana), p
    - Procedimento
    - Duração
    - Status atual (`Reservado`, `Agendado`, `Concluído`, `Cancelado`, `No-show`)
-   - Valor total + sinal pago + valor pendente
+   - Valor total + valor já pago + valor pendente. **"Pago" é a soma das cobranças confirmadas, não o sinal congelado do procedimento** — agendamento manual nasce em `Agendado` sem nenhum pagamento registrado, e nesse caso o pago é zero.
    - Indicador se tem imagens de referência da cliente
    - Indicador se tem observações
 3. Salão pode navegar para outros dias. **Visão semanal está fora do MVP** (decidido) — a agenda nasce só diária, mobile-first.
@@ -39,14 +39,15 @@ Ao abrir o detalhe:
 - **Existem `Reservado`s expirando em breve:** UI destaca (ex.: "aguardando pagamento, expira em 5min").
 - **Cliente cancelou de última hora:** notificação em tempo real; card do agendamento vai para `Cancelado`.
 - **Novo agendamento chegou enquanto salão olhava a agenda:** notificação em tempo real; card aparece.
-- **Mudança de dia** (calendário): filtro reflete outro dia, mesma mecânica.
+- **Mudança de dia** (calendário): filtro reflete outro dia, mesma mecânica. O seletor mostra o mês inteiro e **marca os dias que têm agendamento**, para o salão não precisar navegar às cegas dia a dia. Isso não altera a agenda em si, que segue diária.
 
 ## Regras de negócio
 
 - **Home padrão do salão exibe agendamentos do dia atual.**
 - **Cards de agendamentos incluem estados intermediários (`Reservado`)** para o salão saber o que está "quase confirmado".
 - **Salão vê tudo do dia — sem paginação de horários** (dia inteiro em uma tela).
-- **Apenas visão diária no MVP.** Visão semanal fica como evolução futura.
+- **Estados terminais permanecem na listagem do dia**, agrupados e com destaque reduzido, separados dos ativos (`Reservado` e `Agendado`). "Sair da agenda ativa" ao concluir, cancelar ou marcar no-show significa mudar de grupo, não desaparecer — o salão precisa ver o que já fechou no dia.
+- **Apenas visão diária no MVP.** Visão semanal fica como evolução futura. Marcar no seletor os dias com agendamento **não** é visão semanal: a agenda continua diária, muda só a navegação.
 - **Ações disponíveis dependem do estado**:
   - `Reservado`: apenas visualizar (aguarda pagamento).
   - `Agendado`: concluir, cancelar, remarcar, marcar no-show (a partir da hora agendada; com aviso enquanto a tolerância não expirar — ver [no-show](./10-no-show.md)).
@@ -68,7 +69,7 @@ Ao abrir o detalhe:
 - **Salão marca concluído em agendamento futuro** (dias adiante): permitido, com aviso (ver [conclusão](./07-conclusao-atendimento.md)).
 - **Salão tenta cancelar um agendamento que a cliente também está cancelando (race):** o que chegar primeiro vence; segundo recebe "já cancelado".
 - **Reserva expira e slot libera enquanto salão vê a agenda:** card some ou muda de estado; atualização em tempo real ideal.
-- **Salão sem conexão de internet:** UI mostra "offline"; ações bufferizadas ou bloqueadas (decidir).
+- **Salão sem conexão de internet:** UI mostra "offline" e oferece nova tentativa; ações são **bloqueadas, nunca bufferizadas** (decidido). Nada fica pendente para sincronizar depois.
 - **Fuso horário do dispositivo do salão diferente do fuso do salão:** exibir sempre no horário do salão (não do dispositivo).
 
 ## Dúvidas em aberto

@@ -1,7 +1,11 @@
 import type {
+  AcaoAgendamento,
+  AvisoAcaoAgendamento,
   AvisoAvaliacaoAgendamento,
   BloqueioAvaliacaoAgendamento,
+  FusoHorarioBrasil,
   StatusAvaliacaoAgendamento,
+  StatusCobrancaGateway,
   agendamento,
 } from '@fluy/schema';
 
@@ -85,4 +89,67 @@ export type CriarAgendamentoComValidacaoInput =
 export type ValidarCriacaoAgendamentoInput = {
   avaliacao: AvaliacaoHorarioAgendamento;
   confirmarExcecoes: boolean;
+};
+
+export type ClienteDoAgendamentoPersistida = {
+  id: string;
+  nome: string;
+  whatsapp: string;
+};
+
+export type ProcedimentoDoAgendamentoPersistido = {
+  id: string;
+  nome: string;
+};
+
+// `status` nulo identifica cobrança manual, que não tem coluna de status:
+// existir já significa que o dinheiro entrou.
+export type PagamentoDoAgendamentoPersistido = {
+  valor: string;
+  status: StatusCobrancaGateway | null;
+};
+
+export type AgendamentoDaAgendaPersistido = AgendamentoPersistido & {
+  cliente: ClienteDoAgendamentoPersistida;
+  procedimento: ProcedimentoDoAgendamentoPersistido;
+  pagamentos: PagamentoDoAgendamentoPersistido[];
+};
+
+export type ListarAgendamentosDoDiaInput = {
+  salaoId: string;
+  data: string;
+  fusoHorario: string;
+};
+
+export type BuscarAgendamentoInput = {
+  id: string;
+  salaoId: string;
+};
+
+export type AgendamentoDaAgendaResultado = AgendamentoDaAgendaPersistido & {
+  valorPago: string;
+  valorPendente: string;
+};
+
+export type AgendaDoDiaResultado = {
+  data: string;
+  fusoHorario: FusoHorarioBrasil;
+  agendamentos: AgendamentoDaAgendaResultado[];
+};
+
+export type AcoesDoAgendamento = {
+  acoesPermitidas: AcaoAgendamento[];
+  avisos: AvisoAcaoAgendamento[];
+};
+
+export type AgendamentoDetalheResultado = AgendamentoDaAgendaResultado &
+  AcoesDoAgendamento & {
+    fusoHorario: FusoHorarioBrasil;
+  };
+
+export type CalcularAcoesAgendamentoInput = {
+  estado: AgendamentoPersistido['estado'];
+  inicioEm: Date;
+  toleranciaAtrasoMin: number;
+  agora: Date;
 };
