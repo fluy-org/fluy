@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -13,14 +21,19 @@ import {
 import type { TenantContext } from '@/shared/tenant-context/contracts';
 import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
 import {
+  AgendaDiaResponseDto,
+  AgendamentoDetalheResponseDto,
   AgendamentoResponseDto,
   AvaliacaoHorarioAgendamentoResponseDto,
   AvaliarHorarioAgendamentoQueryDto,
   CriarAgendamentoRequestDto,
   HorariosLivresResponseDto,
+  ListarAgendaDiaQueryDto,
   ListarHorariosLivresQueryDto,
 } from '@/modules/agendamento/contracts';
 import {
+  toAgendaDiaResponse,
+  toAgendamentoDetalheResponse,
   toAgendamentoResponse,
   toAvaliacaoHorarioResponse,
   toHorariosLivresResponse,
@@ -32,6 +45,32 @@ import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 @Controller('agendamentos')
 export class AgendamentoController {
   constructor(private readonly agendamentoService: AgendamentoService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'Lista os agendamentos de um dia do salão, sem paginação',
+  })
+  @ApiOkResponse({
+    description:
+      'Agendamentos do dia no fuso do salão, ordenados por horário crescente.',
+    type: AgendaDiaResponseDto.Output,
+  })
+  @ApiBadRequestResponse({ description: 'Parâmetros de consulta inválidos.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
+  async listarAgendaDoDia(
+    @TenantFromOwner() tenant: TenantContext,
+    @Query() dados: ListarAgendaDiaQueryDto,
+  ) {
+    return toAgendaDiaResponse(
+      await this.agendamentoService.listarAgendaDoDia({
+        salaoId: tenant.salaoId,
+        dados,
+      }),
+    );
+  }
 
   @Get('horarios-livres')
   @ApiOperation({
@@ -81,6 +120,34 @@ export class AgendamentoController {
       await this.agendamentoService.avaliarHorario({
         salaoId: tenant.salaoId,
         dados,
+      }),
+    );
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary:
+      'Obtém o detalhe de um agendamento e as ações que o estado permite',
+  })
+  @ApiOkResponse({
+    description: 'Agendamento com valores e ações contextuais.',
+    type: AgendamentoDetalheResponseDto.Output,
+  })
+  @ApiBadRequestResponse({ description: 'Identificador inválido.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Agendamento, salão ou configuração não encontrados.',
+  })
+  async buscarDetalhe(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+  ) {
+    return toAgendamentoDetalheResponse(
+      await this.agendamentoService.buscarDetalhe({
+        id,
+        salaoId: tenant.salaoId,
       }),
     );
   }

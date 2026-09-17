@@ -16,7 +16,27 @@ jest.mock(
     cliente: {
       id: 'cliente.id',
       salao_id: 'cliente.salao_id',
+      nome: 'cliente.nome',
+      whatsapp: 'cliente.whatsapp',
       removido_em: 'cliente.removido_em',
+    },
+    procedimento: {
+      id: 'procedimento.id',
+      nome: 'procedimento.nome',
+    },
+    pagamentoAgendamento: {
+      agendamento_id: 'pagamento_agendamento.agendamento_id',
+      cobranca_manual_id: 'pagamento_agendamento.cobranca_manual_id',
+      cobranca_gateway_id: 'pagamento_agendamento.cobranca_gateway_id',
+    },
+    cobrancaManual: {
+      id: 'cobranca_manual.id',
+      valor: 'cobranca_manual.valor',
+    },
+    cobrancaGateway: {
+      id: 'cobranca_gateway.id',
+      valor: 'cobranca_gateway.valor',
+      status: 'cobranca_gateway.status',
     },
   }),
   { virtual: true },
@@ -24,6 +44,7 @@ jest.mock(
 
 jest.mock('drizzle-orm', () => ({
   and: jest.fn(),
+  asc: jest.fn(),
   eq: jest.fn(),
   gte: jest.fn(),
   inArray: jest.fn(),
@@ -36,7 +57,7 @@ jest.mock('@/database/database.provider', () => ({
   DATABASE: Symbol('DATABASE'),
 }));
 
-import { eq } from 'drizzle-orm';
+import { eq, gte, lt } from 'drizzle-orm';
 import { agendamento } from '@fluy/schema';
 import type { Database } from '@/database/database.provider';
 import type {
@@ -44,6 +65,12 @@ import type {
   CriarAgendamentoComValidacaoInput,
 } from '@/modules/agendamento/contracts';
 import { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
+
+type EncadeamentoAgenda = {
+  innerJoin: jest.Mock<EncadeamentoAgenda, []>;
+  leftJoin: jest.Mock<EncadeamentoAgenda, []>;
+  where: jest.Mock;
+};
 
 describe('AgendamentoRepository', () => {
   const limitarConflitos = jest.fn();
@@ -63,8 +90,26 @@ describe('AgendamentoRepository', () => {
       insert: inserirAgendamentos,
     }),
   );
+  const ordenarAgenda = jest.fn();
+  let linhasDaAgenda: unknown[] = [];
+  const filtrarAgenda = jest.fn(() => {
+    const resultado = Promise.resolve(linhasDaAgenda) as Promise<unknown[]> & {
+      orderBy: jest.Mock;
+    };
+    resultado.orderBy = ordenarAgenda;
+
+    return resultado;
+  });
+  const encadearAgenda: EncadeamentoAgenda = {
+    innerJoin: jest.fn(() => encadearAgenda),
+    leftJoin: jest.fn(() => encadearAgenda),
+    where: filtrarAgenda,
+  };
+  const origemAgenda = jest.fn(() => encadearAgenda);
+  const selecionarAgenda = jest.fn(() => ({ from: origemAgenda }));
   const database = {
     transaction: transacao,
+    select: selecionarAgenda,
   } as unknown as Database;
   const repository = new AgendamentoRepository(database);
   const input = criarInput();
@@ -72,6 +117,8 @@ describe('AgendamentoRepository', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     limitarConflitos.mockResolvedValue([]);
+    linhasDaAgenda = [];
+    ordenarAgenda.mockImplementation(() => Promise.resolve(linhasDaAgenda));
   });
 
   it('não cria quando o conflito é encontrado na transação', async () => {
@@ -111,7 +158,134 @@ describe('AgendamentoRepository', () => {
       estado: 'agendado',
     });
   });
+
+  describe('listarDoDia', () => {
+    const entrada = {
+      salaoId: 'salao-ana',
+      data: '2026-09-15',
+      fusoHorario: 'America/Sao_Paulo',
+    };
+
+    it('filtra pelo salão da requisição', async () => {
+      await repository.listarDoDia(entrada);
+
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, entrada.salaoId);
+    });
+
+    it('deriva a faixa UTC do dia a partir do fuso do salão', async () => {
+      await repository.listarDoDia(entrada);
+
+      expect(gte).toHaveBeenCalledWith(
+        agendamento.inicio_em,
+        new Date('2026-09-15T03:00:00.000Z'),
+      );
+      expect(lt).toHaveBeenCalledWith(
+        agendamento.inicio_em,
+        new Date('2026-09-16T03:00:00.000Z'),
+      );
+    });
+
+    it('não filtra por estado: a agenda mostra o dia inteiro', async () => {
+      linhasDaAgenda = [
+        linhaDaAgenda({ id: 'agendamento-concluido', estado: 'concluido' }),
+        linhaDaAgenda({ id: 'agendamento-cancelado', estado: 'cancelado' }),
+      ];
+
+      const agendamentos = await repository.listarDoDia(entrada);
+
+      expect(agendamentos.map(({ estado }) => estado)).toEqual([
+        'concluido',
+        'cancelado',
+      ]);
+    });
+
+    it('agrupa os pagamentos do mesmo agendamento em um registro só', async () => {
+      linhasDaAgenda = [
+        linhaDaAgenda({ id: 'agendamento-ana', valor_manual: '50.00' }),
+        linhaDaAgenda({
+          id: 'agendamento-ana',
+          valor_gateway: '30.00',
+          status_gateway: 'confirmada',
+        }),
+      ];
+
+      const agendamentos = await repository.listarDoDia(entrada);
+
+      expect(agendamentos).toHaveLength(1);
+      expect(agendamentos[0].pagamentos).toEqual([
+        { valor: '50.00', status: null },
+        { valor: '30.00', status: 'confirmada' },
+      ]);
+    });
+
+    it('devolve lista de pagamentos vazia quando não há cobrança vinculada', async () => {
+      linhasDaAgenda = [linhaDaAgenda({ id: 'agendamento-ana' })];
+
+      const agendamentos = await repository.listarDoDia(entrada);
+
+      expect(agendamentos[0].pagamentos).toEqual([]);
+    });
+  });
+
+  describe('buscarDetalhe', () => {
+    const entrada = { id: 'agendamento-ana', salaoId: 'salao-ana' };
+
+    it('filtra pelo identificador e pelo salão da requisição', async () => {
+      await repository.buscarDetalhe(entrada);
+
+      expect(eq).toHaveBeenCalledWith(agendamento.id, entrada.id);
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, entrada.salaoId);
+    });
+
+    it('devolve undefined quando o agendamento não está no escopo do salão', async () => {
+      await expect(repository.buscarDetalhe(entrada)).resolves.toBeUndefined();
+    });
+
+    it('devolve o agendamento com cliente e procedimento', async () => {
+      linhasDaAgenda = [linhaDaAgenda({ id: entrada.id })];
+
+      const encontrado = await repository.buscarDetalhe(entrada);
+
+      expect(encontrado?.id).toBe(entrada.id);
+      expect(encontrado?.cliente).toEqual({
+        id: 'cliente-ana',
+        nome: 'Ana Paula',
+        whatsapp: '+5511999999999',
+      });
+      expect(encontrado?.procedimento).toEqual({
+        id: 'procedimento-corte',
+        nome: 'Corte',
+      });
+    });
+  });
 });
+
+function linhaDaAgenda({
+  id,
+  estado = 'agendado',
+  valor_manual = null,
+  valor_gateway = null,
+  status_gateway = null,
+}: {
+  id: string;
+  estado?: string;
+  valor_manual?: string | null;
+  valor_gateway?: string | null;
+  status_gateway?: string | null;
+}) {
+  return {
+    agendamento: { id, estado, preco_total: '150.00' },
+    cliente: {
+      id: 'cliente-ana',
+      nome: 'Ana Paula',
+      whatsapp: '+5511999999999',
+    },
+    procedimento: { id: 'procedimento-corte', nome: 'Corte' },
+    valor_manual,
+    valor_gateway,
+    status_gateway,
+  };
+}
 
 function criarInput(): CriarAgendamentoComValidacaoInput {
   return {

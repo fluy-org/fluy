@@ -14,7 +14,7 @@ Fornecer ao salão uma visão operacional consolidada dos agendamentos, com aç�
 - Renderizar cada agendamento como card com: horário, cliente, procedimento, duração, status, valor total, sinal pago, valor pendente, indicadores de imagens de referência e observações.
 - Incluir cards de agendamentos em estado `Reservado` (aguardando pagamento) para visibilidade completa.
 - Ordenar cards por horário crescente.
-- Navegar para outros dias. **Visão semanal fica fora do MVP** (decidido).
+- Navegar para outros dias por setas e por seletor de mês, que **marca os dias com agendamento**. **Visão semanal fica fora do MVP** (decidido) — marcar dias no seletor não é visão semanal; a agenda segue diária.
 - Abrir detalhe do agendamento com ações contextuais conforme estado:
   - `Reservado`: apenas visualizar.
   - `Agendado`: concluir, cancelar, remarcar, marcar no-show (a partir da hora agendada; com aviso enquanto a tolerância não expirar).
@@ -50,4 +50,4 @@ Usado por:
 - Visão semanal está **fora do MVP** (decidido em 2026-09-14) — começa apenas com diária, mobile-first.
 - Filtro por profissional aparece no futuro multi-profissional; UI deve prever.
 - Impressão/export da agenda, modo "encaixe rápido" e ordenações alternativas estão fora do MVP.
-- Comportamento offline (bufferizar vs. bloquear ações) precisa ser decidido.
+- Comportamento offline **decidido**: ações bloqueadas com aviso, nunca bufferizadas.

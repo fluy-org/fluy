@@ -6,13 +6,27 @@ import {
 import type {
   AvaliarHorarioAgendamentoQueryDto,
   CriarAgendamentoDto,
+  ListarAgendaDiaQueryDto,
   ListarHorariosLivresQueryDto,
 } from '@fluy/schema';
-import { dataHoraCivilParaUtc } from '@/shared/horario-salao/horario-salao.utils';
+import {
+  dataHoraCivilParaUtc,
+  utcParaDataHoraCivil,
+} from '@/shared/horario-salao/horario-salao.utils';
 import type {
+  AgendaDoDiaResultado,
+  AgendamentoDaAgendaPersistido,
+  AgendamentoDaAgendaResultado,
+  AgendamentoDetalheResultado,
   AvaliarHorarioAgendamentoInput,
   DadosParaAvaliacaoHorario,
 } from '@/modules/agendamento/contracts';
+import {
+  calcularAcoesDoAgendamento,
+  calcularValorPago,
+  calcularValorPendente,
+  calcularValorSinalDoProcedimento,
+} from '@/modules/agendamento/agendamento-utils';
 import { AgendamentoDisponibilidadeService } from '@/modules/agendamento/agendamento-disponibilidade.service';
 import { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import { AgendamentoValidator } from '@/modules/agendamento/agendamento.validator';
@@ -57,6 +71,60 @@ export class AgendamentoService {
       horarios: this.agendamentoDisponibilidadeService
         .listarHorariosLivres(dadosParaAvaliarDisponibilidade)
         .map((hora_inicio) => ({ hora_inicio })),
+    };
+  }
+
+  async listarAgendaDoDia({
+    salaoId,
+    dados,
+  }: {
+    salaoId: string;
+    dados: ListarAgendaDiaQueryDto;
+  }): Promise<AgendaDoDiaResultado> {
+    const fusoHorario =
+      await this.salaoConsultaService.obterFusoHorario(salaoId);
+    const data = dados.data ?? this.resolverHoje(fusoHorario);
+    const agendamentos = await this.agendamentoRepository.listarDoDia({
+      salaoId,
+      data,
+      fusoHorario,
+    });
+
+    return {
+      data,
+      fusoHorario,
+      agendamentos: agendamentos.map((agendamento) =>
+        this.acrescentarValores(agendamento),
+      ),
+    };
+  }
+
+  async buscarDetalhe({
+    id,
+    salaoId,
+  }: {
+    id: string;
+    salaoId: string;
+  }): Promise<AgendamentoDetalheResultado> {
+    const [fusoHorario, configuracao, agendamento] = await Promise.all([
+      this.salaoConsultaService.obterFusoHorario(salaoId),
+      this.salaoConfiguracaoService.buscar(salaoId),
+      this.agendamentoRepository.buscarDetalhe({ id, salaoId }),
+    ]);
+
+    if (!agendamento) {
+      throw new NotFoundException('Agendamento não encontrado.');
+    }
+
+    return {
+      ...this.acrescentarValores(agendamento),
+      fusoHorario,
+      ...calcularAcoesDoAgendamento({
+        estado: agendamento.estado,
+        inicioEm: agendamento.inicio_em,
+        toleranciaAtrasoMin: configuracao.tolerancia_atraso_min,
+        agora: new Date(),
+      }),
     };
   }
 
@@ -125,7 +193,7 @@ export class AgendamentoService {
       inicioEm,
       duracaoMin: procedimento.duracao_min,
       precoTotal: procedimento.preco,
-      valorSinal: this.calcularValorSinalDoProcedimento(procedimento),
+      valorSinal: calcularValorSinalDoProcedimento(procedimento),
     });
 
     if (!agendamento) {
@@ -215,40 +283,24 @@ export class AgendamentoService {
     }
   }
 
-  private calcularValorSinalDoProcedimento(procedimento: {
-    preco: string;
-    tipo_sinal: 'percentual' | 'fixo';
-    valor_sinal: string;
-  }): string {
-    if (procedimento.tipo_sinal === 'fixo') {
-      return this.formatarCentavos({
-        valor: this.emCentavos({ valor: procedimento.valor_sinal }),
-      });
-    }
+  private resolverHoje(fusoHorario: string): string {
+    return utcParaDataHoraCivil({ dataHora: new Date(), fusoHorario }).data;
+  }
 
-    const precoEmCentavos = this.emCentavos({ valor: procedimento.preco });
-    const percentualEmCentimos = this.emCentavos({
-      valor: procedimento.valor_sinal,
+  private acrescentarValores(
+    agendamento: AgendamentoDaAgendaPersistido,
+  ): AgendamentoDaAgendaResultado {
+    const valorPago = calcularValorPago({
+      pagamentos: agendamento.pagamentos,
     });
-    const valorSinalEmCentavos =
-      (precoEmCentavos * percentualEmCentimos + 5_000n) / 10_000n;
 
-    return this.formatarCentavos({ valor: valorSinalEmCentavos });
-  }
-
-  private emCentavos({ valor }: { valor: string }): bigint {
-    const [inteiro, decimal = ''] = valor.split('.');
-    const centavos = decimal.padEnd(2, '0').slice(0, 2);
-
-    return BigInt(inteiro) * 100n + BigInt(centavos);
-  }
-
-  private formatarCentavos({ valor }: { valor: bigint }): string {
-    const sinal = valor < 0n ? '-' : '';
-    const absoluto = valor < 0n ? -valor : valor;
-    const inteiro = absoluto / 100n;
-    const centavos = (absoluto % 100n).toString().padStart(2, '0');
-
-    return `${sinal}${inteiro}.${centavos}`;
+    return {
+      ...agendamento,
+      valorPago,
+      valorPendente: calcularValorPendente({
+        precoTotal: agendamento.preco_total,
+        valorPago,
+      }),
+    };
   }
 }

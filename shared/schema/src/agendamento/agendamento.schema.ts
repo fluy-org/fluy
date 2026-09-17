@@ -1,5 +1,8 @@
 import { z } from 'zod';
+import { FUSOS_HORARIOS_BRASIL } from '../salao/salao.enums.js';
 import {
+  ACAO_AGENDAMENTO,
+  AVISO_ACAO_AGENDAMENTO,
   AVISO_AVALIACAO_AGENDAMENTO,
   BLOQUEIO_AVALIACAO_AGENDAMENTO,
   ESTADO_AGENDAMENTO,
@@ -76,3 +79,55 @@ export const agendamentoResponseSchema = z
     criado_em: z.iso.datetime(),
   })
   .meta({ id: 'AgendamentoResponse' });
+
+export const listarAgendaDiaQuerySchema = z
+  .object({ data: dataSchema.optional() })
+  .strict()
+  .meta({ id: 'ListarAgendaDiaQuery' });
+
+const clienteDoAgendamentoSchema = z.object({
+  id: z.uuid(),
+  nome: z.string(),
+});
+
+const procedimentoDoAgendamentoSchema = z.object({
+  id: z.uuid(),
+  nome: z.string(),
+});
+
+const fusoHorarioSchema = z.enum(FUSOS_HORARIOS_BRASIL);
+
+export const agendamentoAgendaResponseSchema = z
+  .object({
+    id: z.uuid(),
+    inicio_em: z.iso.datetime(),
+    duracao_min: z.number().int().positive(),
+    estado: z.enum(ESTADO_AGENDAMENTO),
+    cliente: clienteDoAgendamentoSchema,
+    procedimento: procedimentoDoAgendamentoSchema,
+    preco_total: z.number().nonnegative(),
+    valor_sinal: z.number().nonnegative(),
+    valor_pago: z.number().nonnegative(),
+    valor_pendente: z.number().nonnegative(),
+    tem_imagens_referencia: z.boolean(),
+    tem_observacoes: z.boolean(),
+  })
+  .meta({ id: 'AgendamentoAgendaResponse' });
+
+export const agendaDiaResponseSchema = z
+  .object({
+    data: dataSchema,
+    fuso_horario: fusoHorarioSchema,
+    agendamentos: z.array(agendamentoAgendaResponseSchema),
+  })
+  .meta({ id: 'AgendaDiaResponse' });
+
+export const agendamentoDetalheResponseSchema = agendamentoAgendaResponseSchema
+  .extend({
+    fuso_horario: fusoHorarioSchema,
+    cliente: clienteDoAgendamentoSchema.extend({ whatsapp: z.string() }),
+    criado_em: z.iso.datetime(),
+    acoes_permitidas: z.array(z.enum(ACAO_AGENDAMENTO)),
+    avisos: z.array(z.enum(AVISO_ACAO_AGENDAMENTO)),
+  })
+  .meta({ id: 'AgendamentoDetalheResponse' });

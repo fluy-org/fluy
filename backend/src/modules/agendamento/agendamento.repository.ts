@@ -1,5 +1,12 @@
-import { and, eq, gte, inArray, isNull, lt, sql } from 'drizzle-orm';
-import { agendamento, cliente } from '@fluy/schema';
+import { and, asc, eq, gte, inArray, isNull, lt, sql } from 'drizzle-orm';
+import {
+  agendamento,
+  cliente,
+  cobrancaGateway,
+  cobrancaManual,
+  pagamentoAgendamento,
+  procedimento,
+} from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
 import { InjectDatabase } from '@/database/inject-database.decorator';
 import type { Database } from '@/database/database.provider';
@@ -8,10 +15,23 @@ import {
   dataHoraCivilParaUtc,
 } from '@/shared/horario-salao/horario-salao.utils';
 import type {
+  AgendamentoDaAgendaPersistido,
   AgendamentoPersistido,
+  BuscarAgendamentoInput,
   CriarAgendamentoComValidacaoInput,
+  ListarAgendamentosDoDiaInput,
   OcupacaoProfissional,
+  PagamentoDoAgendamentoPersistido,
 } from '@/modules/agendamento/contracts';
+
+type LinhaDaAgenda = {
+  agendamento: AgendamentoPersistido;
+  cliente: AgendamentoDaAgendaPersistido['cliente'];
+  procedimento: AgendamentoDaAgendaPersistido['procedimento'];
+  valor_manual: string | null;
+  valor_gateway: string | null;
+  status_gateway: PagamentoDoAgendamentoPersistido['status'];
+};
 
 @Injectable()
 export class AgendamentoRepository {
@@ -76,6 +96,47 @@ export class AgendamentoRepository {
       );
   }
 
+  async listarDoDia({
+    salaoId,
+    data,
+    fusoHorario,
+  }: ListarAgendamentosDoDiaInput): Promise<AgendamentoDaAgendaPersistido[]> {
+    const inicioDia = dataHoraCivilParaUtc({
+      data,
+      hora: '00:00',
+      fusoHorario,
+    });
+    const fimDia = dataHoraCivilParaUtc({
+      data: adicionarDiasNaData({ data, dias: 1 }),
+      hora: '00:00',
+      fusoHorario,
+    });
+    const linhas = await this.selecionarAgenda()
+      .where(
+        and(
+          eq(agendamento.salao_id, salaoId),
+          gte(agendamento.inicio_em, inicioDia),
+          lt(agendamento.inicio_em, fimDia),
+        ),
+      )
+      .orderBy(asc(agendamento.inicio_em));
+
+    return agruparAgendamentos(linhas);
+  }
+
+  async buscarDetalhe({
+    id,
+    salaoId,
+  }: BuscarAgendamentoInput): Promise<
+    AgendamentoDaAgendaPersistido | undefined
+  > {
+    const linhas = await this.selecionarAgenda().where(
+      and(eq(agendamento.id, id), eq(agendamento.salao_id, salaoId)),
+    );
+
+    return agruparAgendamentos(linhas)[0];
+  }
+
   async criar(
     input: CriarAgendamentoComValidacaoInput,
   ): Promise<AgendamentoPersistido | undefined> {
@@ -120,4 +181,80 @@ export class AgendamentoRepository {
       return agendamentosCriados[0];
     });
   }
+
+  private selecionarAgenda() {
+    return this.database
+      .select({
+        agendamento,
+        cliente: {
+          id: cliente.id,
+          nome: cliente.nome,
+          whatsapp: cliente.whatsapp,
+        },
+        procedimento: {
+          id: procedimento.id,
+          nome: procedimento.nome,
+        },
+        valor_manual: cobrancaManual.valor,
+        valor_gateway: cobrancaGateway.valor,
+        status_gateway: cobrancaGateway.status,
+      })
+      .from(agendamento)
+      .innerJoin(cliente, eq(cliente.id, agendamento.cliente_id))
+      .innerJoin(procedimento, eq(procedimento.id, agendamento.procedimento_id))
+      .leftJoin(
+        pagamentoAgendamento,
+        eq(pagamentoAgendamento.agendamento_id, agendamento.id),
+      )
+      .leftJoin(
+        cobrancaManual,
+        eq(cobrancaManual.id, pagamentoAgendamento.cobranca_manual_id),
+      )
+      .leftJoin(
+        cobrancaGateway,
+        eq(cobrancaGateway.id, pagamentoAgendamento.cobranca_gateway_id),
+      );
+  }
+}
+
+function agruparAgendamentos(
+  linhas: LinhaDaAgenda[],
+): AgendamentoDaAgendaPersistido[] {
+  const agendamentosPorId = new Map<string, AgendamentoDaAgendaPersistido>();
+
+  for (const linha of linhas) {
+    const pagamento = extrairPagamento(linha);
+    const existente = agendamentosPorId.get(linha.agendamento.id);
+
+    if (existente) {
+      if (pagamento) {
+        existente.pagamentos.push(pagamento);
+      }
+
+      continue;
+    }
+
+    agendamentosPorId.set(linha.agendamento.id, {
+      ...linha.agendamento,
+      cliente: linha.cliente,
+      procedimento: linha.procedimento,
+      pagamentos: pagamento ? [pagamento] : [],
+    });
+  }
+
+  return Array.from(agendamentosPorId.values());
+}
+
+function extrairPagamento(
+  linha: LinhaDaAgenda,
+): PagamentoDoAgendamentoPersistido | undefined {
+  if (linha.valor_manual !== null) {
+    return { valor: linha.valor_manual, status: null };
+  }
+
+  if (linha.valor_gateway !== null) {
+    return { valor: linha.valor_gateway, status: linha.status_gateway };
+  }
+
+  return undefined;
 }

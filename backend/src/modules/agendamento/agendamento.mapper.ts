@@ -1,9 +1,15 @@
 import type {
+  AgendaDiaResponseDto,
+  AgendamentoAgendaResponseDto,
+  AgendamentoDetalheResponseDto,
   AgendamentoResponseDto,
   AvaliacaoHorarioAgendamentoResponseDto,
   HorariosLivresResponseDto,
 } from '@fluy/schema';
 import type {
+  AgendaDoDiaResultado,
+  AgendamentoDaAgendaResultado,
+  AgendamentoDetalheResultado,
   AgendamentoPersistido,
   AvaliacaoHorarioAgendamento,
 } from '@/modules/agendamento/contracts';
@@ -40,4 +46,58 @@ export function toHorariosLivresResponse({
   horarios,
 }: HorariosLivresResponseDto): HorariosLivresResponseDto {
   return { data, horarios };
+}
+
+export function toAgendaDiaResponse({
+  data,
+  fusoHorario,
+  agendamentos,
+}: AgendaDoDiaResultado): AgendaDiaResponseDto {
+  return {
+    data,
+    fuso_horario: fusoHorario,
+    agendamentos: agendamentos.map(toAgendamentoAgendaResponse),
+  };
+}
+
+export function toAgendamentoDetalheResponse(
+  agendamento: AgendamentoDetalheResultado,
+): AgendamentoDetalheResponseDto {
+  return {
+    ...toAgendamentoAgendaResponse(agendamento),
+    fuso_horario: agendamento.fusoHorario,
+    cliente: {
+      id: agendamento.cliente.id,
+      nome: agendamento.cliente.nome,
+      whatsapp: agendamento.cliente.whatsapp,
+    },
+    criado_em: agendamento.criado_em.toISOString(),
+    acoes_permitidas: agendamento.acoesPermitidas,
+    avisos: agendamento.avisos,
+  };
+}
+
+function toAgendamentoAgendaResponse(
+  agendamento: AgendamentoDaAgendaResultado,
+): AgendamentoAgendaResponseDto {
+  return {
+    id: agendamento.id,
+    inicio_em: agendamento.inicio_em.toISOString(),
+    duracao_min: agendamento.duracao_min,
+    estado: agendamento.estado,
+    cliente: {
+      id: agendamento.cliente.id,
+      nome: agendamento.cliente.nome,
+    },
+    procedimento: {
+      id: agendamento.procedimento.id,
+      nome: agendamento.procedimento.nome,
+    },
+    preco_total: Number(agendamento.preco_total),
+    valor_sinal: Number(agendamento.valor_sinal),
+    valor_pago: Number(agendamento.valorPago),
+    valor_pendente: Number(agendamento.valorPendente),
+    tem_imagens_referencia: false,
+    tem_observacoes: false,
+  };
 }
