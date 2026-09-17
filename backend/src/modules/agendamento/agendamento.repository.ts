@@ -153,8 +153,8 @@ export class AgendamentoRepository {
             eq(agendamento.salao_id, input.salaoId),
             eq(agendamento.profissional_id, input.profissionalId),
             inArray(agendamento.estado, ['reservado', 'agendado']),
-            sql`${agendamento.inicio_em} < ${input.inicioEm} + ${input.duracaoMin} * interval '1 minute'`,
-            sql`${agendamento.inicio_em} + ${agendamento.duracao_min} * interval '1 minute' > ${input.inicioEm}`,
+            sql`${agendamento.inicio_em} < ${input.inicioEm}::timestamptz + ${input.duracaoMin} * interval '1 minute'`,
+            sql`${agendamento.inicio_em} + ${agendamento.duracao_min} * interval '1 minute' > ${input.inicioEm}::timestamptz`,
           ),
         )
         .limit(1);

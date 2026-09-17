@@ -1,0 +1,183 @@
+<ion-header>
+  <app-header titulo="Novo agendamento"></app-header>
+</ion-header>
+
+<ion-content class="agendamento-manual-page">
+  <main class="page-content">
+    <header class="page-intro">
+      <h1>Novo agendamento</h1>
+      <p>Informe a cliente, o serviço e o horário do atendimento.</p>
+    </header>
+
+    @if (carregandoInicial()) {
+      <div class="estado-pagina">
+        <ion-spinner aria-label="Carregando dados do agendamento"></ion-spinner>
+        <ion-text><p>Carregando clientes e procedimentos...</p></ion-text>
+      </div>
+    } @else {
+      <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
+        <ion-card class="form-card">
+          <ion-card-content>
+            <div class="section-heading">
+              <span class="section-number">1</span>
+              <div>
+                <h2>Cliente</h2>
+                <p>Selecione quem receberá o atendimento.</p>
+              </div>
+            </div>
+
+            <ion-select
+              formControlName="cliente_id"
+              label="Cliente"
+              labelPlacement="stacked"
+              interface="popover"
+              placeholder="Selecione uma cliente"
+            >
+              @for (cliente of clientes(); track cliente.id) {
+                <ion-select-option [value]="cliente.id">
+                  {{ cliente.nome }} · {{ cliente.whatsapp }}
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="form-card">
+          <ion-card-content>
+            <div class="section-heading">
+              <span class="section-number">2</span>
+              <div>
+                <h2>Procedimento</h2>
+                <p>Procedimentos inativos continuam disponíveis para encaixes.</p>
+              </div>
+            </div>
+
+            <ion-select
+              formControlName="procedimento_id"
+              label="Procedimento"
+              labelPlacement="stacked"
+              interface="popover"
+              placeholder="Selecione um procedimento"
+              (ionChange)="carregarHorarios()"
+            >
+              @for (procedimento of procedimentosDisponiveis(); track procedimento.id) {
+                <ion-select-option [value]="procedimento.id">
+                  {{ procedimento.nome }} · {{ procedimento.duracao_min }} min
+                  {{ procedimento.ativo ? '' : ' · Inativo' }}
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="form-card">
+          <ion-card-content>
+            <div class="section-heading">
+              <span class="section-number">3</span>
+              <div>
+                <h2>Data e horário</h2>
+                <p>Os horários consideram disponibilidade e conflitos.</p>
+              </div>
+            </div>
+
+            <ion-input
+              formControlName="data"
+              type="date"
+              label="Data"
+              labelPlacement="stacked"
+              (ionChange)="carregarHorarios()"
+            ></ion-input>
+
+            @if (carregandoHorarios()) {
+              <div class="horarios-feedback">
+                <ion-spinner></ion-spinner>
+                <span>Buscando horários...</span>
+              </div>
+            } @else if (horarios().length > 0) {
+              <div class="horarios-grid" aria-label="Horários disponíveis">
+                @for (horario of horarios(); track horario.hora_inicio) {
+                  <ion-button
+                    type="button"
+                    fill="outline"
+                    size="small"
+                    [class.horario-selecionado]="formulario.controls.hora_inicio.value === horario.hora_inicio"
+                    (click)="selecionarHorario(horario.hora_inicio)"
+                  >
+                    {{ horario.hora_inicio }}
+                  </ion-button>
+                }
+              </div>
+            } @else if (formulario.controls.procedimento_id.value && formulario.controls.data.value) {
+              <ion-text color="medium">
+                <p class="mensagem-vazia">
+                  Nenhum horário sugerido nesta data. Você ainda pode informar
+                  um horário de encaixe abaixo.
+                </p>
+              </ion-text>
+            }
+
+            <ion-input
+              class="horario-manual"
+              formControlName="hora_inicio"
+              type="time"
+              label="Outro horário ou encaixe"
+              labelPlacement="stacked"
+              [disabled]="!formulario.controls.procedimento_id.value || !formulario.controls.data.value"
+              (ionChange)="avaliarHorarioSelecionado()"
+            ></ion-input>
+
+            @if (avaliacao(); as resultado) {
+              <div class="avaliacao" [class.avaliacao-alerta]="resultado.status === 'requer_confirmacao'">
+                <ion-badge [color]="resultado.status === 'disponivel' ? 'success' : 'warning'">
+                  {{ resultado.status === 'disponivel' ? 'Horário disponível' : 'Requer confirmação' }}
+                </ion-badge>
+
+                @for (aviso of resultado.avisos; track aviso) {
+                  <p>{{ aviso }}</p>
+                }
+                @for (bloqueio of resultado.bloqueios; track bloqueio) {
+                  <p>{{ bloqueio }}</p>
+                }
+              </div>
+            }
+          </ion-card-content>
+        </ion-card>
+
+        @if (erro()) {
+          <ion-text color="danger"><p class="mensagem-erro">{{ erro() }}</p></ion-text>
+        }
+
+        @if (agendamentoCriado()) {
+          <ion-text color="success">
+            <p class="mensagem-sucesso">
+              Agendamento criado para {{ inicioAgendamentoFormatado() }}.
+            </p>
+          </ion-text>
+        }
+
+        @if (confirmacaoExigida()) {
+          <ion-card class="confirmation-card">
+            <ion-card-content>
+              <h2>Confirmar encaixe?</h2>
+              <p>O horário possui avisos. Confirme para continuar mesmo assim.</p>
+              <div class="confirmation-actions">
+                <ion-button type="button" fill="outline" (click)="cancelarConfirmacao()">
+                  Voltar
+                </ion-button>
+                <ion-button type="button" color="warning" (click)="confirmarExcecoes()">
+                  Confirmar encaixe
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        }
+
+        <div class="form-actions">
+          <ion-button type="submit" expand="block" [disabled]="salvando() || formulario.invalid">
+            {{ salvando() ? 'Salvando...' : 'Confirmar agendamento' }}
+          </ion-button>
+        </div>
+      </form>
+    }
+  </main>
+</ion-content>

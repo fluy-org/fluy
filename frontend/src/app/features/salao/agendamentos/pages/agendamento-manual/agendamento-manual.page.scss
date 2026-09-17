@@ -1,0 +1,166 @@
+:host {
+  display: block;
+}
+
+.agendamento-manual-page {
+  --background: var(--fluy-color-background);
+  --padding-bottom: calc(var(--fluy-space-8) + env(safe-area-inset-bottom));
+}
+
+.page-content {
+  width: min(100%, 880px);
+  margin: 0 auto;
+  padding: var(--fluy-space-4) var(--fluy-space-4)
+    calc(var(--fluy-space-8) + env(safe-area-inset-bottom));
+}
+
+.page-intro {
+  margin-bottom: var(--fluy-space-4);
+}
+
+.page-intro h1,
+.page-intro p,
+.section-heading h2,
+.section-heading p {
+  margin: 0;
+}
+
+.page-intro h1 {
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-title);
+}
+
+.page-intro p,
+.section-heading p {
+  margin-top: var(--fluy-space-1);
+  color: var(--fluy-color-muted);
+}
+
+form {
+  display: grid;
+  gap: var(--fluy-space-4);
+}
+
+.form-card,
+.confirmation-card {
+  margin: 0;
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fluy-space-3);
+  margin-bottom: var(--fluy-space-4);
+}
+
+.section-heading h2,
+.confirmation-card h2 {
+  margin: 0;
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+}
+
+.section-number {
+  display: grid;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--fluy-color-primary);
+  color: var(--fluy-color-primary-contrast);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+ion-select,
+ion-input {
+  --background: var(--fluy-color-input);
+  --border-color: var(--fluy-color-border);
+  --border-radius: var(--fluy-radius-md);
+  --highlight-color-focused: var(--fluy-color-focus);
+}
+
+.estado-pagina,
+.horarios-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fluy-space-3);
+  min-height: 160px;
+}
+
+.horarios-feedback {
+  min-height: 96px;
+}
+
+.horarios-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fluy-space-2);
+  margin-top: var(--fluy-space-4);
+}
+
+.horario-manual {
+  margin-top: var(--fluy-space-4);
+}
+
+.horarios-grid ion-button {
+  margin: 0;
+}
+
+.horario-selecionado {
+  --background: var(--fluy-color-primary);
+  --color: var(--fluy-color-primary-contrast);
+}
+
+.avaliacao,
+.confirmation-card p,
+.mensagem-vazia,
+.mensagem-erro,
+.mensagem-sucesso {
+  margin: var(--fluy-space-3) 0 0;
+}
+
+.avaliacao {
+  padding: var(--fluy-space-3);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-md);
+  background: var(--fluy-color-surface);
+}
+
+.avaliacao-alerta,
+.confirmation-card {
+  border-color: var(--fluy-color-warning);
+}
+
+.avaliacao p {
+  margin: var(--fluy-space-2) 0 0;
+}
+
+.confirmation-actions,
+.form-actions {
+  display: grid;
+  gap: var(--fluy-space-3);
+}
+
+.confirmation-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: var(--fluy-space-4);
+}
+
+.form-actions {
+  padding-bottom: calc(var(--fluy-space-8) + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .page-content {
+    padding: var(--fluy-space-6);
+  }
+
+  .horarios-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}

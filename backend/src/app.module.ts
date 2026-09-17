@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
@@ -13,11 +13,8 @@ import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { AuthGuard } from '@/modules/auth/guards/auth.guard';
 import { ArquivoModule } from '@/modules/arquivo/arquivo.module';
-<<<<<<< HEAD
 import { ClienteModule } from '@/modules/cliente/cliente.module';
-=======
 import { AgendamentoModule } from '@/modules/agendamento/agendamento.module';
->>>>>>> main
 import { DisponibilidadeModule } from '@/modules/disponibilidade/disponibilidade.module';
 import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
 import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-configuracao.module';
@@ -26,6 +23,7 @@ import { SalaoOnboardingModule } from '@/modules/salao-onboarding/salao-onboardi
 import { UsuarioModule } from '@/modules/usuario/usuario.module';
 import { ClerkModule } from '@/shared/providers/clerk/clerk.module';
 import { R2StorageModule } from '@/shared/providers/r2/r2-storage.module';
+import { AllExceptionsFilter } from '@/shared/filters/all-exceptions.filter';
 import { TenantContextModule } from '@/shared/tenant-context/tenant-context.module';
 import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-context.guard';
 
@@ -100,11 +98,8 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
     R2StorageModule,
     AuthModule,
     ArquivoModule,
-<<<<<<< HEAD
     ClienteModule,
-=======
     AgendamentoModule,
->>>>>>> main
     DisponibilidadeModule,
     TenantContextModule,
     UsuarioModule,
@@ -117,6 +112,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
   providers: [
     AppService,
     { provide: APP_PIPE, useClass: ZodValidationPipe },
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useExisting: TenantContextGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
