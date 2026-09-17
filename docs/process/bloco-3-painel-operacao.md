@@ -104,45 +104,57 @@ do salão com um dispositivo em outro fuso.
 
 ---
 
-### 3.1b Dias com agendamento marcados no seletor
+### 3.1b Calendário mensal com contagem de agendamentos
 
-- [ ] Seletor de data marca quais dias do mês têm agendamento, para o salão não navegar às cegas. — **🟣 Rudney** — [DEP: 3.1](#31-agenda-do-dia-e-detalhe-do-agendamento)
+- [ ] Calendário do mês, com a quantidade de agendamentos em cada dia, no lugar do seletor de data atual. — **🟣 Rudney** — [DEP: 3.1](#31-agenda-do-dia-e-detalhe-do-agendamento)
 
-**Por que existe:** a 3.1 entregou navegação por setas e seletor de mês, mas o
-seletor não diferencia dia cheio de dia vazio. Achar o próximo atendimento
-significa avançar dia a dia. **Não é visão semanal** — a agenda segue diária;
-muda só a navegação.
+**Por que existe:** a 3.1 entregou setas de dia anterior/próximo e um seletor de
+data que não diferencia dia cheio de dia vazio. Achar o próximo atendimento
+significa avançar dia a dia às cegas. O calendário mostra o mês inteiro com a
+carga de cada dia, e tocar num dia carrega a lista daquele dia — a agenda em si
+continua diária.
+
+**Não é a visão semanal vetada.** O que está fora do MVP é renderizar os
+agendamentos numa grade de horários. Aqui os agendamentos seguem aparecendo só
+na lista do dia; o calendário é navegação.
 
 **O que deve existir**
 
-_Backend_
+*Backend*
 
-- Rota de dias com agendamento num período: `de` e `ate` em data civil, resposta com os dias que têm ao menos um agendamento.
+- Rota de resumo do período: `de` e `ate` em data civil, resposta com cada dia que tem agendamento e **quantos**.
 - O agrupamento é por **data civil no fuso do salão**, não pela data UTC de `inicio_em`.
-- Estados considerados: os mesmos que a listagem da 3.1 devolve, sem filtro por estado.
+- Conta todos os estados, sem filtro — igual à listagem da 3.1.
 - Filtro por `salao_id` na query.
 
-_Frontend_
+*Frontend*
 
-- `highlightedDates` do `ion-datetime` alimentado pelos dias retornados.
-- Carrega uma janela ao abrir o seletor (mês atual mais anterior e seguinte), porque o `ion-datetime` **não emite evento de mudança de mês** — navegar para fora da janela deixa os dias sem marcação até recarregar.
+- Componente de calendário mensal próprio, em grade de dias. **Não dá para usar `ion-datetime`**: o `DatetimeHighlightStyle` do Ionic só aceita `textColor`, `backgroundColor` e `border`, então não há como desenhar a contagem na célula do dia.
+- Cada dia exibe a quantidade de agendamentos; dia vazio fica visivelmente apagado.
+- Navegação entre meses dentro do calendário, recarregando o resumo a cada mês.
+- Tocar num dia fecha o calendário e carrega a lista daquele dia, no fluxo que a 3.1 já tem.
+- O dia atualmente exibido na agenda aparece destacado.
+- As setas de dia anterior/próximo da 3.1 continuam como estão.
 
-_Shared schema_
+*Shared schema*
 
 - Schemas Zod de query e resposta em `agendamento.schema.ts`.
 
 **Fora desta fatia**
 
-- Contagem de agendamentos por dia ou indicação de "agenda cheia". Só marca se tem ou não tem.
-- Qualquer mudança no layout da agenda diária.
+- Renderizar agendamentos no calendário. A célula mostra número, não conteúdo.
+- Distinguir a contagem por estado (ex.: separar cancelados). Conta tudo.
+- Indicação de "agenda cheia", que dependeria do cálculo de disponibilidade.
+- Qualquer mudança no layout da lista diária ou do detalhe.
 
 **Critério de conclusão**
 
-Abrir o seletor e ver marcados os dias com agendamento, conferindo que um
-agendamento às 23h em fuso que difere do UTC aparece marcado no dia civil do
-salão, não no dia seguinte.
+Abrir o calendário e ver a contagem certa em cada dia do mês, navegar para o mês
+anterior e seguinte, tocar num dia e cair na lista dele. Conferir que um
+agendamento às 22h num fuso que difere do UTC é contado no dia civil do salão, e
+não no dia seguinte.
 
-**Tamanho estimado:** ~13-18 arquivos.
+**Tamanho estimado:** ~20-25 arquivos.
 
 ---
 

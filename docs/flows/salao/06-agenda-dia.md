@@ -39,7 +39,7 @@ Ao abrir o detalhe:
 - **Existem `Reservado`s expirando em breve:** UI destaca (ex.: "aguardando pagamento, expira em 5min").
 - **Cliente cancelou de última hora:** notificação em tempo real; card do agendamento vai para `Cancelado`.
 - **Novo agendamento chegou enquanto salão olhava a agenda:** notificação em tempo real; card aparece.
-- **Mudança de dia** (calendário): filtro reflete outro dia, mesma mecânica. O seletor mostra o mês inteiro e **marca os dias que têm agendamento**, para o salão não precisar navegar às cegas dia a dia. Isso não altera a agenda em si, que segue diária.
+- **Mudança de dia** (calendário): filtro reflete outro dia, mesma mecânica. O calendário mostra o mês inteiro com a **quantidade de agendamentos em cada dia**, para o salão enxergar a carga do mês em vez de avançar dia a dia às cegas. Tocar num dia carrega a lista dele. Isso não altera a agenda em si, que segue diária.
 
 ## Regras de negócio
 
@@ -47,7 +47,7 @@ Ao abrir o detalhe:
 - **Cards de agendamentos incluem estados intermediários (`Reservado`)** para o salão saber o que está "quase confirmado".
 - **Salão vê tudo do dia — sem paginação de horários** (dia inteiro em uma tela).
 - **Estados terminais permanecem na listagem do dia**, agrupados e com destaque reduzido, separados dos ativos (`Reservado` e `Agendado`). "Sair da agenda ativa" ao concluir, cancelar ou marcar no-show significa mudar de grupo, não desaparecer — o salão precisa ver o que já fechou no dia.
-- **Apenas visão diária no MVP.** Visão semanal fica como evolução futura. Marcar no seletor os dias com agendamento **não** é visão semanal: a agenda continua diária, muda só a navegação.
+- **Apenas visão diária no MVP.** O que fica fora é renderizar os agendamentos numa **grade de horários** semanal. Um calendário mensal que mostra a contagem por dia e leva para a lista daquele dia **não** é visão semanal: os agendamentos continuam aparecendo só na lista diária, e o calendário é navegação.
 - **Ações disponíveis dependem do estado**:
   - `Reservado`: apenas visualizar (aguarda pagamento).
   - `Agendado`: concluir, cancelar, remarcar, marcar no-show (a partir da hora agendada; com aviso enquanto a tolerância não expirar — ver [no-show](./10-no-show.md)).
