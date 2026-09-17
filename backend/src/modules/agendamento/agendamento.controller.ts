@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -26,6 +27,7 @@ import {
   AgendamentoResponseDto,
   AvaliacaoHorarioAgendamentoResponseDto,
   AvaliarHorarioAgendamentoQueryDto,
+  ConcluirAgendamentoRequestDto,
   CriarAgendamentoRequestDto,
   HorariosLivresResponseDto,
   ListarAgendaDiaQueryDto,
@@ -41,13 +43,17 @@ import {
   toHorariosLivresResponse,
   toResumoAgendaResponse,
 } from '@/modules/agendamento/agendamento.mapper';
+import { AgendamentoConclusaoService } from '@/modules/agendamento/agendamento-conclusao.service';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 
 @ApiTags('Agendamentos')
 @ApiBearerAuth()
 @Controller('agendamentos')
 export class AgendamentoController {
-  constructor(private readonly agendamentoService: AgendamentoService) {}
+  constructor(
+    private readonly agendamentoService: AgendamentoService,
+    private readonly agendamentoConclusaoService: AgendamentoConclusaoService,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -206,6 +212,40 @@ export class AgendamentoController {
     return toAgendamentoResponse(
       await this.agendamentoService.criar({
         salaoId: tenant.salaoId,
+        dados,
+      }),
+    );
+  }
+
+  @Patch(':id/concluir')
+  @ApiOperation({
+    summary: 'Conclui o atendimento e registra o pagamento do valor pendente',
+  })
+  @ApiOkResponse({
+    description: 'Agendamento concluído, com valores e ações atualizados.',
+    type: AgendamentoDetalheResponseDto.Output,
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Identificador ou dados inválidos, ou estado que não permite conclusão.',
+  })
+  @ApiConflictResponse({ description: 'O agendamento já foi encerrado.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Agendamento, salão ou configuração não encontrados.',
+  })
+  async concluir(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+    @Body() dados: ConcluirAgendamentoRequestDto,
+  ) {
+    return toAgendamentoDetalheResponse(
+      await this.agendamentoConclusaoService.concluir({
+        id,
+        salaoId: tenant.salaoId,
+        usuarioSalaoId: tenant.usuarioSalaoId,
         dados,
       }),
     );

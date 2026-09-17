@@ -4,6 +4,7 @@ import {
   cliente,
   cobrancaGateway,
   cobrancaManual,
+  eventoAgendamento,
   pagamentoAgendamento,
   procedimento,
 } from '@fluy/schema';
@@ -18,6 +19,7 @@ import type {
   AgendamentoDaAgendaPersistido,
   AgendamentoPersistido,
   BuscarAgendamentoInput,
+  ConcluirAgendamentoPersistenciaInput,
   CriarAgendamentoComValidacaoInput,
   InstanteDeAgendamentoPersistido,
   ListarAgendamentosDoDiaInput,
@@ -212,6 +214,61 @@ export class AgendamentoRepository {
         .returning();
 
       return agendamentosCriados[0];
+    });
+  }
+
+  async concluir({
+    id,
+    salaoId,
+    ocorreuEm,
+    cobranca,
+  }: ConcluirAgendamentoPersistenciaInput): Promise<
+    AgendamentoPersistido | undefined
+  > {
+    return this.database.transaction(async (tx) => {
+      // O estado no `where` é o desempate de corrida: a segunda conclusão
+      // simultânea não encontra linha e nada é gravado.
+      const agendamentosConcluidos = await tx
+        .update(agendamento)
+        .set({ estado: 'concluido' })
+        .where(
+          and(
+            eq(agendamento.id, id),
+            eq(agendamento.salao_id, salaoId),
+            eq(agendamento.estado, 'agendado'),
+          ),
+        )
+        .returning();
+
+      const agendamentoConcluido = agendamentosConcluidos[0];
+
+      if (!agendamentoConcluido) {
+        return undefined;
+      }
+
+      await tx.insert(eventoAgendamento).values({
+        agendamento_id: agendamentoConcluido.id,
+        tipo: 'concluido',
+        ocorreu_em: ocorreuEm,
+      });
+
+      if (cobranca) {
+        const cobrancasCriadas = await tx
+          .insert(cobrancaManual)
+          .values({
+            valor: cobranca.valor,
+            metodo: cobranca.metodo,
+            registrada_por: cobranca.registradaPor,
+          })
+          .returning({ id: cobrancaManual.id });
+
+        await tx.insert(pagamentoAgendamento).values({
+          agendamento_id: agendamentoConcluido.id,
+          cobranca_manual_id: cobrancasCriadas[0].id,
+        });
+      }
+
+      return agendamentoConcluido;
     });
   }
 

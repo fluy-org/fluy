@@ -33,13 +33,17 @@ describe('TenantContextGuard', () => {
     const identity = { provider: 'clerk' as const, subject: 'user_123' };
     const request = { authenticatedIdentity: identity } as TenantRequest;
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue('owner');
-    jest
-      .spyOn(resolver, 'resolverPorDono')
-      .mockResolvedValue({ salaoId: 'salao-ana' });
+    jest.spyOn(resolver, 'resolverPorDono').mockResolvedValue({
+      salaoId: 'salao-ana',
+      usuarioSalaoId: 'usuario-salao-ana',
+    });
 
     expect(await guard.canActivate(createContext(request))).toBe(true);
     expect(resolver.resolverPorDono).toHaveBeenCalledWith(identity);
-    expect(request.tenantContext).toEqual({ salaoId: 'salao-ana' });
+    expect(request.tenantContext).toEqual({
+      salaoId: 'salao-ana',
+      usuarioSalaoId: 'usuario-salao-ana',
+    });
   });
 
   it('resolve o tenant pelo host público', async () => {
@@ -49,11 +53,14 @@ describe('TenantContextGuard', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue('host');
     jest
       .spyOn(resolver, 'resolverPorHost')
-      .mockResolvedValue({ salaoId: 'salao-ana' });
+      .mockResolvedValue({ salaoId: 'salao-ana', usuarioSalaoId: null });
 
     expect(await guard.canActivate(createContext(request))).toBe(true);
     expect(resolver.resolverPorHost).toHaveBeenCalledWith('ana.localhost:3000');
-    expect(request.tenantContext).toEqual({ salaoId: 'salao-ana' });
+    expect(request.tenantContext).toEqual({
+      salaoId: 'salao-ana',
+      usuarioSalaoId: null,
+    });
   });
 
   it('retorna 404 quando não encontra tenant', async () => {

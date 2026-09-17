@@ -121,11 +121,17 @@ describe('agendamento-utils', () => {
       },
     );
 
-    it('bloqueia marcar_falta antes do início', () => {
+    it('bloqueia marcar_falta e avisa conclusão antecipada antes do início', () => {
       expect(acoesEm({ estado: 'agendado', agora: antesDoInicio() })).toEqual({
         acoesPermitidas: ['concluir', 'cancelar', 'remarcar'],
-        avisos: [],
+        avisos: ['conclusao_antecipada'],
       });
+    });
+
+    it('não avisa conclusão antecipada depois do início', () => {
+      expect(
+        acoesEm({ estado: 'agendado', agora: depoisDoInicio() }).avisos,
+      ).not.toContain('conclusao_antecipada');
     });
 
     it('libera marcar_falta com aviso no exato instante do início', () => {

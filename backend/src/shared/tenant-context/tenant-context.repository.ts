@@ -14,7 +14,7 @@ export class TenantContextRepository {
     identity: AuthenticatedIdentity,
   ): Promise<TenantContext | undefined> {
     const resultados = await this.database
-      .select({ salaoId: salao.id })
+      .select({ salaoId: salao.id, usuarioSalaoId: usuarioSalao.id })
       .from(identidadeAutenticacao)
       .innerJoin(
         usuarioSalao,
@@ -42,6 +42,12 @@ export class TenantContextRepository {
       .where(eq(salao.subdominio, subdominio))
       .limit(1);
 
-    return resultados[0];
+    const resultado = resultados[0];
+
+    if (!resultado) {
+      return undefined;
+    }
+
+    return { salaoId: resultado.salaoId, usuarioSalaoId: null };
   }
 }

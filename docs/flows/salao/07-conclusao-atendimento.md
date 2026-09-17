@@ -11,10 +11,14 @@ Registrar que o atendimento foi realizado, capturar o pagamento do valor restant
 3. Clica em **Concluir atendimento**.
 4. Sistema exibe modal de conclusão:
    - Valor total do procedimento
-   - Sinal já pago (com método usado)
+   - Valor já pago
    - **Valor pendente** (destaque; pode ser zero se já pagou tudo)
    - Seletor de método de pagamento do restante (dinheiro, PIX, cartão máquina, etc.)
    - Opção "Não recebeu valor pendente" (com aviso; caso raro — cortesia, erro do salão)
+
+   O **método do sinal** não é exibido: depende do sinal online, que ainda não
+   registra pagamento. Enquanto isso, o primeiro pagamento de um agendamento é
+   justamente o que esta conclusão grava.
 5. Salão seleciona o método e confirma.
 6. Sistema:
    - Altera estado do agendamento para `Concluído`.
@@ -27,9 +31,9 @@ Registrar que o atendimento foi realizado, capturar o pagamento do valor restant
 
 - **Cliente pagou total no ato do agendamento online:** valor pendente = 0; modal de conclusão só pede confirmação, sem seletor de método.
 - **Cliente pagou só sinal:** modal pede método do restante.
-- **Cliente é cortesia / salão perdoa o restante:** salão marca "não recebeu valor pendente" com nota explicativa.
+- **Cliente é cortesia / salão perdoa o restante:** salão marca "não recebeu valor pendente". A nota explicativa depende do [sistema de notas](./12-lembretes.md) e ainda não existe; por ora a marcação é só a confirmação com aviso.
 - **Salão esqueceu de marcar como concluído no mesmo dia:** pode marcar dias depois; sistema aceita, mas relatório reflete data real de conclusão vs. data do agendamento.
-- **Salão realiza um procedimento diferente do agendado** (ex.: cliente mudou de ideia): não coberto na conclusão simples — ver dúvidas em aberto.
+- **Salão realiza um procedimento diferente do agendado** (ex.: cliente mudou de ideia): fora do MVP. O agendamento conclui com o procedimento que foi agendado.
 - **Múltiplos pagamentos parciais** (cliente pagou 50% do restante em dinheiro e 50% em PIX): fora do MVP; salão registra um método só.
 
 ## Regras de negócio
@@ -39,7 +43,9 @@ Registrar que o atendimento foi realizado, capturar o pagamento do valor restant
 - **Sistema NÃO exige conclusão em tempo real** — salão pode marcar minutos ou horas depois (mesmo dias, com penalidade de dado impreciso).
 - **NÃO existe estado "em atendimento"** (decidido) — vai direto de `Agendado` para `Concluído`.
 - **Duração é apenas referência**; ao concluir, sistema não recalcula nada de agenda.
-- **Registro do pagamento é obrigatório** ao concluir (mesmo que seja "não recebeu" — força consciência).
+- **Registro do pagamento é obrigatório** ao concluir (mesmo que seja "não recebeu" — força consciência). "Não recebeu" é uma escolha explícita na tela, não um registro no banco: nenhuma cobrança é criada e a pendência permanece em aberto.
+- **Conclusão é terminal.** Não há reversão no MVP; conclusão marcada por engano se corrige via suporte.
+- **Editar o procedimento ao concluir está fora do MVP.** Trocar o serviço no dia mudaria preço e sinal já congelados.
 - **Lembrete automático de manutenção** só é criado se o procedimento tem "período de manutenção" configurado.
 - **Anexos internos** (fotos do resultado): salão pode adicionar até 3 imagens por agendamento; ficam disponíveis apenas para o salão no histórico da cliente.
 
@@ -55,7 +61,7 @@ Registrar que o atendimento foi realizado, capturar o pagamento do valor restant
 
 - **Salão marca concluído em agendamento futuro** (data ainda não chegou): permitido, com aviso. Regra em "Regras de negócio".
 - **Cliente pagou sinal em cartão, valor restante em PIX:** dois registros de pagamento no mesmo agendamento (um automático via gateway, outro manual). Faturamento agrupa por método.
-- **Cliente pagou sinal e não veio (foi no-show mas salão marcou como concluído por engano):** salão pode reverter? Fora do MVP; abrir suporte. Estado é considerado terminal.
+- **Cliente pagou sinal e não veio (foi no-show mas salão marcou como concluído por engano):** sem reversão no MVP; abrir suporte. Estado é terminal.
 - **Duração real muito diferente da estimada** (ex.: procedimento previsto 1h durou 3h): sistema não faz nada; próximos agendamentos podem ter conflitado com o próprio salão em atraso.
 - **Anexo pesado (imagem grande):** validar tamanho e comprimir antes de subir.
 - **Salão marca conclusão de vários agendamentos em lote** (fim do dia): fluxo em lote fora do MVP; um a um.
@@ -64,8 +70,6 @@ Registrar que o atendimento foi realizado, capturar o pagamento do valor restant
 
 ## Dúvidas em aberto
 
-- **Reverter conclusão** (ex.: salão marcou por engano): não previsto; MVP considera terminal. Necessidade real? Se sim, admin/suporte.
-- **Registrar procedimento diferente do agendado** (mudou o serviço no dia): permitir editar procedimento antes de concluir? MVP: recomendo permitir editar; sinal e valor mudam. Não decidido.
 - **Salão pode registrar múltiplos pagamentos parciais no valor restante?** MVP: um método só; se cliente pagou em 2 métodos, salão escolhe o predominante.
 - **Comprovante/recibo digital para a cliente:** fora do MVP; salão emite manualmente hoje.
 - **Confirmação/assinatura da cliente** ao concluir (para casos de disputa): fora do MVP.

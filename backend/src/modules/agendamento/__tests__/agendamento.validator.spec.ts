@@ -59,6 +59,71 @@ describe('AgendamentoValidator', () => {
       }),
     ).not.toThrow();
   });
+
+  describe('validarConclusao', () => {
+    it('recusa conclusão de agendamento ainda reservado', () => {
+      expect(() =>
+        validator.validarConclusao({
+          estado: 'reservado',
+          valorPendente: '120.00',
+          metodoPagamento: 'dinheiro',
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it.each(['concluido', 'cancelado', 'falta'] as const)(
+      'recusa conclusão de agendamento já encerrado em %s',
+      (estado) => {
+        expect(() =>
+          validator.validarConclusao({
+            estado,
+            valorPendente: '120.00',
+            metodoPagamento: 'dinheiro',
+          }),
+        ).toThrow(ConflictException);
+      },
+    );
+
+    it('recusa método de pagamento quando não há valor pendente', () => {
+      expect(() =>
+        validator.validarConclusao({
+          estado: 'agendado',
+          valorPendente: '0.00',
+          metodoPagamento: 'pix_pessoal',
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('aceita conclusão sem método quando há valor pendente', () => {
+      expect(() =>
+        validator.validarConclusao({
+          estado: 'agendado',
+          valorPendente: '120.00',
+          metodoPagamento: null,
+        }),
+      ).not.toThrow();
+    });
+
+    it('aceita conclusão sem método quando o agendamento já está quitado', () => {
+      expect(() =>
+        validator.validarConclusao({
+          estado: 'agendado',
+          valorPendente: '0.00',
+          metodoPagamento: null,
+        }),
+      ).not.toThrow();
+    });
+
+    it('aceita método de pagamento com valor pendente', () => {
+      expect(() =>
+        validator.validarConclusao({
+          estado: 'agendado',
+          valorPendente: '84.50',
+          metodoPagamento: 'cartao_maquina',
+        }),
+      ).not.toThrow();
+    });
+  });
 });
 
 function criarAvaliacao(

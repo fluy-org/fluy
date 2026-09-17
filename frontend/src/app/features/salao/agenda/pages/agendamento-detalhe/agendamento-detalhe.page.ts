@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import type { AcaoAgendamento, ConcluirAgendamentoDto } from '@fluy/schema';
 import {
   IonBackButton,
   IonBadge,
@@ -7,6 +8,7 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonModal,
   IonSpinner,
   IonText,
   IonTitle,
@@ -14,10 +16,13 @@ import {
 } from '@ionic/angular/standalone';
 import { ApiError } from '../../../../../core/errors/api-error';
 import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
+import { FormularioConclusaoComponent } from '../../components/formulario-conclusao/formulario-conclusao.component';
 import { AgendaService } from '../../services/agenda.service';
 import {
+  ACOES_DO_ATENDIMENTO,
+  ACOES_SEM_ATENDIMENTO,
+  ESTILO_ACAO_AGENDAMENTO,
   ESTILO_ESTADO_AGENDAMENTO,
-  ROTULO_ACAO_AGENDAMENTO,
   ROTULO_AVISO_ACAO_AGENDAMENTO,
 } from '../../agenda-data';
 import {
@@ -34,6 +39,7 @@ import type { EstadoPaginaDetalhe } from '../../contracts';
   styleUrls: ['./agendamento-detalhe.page.scss'],
   standalone: true,
   imports: [
+    FormularioConclusaoComponent,
     HoraSalaoPipe,
     IonBackButton,
     IonBadge,
@@ -41,6 +47,7 @@ import type { EstadoPaginaDetalhe } from '../../contracts';
     IonButtons,
     IonContent,
     IonHeader,
+    IonModal,
     IonSpinner,
     IonText,
     IonTitle,
@@ -55,6 +62,9 @@ export class AgendamentoDetalhePage implements OnInit {
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
   readonly offline = signal(false);
+  readonly conclusaoAberta = signal(false);
+  readonly concluindo = signal(false);
+  readonly erroConclusao = signal<string | null>(null);
 
   readonly estadoPagina = computed<EstadoPaginaDetalhe>(() => {
     if (this.carregando()) {
@@ -102,11 +112,16 @@ export class AgendamentoDetalhePage implements OnInit {
     return agendamento ? formatarWhatsapp(agendamento.cliente.whatsapp) : '';
   });
 
-  readonly acoes = computed(() =>
-    (this.agendamento()?.acoes_permitidas ?? []).map((acao) => ({
-      acao,
-      rotulo: ROTULO_ACAO_AGENDAMENTO[acao] ?? acao,
-    })),
+  readonly temAcoes = computed(
+    () => (this.agendamento()?.acoes_permitidas ?? []).length > 0,
+  );
+
+  readonly acoesDoAtendimento = computed(() =>
+    this.montarAcoes(ACOES_DO_ATENDIMENTO),
+  );
+
+  readonly acoesSemAtendimento = computed(() =>
+    this.montarAcoes(ACOES_SEM_ATENDIMENTO),
   );
 
   readonly avisos = computed(() =>
@@ -123,8 +138,72 @@ export class AgendamentoDetalhePage implements OnInit {
     void this.carregar();
   }
 
+  // As demais ações do detalhe chegam nas fatias 3.3 e 3.4.
+  acionar(acao: AcaoAgendamento): void {
+    if (acao === 'concluir') {
+      this.abrirConclusao();
+    }
+  }
+
+  abrirConclusao(): void {
+    this.erroConclusao.set(null);
+    this.conclusaoAberta.set(true);
+  }
+
+  fecharConclusao(): void {
+    if (this.concluindo()) {
+      return;
+    }
+
+    this.conclusaoAberta.set(false);
+  }
+
+  aoFecharConclusao(): void {
+    // Sincroniza o signal quando o usuário fecha o modal por gesto ou backdrop.
+    // Sem isso, um fechamento durante o envio deixaria o signal aberto e o
+    // botão de concluir pararia de reabrir o modal.
+    this.erroConclusao.set(null);
+    this.conclusaoAberta.set(false);
+  }
+
+  async confirmarConclusao(dados: ConcluirAgendamentoDto): Promise<void> {
+    const id = this.agendamento()?.id;
+
+    if (!id) {
+      return;
+    }
+
+    this.concluindo.set(true);
+    this.erroConclusao.set(null);
+
+    try {
+      await this.agendaService.concluir(id, dados);
+      this.conclusaoAberta.set(false);
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        throw error;
+      }
+
+      this.erroConclusao.set(
+        error.status === 0
+          ? 'Sem conexão. A conclusão não foi registrada.'
+          : error.message,
+      );
+    } finally {
+      this.concluindo.set(false);
+    }
+  }
+
   valorFormatado(valor: number): string {
     return formatarValor(valor);
+  }
+
+  private montarAcoes(ordemDeExibicao: AcaoAgendamento[]) {
+    const permitidas = this.agendamento()?.acoes_permitidas ?? [];
+
+    return ordemDeExibicao
+      .filter((acao) => permitidas.includes(acao))
+      .map((acao) => ({ acao, ...ESTILO_ACAO_AGENDAMENTO[acao] }));
   }
 
   async carregar(): Promise<void> {

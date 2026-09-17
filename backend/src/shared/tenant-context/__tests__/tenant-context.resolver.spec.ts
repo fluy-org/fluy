@@ -21,10 +21,11 @@ describe('TenantContextResolver', () => {
   it('resolve o tenant pelo subdomínio do host', async () => {
     jest
       .spyOn(repository, 'buscarPorSubdominio')
-      .mockResolvedValue({ salaoId: 'salao-ana' });
+      .mockResolvedValue({ salaoId: 'salao-ana', usuarioSalaoId: null });
 
     expect(await resolver.resolverPorHost('ana.localhost:3000')).toEqual({
       salaoId: 'salao-ana',
+      usuarioSalaoId: null,
     });
     expect(repository.buscarPorSubdominio).toHaveBeenCalledWith('ana');
   });

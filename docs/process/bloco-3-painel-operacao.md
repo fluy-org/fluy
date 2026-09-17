@@ -106,7 +106,7 @@ do salão com um dispositivo em outro fuso.
 
 ### 3.1b Calendário mensal com contagem de agendamentos
 
-- [ ] Calendário do mês, com a quantidade de agendamentos em cada dia, no lugar do seletor de data atual. — **🟣 Rudney** — [DEP: 3.1](#31-agenda-do-dia-e-detalhe-do-agendamento)
+- [x] Calendário do mês, com a quantidade de agendamentos em cada dia, no lugar do seletor de data atual. — **🟣 Rudney** — [DEP: 3.1](#31-agenda-do-dia-e-detalhe-do-agendamento)
 
 **Por que existe:** a 3.1 entregou setas de dia anterior/próximo e um seletor de
 data que não diferencia dia cheio de dia vazio. Achar o próximo atendimento
@@ -160,7 +160,7 @@ não no dia seguinte.
 
 ### 3.2 Conclusão de atendimento e pagamento manual
 
-- [ ] Transição `agendado` → `concluido` com registro obrigatório do pagamento do restante. — **🟣 Rudney** — [DEP: 3.1](#31-agenda-do-dia-e-detalhe-do-agendamento)
+- [x] Transição `agendado` → `concluido` com registro obrigatório do pagamento do restante. — **🟣 Rudney** — [DEP: 3.1](#31-agenda-do-dia-e-detalhe-do-agendamento)
 
 **Esta é a fatia que fixa o padrão de transição do bloco** (ver [Camada de
 transição](#camada-de-transição) nas notas). 3.3 e 3.4 seguem o mesmo formato.
@@ -169,8 +169,9 @@ transição](#camada-de-transição) nas notas). 3.3 e 3.4 seguem o mesmo format
 
 _Backend_
 
-- `AgendamentoConclusaoService`: transição `agendado` → `concluido`, gravando `evento_agendamento` com `tipo = concluido` e `ocorreu_em`.
-- Módulo de pagamento manual sobre as tabelas existentes: cria `cobranca_manual` (valor + `metodo_pagamento_manual` + quem registrou) e amarra ao agendamento via `pagamento_agendamento`.
+- `AgendamentoConclusaoService`: transição `agendado` → `concluido`, gravando `evento_agendamento` com `tipo = concluido` e `ocorreu_em`. Rota `PATCH /agendamentos/:id/concluir`, devolvendo o detalhe atualizado.
+- Pagamento manual sobre as tabelas existentes: cria `cobranca_manual` (valor + `metodo_pagamento_manual` + quem registrou) e amarra ao agendamento via `pagamento_agendamento`. **Sem módulo Nest próprio** — as quatro escritas precisam ser atômicas, e todas as transações do projeto vivem dentro de um único repository. `AgendamentoRepository.concluir()` abre a transação; um módulo de pagamento separado exigiria repository injetando repository e parâmetro de transação, dois padrões que o projeto não tem.
+- `TenantContext` passa a carregar `usuarioSalaoId`, que preenche `cobranca_manual.registrada_por`. O resolver por dono já fazia o join com `usuario_salao`; só o id não era levado adiante. Resolve também o autor de `nota`, `lembrete` e `anexo_agendamento` nos blocos seguintes.
 - **Registro do pagamento é obrigatório ao concluir** — ou um método, ou a marcação explícita "não recebeu valor pendente". Regra do fluxo 07: força consciência.
 - Quando `valor_pendente = 0` (cliente já pagou tudo), a conclusão não exige método.
 - Bloqueio quando o estado não é `agendado`; segunda tentativa retorna erro claro de estado terminal (race do fluxo 06).
@@ -180,13 +181,14 @@ _Backend_
 _Frontend_
 
 - Ação "Concluir atendimento" no detalhe, visível só em `agendado`.
-- Modal de conclusão com: valor total, sinal já pago e seu método, **valor pendente em destaque**, seletor de método do restante e opção "Não recebeu valor pendente" com aviso.
+- Modal de conclusão com: valor total, valor já pago, **valor pendente em destaque**, seletor de método do restante e opção "Não recebeu valor pendente" com aviso. **Sem o método do sinal** — nenhum pagamento existe antes da conclusão até o [Bloco 9](./bloco-9-pagamento-online.md), então o campo seria morto.
 - Variação sem seletor quando o pendente é zero (só confirmação).
 - Card sai da agenda ativa após concluir.
 
 _Shared schema_
 
-- Schemas Zod de request (método ou "não recebeu") e de resposta em `cobranca_manual.schema.ts` / `pagamento_agendamento.schema.ts`.
+- `concluirAgendamentoSchema` em `agendamento.schema.ts`, com `metodo_pagamento` obrigatório e anulável — `null` é a marcação "não recebeu". Fica junto do resto do ciclo de vida do agendamento, e não em `cobranca_manual.schema.ts`, porque a rota é do agendamento e a resposta é o próprio detalhe.
+- `AVISO_ACAO_AGENDAMENTO` ganha `conclusao_antecipada`, computado no backend com o instante do servidor.
 
 **Fora desta fatia**
 
@@ -202,7 +204,9 @@ pagou só sinal (pede método), pagou total (só confirma), e "não recebeu" (gr
 com aviso). Mais a conclusão antecipada, conferindo que o aviso aparece e que o
 `evento_agendamento` foi gravado com a data real da conclusão.
 
-**Tamanho estimado:** ~65-75 arquivos.
+**Tamanho estimado:** ~65-75 arquivos. **Entregue em 31**, dos quais 6 novos: sem
+módulo de pagamento separado, e a resposta reusa `buscarDetalhe`, o que dispensou
+mapper, schema e DTO de resposta próprios.
 
 ---
 
@@ -344,6 +348,11 @@ correspondente. `AgendamentoService` continua responsável por criação e consu
 
 Motivo: o Bloco 4 reusa `cancelar()` e o Bloco 6 se pendura nos eventos.
 Service por transição evita que blocos diferentes precisem abrir o mesmo arquivo.
+
+**Só o service se divide.** A 3.2 fixou o resto: o método transacional entra em
+`AgendamentoRepository` e a regra em `AgendamentoValidator`, porque a estrutura
+documentada em `backend/src/modules/CLAUDE.md` prevê um repository e um validator
+por feature. 3.3 e 3.4 seguem assim — nada de repository por transição.
 
 ### Tempo real
 

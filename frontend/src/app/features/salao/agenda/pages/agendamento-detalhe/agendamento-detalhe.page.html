@@ -93,11 +93,33 @@
             <p class="aviso">{{ aviso }}</p>
           }
 
-          @for (acao of acoes(); track acao.acao) {
-            <ion-button expand="block" fill="outline">
-              {{ acao.rotulo }}
-            </ion-button>
-          } @empty {
+          @if (temAcoes()) {
+            @for (acao of acoesDoAtendimento(); track acao.acao) {
+              <ion-button
+                expand="block"
+                [fill]="acao.fill"
+                [color]="acao.cor"
+                (click)="acionar(acao.acao)"
+              >
+                {{ acao.rotulo }}
+              </ion-button>
+            }
+
+            @if (acoesSemAtendimento().length > 0) {
+              <div class="acoes__divisor"></div>
+
+              @for (acao of acoesSemAtendimento(); track acao.acao) {
+                <ion-button
+                  expand="block"
+                  [fill]="acao.fill"
+                  [color]="acao.cor"
+                  (click)="acionar(acao.acao)"
+                >
+                  {{ acao.rotulo }}
+                </ion-button>
+              }
+            }
+          } @else {
             <p class="bloco__apoio">Este estado não permite nenhuma ação.</p>
           }
         </section>
@@ -105,3 +127,17 @@
     }
   }
 </ion-content>
+
+<ion-modal [isOpen]="conclusaoAberta()" (didDismiss)="aoFecharConclusao()">
+  <ng-template>
+    @if (agendamento(); as detalhe) {
+      <app-formulario-conclusao
+        [agendamento]="detalhe"
+        [salvando]="concluindo()"
+        [erroExterno]="erroConclusao()"
+        (confirmar)="confirmarConclusao($event)"
+        (cancelar)="fecharConclusao()"
+      ></app-formulario-conclusao>
+    }
+  </ng-template>
+</ion-modal>

@@ -3,7 +3,9 @@ import type {
   AvisoAcaoAgendamento,
   AvisoAvaliacaoAgendamento,
   BloqueioAvaliacaoAgendamento,
+  ConcluirAgendamentoDto,
   FusoHorarioBrasil,
+  MetodoPagamentoManual,
   StatusAvaliacaoAgendamento,
   StatusCobrancaGateway,
   agendamento,
@@ -89,6 +91,32 @@ export type CriarAgendamentoComValidacaoInput =
 export type ValidarCriacaoAgendamentoInput = {
   avaliacao: AvaliacaoHorarioAgendamento;
   confirmarExcecoes: boolean;
+};
+
+export type ValidarConclusaoAgendamentoInput = {
+  estado: AgendamentoPersistido['estado'];
+  valorPendente: string;
+  metodoPagamento: MetodoPagamentoManual | null;
+};
+
+export type ConcluirAgendamentoInput = {
+  id: string;
+  salaoId: string;
+  usuarioSalaoId: string | null;
+  dados: ConcluirAgendamentoDto;
+};
+
+export type CobrancaManualDaConclusao = {
+  valor: string;
+  metodo: MetodoPagamentoManual;
+  registradaPor: string;
+};
+
+export type ConcluirAgendamentoPersistenciaInput = {
+  id: string;
+  salaoId: string;
+  ocorreuEm: Date;
+  cobranca: CobrancaManualDaConclusao | undefined;
 };
 
 export type ClienteDoAgendamentoPersistida = {
