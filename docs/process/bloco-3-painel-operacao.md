@@ -49,11 +49,11 @@ tabela — o que entra é schema Zod de request/response, módulo Nest e tela.
 
 ### 3.1 Agenda do dia e detalhe do agendamento
 
-- [ ] Home do painel com os agendamentos do dia e o detalhe de cada um, com a área de ações contextuais por estado. — **🟣 Rudney** — [DEP: 2.2b](./bloco-2-motor.md#22b-motor-de-agendamento) `[SEED-OK]`
+- [x] Home do painel com os agendamentos do dia e o detalhe de cada um, com a área de ações contextuais por estado. — **🟣 Rudney** — [DEP: 2.2b](./bloco-2-motor.md#22b-motor-de-agendamento) `[SEED-OK]`
 
 **O que deve existir**
 
-*Backend*
+_Backend_
 
 - Listagem dos agendamentos de um dia do salão, ordenada por horário crescente e **sem paginação** (o dia inteiro em uma resposta — regra explícita do fluxo 06).
 - A resposta carrega tudo que o card precisa: horário de início, duração congelada, cliente (nome + id, para o link da ficha), procedimento, estado, preço total congelado, sinal pago, valor pendente, indicador de imagens de referência e indicador de observações.
@@ -63,7 +63,7 @@ tabela — o que entra é schema Zod de request/response, módulo Nest e tela.
 - O "dia" é resolvido no fuso de `salao.fuso_horario`; a faixa UTC consultada deriva dele, nunca do fuso do servidor ou do dispositivo.
 - Filtro por `salao_id` em toda query.
 
-*Frontend*
+_Frontend_
 
 - Página de agenda como home do painel autenticado, exibindo **hoje** por padrão.
 - Card por agendamento com todos os campos acima.
@@ -74,7 +74,7 @@ tabela — o que entra é schema Zod de request/response, módulo Nest e tela.
 - Todo horário renderizado no fuso do salão, independente do fuso do dispositivo, via o pipe único previsto no [CLAUDE.md](../../CLAUDE.md).
 - Link do card para a ficha da cliente — o destino final é do [Bloco 5](./bloco-5-ficha-cliente.md); até lá aponta para a tela mínima de [2.1](./bloco-2-motor.md#21-clientes).
 
-*Shared schema*
+_Shared schema_
 
 - Schemas Zod de query (dia) e de resposta (card e detalhe) em `agendamento.schema.ts`.
 
@@ -115,19 +115,19 @@ muda só a navegação.
 
 **O que deve existir**
 
-*Backend*
+_Backend_
 
 - Rota de dias com agendamento num período: `de` e `ate` em data civil, resposta com os dias que têm ao menos um agendamento.
 - O agrupamento é por **data civil no fuso do salão**, não pela data UTC de `inicio_em`.
 - Estados considerados: os mesmos que a listagem da 3.1 devolve, sem filtro por estado.
 - Filtro por `salao_id` na query.
 
-*Frontend*
+_Frontend_
 
 - `highlightedDates` do `ion-datetime` alimentado pelos dias retornados.
 - Carrega uma janela ao abrir o seletor (mês atual mais anterior e seguinte), porque o `ion-datetime` **não emite evento de mudança de mês** — navegar para fora da janela deixa os dias sem marcação até recarregar.
 
-*Shared schema*
+_Shared schema_
 
 - Schemas Zod de query e resposta em `agendamento.schema.ts`.
 
@@ -155,7 +155,7 @@ transição](#camada-de-transição) nas notas). 3.3 e 3.4 seguem o mesmo format
 
 **O que deve existir**
 
-*Backend*
+_Backend_
 
 - `AgendamentoConclusaoService`: transição `agendado` → `concluido`, gravando `evento_agendamento` com `tipo = concluido` e `ocorreu_em`.
 - Módulo de pagamento manual sobre as tabelas existentes: cria `cobranca_manual` (valor + `metodo_pagamento_manual` + quem registrou) e amarra ao agendamento via `pagamento_agendamento`.
@@ -165,14 +165,14 @@ transição](#camada-de-transição) nas notas). 3.3 e 3.4 seguem o mesmo format
 - Conclusão aceita data posterior ao atendimento ("salão esqueceu de marcar no dia") — a data que vale para faturamento é a do `evento_agendamento`, não a de `inicio_em`.
 - **Concluir agendamento cuja data ainda não chegou é permitido, com aviso explícito** (ambig #1, decidida). O aviso precisa deixar claro que o atendimento entra no faturamento do período atual.
 
-*Frontend*
+_Frontend_
 
 - Ação "Concluir atendimento" no detalhe, visível só em `agendado`.
 - Modal de conclusão com: valor total, sinal já pago e seu método, **valor pendente em destaque**, seletor de método do restante e opção "Não recebeu valor pendente" com aviso.
 - Variação sem seletor quando o pendente é zero (só confirmação).
 - Card sai da agenda ativa após concluir.
 
-*Shared schema*
+_Shared schema_
 
 - Schemas Zod de request (método ou "não recebeu") e de resposta em `cobranca_manual.schema.ts` / `pagamento_agendamento.schema.ts`.
 
@@ -205,7 +205,7 @@ uma fatia de tamanho normal que fecha os dois fluxos de uma vez.
 
 **O que deve existir**
 
-*Backend — no-show*
+_Backend — no-show_
 
 - `AgendamentoNoShowService`: transição para `falta`, gravando `evento_agendamento` com `tipo = falta`.
 - Depois de `inicio_em + configuracao_salao.tolerancia_atraso_min`, a marcação é livre.
@@ -214,7 +214,7 @@ uma fatia de tamanho normal que fecha os dois fluxos de uma vez.
 - Marcação é sempre manual — o sistema nunca marca sozinho (evita falso positivo).
 - Sinal é retido em qualquer no-show, independente de motivo. Agendamento sem sinal registra o no-show sem valor retido.
 
-*Backend — cancelamento pelo salão*
+_Backend — cancelamento pelo salão_
 
 - `AgendamentoCancelamentoService`: transição para `cancelado`, gravando `evento_agendamento` com `tipo = cancelado`, liberando o slot imediatamente.
 - Motivo opcional, texto livre, **de registro interno — nunca exibido para a cliente**.
@@ -222,11 +222,11 @@ uma fatia de tamanho normal que fecha os dois fluxos de uma vez.
 - Cancelamento de agendamento passado é permitido, como correção de registro.
 - **Esta é a transição que o [Bloco 4](./bloco-4-cliente-final.md) reusa** para o cancelamento pela cliente, com política de autorização diferente. Ela nasce aqui como service público.
 
-*Backend — comum*
+_Backend — comum_
 
 - Estados terminais bloqueiam ambas as ações; race entre duas ações concorrentes resolve por "primeiro no servidor vence", com erro claro para o segundo.
 
-*Frontend*
+_Frontend_
 
 - Ação "Marcar no-show" no detalhe, habilitada a partir de `inicio_em`, com confirmação exibindo o valor do sinal a ser retido e o nome da cliente — **e um aviso adicional quando a tolerância ainda não expirou**.
 - Ação "Cancelar" no detalhe, com modal de motivo opcional e aviso de que a cliente será notificada.
@@ -259,7 +259,7 @@ o horário volta a aparecer nos horários livres do motor).
 
 **O que deve existir**
 
-*Backend*
+_Backend_
 
 - `AgendamentoRemarcacaoService`: atualiza `inicio_em` **no mesmo agendamento** — mesmo `id`, nunca um registro novo (é o que faz o `.ics` de update funcionar no [Bloco 6](./bloco-6-notificacoes.md)).
 - Grava `evento_agendamento` com `tipo = remarcado` a cada remarcação. A contagem desses eventos é o `SEQUENCE` do `.ics` e o "remarcado N vezes" do histórico.
@@ -271,7 +271,7 @@ o horário volta a aparecer nos horários livres do motor).
 - **Encaixe fora da janela é permitido, com aviso** (ambig #2, decidida) — vale igual aqui e no agendamento manual ([2.2a](./bloco-2-motor.md#22a-tela-de-agendamento-manual)).
 - Data com override "fechado" **continua bloqueando** — é diferente de furar a janela: ali o salão decidiu conscientemente não atender.
 
-*Frontend*
+_Frontend_
 
 - Ação "Remarcar" no detalhe, em `agendado`.
 - Seletor de nova data/hora alimentado pela disponibilidade real, no formato já usado na tela de agendamento manual ([2.2a](./bloco-2-motor.md#22a-tela-de-agendamento-manual)) — reaproveitar o componente, não duplicar.
