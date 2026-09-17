@@ -129,3 +129,11 @@
 ion-button {
   margin-bottom: var(--fluy-space-2);
 }
+
+// Separa o desfecho esperado das ações que encerram sem atendimento, para a
+// destrutiva não encostar na primária.
+.acoes__divisor {
+  height: 1px;
+  margin: var(--fluy-space-4) 0 var(--fluy-space-3);
+  background: var(--fluy-color-border-soft);
+}

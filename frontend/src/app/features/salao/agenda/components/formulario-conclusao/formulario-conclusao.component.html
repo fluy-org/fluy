@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Concluir atendimento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @let detalhe = agendamento();
+
+  @if (avisoConclusaoAntecipada(); as aviso) {
+    <p class="aviso">{{ aviso }}</p>
+  }
+
+  <dl class="recibo">
+    <dt>Total</dt>
+    <dd>{{ valorFormatado(detalhe.preco_total) }}</dd>
+
+    <dt>Pago</dt>
+    <dd>{{ valorFormatado(detalhe.valor_pago) }}</dd>
+
+    <div class="recibo__divisor"></div>
+
+    <dt class="recibo__saldo">Pendente</dt>
+    <dd
+      class="recibo__saldo"
+      [class.recibo__saldo--quitado]="detalhe.valor_pendente === 0"
+    >
+      {{ valorFormatado(detalhe.valor_pendente) }}
+    </dd>
+  </dl>
+
+  <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
+    @if (metodoExigido()) {
+      <ion-select
+        formControlName="metodo_pagamento"
+        label="Como recebeu o restante?"
+        labelPlacement="stacked"
+        placeholder="Selecione o método"
+        interface="action-sheet"
+        cancelText="Cancelar"
+      >
+        @for (metodo of metodos; track metodo.valor) {
+          <ion-select-option [value]="metodo.valor">
+            {{ metodo.rotulo }}
+          </ion-select-option>
+        }
+      </ion-select>
+
+      <ion-toggle
+        class="valor-nao-recebido"
+        labelPlacement="start"
+        [checked]="valorNaoRecebido()"
+        (ionChange)="alternarValorNaoRecebido($event.detail.checked)"
+      >
+        Não recebeu o valor pendente
+      </ion-toggle>
+
+      @if (valorNaoRecebido()) {
+        <p class="aviso">
+          O valor segue em aberto no agendamento e não será cobrado
+          automaticamente.
+        </p>
+      }
+    } @else {
+      <p class="quitado">
+        Este agendamento já está quitado. Nenhum pagamento será registrado.
+      </p>
+    }
+
+    @if (erroValidacao()) {
+      <p class="mensagem-erro">{{ erroValidacao() }}</p>
+    }
+
+    @if (erroExterno()) {
+      <p class="mensagem-erro">{{ erroExterno() }}</p>
+    }
+
+    <div class="acoes-formulario">
+      <ion-button
+        type="button"
+        fill="outline"
+        [disabled]="salvando()"
+        (click)="cancelarFormulario()"
+      >
+        Cancelar
+      </ion-button>
+
+      <ion-button type="submit" [disabled]="salvando()">
+        {{ salvando() ? 'Concluindo...' : 'Concluir atendimento' }}
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

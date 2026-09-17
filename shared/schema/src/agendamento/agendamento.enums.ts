@@ -32,7 +32,10 @@ export const ACAO_AGENDAMENTO = [
 ] as const;
 export type AcaoAgendamento = (typeof ACAO_AGENDAMENTO)[number];
 
-export const AVISO_ACAO_AGENDAMENTO = ['falta_antes_da_tolerancia'] as const;
+export const AVISO_ACAO_AGENDAMENTO = [
+  'falta_antes_da_tolerancia',
+  'conclusao_antecipada',
+] as const;
 export type AvisoAcaoAgendamento = (typeof AVISO_ACAO_AGENDAMENTO)[number];
 
 export const BLOQUEIO_AVALIACAO_AGENDAMENTO = [

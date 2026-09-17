@@ -105,6 +105,7 @@ Registra dinheiro que entrou **fora do gateway** — pagamento presencial (dinhe
 ### Observações
 
 - **`cobranca_manual` só existe quando dinheiro realmente entrou.** No MVP, "não recebi o restante" não é registrado — a pendência simplesmente permanece como valor a receber.
+- **Na conclusão do atendimento**, a cobrança nasce com `valor` igual ao valor pendente no instante da conclusão (`preco_total` menos a soma das cobranças confirmadas) e `registrada_por` igual ao `usuario_salao` da requisição autenticada. A criação da cobrança, do `pagamento_agendamento` e da transição do agendamento acontece em uma única transação — ver [conclusão de atendimento](../flows/salao/07-conclusao-atendimento.md).
 
 ---
 

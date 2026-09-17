@@ -88,7 +88,10 @@ export function calcularAcoesDoAgendamento({
   }
 
   if (agora.getTime() < inicioEm.getTime()) {
-    return { acoesPermitidas: [...ACOES_DO_AGENDADO], avisos: [] };
+    return {
+      acoesPermitidas: [...ACOES_DO_AGENDADO],
+      avisos: ['conclusao_antecipada'],
+    };
   }
 
   const toleranciaExpiraEm =

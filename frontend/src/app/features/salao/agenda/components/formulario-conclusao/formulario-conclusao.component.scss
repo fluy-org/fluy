@@ -1,0 +1,100 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+ion-content {
+  --background: var(--fluy-color-background);
+}
+
+form {
+  display: grid;
+  gap: var(--fluy-space-4);
+  padding: var(--fluy-space-5) 0 0;
+}
+
+ion-select {
+  --background: var(--fluy-color-input);
+  --border-color: var(--fluy-color-border);
+  --border-radius: var(--fluy-radius-md);
+  --highlight-color-focused: var(--fluy-color-focus);
+}
+
+.valor-nao-recebido {
+  justify-content: space-between;
+  width: 100%;
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-body);
+}
+
+.recibo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--fluy-space-2) var(--fluy-space-4);
+  margin: 0;
+  padding: var(--fluy-space-3) var(--fluy-space-4);
+  background: var(--fluy-color-surface);
+  border-radius: var(--fluy-radius-lg);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.recibo dt {
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-muted);
+}
+
+.recibo dd {
+  margin: 0;
+  text-align: right;
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-body);
+  font-variant-numeric: tabular-nums;
+}
+
+// A régua ocupa as duas colunas: com `border-top` nas células, o `gap` do grid
+// partia a linha ao meio.
+.recibo__divisor {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: var(--fluy-space-1) 0;
+  background: var(--fluy-color-border-soft);
+}
+
+.recibo__saldo {
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+  color: var(--fluy-color-title);
+}
+
+.recibo__saldo--quitado {
+  color: var(--fluy-color-success);
+}
+
+.aviso {
+  margin: 0 0 var(--fluy-space-3);
+  padding: var(--fluy-space-3);
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-warning);
+  background: var(--fluy-color-warning-bg);
+  border: 1px solid var(--fluy-color-warning-border);
+  border-radius: var(--fluy-radius-md);
+}
+
+.quitado {
+  margin: 0;
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-muted);
+}
+
+.mensagem-erro {
+  margin: 0;
+  color: var(--fluy-color-danger);
+  font-size: var(--fluy-font-size-small);
+}
+
+.acoes-formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fluy-space-3);
+  margin-top: var(--fluy-space-2);
+}

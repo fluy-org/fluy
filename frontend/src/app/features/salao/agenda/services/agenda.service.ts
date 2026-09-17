@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import type {
   AgendaDiaResponseDto,
   AgendamentoDetalheResponseDto,
+  ConcluirAgendamentoDto,
   ResumoAgendaResponseDto,
 } from '@fluy/schema';
 import { firstValueFrom } from 'rxjs';
@@ -62,5 +63,37 @@ export class AgendaService {
 
     this._agendamento.set(agendamento);
     return agendamento;
+  }
+
+  async concluir(
+    id: string,
+    dados: ConcluirAgendamentoDto,
+  ): Promise<AgendamentoDetalheResponseDto> {
+    const agendamento = await firstValueFrom(
+      this.http.patch<AgendamentoDetalheResponseDto>(
+        `/agendamentos/${id}/concluir`,
+        dados,
+      ),
+    );
+
+    this._agendamento.set(agendamento);
+    this.substituirNaAgendaDoDia(agendamento);
+
+    return agendamento;
+  }
+
+  private substituirNaAgendaDoDia(
+    agendamento: AgendamentoDetalheResponseDto,
+  ): void {
+    this._agendaDoDia.update((agenda) =>
+      agenda
+        ? {
+            ...agenda,
+            agendamentos: agenda.agendamentos.map((item) =>
+              item.id === agendamento.id ? agendamento : item,
+            ),
+          }
+        : agenda,
+    );
   }
 }

@@ -32,6 +32,13 @@ jest.mock(
     cobrancaManual: {
       id: 'cobranca_manual.id',
       valor: 'cobranca_manual.valor',
+      metodo: 'cobranca_manual.metodo',
+      registrada_por: 'cobranca_manual.registrada_por',
+    },
+    eventoAgendamento: {
+      agendamento_id: 'evento_agendamento.agendamento_id',
+      tipo: 'evento_agendamento.tipo',
+      ocorreu_em: 'evento_agendamento.ocorreu_em',
     },
     cobrancaGateway: {
       id: 'cobranca_gateway.id',
@@ -58,7 +65,12 @@ jest.mock('@/database/database.provider', () => ({
 }));
 
 import { eq, gte, inArray, lt } from 'drizzle-orm';
-import { agendamento } from '@fluy/schema';
+import {
+  agendamento,
+  cobrancaManual,
+  eventoAgendamento,
+  pagamentoAgendamento,
+} from '@fluy/schema';
 import type { Database } from '@/database/database.provider';
 import type {
   AgendamentoPersistido,
@@ -82,12 +94,17 @@ describe('AgendamentoRepository', () => {
     returning: retornarAgendamentos,
   }));
   const inserirAgendamentos = jest.fn(() => ({ values: definirAgendamentos }));
+  const retornarConclusao = jest.fn();
+  const filtrarConclusao = jest.fn(() => ({ returning: retornarConclusao }));
+  const definirConclusao = jest.fn(() => ({ where: filtrarConclusao }));
+  const atualizarAgendamentos = jest.fn(() => ({ set: definirConclusao }));
   const executar = jest.fn();
   const transacao = jest.fn((callback: (tx: unknown) => unknown) =>
     callback({
       execute: executar,
       select: selecionarConflitos,
       insert: inserirAgendamentos,
+      update: atualizarAgendamentos,
     }),
   );
   const ordenarAgenda = jest.fn();
@@ -156,6 +173,87 @@ describe('AgendamentoRepository', () => {
       preco_total: input.precoTotal,
       valor_sinal: input.valorSinal,
       estado: 'agendado',
+    });
+  });
+
+  describe('concluir', () => {
+    const OCORREU_EM = new Date('2026-09-15T18:30:00.000Z');
+    const entrada = {
+      id: 'agendamento-ana',
+      salaoId: 'salao-ana',
+      ocorreuEm: OCORREU_EM,
+      cobranca: undefined,
+    };
+    const agendamentoConcluido = {
+      id: 'agendamento-ana',
+      estado: 'concluido',
+    } as AgendamentoPersistido;
+
+    it('restringe a conclusão ao salão e ao estado agendado', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoConcluido]);
+
+      await repository.concluir(entrada);
+
+      expect(definirConclusao).toHaveBeenCalledWith({ estado: 'concluido' });
+      expect(eq).toHaveBeenCalledWith(agendamento.id, entrada.id);
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, entrada.salaoId);
+      expect(eq).toHaveBeenCalledWith(agendamento.estado, 'agendado');
+    });
+
+    it('não grava evento nem cobrança quando a corrida é perdida', async () => {
+      retornarConclusao.mockResolvedValue([]);
+
+      await expect(repository.concluir(entrada)).resolves.toBeUndefined();
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).not.toHaveBeenCalled();
+    });
+
+    it('grava apenas o evento quando não houve pagamento', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoConcluido]);
+
+      await expect(repository.concluir(entrada)).resolves.toBe(
+        agendamentoConcluido,
+      );
+
+      expect(inserirAgendamentos).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).toHaveBeenCalledWith(eventoAgendamento);
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        agendamento_id: agendamentoConcluido.id,
+        tipo: 'concluido',
+        ocorreu_em: OCORREU_EM,
+      });
+    });
+
+    it('grava evento, cobrança manual e vínculo na mesma transação', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoConcluido]);
+      retornarAgendamentos.mockResolvedValue([{ id: 'cobranca-ana' }]);
+
+      await repository.concluir({
+        ...entrada,
+        cobranca: {
+          valor: '120.00',
+          metodo: 'dinheiro',
+          registradaPor: 'usuario-salao-ana',
+        },
+      });
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).toHaveBeenNthCalledWith(1, eventoAgendamento);
+      expect(inserirAgendamentos).toHaveBeenNthCalledWith(2, cobrancaManual);
+      expect(inserirAgendamentos).toHaveBeenNthCalledWith(
+        3,
+        pagamentoAgendamento,
+      );
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        valor: '120.00',
+        metodo: 'dinheiro',
+        registrada_por: 'usuario-salao-ana',
+      });
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        agendamento_id: agendamentoConcluido.id,
+        cobranca_manual_id: 'cobranca-ana',
+      });
     });
   });
 

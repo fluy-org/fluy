@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { METODO_PAGAMENTO_MANUAL } from '../cobranca_manual/cobranca_manual.enums.js';
 import { FUSOS_HORARIOS_BRASIL } from '../salao/salao.enums.js';
 import {
   ACAO_AGENDAMENTO,
@@ -49,6 +50,14 @@ export const criarAgendamentoSchema = z
   })
   .strict()
   .meta({ id: 'CriarAgendamento' });
+
+export const concluirAgendamentoSchema = z
+  .object({
+    // `null` é a marcação explícita "não recebeu o valor pendente".
+    metodo_pagamento: z.enum(METODO_PAGAMENTO_MANUAL).nullable(),
+  })
+  .strict()
+  .meta({ id: 'ConcluirAgendamento' });
 
 export const horariosLivresResponseSchema = z
   .object({
