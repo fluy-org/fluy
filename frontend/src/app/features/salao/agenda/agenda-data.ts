@@ -41,6 +41,16 @@ export const ESTADOS_ENCERRADOS: EstadoAgendamento[] = [
   'falta',
 ];
 
+export const ROTULOS_DIAS_DA_SEMANA = [
+  'Dom',
+  'Seg',
+  'Ter',
+  'Qua',
+  'Qui',
+  'Sex',
+  'Sáb',
+];
+
 export const ROTULO_ACAO_AGENDAMENTO: Record<string, string> = {
   concluir: 'Concluir atendimento',
   cancelar: 'Cancelar',

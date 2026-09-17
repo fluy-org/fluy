@@ -57,7 +57,7 @@ jest.mock('@/database/database.provider', () => ({
   DATABASE: Symbol('DATABASE'),
 }));
 
-import { eq, gte, lt } from 'drizzle-orm';
+import { eq, gte, inArray, lt } from 'drizzle-orm';
 import { agendamento } from '@fluy/schema';
 import type { Database } from '@/database/database.provider';
 import type {
@@ -256,6 +256,63 @@ describe('AgendamentoRepository', () => {
         id: 'procedimento-corte',
         nome: 'Corte',
       });
+    });
+  });
+
+  describe('listarInstantesDoPeriodo', () => {
+    const entrada = {
+      salaoId: 'salao-ana',
+      dataInicio: '2026-09-01',
+      dataFim: '2026-09-30',
+      fusoHorario: 'America/Sao_Paulo',
+    };
+
+    it('filtra pelo salão da requisição', async () => {
+      await repository.listarInstantesDoPeriodo(entrada);
+
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, entrada.salaoId);
+    });
+
+    it('deriva a faixa UTC do período a partir do fuso do salão', async () => {
+      await repository.listarInstantesDoPeriodo(entrada);
+
+      expect(gte).toHaveBeenCalledWith(
+        agendamento.inicio_em,
+        new Date('2026-09-01T03:00:00.000Z'),
+      );
+      expect(lt).toHaveBeenCalledWith(
+        agendamento.inicio_em,
+        new Date('2026-10-01T03:00:00.000Z'),
+      );
+    });
+
+    it('inclui o dia final inteiro no período consultado', async () => {
+      await repository.listarInstantesDoPeriodo({
+        ...entrada,
+        dataInicio: '2026-09-15',
+        dataFim: '2026-09-15',
+      });
+
+      expect(gte).toHaveBeenCalledWith(
+        agendamento.inicio_em,
+        new Date('2026-09-15T03:00:00.000Z'),
+      );
+      expect(lt).toHaveBeenCalledWith(
+        agendamento.inicio_em,
+        new Date('2026-09-16T03:00:00.000Z'),
+      );
+    });
+
+    it('não filtra por estado: o resumo conta o período inteiro', async () => {
+      linhasDaAgenda = [
+        { inicio_em: new Date('2026-09-15T13:00:00.000Z') },
+        { inicio_em: new Date('2026-09-16T13:00:00.000Z') },
+      ];
+
+      const instantes = await repository.listarInstantesDoPeriodo(entrada);
+
+      expect(instantes).toHaveLength(2);
+      expect(inArray).not.toHaveBeenCalled();
     });
   });
 });

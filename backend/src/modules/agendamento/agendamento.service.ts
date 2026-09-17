@@ -8,6 +8,7 @@ import type {
   CriarAgendamentoDto,
   ListarAgendaDiaQueryDto,
   ListarHorariosLivresQueryDto,
+  ListarResumoAgendaQueryDto,
 } from '@fluy/schema';
 import {
   dataHoraCivilParaUtc,
@@ -20,12 +21,14 @@ import type {
   AgendamentoDetalheResultado,
   AvaliarHorarioAgendamentoInput,
   DadosParaAvaliacaoHorario,
+  ResumoDaAgendaResultado,
 } from '@/modules/agendamento/contracts';
 import {
   calcularAcoesDoAgendamento,
   calcularValorPago,
   calcularValorPendente,
   calcularValorSinalDoProcedimento,
+  contarAgendamentosPorDia,
 } from '@/modules/agendamento/agendamento-utils';
 import { AgendamentoDisponibilidadeService } from '@/modules/agendamento/agendamento-disponibilidade.service';
 import { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
@@ -97,6 +100,27 @@ export class AgendamentoService {
         this.acrescentarValores(agendamento),
       ),
     };
+  }
+
+  async listarResumoDoPeriodo({
+    salaoId,
+    dados,
+  }: {
+    salaoId: string;
+    dados: ListarResumoAgendaQueryDto;
+  }): Promise<ResumoDaAgendaResultado> {
+    const fusoHorario =
+      await this.salaoConsultaService.obterFusoHorario(salaoId);
+    const instantes = await this.agendamentoRepository.listarInstantesDoPeriodo(
+      {
+        salaoId,
+        dataInicio: dados.data_inicio,
+        dataFim: dados.data_fim,
+        fusoHorario,
+      },
+    );
+
+    return { dias: contarAgendamentosPorDia({ instantes, fusoHorario }) };
   }
 
   async buscarDetalhe({

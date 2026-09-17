@@ -10,8 +10,12 @@ import {
   calcularAcoesDoAgendamento,
   calcularValorPago,
   calcularValorPendente,
+  contarAgendamentosPorDia,
 } from '@/modules/agendamento/agendamento-utils';
-import type { PagamentoDoAgendamentoPersistido } from '@/modules/agendamento/contracts';
+import type {
+  InstanteDeAgendamentoPersistido,
+  PagamentoDoAgendamentoPersistido,
+} from '@/modules/agendamento/contracts';
 
 const INICIO_EM = new Date('2026-09-15T13:00:00.000Z');
 const TOLERANCIA_MIN = 15;
@@ -149,7 +153,96 @@ describe('agendamento-utils', () => {
       });
     });
   });
+
+  describe('contarAgendamentosPorDia', () => {
+    const FUSO_SAO_PAULO = 'America/Sao_Paulo';
+
+    it('devolve lista vazia quando não há agendamento no período', () => {
+      expect(
+        contarAgendamentosPorDia({
+          instantes: [],
+          fusoHorario: FUSO_SAO_PAULO,
+        }),
+      ).toEqual([]);
+    });
+
+    it('conta pelo dia civil do salão, e não pelo dia UTC', () => {
+      // 22h em São Paulo já é o dia seguinte em UTC: o agendamento tem de cair
+      // no dia civil do salão.
+      expect(
+        contarAgendamentosPorDia({
+          instantes: [instante('2026-09-16T01:00:00.000Z')],
+          fusoHorario: FUSO_SAO_PAULO,
+        }),
+      ).toEqual([{ data: '2026-09-15', total: 1 }]);
+    });
+
+    it('conta a meia-noite do salão no dia que começa', () => {
+      expect(
+        contarAgendamentosPorDia({
+          instantes: [instante('2026-09-15T03:00:00.000Z')],
+          fusoHorario: FUSO_SAO_PAULO,
+        }),
+      ).toEqual([{ data: '2026-09-15', total: 1 }]);
+    });
+
+    it('soma os agendamentos do mesmo dia civil', () => {
+      expect(
+        contarAgendamentosPorDia({
+          instantes: [
+            instante('2026-09-15T12:00:00.000Z'),
+            instante('2026-09-15T14:00:00.000Z'),
+            instante('2026-09-16T01:00:00.000Z'),
+          ],
+          fusoHorario: FUSO_SAO_PAULO,
+        }),
+      ).toEqual([{ data: '2026-09-15', total: 3 }]);
+    });
+
+    it('devolve os dias em ordem crescente e omite dia sem agendamento', () => {
+      expect(
+        contarAgendamentosPorDia({
+          instantes: [
+            instante('2026-09-17T12:00:00.000Z'),
+            instante('2026-09-15T12:00:00.000Z'),
+            instante('2026-09-17T15:00:00.000Z'),
+          ],
+          fusoHorario: FUSO_SAO_PAULO,
+        }),
+      ).toEqual([
+        { data: '2026-09-15', total: 1 },
+        { data: '2026-09-17', total: 2 },
+      ]);
+    });
+
+    it('respeita o fuso informado ao decidir o dia civil', () => {
+      const mesmoInstante = [instante('2026-09-16T01:00:00.000Z')];
+
+      expect(
+        contarAgendamentosPorDia({
+          instantes: mesmoInstante,
+          fusoHorario: FUSO_SAO_PAULO,
+        }),
+      ).toEqual([{ data: '2026-09-15', total: 1 }]);
+      expect(
+        contarAgendamentosPorDia({
+          instantes: mesmoInstante,
+          fusoHorario: 'America/Noronha',
+        }),
+      ).toEqual([{ data: '2026-09-15', total: 1 }]);
+      expect(
+        contarAgendamentosPorDia({
+          instantes: mesmoInstante,
+          fusoHorario: 'UTC',
+        }),
+      ).toEqual([{ data: '2026-09-16', total: 1 }]);
+    });
+  });
 });
+
+function instante(isoUtc: string): InstanteDeAgendamentoPersistido {
+  return { inicio_em: new Date(isoUtc) };
+}
 
 function acoesEm({
   estado,

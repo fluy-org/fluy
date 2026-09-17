@@ -5,6 +5,7 @@ import type {
   AgendamentoResponseDto,
   AvaliacaoHorarioAgendamentoResponseDto,
   HorariosLivresResponseDto,
+  ResumoAgendaResponseDto,
 } from '@fluy/schema';
 import type {
   AgendaDoDiaResultado,
@@ -12,6 +13,7 @@ import type {
   AgendamentoDetalheResultado,
   AgendamentoPersistido,
   AvaliacaoHorarioAgendamento,
+  ResumoDaAgendaResultado,
 } from '@/modules/agendamento/contracts';
 
 export function toAgendamentoResponse(
@@ -58,6 +60,12 @@ export function toAgendaDiaResponse({
     fuso_horario: fusoHorario,
     agendamentos: agendamentos.map(toAgendamentoAgendaResponse),
   };
+}
+
+export function toResumoAgendaResponse({
+  dias,
+}: ResumoDaAgendaResultado): ResumoAgendaResponseDto {
+  return { dias };
 }
 
 export function toAgendamentoDetalheResponse(

@@ -1,0 +1,104 @@
+.calendario {
+  padding: var(--fluy-space-4);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+.mes {
+  font-weight: 600;
+}
+
+// `capitalize` deixaria "Setembro De 2026"; só a inicial do rótulo sobe.
+.mes::first-letter {
+  text-transform: uppercase;
+}
+
+.aviso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fluy-space-2);
+  margin-bottom: var(--fluy-space-3);
+  text-align: center;
+}
+
+.semana-rotulos,
+.grade {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--fluy-space-1);
+}
+
+.rotulo {
+  padding-bottom: var(--fluy-space-2);
+  font-size: var(--fluy-font-size-small);
+  text-align: center;
+  color: var(--fluy-color-muted);
+}
+
+// A grade é a âncora do spinner de carregamento, que cobre as células sem
+// mudar a altura do modal a cada troca de mês.
+.grade {
+  position: relative;
+}
+
+.dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: var(--fluy-space-1);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--fluy-color-border-soft);
+  color: var(--fluy-color-body);
+  font: inherit;
+  cursor: pointer;
+}
+
+.dia-vazio {
+  background: transparent;
+  color: var(--fluy-color-muted);
+  opacity: 0.55;
+}
+
+.dia-selecionado {
+  border-color: var(--fluy-color-primary);
+  font-weight: 700;
+}
+
+.dia-fora {
+  background: transparent;
+  cursor: default;
+}
+
+.numero {
+  font-size: var(--fluy-font-size-small);
+  line-height: 1;
+}
+
+.total {
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--fluy-color-primary);
+}
+
+.grade-carregando .dia {
+  opacity: 0.35;
+}
+
+.carregando {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,68 @@
+<div class="calendario">
+  <header class="cabecalho">
+    <ion-button
+      fill="clear"
+      aria-label="Mês anterior"
+      [disabled]="carregando()"
+      (click)="irParaMesAnterior()"
+    >
+      <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+    </ion-button>
+
+    <span class="mes">{{ mesPorExtenso() }}</span>
+
+    <ion-button
+      fill="clear"
+      aria-label="Próximo mês"
+      [disabled]="carregando()"
+      (click)="irParaProximoMes()"
+    >
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </header>
+
+  @if (erro(); as mensagem) {
+    <div class="aviso">
+      <ion-text color="medium">
+        <p>{{ mensagem }}</p>
+      </ion-text>
+      <ion-button size="small" fill="outline" (click)="tentarNovamente.emit()">
+        Tentar novamente
+      </ion-button>
+    </div>
+  }
+
+  <div class="semana-rotulos">
+    @for (rotulo of rotulosDiasDaSemana; track $index) {
+      <span class="rotulo">{{ rotulo }}</span>
+    }
+  </div>
+
+  <div class="grade" [class.grade-carregando]="carregando()">
+    @for (dia of grade(); track $index) {
+      @if (dia) {
+        <button
+          type="button"
+          class="dia"
+          [class.dia-vazio]="dia.total === 0"
+          [class.dia-selecionado]="dia.data === diaSelecionado()"
+          [attr.aria-current]="dia.data === diaSelecionado() ? 'date' : null"
+          (click)="selecionarDia.emit(dia.data)"
+        >
+          <span class="numero">{{ dia.dia }}</span>
+          @if (dia.total > 0) {
+            <span class="total">{{ dia.total }}</span>
+          }
+        </button>
+      } @else {
+        <span class="dia dia-fora"></span>
+      }
+    }
+
+    @if (carregando()) {
+      <div class="carregando">
+        <ion-spinner></ion-spinner>
+      </div>
+    }
+  </div>
+</div>

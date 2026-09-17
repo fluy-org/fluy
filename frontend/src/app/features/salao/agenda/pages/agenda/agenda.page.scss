@@ -32,3 +32,18 @@
 .encerrados {
   opacity: 0.72;
 }
+
+// O calendário não preenche um modal de tela cheia; sem dimensionar, ele
+// encosta no topo e deixa o resto vazio.
+ion-modal {
+  --width: fit-content;
+  --min-width: 320px;
+  --height: fit-content;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+app-calendario-mes {
+  display: block;
+  width: 320px;
+}

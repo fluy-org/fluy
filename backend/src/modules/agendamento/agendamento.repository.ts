@@ -19,7 +19,9 @@ import type {
   AgendamentoPersistido,
   BuscarAgendamentoInput,
   CriarAgendamentoComValidacaoInput,
+  InstanteDeAgendamentoPersistido,
   ListarAgendamentosDoDiaInput,
+  ListarInstantesDoPeriodoInput,
   OcupacaoProfissional,
   PagamentoDoAgendamentoPersistido,
 } from '@/modules/agendamento/contracts';
@@ -122,6 +124,37 @@ export class AgendamentoRepository {
       .orderBy(asc(agendamento.inicio_em));
 
     return agruparAgendamentos(linhas);
+  }
+
+  listarInstantesDoPeriodo({
+    salaoId,
+    dataInicio,
+    dataFim,
+    fusoHorario,
+  }: ListarInstantesDoPeriodoInput): Promise<
+    InstanteDeAgendamentoPersistido[]
+  > {
+    const inicioPeriodo = dataHoraCivilParaUtc({
+      data: dataInicio,
+      hora: '00:00',
+      fusoHorario,
+    });
+    const fimPeriodo = dataHoraCivilParaUtc({
+      data: adicionarDiasNaData({ data: dataFim, dias: 1 }),
+      hora: '00:00',
+      fusoHorario,
+    });
+
+    return this.database
+      .select({ inicio_em: agendamento.inicio_em })
+      .from(agendamento)
+      .where(
+        and(
+          eq(agendamento.salao_id, salaoId),
+          gte(agendamento.inicio_em, inicioPeriodo),
+          lt(agendamento.inicio_em, fimPeriodo),
+        ),
+      );
   }
 
   async buscarDetalhe({

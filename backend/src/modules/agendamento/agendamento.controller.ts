@@ -30,6 +30,8 @@ import {
   HorariosLivresResponseDto,
   ListarAgendaDiaQueryDto,
   ListarHorariosLivresQueryDto,
+  ListarResumoAgendaQueryDto,
+  ResumoAgendaResponseDto,
 } from '@/modules/agendamento/contracts';
 import {
   toAgendaDiaResponse,
@@ -37,6 +39,7 @@ import {
   toAgendamentoResponse,
   toAvaliacaoHorarioResponse,
   toHorariosLivresResponse,
+  toResumoAgendaResponse,
 } from '@/modules/agendamento/agendamento.mapper';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 
@@ -118,6 +121,32 @@ export class AgendamentoController {
   ) {
     return toAvaliacaoHorarioResponse(
       await this.agendamentoService.avaliarHorario({
+        salaoId: tenant.salaoId,
+        dados,
+      }),
+    );
+  }
+
+  @Get('resumo')
+  @ApiOperation({
+    summary: 'Resume a quantidade de agendamentos por dia em um período',
+  })
+  @ApiOkResponse({
+    description:
+      'Dias com agendamento no período, contados pela data civil no fuso do salão.',
+    type: ResumoAgendaResponseDto.Output,
+  })
+  @ApiBadRequestResponse({ description: 'Intervalo de datas inválido.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
+  async listarResumo(
+    @TenantFromOwner() tenant: TenantContext,
+    @Query() dados: ListarResumoAgendaQueryDto,
+  ) {
+    return toResumoAgendaResponse(
+      await this.agendamentoService.listarResumoDoPeriodo({
         salaoId: tenant.salaoId,
         dados,
       }),

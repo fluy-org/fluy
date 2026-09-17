@@ -328,7 +328,7 @@ e a fatia de cancelamento pela cliente do
 3.1 → 3.2 → 3.3 → 3.4. Estritamente nessa ordem: 3.1 cria a tela onde as ações
 moram e 3.2 fixa o padrão de transição que as outras seguem.
 
-A [3.1b](#31b-dias-com-agendamento-marcados-no-seletor) é melhoria de navegação
+A [3.1b](#31b-calendário-mensal-com-contagem-de-agendamentos) é melhoria de navegação
 e **não bloqueia ninguém**: depende só da 3.1 e pode entrar a qualquer momento
 depois dela, inclusive em paralelo com 3.2 a 3.4.
 

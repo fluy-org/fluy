@@ -121,6 +121,26 @@ export type ListarAgendamentosDoDiaInput = {
   fusoHorario: string;
 };
 
+export type ListarInstantesDoPeriodoInput = {
+  salaoId: string;
+  dataInicio: string;
+  dataFim: string;
+  fusoHorario: string;
+};
+
+export type InstanteDeAgendamentoPersistido = {
+  inicio_em: Date;
+};
+
+export type ContagemPorDia = {
+  data: string;
+  total: number;
+};
+
+export type ResumoDaAgendaResultado = {
+  dias: ContagemPorDia[];
+};
+
 export type BuscarAgendamentoInput = {
   id: string;
   salaoId: string;

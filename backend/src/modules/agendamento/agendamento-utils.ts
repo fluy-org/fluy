@@ -1,7 +1,10 @@
 import { ACAO_AGENDAMENTO } from '@fluy/schema';
+import { utcParaDataHoraCivil } from '@/shared/horario-salao/horario-salao.utils';
 import type {
   AcoesDoAgendamento,
   CalcularAcoesAgendamentoInput,
+  ContagemPorDia,
+  InstanteDeAgendamentoPersistido,
   PagamentoDoAgendamentoPersistido,
 } from '@/modules/agendamento/contracts';
 
@@ -96,6 +99,29 @@ export function calcularAcoesDoAgendamento({
     avisos:
       agora.getTime() < toleranciaExpiraEm ? ['falta_antes_da_tolerancia'] : [],
   };
+}
+
+export function contarAgendamentosPorDia({
+  instantes,
+  fusoHorario,
+}: {
+  instantes: InstanteDeAgendamentoPersistido[];
+  fusoHorario: string;
+}): ContagemPorDia[] {
+  const totaisPorDia = new Map<string, number>();
+
+  for (const instante of instantes) {
+    const { data } = utcParaDataHoraCivil({
+      dataHora: instante.inicio_em,
+      fusoHorario,
+    });
+
+    totaisPorDia.set(data, (totaisPorDia.get(data) ?? 0) + 1);
+  }
+
+  return Array.from(totaisPorDia, ([data, total]) => ({ data, total })).sort(
+    (primeiro, segundo) => primeiro.data.localeCompare(segundo.data),
+  );
 }
 
 function ehPagamentoConfirmado(

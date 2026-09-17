@@ -9,17 +9,3 @@
   text-transform: capitalize;
   font-weight: 600;
 }
-
-// O ion-datetime não preenche um modal de tela cheia; sem dimensionar, ele
-// encosta no topo e deixa o resto vazio.
-ion-modal {
-  --width: fit-content;
-  --min-width: 320px;
-  --height: fit-content;
-  --border-radius: 16px;
-  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-}
-
-ion-datetime {
-  width: 320px;
-}

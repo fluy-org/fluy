@@ -10,6 +10,7 @@
       [data]="agenda.data"
       [desabilitado]="carregando()"
       (mudarDia)="mudarDia($event)"
+      (abrirCalendario)="abrirCalendario()"
     ></app-navegacao-dia>
   }
 
@@ -79,3 +80,22 @@
     }
   }
 </ion-content>
+
+<ion-modal [isOpen]="calendarioAberto()" (didDismiss)="fecharCalendario()">
+  <ng-template>
+    @let agendaAtual = agendaDoDia();
+
+    @if (agendaAtual) {
+      <app-calendario-mes
+        [mes]="mesDoCalendario()"
+        [diaSelecionado]="agendaAtual.data"
+        [grade]="gradeDoCalendario()"
+        [carregando]="carregandoResumo()"
+        [erro]="erroResumo()"
+        (mudarMes)="mudarMesDoCalendario($event)"
+        (selecionarDia)="selecionarDiaDoCalendario($event)"
+        (tentarNovamente)="carregarResumo()"
+      ></app-calendario-mes>
+    }
+  </ng-template>
+</ion-modal>
