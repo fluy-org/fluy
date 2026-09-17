@@ -8,7 +8,11 @@
     <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
   </ion-button>
 
-  <ion-button fill="clear" [disabled]="desabilitado()" (click)="abrirSeletor()">
+  <ion-button
+    fill="clear"
+    [disabled]="desabilitado()"
+    (click)="abrirCalendario.emit()"
+  >
     <ion-icon slot="start" name="calendar-outline"></ion-icon>
     <span class="dia">{{ dataPorExtenso() }}</span>
   </ion-button>
@@ -22,14 +26,3 @@
     <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
   </ion-button>
 </div>
-
-<ion-modal [isOpen]="seletorAberto()" (didDismiss)="fecharSeletor()">
-  <ng-template>
-    <ion-datetime
-      presentation="date"
-      locale="pt-BR"
-      [value]="data()"
-      (ionChange)="selecionarData($event.detail.value)"
-    ></ion-datetime>
-  </ng-template>
-</ion-modal>

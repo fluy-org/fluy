@@ -85,6 +85,47 @@ export const listarAgendaDiaQuerySchema = z
   .strict()
   .meta({ id: 'ListarAgendaDiaQuery' });
 
+export const listarResumoAgendaQuerySchema = z
+  .object({
+    data_inicio: dataSchema,
+    data_fim: dataSchema,
+  })
+  .strict()
+  .superRefine(({ data_inicio, data_fim }, contexto) => {
+    const inicio = new Date(`${data_inicio}T00:00:00.000Z`);
+    const fim = new Date(`${data_fim}T00:00:00.000Z`);
+    const duracaoEmDias = (fim.getTime() - inicio.getTime()) / 86_400_000 + 1;
+
+    if (fim < inicio) {
+      contexto.addIssue({
+        code: 'custom',
+        path: ['data_fim'],
+        message: 'A data final deve ser igual ou posterior à data inicial.',
+      });
+      return;
+    }
+
+    if (duracaoEmDias > 31) {
+      contexto.addIssue({
+        code: 'custom',
+        path: ['data_fim'],
+        message: 'Informe um intervalo de no máximo 31 dias.',
+      });
+    }
+  })
+  .meta({ id: 'ListarResumoAgendaQuery' });
+
+export const resumoAgendaResponseSchema = z
+  .object({
+    dias: z.array(
+      z.object({
+        data: dataSchema,
+        total: z.number().int().positive(),
+      }),
+    ),
+  })
+  .meta({ id: 'ResumoAgendaResponse' });
+
 const clienteDoAgendamentoSchema = z.object({
   id: z.uuid(),
   nome: z.string(),

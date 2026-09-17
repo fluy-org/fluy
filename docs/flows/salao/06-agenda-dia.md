@@ -70,6 +70,7 @@ Ao abrir o detalhe:
 - **Salão tenta cancelar um agendamento que a cliente também está cancelando (race):** o que chegar primeiro vence; segundo recebe "já cancelado".
 - **Reserva expira e slot libera enquanto salão vê a agenda:** card some ou muda de estado; atualização em tempo real ideal.
 - **Salão sem conexão de internet:** UI mostra "offline" e oferece nova tentativa; ações são **bloqueadas, nunca bufferizadas** (decidido). Nada fica pendente para sincronizar depois.
+- **Falha ao carregar a contagem do mês no calendário:** a grade continua aberta e navegável, apenas sem o número em cada dia, com aviso e nova tentativa. Escolher um dia segue funcionando — é leitura, não ação, e a lista daquele dia tem o próprio tratamento de offline.
 - **Fuso horário do dispositivo do salão diferente do fuso do salão:** exibir sempre no horário do salão (não do dispositivo).
 
 ## Dúvidas em aberto

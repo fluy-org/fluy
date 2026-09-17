@@ -10,6 +10,8 @@ import type {
   horariosLivresResponseSchema,
   listarAgendaDiaQuerySchema,
   listarHorariosLivresQuerySchema,
+  listarResumoAgendaQuerySchema,
+  resumoAgendaResponseSchema,
 } from './agendamento.schema.js';
 
 export type ListarHorariosLivresQueryDto = z.infer<
@@ -37,4 +39,10 @@ export type AgendamentoAgendaResponseDto = z.infer<
 export type AgendaDiaResponseDto = z.infer<typeof agendaDiaResponseSchema>;
 export type AgendamentoDetalheResponseDto = z.infer<
   typeof agendamentoDetalheResponseSchema
+>;
+export type ListarResumoAgendaQueryDto = z.infer<
+  typeof listarResumoAgendaQuerySchema
+>;
+export type ResumoAgendaResponseDto = z.infer<
+  typeof resumoAgendaResponseSchema
 >;
