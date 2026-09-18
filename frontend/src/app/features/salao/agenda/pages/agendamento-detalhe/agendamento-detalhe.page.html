@@ -128,16 +128,50 @@
   }
 </ion-content>
 
-<ion-modal [isOpen]="conclusaoAberta()" (didDismiss)="aoFecharConclusao()">
+<ion-modal
+  [isOpen]="acaoAberta() === 'concluir'"
+  (didDismiss)="aoFecharAcao()"
+>
   <ng-template>
     @if (agendamento(); as detalhe) {
       <app-formulario-conclusao
         [agendamento]="detalhe"
-        [salvando]="concluindo()"
-        [erroExterno]="erroConclusao()"
+        [salvando]="executando()"
+        [erroExterno]="erroAcao()"
         (confirmar)="confirmarConclusao($event)"
-        (cancelar)="fecharConclusao()"
+        (cancelar)="fecharAcao()"
       ></app-formulario-conclusao>
     }
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  [isOpen]="acaoAberta() === 'marcar_falta'"
+  (didDismiss)="aoFecharAcao()"
+>
+  <ng-template>
+    @if (agendamento(); as detalhe) {
+      <app-confirmacao-falta
+        [agendamento]="detalhe"
+        [salvando]="executando()"
+        [erroExterno]="erroAcao()"
+        (confirmar)="confirmarFalta()"
+        (cancelar)="fecharAcao()"
+      ></app-confirmacao-falta>
+    }
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  [isOpen]="acaoAberta() === 'cancelar'"
+  (didDismiss)="aoFecharAcao()"
+>
+  <ng-template>
+    <app-formulario-cancelamento
+      [salvando]="executando()"
+      [erroExterno]="erroAcao()"
+      (confirmar)="confirmarCancelamento($event)"
+      (cancelar)="fecharAcao()"
+    ></app-formulario-cancelamento>
   </ng-template>
 </ion-modal>

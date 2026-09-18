@@ -27,6 +27,7 @@ import {
   AgendamentoResponseDto,
   AvaliacaoHorarioAgendamentoResponseDto,
   AvaliarHorarioAgendamentoQueryDto,
+  CancelarAgendamentoRequestDto,
   ConcluirAgendamentoRequestDto,
   CriarAgendamentoRequestDto,
   HorariosLivresResponseDto,
@@ -43,7 +44,9 @@ import {
   toHorariosLivresResponse,
   toResumoAgendaResponse,
 } from '@/modules/agendamento/agendamento.mapper';
+import { AgendamentoCancelamentoService } from '@/modules/agendamento/agendamento-cancelamento.service';
 import { AgendamentoConclusaoService } from '@/modules/agendamento/agendamento-conclusao.service';
+import { AgendamentoFaltaService } from '@/modules/agendamento/agendamento-falta.service';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 
 @ApiTags('Agendamentos')
@@ -53,6 +56,8 @@ export class AgendamentoController {
   constructor(
     private readonly agendamentoService: AgendamentoService,
     private readonly agendamentoConclusaoService: AgendamentoConclusaoService,
+    private readonly agendamentoFaltaService: AgendamentoFaltaService,
+    private readonly agendamentoCancelamentoService: AgendamentoCancelamentoService,
   ) {}
 
   @Get()
@@ -246,6 +251,69 @@ export class AgendamentoController {
         id,
         salaoId: tenant.salaoId,
         usuarioSalaoId: tenant.usuarioSalaoId,
+        dados,
+      }),
+    );
+  }
+
+  @Patch(':id/marcar-falta')
+  @ApiOperation({
+    summary: 'Marca que a cliente não compareceu ao atendimento',
+  })
+  @ApiOkResponse({
+    description: 'Agendamento em falta, com valores e ações atualizados.',
+    type: AgendamentoDetalheResponseDto.Output,
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Identificador inválido, atendimento ainda não iniciado ou estado que não permite a marcação.',
+  })
+  @ApiConflictResponse({ description: 'O agendamento já foi encerrado.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Agendamento, salão ou configuração não encontrados.',
+  })
+  async marcarFalta(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+  ) {
+    return toAgendamentoDetalheResponse(
+      await this.agendamentoFaltaService.marcarFalta({
+        id,
+        salaoId: tenant.salaoId,
+      }),
+    );
+  }
+
+  @Patch(':id/cancelar')
+  @ApiOperation({
+    summary: 'Cancela o agendamento e libera o horário',
+  })
+  @ApiOkResponse({
+    description: 'Agendamento cancelado, com valores e ações atualizados.',
+    type: AgendamentoDetalheResponseDto.Output,
+  })
+  @ApiBadRequestResponse({
+    description: 'Identificador ou dados inválidos.',
+  })
+  @ApiConflictResponse({ description: 'O agendamento já foi encerrado.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Agendamento, salão ou configuração não encontrados.',
+  })
+  async cancelar(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+    @Body() dados: CancelarAgendamentoRequestDto,
+  ) {
+    return toAgendamentoDetalheResponse(
+      await this.agendamentoCancelamentoService.cancelar({
+        id,
+        salaoId: tenant.salaoId,
         dados,
       }),
     );

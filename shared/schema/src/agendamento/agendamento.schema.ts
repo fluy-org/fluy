@@ -59,6 +59,14 @@ export const concluirAgendamentoSchema = z
   .strict()
   .meta({ id: 'ConcluirAgendamento' });
 
+export const cancelarAgendamentoSchema = z
+  .object({
+    // Registro interno do salão; nunca exibido para a cliente.
+    motivo: z.string().optional(),
+  })
+  .strict()
+  .meta({ id: 'CancelarAgendamento' });
+
 export const horariosLivresResponseSchema = z
   .object({
     data: dataSchema,

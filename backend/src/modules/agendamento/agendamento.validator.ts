@@ -5,8 +5,10 @@ import {
 } from '@nestjs/common';
 import { emCentavos } from '@/modules/agendamento/agendamento-utils';
 import type {
+  ValidarCancelamentoAgendamentoInput,
   ValidarConclusaoAgendamentoInput,
   ValidarCriacaoAgendamentoInput,
+  ValidarFaltaAgendamentoInput,
 } from '@/modules/agendamento/contracts';
 
 @Injectable()
@@ -54,6 +56,35 @@ export class AgendamentoValidator {
       emCentavos({ valor: valorPendente }) === 0n
     ) {
       throw new BadRequestException('Não há valor pendente para registrar.');
+    }
+  }
+
+  validarFalta({
+    estado,
+    inicioEm,
+    agora,
+  }: ValidarFaltaAgendamentoInput): void {
+    if (estado === 'reservado') {
+      throw new BadRequestException(
+        'Só é possível marcar falta em um agendamento confirmado.',
+      );
+    }
+
+    if (estado !== 'agendado') {
+      throw new ConflictException('Este agendamento já foi encerrado.');
+    }
+
+    // Antes do horário marcado não existe atraso: marcar falta ali é erro de
+    // operação, não no-show. Depois disso a marcação é livre, e a tolerância
+    // apenas gradua o aviso que o detalhe já devolve.
+    if (agora.getTime() < inicioEm.getTime()) {
+      throw new BadRequestException('O atendimento ainda não começou.');
+    }
+  }
+
+  validarCancelamento({ estado }: ValidarCancelamentoAgendamentoInput): void {
+    if (estado !== 'agendado' && estado !== 'reservado') {
+      throw new ConflictException('Este agendamento já foi encerrado.');
     }
   }
 }

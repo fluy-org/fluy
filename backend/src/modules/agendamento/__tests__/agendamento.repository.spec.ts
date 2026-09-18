@@ -257,6 +257,119 @@ describe('AgendamentoRepository', () => {
     });
   });
 
+  describe('marcarFalta', () => {
+    const OCORREU_EM = new Date('2026-09-15T14:10:00.000Z');
+    const entrada = {
+      id: 'agendamento-ana',
+      salaoId: 'salao-ana',
+      ocorreuEm: OCORREU_EM,
+    };
+    const agendamentoMarcado = {
+      id: 'agendamento-ana',
+      estado: 'falta',
+    } as AgendamentoPersistido;
+
+    it('restringe a marcação ao salão e ao estado agendado', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoMarcado]);
+
+      await repository.marcarFalta(entrada);
+
+      expect(definirConclusao).toHaveBeenCalledWith({ estado: 'falta' });
+      expect(eq).toHaveBeenCalledWith(agendamento.id, entrada.id);
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, entrada.salaoId);
+      expect(eq).toHaveBeenCalledWith(agendamento.estado, 'agendado');
+    });
+
+    it('não grava evento quando a corrida é perdida', async () => {
+      retornarConclusao.mockResolvedValue([]);
+
+      await expect(repository.marcarFalta(entrada)).resolves.toBeUndefined();
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).not.toHaveBeenCalled();
+    });
+
+    it('grava o evento de falta na mesma transação', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoMarcado]);
+
+      await expect(repository.marcarFalta(entrada)).resolves.toBe(
+        agendamentoMarcado,
+      );
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).toHaveBeenCalledWith(eventoAgendamento);
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        agendamento_id: agendamentoMarcado.id,
+        tipo: 'falta',
+        ocorreu_em: OCORREU_EM,
+      });
+    });
+  });
+
+  describe('cancelar', () => {
+    const OCORREU_EM = new Date('2026-09-15T14:10:00.000Z');
+    const entrada = {
+      id: 'agendamento-ana',
+      salaoId: 'salao-ana',
+      ocorreuEm: OCORREU_EM,
+      motivo: undefined,
+    };
+    const agendamentoCancelado = {
+      id: 'agendamento-ana',
+      estado: 'cancelado',
+    } as AgendamentoPersistido;
+
+    it('restringe o cancelamento ao salão e aos estados ainda ocupando o slot', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoCancelado]);
+
+      await repository.cancelar(entrada);
+
+      expect(definirConclusao).toHaveBeenCalledWith({ estado: 'cancelado' });
+      expect(eq).toHaveBeenCalledWith(agendamento.id, entrada.id);
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, entrada.salaoId);
+      expect(inArray).toHaveBeenCalledWith(agendamento.estado, [
+        'agendado',
+        'reservado',
+      ]);
+    });
+
+    it('não grava evento quando a corrida é perdida', async () => {
+      retornarConclusao.mockResolvedValue([]);
+
+      await expect(repository.cancelar(entrada)).resolves.toBeUndefined();
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).not.toHaveBeenCalled();
+    });
+
+    it('grava o motivo junto do evento de cancelamento', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoCancelado]);
+
+      await repository.cancelar({ ...entrada, motivo: 'Profissional doente' });
+
+      expect(inserirAgendamentos).toHaveBeenCalledWith(eventoAgendamento);
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        agendamento_id: agendamentoCancelado.id,
+        tipo: 'cancelado',
+        ocorreu_em: OCORREU_EM,
+        motivo: 'Profissional doente',
+      });
+    });
+
+    it('grava o evento sem motivo quando ele não foi informado', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoCancelado]);
+
+      await repository.cancelar(entrada);
+
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        agendamento_id: agendamentoCancelado.id,
+        tipo: 'cancelado',
+        ocorreu_em: OCORREU_EM,
+        motivo: undefined,
+      });
+    });
+  });
+
   describe('listarDoDia', () => {
     const entrada = {
       salaoId: 'salao-ana',

@@ -61,7 +61,7 @@ Ao final, o salão consegue:
 
 **Decisões que precisam estar fechadas antes**
 
-- **Ambig #5** — cancelamento de agendamento passado pelo salão: rebate no período atual ou reabre o período fechado? Vem da [3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento) e precisa estar resolvida aqui.
+- ~~**Ambig #5**~~ — **resolvida na [3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento): rebate no período atual, nunca reabre período fechado.** O período de um encerramento é sempre o do `evento_agendamento`, não o de `inicio_em` — vale igual para conclusão, cancelamento e no-show.
 - **Fonte única do "quanto a cliente gastou"**: o "total gasto" da ficha ([5.1](./bloco-5-ficha-cliente.md#51-lista-e-ficha-da-cliente)) e o "total faturado" daqui têm que sair da mesma regra.
 - Sinal retido em cancelamento pelo salão conta como receita antes de o reembolso existir? MVP: conta, e o [Bloco 9](./bloco-9-pagamento-online.md) ajusta.
 

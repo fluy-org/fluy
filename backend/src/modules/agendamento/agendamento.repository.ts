@@ -19,11 +19,13 @@ import type {
   AgendamentoDaAgendaPersistido,
   AgendamentoPersistido,
   BuscarAgendamentoInput,
+  CancelarAgendamentoPersistenciaInput,
   ConcluirAgendamentoPersistenciaInput,
   CriarAgendamentoComValidacaoInput,
   InstanteDeAgendamentoPersistido,
   ListarAgendamentosDoDiaInput,
   ListarInstantesDoPeriodoInput,
+  MarcarFaltaAgendamentoPersistenciaInput,
   OcupacaoProfissional,
   PagamentoDoAgendamentoPersistido,
 } from '@/modules/agendamento/contracts';
@@ -269,6 +271,84 @@ export class AgendamentoRepository {
       }
 
       return agendamentoConcluido;
+    });
+  }
+
+  async marcarFalta({
+    id,
+    salaoId,
+    ocorreuEm,
+  }: MarcarFaltaAgendamentoPersistenciaInput): Promise<
+    AgendamentoPersistido | undefined
+  > {
+    return this.database.transaction(async (tx) => {
+      // O estado no `where` é o desempate de corrida: a segunda marcação
+      // simultânea não encontra linha e nada é gravado.
+      const agendamentosMarcados = await tx
+        .update(agendamento)
+        .set({ estado: 'falta' })
+        .where(
+          and(
+            eq(agendamento.id, id),
+            eq(agendamento.salao_id, salaoId),
+            eq(agendamento.estado, 'agendado'),
+          ),
+        )
+        .returning();
+
+      const agendamentoMarcado = agendamentosMarcados[0];
+
+      if (!agendamentoMarcado) {
+        return undefined;
+      }
+
+      await tx.insert(eventoAgendamento).values({
+        agendamento_id: agendamentoMarcado.id,
+        tipo: 'falta',
+        ocorreu_em: ocorreuEm,
+      });
+
+      return agendamentoMarcado;
+    });
+  }
+
+  async cancelar({
+    id,
+    salaoId,
+    ocorreuEm,
+    motivo,
+  }: CancelarAgendamentoPersistenciaInput): Promise<
+    AgendamentoPersistido | undefined
+  > {
+    return this.database.transaction(async (tx) => {
+      // Sair de `reservado`/`agendado` já libera o slot: é esse o conjunto que
+      // o índice parcial e as consultas de ocupação consideram ocupado.
+      const agendamentosCancelados = await tx
+        .update(agendamento)
+        .set({ estado: 'cancelado' })
+        .where(
+          and(
+            eq(agendamento.id, id),
+            eq(agendamento.salao_id, salaoId),
+            inArray(agendamento.estado, ['agendado', 'reservado']),
+          ),
+        )
+        .returning();
+
+      const agendamentoCancelado = agendamentosCancelados[0];
+
+      if (!agendamentoCancelado) {
+        return undefined;
+      }
+
+      await tx.insert(eventoAgendamento).values({
+        agendamento_id: agendamentoCancelado.id,
+        tipo: 'cancelado',
+        ocorreu_em: ocorreuEm,
+        motivo,
+      });
+
+      return agendamentoCancelado;
     });
   }
 

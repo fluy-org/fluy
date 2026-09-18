@@ -1,0 +1,57 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+ion-content {
+  --background: var(--fluy-color-background);
+}
+
+.pergunta {
+  margin: 0 0 var(--fluy-space-3);
+  font-size: var(--fluy-font-size-subtitle);
+  color: var(--fluy-color-title);
+}
+
+.sinal {
+  margin: 0 0 var(--fluy-space-3);
+  padding: var(--fluy-space-3) var(--fluy-space-4);
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-body);
+  background: var(--fluy-color-surface);
+  border-radius: var(--fluy-radius-lg);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.sinal--vazio {
+  color: var(--fluy-color-muted);
+}
+
+.irreversivel {
+  margin: 0;
+  font-size: var(--fluy-font-size-small);
+  color: var(--fluy-color-muted);
+}
+
+.aviso {
+  margin: 0 0 var(--fluy-space-3);
+  padding: var(--fluy-space-3);
+  font-size: var(--fluy-font-size-body);
+  color: var(--fluy-color-warning);
+  background: var(--fluy-color-warning-bg);
+  border: 1px solid var(--fluy-color-warning-border);
+  border-radius: var(--fluy-radius-md);
+}
+
+.mensagem-erro {
+  margin: var(--fluy-space-3) 0 0;
+  color: var(--fluy-color-danger);
+  font-size: var(--fluy-font-size-small);
+}
+
+.acoes-formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fluy-space-3);
+  margin-top: var(--fluy-space-5);
+}

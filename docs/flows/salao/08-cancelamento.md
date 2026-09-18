@@ -35,6 +35,7 @@ Permitir que o salão cancele um agendamento (por motivo próprio: doença do pr
 - **Cliente é sempre notificada.**
 - **Motivo do cancelamento é apenas para registro interno do salão**; NÃO é exibido para a cliente (para evitar constrangimentos).
 - **Cancelamento é irreversível** — para reagendar, cliente e salão negociam via WhatsApp e criam novo agendamento (manual ou pelo fluxo digital).
+- **Cancelamento de agendamento passado rebate no período atual do faturamento**, nunca reabre um período já fechado: o que vale é a data do `evento_agendamento`, não a de `inicio_em`. Mesma regra da conclusão.
 
 ## Dependências
 
@@ -57,6 +58,6 @@ Permitir que o salão cancele um agendamento (por motivo próprio: doença do pr
 
 - **Política padrão de reembolso pelo salão:** sempre reembolsa? Salão configura? MVP: recomendo "sempre reembolsa por padrão, salão pode desmarcar em casos específicos".
 - **Reembolso automático via gateway ou manual:** decisão depende do gateway escolhido. Adiada com discussão do gateway.
-- **Registro do cancelamento pelo salão no faturamento:** deve aparecer? Como? Se houve reembolso, não gera receita; se sinal retido, gera receita. Precisa distinguir de cancelamento pela cliente.
+- **Registro do cancelamento pelo salão no faturamento:** deve aparecer? Como? Se houve reembolso, não gera receita; se sinal retido, gera receita. Precisa distinguir de cancelamento pela cliente. (O **período** em que cai já está decidido — ver "Regras de negócio".)
 - **Cliente pode "aceitar/recusar" o cancelamento?** Não faz sentido — cancelamento é decisão do salão. Mas cliente pode pedir compensação (crédito, remarcação prioritária) fora do sistema.
 - **Notificar cliente múltiplas vezes** se ela não abrir o push (ex.: repetir 1h depois)? Fora do MVP.
