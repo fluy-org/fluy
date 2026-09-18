@@ -6,6 +6,7 @@ import type {
   agendamentoResponseSchema,
   avaliacaoHorarioAgendamentoResponseSchema,
   avaliarHorarioAgendamentoQuerySchema,
+  cancelarAgendamentoSchema,
   concluirAgendamentoSchema,
   criarAgendamentoSchema,
   horariosLivresResponseSchema,
@@ -23,6 +24,7 @@ export type AvaliarHorarioAgendamentoQueryDto = z.infer<
 >;
 export type CriarAgendamentoDto = z.infer<typeof criarAgendamentoSchema>;
 export type ConcluirAgendamentoDto = z.infer<typeof concluirAgendamentoSchema>;
+export type CancelarAgendamentoDto = z.infer<typeof cancelarAgendamentoSchema>;
 export type HorariosLivresResponseDto = z.infer<
   typeof horariosLivresResponseSchema
 >;

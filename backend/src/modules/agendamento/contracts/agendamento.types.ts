@@ -3,6 +3,7 @@ import type {
   AvisoAcaoAgendamento,
   AvisoAvaliacaoAgendamento,
   BloqueioAvaliacaoAgendamento,
+  CancelarAgendamentoDto,
   ConcluirAgendamentoDto,
   FusoHorarioBrasil,
   MetodoPagamentoManual,
@@ -117,6 +118,40 @@ export type ConcluirAgendamentoPersistenciaInput = {
   salaoId: string;
   ocorreuEm: Date;
   cobranca: CobrancaManualDaConclusao | undefined;
+};
+
+export type ValidarFaltaAgendamentoInput = {
+  estado: AgendamentoPersistido['estado'];
+  inicioEm: Date;
+  agora: Date;
+};
+
+export type ValidarCancelamentoAgendamentoInput = {
+  estado: AgendamentoPersistido['estado'];
+};
+
+export type MarcarFaltaAgendamentoInput = {
+  id: string;
+  salaoId: string;
+};
+
+export type MarcarFaltaAgendamentoPersistenciaInput = {
+  id: string;
+  salaoId: string;
+  ocorreuEm: Date;
+};
+
+export type CancelarAgendamentoInput = {
+  id: string;
+  salaoId: string;
+  dados: CancelarAgendamentoDto;
+};
+
+export type CancelarAgendamentoPersistenciaInput = {
+  id: string;
+  salaoId: string;
+  ocorreuEm: Date;
+  motivo: string | undefined;
 };
 
 export type ClienteDoAgendamentoPersistida = {

@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Marcar no-show</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @let detalhe = agendamento();
+
+  @if (avisoAntesDaTolerancia(); as aviso) {
+    <p class="aviso">{{ aviso }}</p>
+  }
+
+  <p class="pergunta">
+    <strong>{{ detalhe.cliente.nome }}</strong> não compareceu ao atendimento?
+  </p>
+
+  @if (temValorRetido()) {
+    <p class="sinal">
+      O valor já pago de
+      <strong>{{ valorFormatado(detalhe.valor_pago) }}</strong>
+      fica retido com o salão.
+    </p>
+  } @else {
+    <p class="sinal sinal--vazio">
+      Nenhum valor foi pago neste agendamento, então nada será retido.
+    </p>
+  }
+
+  <p class="irreversivel">Esta ação não pode ser desfeita.</p>
+
+  @if (erroExterno()) {
+    <p class="mensagem-erro">{{ erroExterno() }}</p>
+  }
+
+  <div class="acoes-formulario">
+    <ion-button
+      type="button"
+      fill="outline"
+      [disabled]="salvando()"
+      (click)="cancelarFalta()"
+    >
+      Voltar
+    </ion-button>
+
+    <ion-button
+      type="button"
+      color="danger"
+      [disabled]="salvando()"
+      (click)="confirmarFalta()"
+    >
+      {{ salvando() ? 'Marcando...' : 'Marcar no-show' }}
+    </ion-button>
+  </div>
+</ion-content>

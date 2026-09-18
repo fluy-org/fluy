@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import type {
   AgendaDiaResponseDto,
   AgendamentoDetalheResponseDto,
+  CancelarAgendamentoDto,
   ConcluirAgendamentoDto,
   ResumoAgendaResponseDto,
 } from '@fluy/schema';
@@ -72,6 +73,37 @@ export class AgendaService {
     const agendamento = await firstValueFrom(
       this.http.patch<AgendamentoDetalheResponseDto>(
         `/agendamentos/${id}/concluir`,
+        dados,
+      ),
+    );
+
+    this._agendamento.set(agendamento);
+    this.substituirNaAgendaDoDia(agendamento);
+
+    return agendamento;
+  }
+
+  async marcarFalta(id: string): Promise<AgendamentoDetalheResponseDto> {
+    const agendamento = await firstValueFrom(
+      this.http.patch<AgendamentoDetalheResponseDto>(
+        `/agendamentos/${id}/marcar-falta`,
+        {},
+      ),
+    );
+
+    this._agendamento.set(agendamento);
+    this.substituirNaAgendaDoDia(agendamento);
+
+    return agendamento;
+  }
+
+  async cancelar(
+    id: string,
+    dados: CancelarAgendamentoDto,
+  ): Promise<AgendamentoDetalheResponseDto> {
+    const agendamento = await firstValueFrom(
+      this.http.patch<AgendamentoDetalheResponseDto>(
+        `/agendamentos/${id}/cancelar`,
         dados,
       ),
     );

@@ -124,6 +124,91 @@ describe('AgendamentoValidator', () => {
       ).not.toThrow();
     });
   });
+
+  describe('validarFalta', () => {
+    const INICIO_EM = new Date('2026-09-15T13:00:00.000Z');
+
+    it('recusa marcar falta em agendamento ainda reservado', () => {
+      expect(() =>
+        validator.validarFalta({
+          estado: 'reservado',
+          inicioEm: INICIO_EM,
+          agora: new Date('2026-09-15T14:00:00.000Z'),
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it.each(['concluido', 'cancelado', 'falta'] as const)(
+      'recusa marcar falta de agendamento já encerrado em %s',
+      (estado) => {
+        expect(() =>
+          validator.validarFalta({
+            estado,
+            inicioEm: INICIO_EM,
+            agora: new Date('2026-09-15T14:00:00.000Z'),
+          }),
+        ).toThrow(ConflictException);
+      },
+    );
+
+    it('recusa marcar falta antes de o atendimento começar', () => {
+      expect(() =>
+        validator.validarFalta({
+          estado: 'agendado',
+          inicioEm: INICIO_EM,
+          agora: new Date('2026-09-15T12:59:59.000Z'),
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('aceita marcar falta no instante exato do início', () => {
+      expect(() =>
+        validator.validarFalta({
+          estado: 'agendado',
+          inicioEm: INICIO_EM,
+          agora: INICIO_EM,
+        }),
+      ).not.toThrow();
+    });
+
+    it('aceita marcar falta dentro da tolerância: o aviso não bloqueia', () => {
+      expect(() =>
+        validator.validarFalta({
+          estado: 'agendado',
+          inicioEm: INICIO_EM,
+          agora: new Date('2026-09-15T13:05:00.000Z'),
+        }),
+      ).not.toThrow();
+    });
+
+    it('aceita marcar falta bem depois do horário', () => {
+      expect(() =>
+        validator.validarFalta({
+          estado: 'agendado',
+          inicioEm: INICIO_EM,
+          agora: new Date('2026-09-16T10:00:00.000Z'),
+        }),
+      ).not.toThrow();
+    });
+  });
+
+  describe('validarCancelamento', () => {
+    it.each(['agendado', 'reservado'] as const)(
+      'aceita cancelar agendamento em %s',
+      (estado) => {
+        expect(() => validator.validarCancelamento({ estado })).not.toThrow();
+      },
+    );
+
+    it.each(['concluido', 'cancelado', 'falta'] as const)(
+      'recusa cancelar agendamento já encerrado em %s',
+      (estado) => {
+        expect(() => validator.validarCancelamento({ estado })).toThrow(
+          ConflictException,
+        );
+      },
+    );
+  });
 });
 
 function criarAvaliacao(

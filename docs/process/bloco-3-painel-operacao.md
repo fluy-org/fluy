@@ -223,7 +223,7 @@ uma fatia de tamanho normal que fecha os dois fluxos de uma vez.
 
 _Backend — no-show_
 
-- `AgendamentoNoShowService`: transição para `falta`, gravando `evento_agendamento` com `tipo = falta`.
+- `AgendamentoFaltaService`: transição para `falta`, gravando `evento_agendamento` com `tipo = falta`. O nome é `Falta`, e não `NoShow`, porque o [CLAUDE.md](../../CLAUDE.md) da raiz proíbe misturar PT e EN na mesma palavra composta; "no-show" segue como rótulo de interface.
 - Depois de `inicio_em + configuracao_salao.tolerancia_atraso_min`, a marcação é livre.
 - **Antes de a tolerância expirar, a marcação é permitida com aviso** de que o prazo ainda não passou (ambig #4, decidida — reverte a proibição que estava no fluxo 10).
 - **Antes de `inicio_em`, continua bloqueado**: marcar falta em atendimento que ainda nem começou não é atraso, é erro. Essa parte da regra do fluxo 10 não foi alterada.
@@ -233,7 +233,7 @@ _Backend — no-show_
 _Backend — cancelamento pelo salão_
 
 - `AgendamentoCancelamentoService`: transição para `cancelado`, gravando `evento_agendamento` com `tipo = cancelado`, liberando o slot imediatamente.
-- Motivo opcional, texto livre, **de registro interno — nunca exibido para a cliente**.
+- Motivo opcional, texto livre, **de registro interno — nunca exibido para a cliente**. Gravado em `evento_agendamento.motivo`, coluna adicionada por migração aditiva nesta fatia. Nenhuma tela desta fatia o exibe: quem tem tela para ele é o [Bloco 7](./bloco-7-faturamento.md) e o [Bloco 5](./bloco-5-ficha-cliente.md).
 - Cancelar agendamento em `reservado` descarta a reserva (sem sinal envolvido).
 - Cancelamento de agendamento passado é permitido, como correção de registro.
 - **Esta é a transição que o [Bloco 4](./bloco-4-cliente-final.md) reusa** para o cancelamento pela cliente, com política de autorização diferente. Ela nasce aqui como service público.
@@ -254,9 +254,10 @@ _Frontend_
 - Notificação à cliente e `.ics` de cancelamento → [6.2](./bloco-6-notificacoes.md#62-calendário-ics-e-avisos-de-alteração). O aviso "cliente será notificada" descreve o comportamento final; até o Bloco 6, nada é enviado.
 - Fora do MVP, confirmado nos fluxos: reversão de no-show, cancelamento em massa, bloqueio de cliente com N no-shows.
 
-**Decisões que precisam estar fechadas antes**
+**Decisões fechadas**
 
-- **Ambig #5** — cancelamento de agendamento passado rebate no período atual do faturamento ou reabre o período? Precisa estar fechado antes do [Bloco 7](./bloco-7-faturamento.md).
+- **Ambig #5** — **decidido: rebate no período atual, nunca reabre período fechado.** O que vale é a data do `evento_agendamento`, não a de `inicio_em`. Não era decisão nova: [`domain/agendamento.md`](../domain/agendamento.md) já enunciava a regra ao justificar a existência da tabela, e a [3.2](#32-conclusão-de-atendimento-e-pagamento-manual) já a implementou na conclusão. Registrado em [`flows/salao/08-cancelamento.md`](../flows/salao/08-cancelamento.md).
+- **Cancelamento a partir de `reservado`** — aceito no backend pelo mesmo caminho do `agendado`. A UI não muda: `acoes_permitidas` segue vazio fora de `agendado`, como a [3.1](#31-agenda-do-dia-e-detalhe-do-agendamento) fixou. Nasce pronto para os blocos 4 e 9.
 
 **Critério de conclusão**
 
@@ -265,7 +266,7 @@ incluindo: aviso ao marcar no-show antes da tolerância, sinal exibido na
 confirmação, motivo gravado e não exposto, slot liberado na hora (conferir que
 o horário volta a aparecer nos horários livres do motor).
 
-**Tamanho estimado:** ~55-65 arquivos.
+**Tamanho estimado:** ~55-65 arquivos. **Entregue em 32**, dos quais 13 novos: a 3.1 já tinha entregue os array-enums das duas ações, os rótulos, o agrupamento que tira o card da agenda ativa e — em `calcularAcoesDoAgendamento` — a regra temporal inteira do no-show.
 
 ---
 
@@ -342,12 +343,19 @@ depois dela, inclusive em paralelo com 3.2 a 3.4.
 
 Todas as transições deste bloco são API pública para os blocos 4, 5, 6 e 7.
 Convenção: **um service por transição** (`AgendamentoConclusaoService`,
-`AgendamentoNoShowService`, `AgendamentoCancelamentoService`,
+`AgendamentoFaltaService`, `AgendamentoCancelamentoService`,
 `AgendamentoRemarcacaoService`), cada um gravando o `evento_agendamento`
 correspondente. `AgendamentoService` continua responsável por criação e consulta.
 
 Motivo: o Bloco 4 reusa `cancelar()` e o Bloco 6 se pendura nos eventos.
 Service por transição evita que blocos diferentes precisem abrir o mesmo arquivo.
+
+E, mais concreto que isso: **o service estreito é uma concessão estreita de
+capacidade**. A [4.3](./bloco-4-cliente-final.md#43-meus-agendamentos-e-cancelamento)
+injeta `AgendamentoCancelamentoService` no módulo público da cliente e recebe
+só o poder de cancelar. Um service único de transições entregaria junto
+`concluir()` e `marcarFalta()` — ações do salão que a superfície pública nunca
+deve alcançar. É por isso que só o cancelamento vai em `exports`.
 
 **Só o service se divide.** A 3.2 fixou o resto: o método transacional entra em
 `AgendamentoRepository` e a regra em `AgendamentoValidator`, porque a estrutura

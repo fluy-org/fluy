@@ -1,0 +1,1 @@
+ALTER TABLE "evento_agendamento" ADD COLUMN "motivo" text;

@@ -1,6 +1,10 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import type { AcaoAgendamento, ConcluirAgendamentoDto } from '@fluy/schema';
+import type {
+  AcaoAgendamento,
+  CancelarAgendamentoDto,
+  ConcluirAgendamentoDto,
+} from '@fluy/schema';
 import {
   IonBackButton,
   IonBadge,
@@ -16,6 +20,8 @@ import {
 } from '@ionic/angular/standalone';
 import { ApiError } from '../../../../../core/errors/api-error';
 import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
+import { ConfirmacaoFaltaComponent } from '../../components/confirmacao-falta/confirmacao-falta.component';
+import { FormularioCancelamentoComponent } from '../../components/formulario-cancelamento/formulario-cancelamento.component';
 import { FormularioConclusaoComponent } from '../../components/formulario-conclusao/formulario-conclusao.component';
 import { AgendaService } from '../../services/agenda.service';
 import {
@@ -39,6 +45,8 @@ import type { EstadoPaginaDetalhe } from '../../contracts';
   styleUrls: ['./agendamento-detalhe.page.scss'],
   standalone: true,
   imports: [
+    ConfirmacaoFaltaComponent,
+    FormularioCancelamentoComponent,
     FormularioConclusaoComponent,
     HoraSalaoPipe,
     IonBackButton,
@@ -62,9 +70,11 @@ export class AgendamentoDetalhePage implements OnInit {
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
   readonly offline = signal(false);
-  readonly conclusaoAberta = signal(false);
-  readonly concluindo = signal(false);
-  readonly erroConclusao = signal<string | null>(null);
+  // O modal aberto é identificado pela própria ação que o abriu, o mesmo enum
+  // que `acionar()` recebe do contrato de `acoes_permitidas`.
+  readonly acaoAberta = signal<AcaoAgendamento | null>(null);
+  readonly executando = signal(false);
+  readonly erroAcao = signal<string | null>(null);
 
   readonly estadoPagina = computed<EstadoPaginaDetalhe>(() => {
     if (this.carregando()) {
@@ -138,59 +148,81 @@ export class AgendamentoDetalhePage implements OnInit {
     void this.carregar();
   }
 
-  // As demais ações do detalhe chegam nas fatias 3.3 e 3.4.
+  // A remarcação chega na fatia 3.4.
   acionar(acao: AcaoAgendamento): void {
-    if (acao === 'concluir') {
-      this.abrirConclusao();
-    }
-  }
-
-  abrirConclusao(): void {
-    this.erroConclusao.set(null);
-    this.conclusaoAberta.set(true);
-  }
-
-  fecharConclusao(): void {
-    if (this.concluindo()) {
+    if (acao === 'remarcar') {
       return;
     }
 
-    this.conclusaoAberta.set(false);
+    this.erroAcao.set(null);
+    this.acaoAberta.set(acao);
   }
 
-  aoFecharConclusao(): void {
+  fecharAcao(): void {
+    if (this.executando()) {
+      return;
+    }
+
+    this.acaoAberta.set(null);
+  }
+
+  aoFecharAcao(): void {
     // Sincroniza o signal quando o usuário fecha o modal por gesto ou backdrop.
-    // Sem isso, um fechamento durante o envio deixaria o signal aberto e o
-    // botão de concluir pararia de reabrir o modal.
-    this.erroConclusao.set(null);
-    this.conclusaoAberta.set(false);
+    // Sem isso, um fechamento durante o envio deixaria o signal preenchido e o
+    // botão da ação pararia de reabrir o modal.
+    this.erroAcao.set(null);
+    this.acaoAberta.set(null);
   }
 
-  async confirmarConclusao(dados: ConcluirAgendamentoDto): Promise<void> {
+  confirmarConclusao(dados: ConcluirAgendamentoDto): Promise<void> {
+    return this.executarAcao(
+      (id) => this.agendaService.concluir(id, dados),
+      'Sem conexão. A conclusão não foi registrada.',
+    );
+  }
+
+  confirmarFalta(): Promise<void> {
+    return this.executarAcao(
+      (id) => this.agendaService.marcarFalta(id),
+      'Sem conexão. O no-show não foi registrado.',
+    );
+  }
+
+  confirmarCancelamento(dados: CancelarAgendamentoDto): Promise<void> {
+    return this.executarAcao(
+      (id) => this.agendaService.cancelar(id, dados),
+      'Sem conexão. O cancelamento não foi registrado.',
+    );
+  }
+
+  private async executarAcao(
+    operacao: (id: string) => Promise<unknown>,
+    mensagemOffline: string,
+  ): Promise<void> {
     const id = this.agendamento()?.id;
 
     if (!id) {
       return;
     }
 
-    this.concluindo.set(true);
-    this.erroConclusao.set(null);
+    this.executando.set(true);
+    this.erroAcao.set(null);
 
     try {
-      await this.agendaService.concluir(id, dados);
-      this.conclusaoAberta.set(false);
+      await operacao(id);
+      this.acaoAberta.set(null);
     } catch (error) {
       if (!(error instanceof ApiError)) {
         throw error;
       }
 
-      this.erroConclusao.set(
-        error.status === 0
-          ? 'Sem conexão. A conclusão não foi registrada.'
-          : error.message,
+      // Status 0 é falha de rede: o painel bloqueia a operação em vez de
+      // bufferizar, então a mensagem diz que nada foi gravado.
+      this.erroAcao.set(
+        error.status === 0 ? mensagemOffline : error.message,
       );
     } finally {
-      this.concluindo.set(false);
+      this.executando.set(false);
     }
   }
 

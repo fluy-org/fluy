@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, uuid, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, text } from 'drizzle-orm/pg-core';
 import { agendamento } from '@schema/agendamento/agendamento.table.js';
 import type { TipoEventoAgendamento } from './evento_agendamento.enums.js';
 
@@ -12,6 +12,8 @@ export const eventoAgendamento = pgTable('evento_agendamento', {
   ocorreu_em: timestamp('ocorreu_em', { withTimezone: true })
     .notNull()
     .defaultNow(),
+  // Registro interno do salão. Nunca exibido para a cliente.
+  motivo: text('motivo'),
 });
 
 export const eventoAgendamentoRelations = relations(eventoAgendamento, ({ one }) => ({
