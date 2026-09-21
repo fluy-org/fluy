@@ -1,0 +1,37 @@
+@if (carregando()) {
+  <div class="horarios-feedback">
+    <ion-spinner></ion-spinner>
+    <span>Buscando horários...</span>
+  </div>
+} @else if (horarios().length > 0) {
+  <div class="horarios-grid" aria-label="Horários disponíveis">
+    @for (horario of horarios(); track horario.hora_inicio) {
+      <ion-button
+        type="button"
+        fill="outline"
+        size="small"
+        [class.horario-selecionado]="horarioSelecionado() === horario.hora_inicio"
+        (click)="escolherHorario(horario.hora_inicio)"
+      >
+        {{ horario.hora_inicio }}
+      </ion-button>
+    }
+  </div>
+} @else if (!desabilitado()) {
+  <ion-text color="medium">
+    <p class="mensagem-vazia">
+      Nenhum horário sugerido nesta data. Você ainda pode informar um horário de
+      encaixe abaixo.
+    </p>
+  </ion-text>
+}
+
+<ion-input
+  class="horario-manual"
+  type="time"
+  label="Outro horário ou encaixe"
+  labelPlacement="stacked"
+  [value]="horarioSelecionado()"
+  [disabled]="desabilitado()"
+  (ionChange)="escolherHorarioManual($event.detail.value)"
+></ion-input>

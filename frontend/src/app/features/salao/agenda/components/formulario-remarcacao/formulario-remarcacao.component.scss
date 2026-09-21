@@ -1,0 +1,65 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+ion-content {
+  --background: var(--fluy-color-background);
+}
+
+.atual {
+  padding: var(--fluy-space-3);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-md);
+  background: var(--fluy-color-surface);
+}
+
+.atual__rotulo {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--fluy-color-muted);
+}
+
+.atual__valor {
+  margin: var(--fluy-space-1) 0 0;
+  font-weight: 600;
+}
+
+ion-input[type='date'] {
+  margin-top: var(--fluy-space-4);
+}
+
+.resumo {
+  margin-top: var(--fluy-space-4);
+  padding: var(--fluy-space-3);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-md);
+  background: var(--fluy-color-surface);
+}
+
+.resumo--alerta {
+  border-color: var(--fluy-color-warning);
+}
+
+.resumo__linha {
+  margin: 0 0 var(--fluy-space-1);
+}
+
+.resumo__aviso {
+  margin: var(--fluy-space-2) 0 0;
+  font-size: 0.85rem;
+  color: var(--fluy-color-muted);
+}
+
+
+.acoes-formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fluy-space-3);
+  margin-top: var(--fluy-space-4);
+}
+
+.mensagem-erro {
+  margin: var(--fluy-space-3) 0 0;
+  color: var(--fluy-color-danger);
+}

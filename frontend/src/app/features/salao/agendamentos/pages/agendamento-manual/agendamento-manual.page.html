@@ -88,43 +88,13 @@
               (ionChange)="carregarHorarios()"
             ></ion-input>
 
-            @if (carregandoHorarios()) {
-              <div class="horarios-feedback">
-                <ion-spinner></ion-spinner>
-                <span>Buscando horários...</span>
-              </div>
-            } @else if (horarios().length > 0) {
-              <div class="horarios-grid" aria-label="Horários disponíveis">
-                @for (horario of horarios(); track horario.hora_inicio) {
-                  <ion-button
-                    type="button"
-                    fill="outline"
-                    size="small"
-                    [class.horario-selecionado]="formulario.controls.hora_inicio.value === horario.hora_inicio"
-                    (click)="selecionarHorario(horario.hora_inicio)"
-                  >
-                    {{ horario.hora_inicio }}
-                  </ion-button>
-                }
-              </div>
-            } @else if (formulario.controls.procedimento_id.value && formulario.controls.data.value) {
-              <ion-text color="medium">
-                <p class="mensagem-vazia">
-                  Nenhum horário sugerido nesta data. Você ainda pode informar
-                  um horário de encaixe abaixo.
-                </p>
-              </ion-text>
-            }
-
-            <ion-input
-              class="horario-manual"
-              formControlName="hora_inicio"
-              type="time"
-              label="Outro horário ou encaixe"
-              labelPlacement="stacked"
-              [disabled]="!formulario.controls.procedimento_id.value || !formulario.controls.data.value"
-              (ionChange)="avaliarHorarioSelecionado()"
-            ></ion-input>
+            <app-seletor-horario
+              [horarios]="horarios()"
+              [horarioSelecionado]="formulario.controls.hora_inicio.value"
+              [carregando]="carregandoHorarios()"
+              [desabilitado]="!formulario.controls.procedimento_id.value || !formulario.controls.data.value"
+              (escolher)="selecionarHorario($event)"
+            ></app-seletor-horario>
 
             @if (avaliacao(); as resultado) {
               <div class="avaliacao" [class.avaliacao-alerta]="resultado.status === 'requer_confirmacao'">
@@ -133,10 +103,10 @@
                 </ion-badge>
 
                 @for (aviso of resultado.avisos; track aviso) {
-                  <p>{{ aviso }}</p>
+                  <p>{{ aviso | rotuloAvaliacao }}</p>
                 }
                 @for (bloqueio of resultado.bloqueios; track bloqueio) {
-                  <p>{{ bloqueio }}</p>
+                  <p>{{ bloqueio | rotuloAvaliacao }}</p>
                 }
               </div>
             }
@@ -156,20 +126,12 @@
         }
 
         @if (confirmacaoExigida()) {
-          <ion-card class="confirmation-card">
-            <ion-card-content>
-              <h2>Confirmar encaixe?</h2>
-              <p>O horário possui avisos. Confirme para continuar mesmo assim.</p>
-              <div class="confirmation-actions">
-                <ion-button type="button" fill="outline" (click)="cancelarConfirmacao()">
-                  Voltar
-                </ion-button>
-                <ion-button type="button" color="warning" (click)="confirmarExcecoes()">
-                  Confirmar encaixe
-                </ion-button>
-              </div>
-            </ion-card-content>
-          </ion-card>
+          <app-confirmacao-encaixe
+            acao="continuar"
+            [avisos]="avaliacao()?.avisos ?? []"
+            (confirmar)="confirmarExcecoes()"
+            (voltar)="cancelarConfirmacao()"
+          ></app-confirmacao-encaixe>
         }
 
         <div class="form-actions">

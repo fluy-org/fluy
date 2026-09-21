@@ -1,0 +1,37 @@
+.horarios-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fluy-space-3);
+  min-height: 96px;
+}
+
+.horarios-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fluy-space-2);
+  margin-top: var(--fluy-space-4);
+}
+
+.horarios-grid ion-button {
+  margin: 0;
+}
+
+.horario-selecionado {
+  --background: var(--fluy-color-primary);
+  --color: var(--fluy-color-primary-contrast);
+}
+
+.horario-manual {
+  margin-top: var(--fluy-space-4);
+}
+
+.mensagem-vazia {
+  margin: var(--fluy-space-3) 0 0;
+}
+
+@media (min-width: 768px) {
+  .horarios-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}

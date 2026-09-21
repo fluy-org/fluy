@@ -42,6 +42,7 @@ export const BLOQUEIO_AVALIACAO_AGENDAMENTO = [
   'fora_da_grade',
   'sem_profissional_disponivel',
   'cruza_meia_noite',
+  'dia_fechado',
 ] as const;
 export type BloqueioAvaliacaoAgendamento =
   (typeof BLOQUEIO_AVALIACAO_AGENDAMENTO)[number];

@@ -2,12 +2,14 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import type {
   AcaoAgendamento,
+  AvaliacaoHorarioAgendamentoResponseDto,
   CancelarAgendamentoDto,
   ConcluirAgendamentoDto,
+  HorariosLivresResponseDto,
+  RemarcarAgendamentoDto,
 } from '@fluy/schema';
 import {
   IonBackButton,
-  IonBadge,
   IonButton,
   IonButtons,
   IonContent,
@@ -19,24 +21,19 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { ApiError } from '../../../../../core/errors/api-error';
-import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
+import { DetalheAgendamentoComponent } from '../../components/detalhe-agendamento/detalhe-agendamento.component';
 import { ConfirmacaoFaltaComponent } from '../../components/confirmacao-falta/confirmacao-falta.component';
 import { FormularioCancelamentoComponent } from '../../components/formulario-cancelamento/formulario-cancelamento.component';
 import { FormularioConclusaoComponent } from '../../components/formulario-conclusao/formulario-conclusao.component';
+import { FormularioRemarcacaoComponent } from '../../components/formulario-remarcacao/formulario-remarcacao.component';
 import { AgendaService } from '../../services/agenda.service';
 import {
   ACOES_DO_ATENDIMENTO,
   ACOES_SEM_ATENDIMENTO,
   ESTILO_ACAO_AGENDAMENTO,
-  ESTILO_ESTADO_AGENDAMENTO,
   ROTULO_AVISO_ACAO_AGENDAMENTO,
 } from '../../agenda-data';
-import {
-  formatarDataPorExtenso,
-  formatarDuracao,
-  formatarValor,
-  formatarWhatsapp,
-} from '../../agenda-utils';
+
 import type { EstadoPaginaDetalhe } from '../../contracts';
 
 @Component({
@@ -46,11 +43,11 @@ import type { EstadoPaginaDetalhe } from '../../contracts';
   standalone: true,
   imports: [
     ConfirmacaoFaltaComponent,
+    DetalheAgendamentoComponent,
     FormularioCancelamentoComponent,
     FormularioConclusaoComponent,
-    HoraSalaoPipe,
-    IonBackButton,
-    IonBadge,
+    FormularioRemarcacaoComponent,
+      IonBackButton,
     IonButton,
     IonButtons,
     IonContent,
@@ -75,6 +72,12 @@ export class AgendamentoDetalhePage implements OnInit {
   readonly acaoAberta = signal<AcaoAgendamento | null>(null);
   readonly executando = signal(false);
   readonly erroAcao = signal<string | null>(null);
+  readonly horariosDaRemarcacao = signal<HorariosLivresResponseDto['horarios']>(
+    [],
+  );
+  readonly carregandoHorarios = signal(false);
+  readonly avaliacaoDaRemarcacao =
+    signal<AvaliacaoHorarioAgendamentoResponseDto | null>(null);
 
   readonly estadoPagina = computed<EstadoPaginaDetalhe>(() => {
     if (this.carregando()) {
@@ -86,40 +89,6 @@ export class AgendamentoDetalhePage implements OnInit {
     }
 
     return this.erro() ? 'erro' : 'detalhe';
-  });
-
-  readonly estilo = computed(() => {
-    const agendamento = this.agendamento();
-
-    return agendamento
-      ? ESTILO_ESTADO_AGENDAMENTO[agendamento.estado]
-      : undefined;
-  });
-
-  readonly duracao = computed(() => {
-    const agendamento = this.agendamento();
-
-    return agendamento ? formatarDuracao(agendamento.duracao_min) : '';
-  });
-
-  readonly dataPorExtenso = computed(() => {
-    const agendamento = this.agendamento();
-
-    if (!agendamento) {
-      return '';
-    }
-
-    const dataCivil = new Intl.DateTimeFormat('en-CA', {
-      timeZone: agendamento.fuso_horario,
-    }).format(new Date(agendamento.inicio_em));
-
-    return formatarDataPorExtenso(dataCivil);
-  });
-
-  readonly whatsapp = computed(() => {
-    const agendamento = this.agendamento();
-
-    return agendamento ? formatarWhatsapp(agendamento.cliente.whatsapp) : '';
   });
 
   readonly temAcoes = computed(
@@ -148,10 +117,11 @@ export class AgendamentoDetalhePage implements OnInit {
     void this.carregar();
   }
 
-  // A remarcação chega na fatia 3.4.
   acionar(acao: AcaoAgendamento): void {
     if (acao === 'remarcar') {
-      return;
+      this.dataDaRemarcacao.set('');
+      this.horariosDaRemarcacao.set([]);
+      this.avaliacaoDaRemarcacao.set(null);
     }
 
     this.erroAcao.set(null);
@@ -195,6 +165,67 @@ export class AgendamentoDetalhePage implements OnInit {
     );
   }
 
+  confirmarRemarcacao(dados: RemarcarAgendamentoDto): Promise<void> {
+    return this.executarAcao(
+      (id) => this.agendaService.remarcar(id, dados),
+      'Sem conexão. A remarcação não foi registrada.',
+    );
+  }
+
+  async carregarHorariosDaRemarcacao(data: string): Promise<void> {
+    const id = this.agendamento()?.id;
+
+    this.dataDaRemarcacao.set(data);
+    this.horariosDaRemarcacao.set([]);
+    this.avaliacaoDaRemarcacao.set(null);
+
+    if (!id) {
+      return;
+    }
+
+    this.carregandoHorarios.set(true);
+    this.erroAcao.set(null);
+
+    try {
+      const resposta = await this.agendaService.getHorariosLivresParaRemarcacao(
+        id,
+        { data },
+      );
+
+      this.horariosDaRemarcacao.set(resposta.horarios);
+    } catch (error) {
+      this.tratarErroDaAcao(error, 'Sem conexão. Os horários não foram carregados.');
+    } finally {
+      this.carregandoHorarios.set(false);
+    }
+  }
+
+  async avaliarHorarioDaRemarcacao(horaInicio: string): Promise<void> {
+    const id = this.agendamento()?.id;
+    const data = this.dataDaRemarcacao();
+
+    this.avaliacaoDaRemarcacao.set(null);
+
+    if (!id || !data || !horaInicio) {
+      return;
+    }
+
+    this.erroAcao.set(null);
+
+    try {
+      this.avaliacaoDaRemarcacao.set(
+        await this.agendaService.avaliarHorarioParaRemarcacao(id, {
+          data,
+          hora_inicio: horaInicio,
+        }),
+      );
+    } catch (error) {
+      this.tratarErroDaAcao(error, 'Sem conexão. O horário não foi avaliado.');
+    }
+  }
+
+  private readonly dataDaRemarcacao = signal('');
+
   private async executarAcao(
     operacao: (id: string) => Promise<unknown>,
     mensagemOffline: string,
@@ -212,22 +243,20 @@ export class AgendamentoDetalhePage implements OnInit {
       await operacao(id);
       this.acaoAberta.set(null);
     } catch (error) {
-      if (!(error instanceof ApiError)) {
-        throw error;
-      }
-
-      // Status 0 é falha de rede: o painel bloqueia a operação em vez de
-      // bufferizar, então a mensagem diz que nada foi gravado.
-      this.erroAcao.set(
-        error.status === 0 ? mensagemOffline : error.message,
-      );
+      this.tratarErroDaAcao(error, mensagemOffline);
     } finally {
       this.executando.set(false);
     }
   }
 
-  valorFormatado(valor: number): string {
-    return formatarValor(valor);
+  private tratarErroDaAcao(error: unknown, mensagemOffline: string): void {
+    if (!(error instanceof ApiError)) {
+      throw error;
+    }
+
+    // Status 0 é falha de rede: o painel bloqueia a operação em vez de
+    // bufferizar, então a mensagem diz que nada foi gravado.
+    this.erroAcao.set(error.status === 0 ? mensagemOffline : error.message);
   }
 
   private montarAcoes(ordemDeExibicao: AcaoAgendamento[]) {

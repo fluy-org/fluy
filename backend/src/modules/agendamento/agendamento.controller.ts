@@ -27,13 +27,16 @@ import {
   AgendamentoResponseDto,
   AvaliacaoHorarioAgendamentoResponseDto,
   AvaliarHorarioAgendamentoQueryDto,
+  AvaliarHorarioRemarcacaoQueryDto,
   CancelarAgendamentoRequestDto,
   ConcluirAgendamentoRequestDto,
   CriarAgendamentoRequestDto,
   HorariosLivresResponseDto,
   ListarAgendaDiaQueryDto,
   ListarHorariosLivresQueryDto,
+  ListarHorariosLivresRemarcacaoQueryDto,
   ListarResumoAgendaQueryDto,
+  RemarcarAgendamentoRequestDto,
   ResumoAgendaResponseDto,
 } from '@/modules/agendamento/contracts';
 import {
@@ -47,6 +50,7 @@ import {
 import { AgendamentoCancelamentoService } from '@/modules/agendamento/agendamento-cancelamento.service';
 import { AgendamentoConclusaoService } from '@/modules/agendamento/agendamento-conclusao.service';
 import { AgendamentoFaltaService } from '@/modules/agendamento/agendamento-falta.service';
+import { AgendamentoRemarcacaoService } from '@/modules/agendamento/agendamento-remarcacao.service';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 
 @ApiTags('Agendamentos')
@@ -58,6 +62,7 @@ export class AgendamentoController {
     private readonly agendamentoConclusaoService: AgendamentoConclusaoService,
     private readonly agendamentoFaltaService: AgendamentoFaltaService,
     private readonly agendamentoCancelamentoService: AgendamentoCancelamentoService,
+    private readonly agendamentoRemarcacaoService: AgendamentoRemarcacaoService,
   ) {}
 
   @Get()
@@ -158,6 +163,65 @@ export class AgendamentoController {
   ) {
     return toResumoAgendaResponse(
       await this.agendamentoService.listarResumoDoPeriodo({
+        salaoId: tenant.salaoId,
+        dados,
+      }),
+    );
+  }
+
+  @Get(':id/horarios-livres')
+  @ApiOperation({
+    summary: 'Lista horários livres para remarcar um agendamento',
+  })
+  @ApiOkResponse({
+    description:
+      'Horários livres no fuso do salão, com a duração congelada do agendamento e sem a ocupação dele.',
+    type: HorariosLivresResponseDto.Output,
+  })
+  @ApiBadRequestResponse({ description: 'Parâmetros de consulta inválidos.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Agendamento, salão ou configuração não encontrados.',
+  })
+  async listarHorariosLivresParaRemarcacao(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+    @Query() dados: ListarHorariosLivresRemarcacaoQueryDto,
+  ) {
+    return toHorariosLivresResponse(
+      await this.agendamentoRemarcacaoService.listarHorariosLivres({
+        id,
+        salaoId: tenant.salaoId,
+        dados,
+      }),
+    );
+  }
+
+  @Get(':id/avaliacao')
+  @ApiOperation({
+    summary: 'Avalia um horário alvo antes de remarcar o agendamento',
+  })
+  @ApiOkResponse({
+    description: 'Disponibilidade, avisos e bloqueios do horário alvo.',
+    type: AvaliacaoHorarioAgendamentoResponseDto.Output,
+  })
+  @ApiBadRequestResponse({ description: 'Parâmetros de consulta inválidos.' })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Agendamento, salão ou configuração não encontrados.',
+  })
+  async avaliarHorarioParaRemarcacao(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+    @Query() dados: AvaliarHorarioRemarcacaoQueryDto,
+  ) {
+    return toAvaliacaoHorarioResponse(
+      await this.agendamentoRemarcacaoService.avaliarHorario({
+        id,
         salaoId: tenant.salaoId,
         dados,
       }),
@@ -312,6 +376,42 @@ export class AgendamentoController {
   ) {
     return toAgendamentoDetalheResponse(
       await this.agendamentoCancelamentoService.cancelar({
+        id,
+        salaoId: tenant.salaoId,
+        dados,
+      }),
+    );
+  }
+
+  @Patch(':id/remarcar')
+  @ApiOperation({
+    summary: 'Move o agendamento para outra data e hora, no mesmo registro',
+  })
+  @ApiOkResponse({
+    description: 'Agendamento remarcado, com valores e ações atualizados.',
+    type: AgendamentoDetalheResponseDto.Output,
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Identificador ou dados inválidos, horário no passado, horário igual ao atual, ou exceções não confirmadas.',
+  })
+  @ApiConflictResponse({
+    description:
+      'O agendamento já foi encerrado ou o horário deixou de estar disponível.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Agendamento, salão ou configuração não encontrados.',
+  })
+  async remarcar(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @TenantFromOwner() tenant: TenantContext,
+    @Body() dados: RemarcarAgendamentoRequestDto,
+  ) {
+    return toAgendamentoDetalheResponse(
+      await this.agendamentoRemarcacaoService.remarcar({
         id,
         salaoId: tenant.salaoId,
         dados,

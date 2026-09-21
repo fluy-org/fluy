@@ -67,6 +67,7 @@ export class AgendamentoService {
         dadosParaAvaliacao,
         data: dados.data,
         horaInicio: '00:00',
+        duracaoMin: dadosParaAvaliacao.procedimento.duracao_min,
       });
 
     return {
@@ -142,6 +143,7 @@ export class AgendamentoService {
 
     return {
       ...this.acrescentarValores(agendamento),
+      remarcado_vezes: agendamento.remarcado_vezes,
       fusoHorario,
       ...calcularAcoesDoAgendamento({
         estado: agendamento.estado,
@@ -170,6 +172,7 @@ export class AgendamentoService {
         dadosParaAvaliacao,
         data: dados.data,
         horaInicio: dados.hora_inicio,
+        duracaoMin: dadosParaAvaliacao.procedimento.duracao_min,
       }),
     );
   }
@@ -196,6 +199,7 @@ export class AgendamentoService {
         dadosParaAvaliacao,
         data: dados.data,
         horaInicio: dados.hora_inicio,
+        duracaoMin: dadosParaAvaliacao.procedimento.duracao_min,
       }),
     );
     this.agendamentoValidator.validarCriacao({
@@ -227,19 +231,21 @@ export class AgendamentoService {
     return agendamento;
   }
 
-  private montarDadosParaAvaliarDisponibilidade({
+  montarDadosParaAvaliarDisponibilidade({
     dadosParaAvaliacao,
     data,
     horaInicio,
+    duracaoMin,
   }: {
     dadosParaAvaliacao: DadosParaAvaliacaoHorario;
     data: string;
     horaInicio: string;
+    duracaoMin: number;
   }): AvaliarHorarioAgendamentoInput {
     return {
       data,
       horaInicio,
-      duracaoMin: dadosParaAvaliacao.procedimento.duracao_min,
+      duracaoMin,
       fusoHorario: dadosParaAvaliacao.fusoHorario,
       granularidadeMin: dadosParaAvaliacao.configuracao.granularidade_min,
       antecedenciaMinHoras:
@@ -252,14 +258,16 @@ export class AgendamentoService {
     };
   }
 
-  private async buscarDadosParaAvaliacaoHorario({
+  async buscarDadosParaAvaliacaoHorario({
     salaoId,
     procedimentoId,
     data,
+    ignorarAgendamentoId,
   }: {
     salaoId: string;
     procedimentoId: string;
     data: string;
+    ignorarAgendamentoId?: string;
   }): Promise<DadosParaAvaliacaoHorario> {
     const [fusoHorario, configuracao, procedimento, profissionais] =
       await Promise.all([
@@ -278,6 +286,7 @@ export class AgendamentoService {
       salaoId,
       data,
       fusoHorario,
+      ignorarAgendamentoId,
     });
 
     return {

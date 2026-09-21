@@ -120,14 +120,14 @@ na lista do dia; o calendário é navegação.
 
 **O que deve existir**
 
-*Backend*
+_Backend_
 
 - Rota de resumo do período: `de` e `ate` em data civil, resposta com cada dia que tem agendamento e **quantos**.
 - O agrupamento é por **data civil no fuso do salão**, não pela data UTC de `inicio_em`.
 - Conta todos os estados, sem filtro — igual à listagem da 3.1.
 - Filtro por `salao_id` na query.
 
-*Frontend*
+_Frontend_
 
 - Componente de calendário mensal próprio, em grade de dias. **Não dá para usar `ion-datetime`**: o `DatetimeHighlightStyle` do Ionic só aceita `textColor`, `backgroundColor` e `border`, então não há como desenhar a contagem na célula do dia.
 - Cada dia exibe a quantidade de agendamentos; dia vazio fica visivelmente apagado.
@@ -136,7 +136,7 @@ na lista do dia; o calendário é navegação.
 - O dia atualmente exibido na agenda aparece destacado.
 - As setas de dia anterior/próximo da 3.1 continuam como estão.
 
-*Shared schema*
+_Shared schema_
 
 - Schemas Zod de query e resposta em `agendamento.schema.ts`.
 
@@ -212,7 +212,7 @@ mapper, schema e DTO de resposta próprios.
 
 ### 3.3 Encerramentos sem atendimento: no-show e cancelamento
 
-- [ ] Transições `agendado` → `falta` e `agendado` → `cancelado` pelo salão. — **🟣 Rudney** — [DEP: 3.2](#32-conclusão-de-atendimento-e-pagamento-manual) `[BLOQ:gateway — reembolso automático fica para 9.3]`
+- [x] Transições `agendado` → `falta` e `agendado` → `cancelado` pelo salão. — **🟣 Rudney** — [DEP: 3.2](#32-conclusão-de-atendimento-e-pagamento-manual) `[BLOQ:gateway — reembolso automático fica para 9.3]`
 
 **Por que as duas juntas:** são a mesma mecânica (transição terminal +
 confirmação + `evento_agendamento` + liberação do slot) sobre o padrão que a
@@ -272,7 +272,7 @@ o horário volta a aparecer nos horários livres do motor).
 
 ### 3.4 Remarcação
 
-- [ ] Mover um agendamento para outra data/hora, mantendo o mesmo registro. — **🟣 Rudney** — [DEP: 3.3](#33-encerramentos-sem-atendimento-no-show-e-cancelamento)
+- [x] Mover um agendamento para outra data/hora, mantendo o mesmo registro. — **🟣 Rudney** — [DEP: 3.3](#33-encerramentos-sem-atendimento-no-show-e-cancelamento)
 
 **O que deve existir**
 
@@ -283,10 +283,10 @@ _Backend_
 - Reusa o cálculo de disponibilidade do motor ([2.2b](./bloco-2-motor.md#22b-motor-de-agendamento)) para oferecer os horários válidos, considerando a **duração congelada do agendamento**, não a duração atual do catálogo.
 - Revalida no momento de confirmar: slot livre, dentro de janela, sem conflito. Slot alvo com `reservado` pendente bloqueia.
 - Libera o slot antigo e ocupa o novo imediatamente.
-- Preserva cliente, procedimento, duração, preço total, sinal pago, valor pendente.
-- Remarcar para o passado é bloqueado. Remarcar para o mesmo horário é no-op ou erro de validação.
+- Preserva cliente, profissional, procedimento, duração, preço total, sinal pago, valor pendente. A avaliação do novo horário considera só a profissional do agendamento, então a remarcação nunca troca de profissional.
+- Remarcar para o passado é bloqueado. Remarcar para o mesmo horário é **erro de validação** (decidido): no-op silencioso gravaria um evento `remarcado` sem remarcação, e essa contagem é o `SEQUENCE` do `.ics`.
 - **Encaixe fora da janela é permitido, com aviso** (ambig #2, decidida) — vale igual aqui e no agendamento manual ([2.2a](./bloco-2-motor.md#22a-tela-de-agendamento-manual)).
-- Data com override "fechado" **continua bloqueando** — é diferente de furar a janela: ali o salão decidiu conscientemente não atender.
+- Data com override "fechado" **bloqueia** — é diferente de furar a janela: ali o salão decidiu conscientemente não atender. **O bloqueio nasceu aqui:** o motor tratava dia fechado como encaixe fora da janela, porque as duas situações chegavam como lista de janelas vazia. A correção entrou no motor, com o bloqueio novo `dia_fechado`, e por isso **vale também para a criação manual da [2.2a](./bloco-2-motor.md#22a-tela-de-agendamento-manual)**.
 
 _Frontend_
 
@@ -307,7 +307,14 @@ mudou, que o slot antigo voltou a aparecer nos horários livres, que o novo est�
 ocupado, que sinal e valores foram preservados, e que uma segunda remarcação
 incrementa a contagem de eventos `remarcado`.
 
-**Tamanho estimado:** ~50-60 arquivos.
+**Tamanho estimado:** ~50-60 arquivos. **Entregue em 48**, dos quais 16 novos: a
+3.1 já tinha entregue a ação `remarcar` no contrato, o rótulo e o botão do
+detalhe, e a resposta reusa `buscarDetalhe`. Em compensação a fatia absorveu
+consertos fora do escopo declarado: o bloqueio de dia fechado no motor, que muda
+a 2.2a; a extração do seletor de horário e do card de confirmação de encaixe para
+`shared/components/`, que a 2.2a mantinha inline e duplicados; o pipe de rótulos
+da avaliação, que tirou enum cru da tela da 2.2a; e a quebra do detalhe do
+agendamento em página e componente de exibição.
 
 ---
 

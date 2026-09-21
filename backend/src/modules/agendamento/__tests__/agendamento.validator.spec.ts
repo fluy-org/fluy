@@ -209,6 +209,105 @@ describe('AgendamentoValidator', () => {
       },
     );
   });
+
+  describe('validarRemarcacao', () => {
+    const INICIO_ATUAL = new Date('2026-09-15T13:00:00.000Z');
+    const INICIO_NOVO = new Date('2026-09-16T13:00:00.000Z');
+    const entrada = {
+      estado: 'agendado' as const,
+      inicioEmAtual: INICIO_ATUAL,
+      inicioEmNovo: INICIO_NOVO,
+      avaliacao: criarAvaliacao({}),
+      confirmarExcecoes: false,
+    };
+
+    it('aceita mover para horário livre dentro da janela', () => {
+      expect(() => validator.validarRemarcacao(entrada)).not.toThrow();
+    });
+
+    it('recusa remarcar agendamento ainda reservado', () => {
+      expect(() =>
+        validator.validarRemarcacao({ ...entrada, estado: 'reservado' }),
+      ).toThrow(BadRequestException);
+    });
+
+    it.each(['concluido', 'cancelado', 'falta'] as const)(
+      'recusa remarcar agendamento já encerrado em %s',
+      (estado) => {
+        expect(() =>
+          validator.validarRemarcacao({ ...entrada, estado }),
+        ).toThrow(ConflictException);
+      },
+    );
+
+    it('recusa remarcar para o horário que o agendamento já tem', () => {
+      expect(() =>
+        validator.validarRemarcacao({
+          ...entrada,
+          inicioEmNovo: new Date(INICIO_ATUAL),
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('recusa remarcar para o passado mesmo com exceções confirmadas', () => {
+      expect(() =>
+        validator.validarRemarcacao({
+          ...entrada,
+          avaliacao: criarAvaliacao({
+            status: 'requer_confirmacao',
+            avisos: ['inicio_passado'],
+          }),
+          confirmarExcecoes: true,
+        }),
+      ).toThrow(BadRequestException);
+    });
+
+    it('recusa horário sem profissional livre com conflito', () => {
+      expect(() =>
+        validator.validarRemarcacao({
+          ...entrada,
+          avaliacao: criarAvaliacao({
+            status: 'indisponivel',
+            bloqueios: ['sem_profissional_disponivel'],
+          }),
+        }),
+      ).toThrow(ConflictException);
+    });
+
+    it.each(['dia_fechado', 'fora_da_grade', 'cruza_meia_noite'] as const)(
+      'recusa horário bloqueado por %s',
+      (bloqueio) => {
+        expect(() =>
+          validator.validarRemarcacao({
+            ...entrada,
+            avaliacao: criarAvaliacao({
+              status: 'indisponivel',
+              bloqueios: [bloqueio],
+            }),
+            confirmarExcecoes: true,
+          }),
+        ).toThrow(BadRequestException);
+      },
+    );
+
+    it('exige confirmação para encaixe fora da janela', () => {
+      const avaliacao = criarAvaliacao({
+        status: 'requer_confirmacao',
+        avisos: ['fora_janela'],
+      });
+
+      expect(() =>
+        validator.validarRemarcacao({ ...entrada, avaliacao }),
+      ).toThrow(BadRequestException);
+      expect(() =>
+        validator.validarRemarcacao({
+          ...entrada,
+          avaliacao,
+          confirmarExcecoes: true,
+        }),
+      ).not.toThrow();
+    });
+  });
 });
 
 function criarAvaliacao(

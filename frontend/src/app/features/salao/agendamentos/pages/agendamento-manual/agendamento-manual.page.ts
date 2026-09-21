@@ -27,6 +27,9 @@ import {
   IonText,
 } from '@ionic/angular/standalone';
 import { ApiError } from '@app/core/errors/api-error';
+import { ConfirmacaoEncaixeComponent } from '@app/shared/components/confirmacao-encaixe/confirmacao-encaixe.component';
+import { SeletorHorarioComponent } from '@app/shared/components/seletor-horario/seletor-horario.component';
+import { RotuloAvaliacaoPipe } from '@app/shared/pipes/rotulo-avaliacao.pipe';
 import { AgendamentosService } from '@app/features/salao/agendamentos/services/agendamentos.service';
 import { ClientesService } from '@app/features/salao/clientes/services/clientes.service';
 import { ProcedimentosService } from '@app/features/salao/procedimentos/services/procedimentos.service';
@@ -40,7 +43,9 @@ import { zodValidator } from '@app/shared/utils/zod-validator';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ConfirmacaoEncaixeComponent,
     HeaderComponent,
+    SeletorHorarioComponent,
     IonBadge,
     IonButton,
     IonCard,
@@ -53,6 +58,7 @@ import { zodValidator } from '@app/shared/utils/zod-validator';
     IonSpinner,
     IonText,
     ReactiveFormsModule,
+    RotuloAvaliacaoPipe,
   ],
 })
 export class AgendamentoManualPage implements OnInit {

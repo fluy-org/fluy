@@ -39,52 +39,9 @@
 
     @case ('detalhe') {
       @if (agendamento(); as detalhe) {
-        <section class="destaque" [style.--cor-estado]="estilo()?.corCss">
-          <p class="destaque__data">{{ dataPorExtenso() }}</p>
-          <div class="destaque__linha">
-            <span class="destaque__hora">
-              {{ detalhe.inicio_em | horaSalao: detalhe.fuso_horario }}
-            </span>
-            <ion-badge [color]="estilo()?.cor">{{ estilo()?.rotulo }}</ion-badge>
-          </div>
-          <p class="destaque__duracao">{{ duracao() }} de atendimento</p>
-        </section>
-
-        <section class="bloco">
-          <h2 class="bloco__titulo">Cliente</h2>
-          <p class="bloco__principal">{{ detalhe.cliente.nome }}</p>
-          <p class="bloco__apoio">{{ whatsapp() }}</p>
-        </section>
-
-        <section class="bloco">
-          <h2 class="bloco__titulo">Procedimento</h2>
-          <p class="bloco__principal">{{ detalhe.procedimento.nome }}</p>
-          <p class="bloco__apoio">{{ duracao() }}</p>
-        </section>
-
-        <section class="bloco">
-          <h2 class="bloco__titulo">Valores</h2>
-          <dl class="recibo">
-            <dt>Total</dt>
-            <dd>{{ valorFormatado(detalhe.preco_total) }}</dd>
-
-            <dt>Sinal</dt>
-            <dd>{{ valorFormatado(detalhe.valor_sinal) }}</dd>
-
-            <dt>Pago</dt>
-            <dd>{{ valorFormatado(detalhe.valor_pago) }}</dd>
-
-            <div class="recibo__divisor"></div>
-
-            <dt class="recibo__saldo">Pendente</dt>
-            <dd
-              class="recibo__saldo"
-              [class.recibo__saldo--quitado]="detalhe.valor_pendente === 0"
-            >
-              {{ valorFormatado(detalhe.valor_pendente) }}
-            </dd>
-          </dl>
-        </section>
+        <app-detalhe-agendamento
+          [agendamento]="detalhe"
+        ></app-detalhe-agendamento>
 
         <section class="bloco">
           <h2 class="bloco__titulo">Ações</h2>
@@ -173,5 +130,27 @@
       (confirmar)="confirmarCancelamento($event)"
       (cancelar)="fecharAcao()"
     ></app-formulario-cancelamento>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  [isOpen]="acaoAberta() === 'remarcar'"
+  (didDismiss)="aoFecharAcao()"
+>
+  <ng-template>
+    @if (agendamento(); as detalhe) {
+      <app-formulario-remarcacao
+        [agendamento]="detalhe"
+        [horarios]="horariosDaRemarcacao()"
+        [carregandoHorarios]="carregandoHorarios()"
+        [avaliacao]="avaliacaoDaRemarcacao()"
+        [salvando]="executando()"
+        [erroExterno]="erroAcao()"
+        (escolherData)="carregarHorariosDaRemarcacao($event)"
+        (escolherHorario)="avaliarHorarioDaRemarcacao($event)"
+        (confirmar)="confirmarRemarcacao($event)"
+        (cancelar)="fecharAcao()"
+      ></app-formulario-remarcacao>
+    }
   </ng-template>
 </ion-modal>

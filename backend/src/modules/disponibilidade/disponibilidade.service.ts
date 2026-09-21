@@ -62,6 +62,7 @@ export class DisponibilidadeService {
             ? []
             : override.janelas
           : (janelasSemanaisPorProfissional.get(profissional.id) ?? []),
+        fechado: override?.fechado ?? false,
       };
     });
   }

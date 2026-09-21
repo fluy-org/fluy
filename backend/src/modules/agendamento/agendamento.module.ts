@@ -3,6 +3,7 @@ import { AgendamentoCancelamentoService } from '@/modules/agendamento/agendament
 import { AgendamentoConclusaoService } from '@/modules/agendamento/agendamento-conclusao.service';
 import { AgendamentoDisponibilidadeService } from '@/modules/agendamento/agendamento-disponibilidade.service';
 import { AgendamentoFaltaService } from '@/modules/agendamento/agendamento-falta.service';
+import { AgendamentoRemarcacaoService } from '@/modules/agendamento/agendamento-remarcacao.service';
 import { AgendamentoController } from '@/modules/agendamento/agendamento.controller';
 import { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
@@ -25,6 +26,7 @@ import { SalaoModule } from '@/modules/salao/salao.module';
     AgendamentoConclusaoService,
     AgendamentoDisponibilidadeService,
     AgendamentoFaltaService,
+    AgendamentoRemarcacaoService,
     AgendamentoRepository,
     AgendamentoService,
     AgendamentoValidator,

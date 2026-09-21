@@ -3,8 +3,13 @@ import { inject, Injectable, signal } from '@angular/core';
 import type {
   AgendaDiaResponseDto,
   AgendamentoDetalheResponseDto,
+  AvaliacaoHorarioAgendamentoResponseDto,
+  AvaliarHorarioRemarcacaoQueryDto,
   CancelarAgendamentoDto,
   ConcluirAgendamentoDto,
+  HorariosLivresResponseDto,
+  ListarHorariosLivresRemarcacaoQueryDto,
+  RemarcarAgendamentoDto,
   ResumoAgendaResponseDto,
 } from '@fluy/schema';
 import { firstValueFrom } from 'rxjs';
@@ -114,6 +119,47 @@ export class AgendaService {
     return agendamento;
   }
 
+  getHorariosLivresParaRemarcacao(
+    id: string,
+    dados: ListarHorariosLivresRemarcacaoQueryDto,
+  ): Promise<HorariosLivresResponseDto> {
+    return firstValueFrom(
+      this.http.get<HorariosLivresResponseDto>(
+        `/agendamentos/${id}/horarios-livres`,
+        { params: { ...dados } },
+      ),
+    );
+  }
+
+  avaliarHorarioParaRemarcacao(
+    id: string,
+    dados: AvaliarHorarioRemarcacaoQueryDto,
+  ): Promise<AvaliacaoHorarioAgendamentoResponseDto> {
+    return firstValueFrom(
+      this.http.get<AvaliacaoHorarioAgendamentoResponseDto>(
+        `/agendamentos/${id}/avaliacao`,
+        { params: { ...dados } },
+      ),
+    );
+  }
+
+  async remarcar(
+    id: string,
+    dados: RemarcarAgendamentoDto,
+  ): Promise<AgendamentoDetalheResponseDto> {
+    const agendamento = await firstValueFrom(
+      this.http.patch<AgendamentoDetalheResponseDto>(
+        `/agendamentos/${id}/remarcar`,
+        dados,
+      ),
+    );
+
+    this._agendamento.set(agendamento);
+    this.moverNaAgendaDoDia({ agendamento, data: dados.data });
+
+    return agendamento;
+  }
+
   private substituirNaAgendaDoDia(
     agendamento: AgendamentoDetalheResponseDto,
   ): void {
@@ -127,5 +173,34 @@ export class AgendaService {
           }
         : agenda,
     );
+  }
+
+  private moverNaAgendaDoDia({
+    agendamento,
+    data,
+  }: {
+    agendamento: AgendamentoDetalheResponseDto;
+    data: string;
+  }): void {
+    this._agendaDoDia.update((agenda) => {
+      if (!agenda) {
+        return agenda;
+      }
+
+      const outros = agenda.agendamentos.filter(
+        (item) => item.id !== agendamento.id,
+      );
+
+      if (agenda.data !== data) {
+        return { ...agenda, agendamentos: outros };
+      }
+
+      return {
+        ...agenda,
+        agendamentos: [...outros, agendamento].sort((primeiro, segundo) =>
+          primeiro.inicio_em.localeCompare(segundo.inicio_em),
+        ),
+      };
+    });
   }
 }

@@ -29,6 +29,7 @@ Cobrir o motor central do sistema: nascer, mover, encerrar (com ou sem atendimen
 - Oferecer horários de início conforme granularidade configurada em [[configuracao-do-salao]].
 - Filtrar horários em que `hora_inicio + duracao_procedimento` ultrapassa a janela.
 - Impedir procedimento que cruza duas janelas do mesmo dia.
+- Bloquear data com override "sem atendimento", em qualquer caminho que escolha horário (criação manual e remarcação). Dia sem janela por ausência de template semanal não é bloqueio: segue como encaixe fora da janela, com aviso.
 - Aplicar antecedência mínima e máxima configuradas em [[configuracao-do-salao]].
 
 ### Criação pela cliente (fluxo público)
@@ -73,12 +74,14 @@ Cobrir o motor central do sistema: nascer, mover, encerrar (com ou sem atendimen
 ### Remarcação pelo salão
 
 - Oferecer seletor de nova data/hora considerando disponibilidade real e mesma duração do procedimento original.
-- Permitir encaixe fora da janela **com aviso**; bloquear data com override "sem atendimento".
+- Permitir encaixe fora da janela **com aviso**; a data com override "sem atendimento" é bloqueada pelo cálculo de horários disponíveis.
 - Manter o mesmo ID e UID; incrementar `SEQUENCE` do `.ics` para gerar update.
-- Preservar cliente, procedimento, duração, sinal pago, valor pendente, imagens de referência, notas.
+- Avaliar a disponibilidade do novo horário **apenas para a profissional do agendamento**: a remarcação nunca troca de profissional.
+- Preservar cliente, profissional, procedimento, duração, sinal pago, valor pendente, imagens de referência, notas.
 - Liberar slot antigo imediatamente e ocupar o novo.
 - Notificar a cliente via [[notificacoes]] com `.ics` de update.
-- Registrar remarcações no histórico do agendamento.
+- Registrar remarcações no histórico do agendamento e expor a contagem no detalhe ("remarcado N vezes").
+- Recusar remarcação para o passado e para o horário que o agendamento já ocupa.
 - Cliente **não** pode remarcar sozinha no MVP — precisa contatar o salão.
 
 ### Marcação de no-show

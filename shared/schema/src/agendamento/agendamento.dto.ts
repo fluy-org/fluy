@@ -6,13 +6,16 @@ import type {
   agendamentoResponseSchema,
   avaliacaoHorarioAgendamentoResponseSchema,
   avaliarHorarioAgendamentoQuerySchema,
+  avaliarHorarioRemarcacaoQuerySchema,
   cancelarAgendamentoSchema,
   concluirAgendamentoSchema,
   criarAgendamentoSchema,
   horariosLivresResponseSchema,
   listarAgendaDiaQuerySchema,
   listarHorariosLivresQuerySchema,
+  listarHorariosLivresRemarcacaoQuerySchema,
   listarResumoAgendaQuerySchema,
+  remarcarAgendamentoSchema,
   resumoAgendaResponseSchema,
 } from './agendamento.schema.js';
 
@@ -25,6 +28,13 @@ export type AvaliarHorarioAgendamentoQueryDto = z.infer<
 export type CriarAgendamentoDto = z.infer<typeof criarAgendamentoSchema>;
 export type ConcluirAgendamentoDto = z.infer<typeof concluirAgendamentoSchema>;
 export type CancelarAgendamentoDto = z.infer<typeof cancelarAgendamentoSchema>;
+export type RemarcarAgendamentoDto = z.infer<typeof remarcarAgendamentoSchema>;
+export type ListarHorariosLivresRemarcacaoQueryDto = z.infer<
+  typeof listarHorariosLivresRemarcacaoQuerySchema
+>;
+export type AvaliarHorarioRemarcacaoQueryDto = z.infer<
+  typeof avaliarHorarioRemarcacaoQuerySchema
+>;
 export type HorariosLivresResponseDto = z.infer<
   typeof horariosLivresResponseSchema
 >;

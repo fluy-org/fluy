@@ -24,6 +24,14 @@ export class AgendamentoDisponibilidadeService {
       dataHora: inicioAgendamento,
       minutos: input.duracaoMin,
     });
+
+    // Dia fechado é decisão consciente do salão, não encaixe fora da janela.
+    if (this.todasAsProfissionaisEstaoFechadas(input.profissionais)) {
+      return this.criarAvaliacaoDeHorarioIndisponivel({
+        bloqueios: ['dia_fechado'],
+      });
+    }
+
     const bloqueios = this.listarBloqueiosPorCruzamentoDeMeiaNoite({
       fimAgendamento,
       input,
@@ -105,6 +113,16 @@ export class AgendamentoDisponibilidadeService {
           'indisponivel',
       )
       .sort((primeiro, segundo) => primeiro.localeCompare(segundo));
+  }
+
+  private todasAsProfissionaisEstaoFechadas(
+    profissionais: AvaliarHorarioAgendamentoInput['profissionais'],
+  ): boolean {
+    if (profissionais.length === 0) {
+      return false;
+    }
+
+    return profissionais.every((profissional) => profissional.fechado);
   }
 
   private filtrarProfissionaisSemConflito({

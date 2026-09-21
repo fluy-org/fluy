@@ -40,6 +40,19 @@ export const avaliarHorarioAgendamentoQuerySchema = z
   .strict()
   .meta({ id: 'AvaliarHorarioAgendamentoQuery' });
 
+export const listarHorariosLivresRemarcacaoQuerySchema = z
+  .object({ data: dataSchema })
+  .strict()
+  .meta({ id: 'ListarHorariosLivresRemarcacaoQuery' });
+
+export const avaliarHorarioRemarcacaoQuerySchema = z
+  .object({
+    data: dataSchema,
+    hora_inicio: horaSchema,
+  })
+  .strict()
+  .meta({ id: 'AvaliarHorarioRemarcacaoQuery' });
+
 export const criarAgendamentoSchema = z
   .object({
     cliente_id: z.uuid('Informe uma cliente válida.'),
@@ -66,6 +79,15 @@ export const cancelarAgendamentoSchema = z
   })
   .strict()
   .meta({ id: 'CancelarAgendamento' });
+
+export const remarcarAgendamentoSchema = z
+  .object({
+    data: dataSchema,
+    hora_inicio: horaSchema,
+    confirmar_excecoes: z.boolean().default(false),
+  })
+  .strict()
+  .meta({ id: 'RemarcarAgendamento' });
 
 export const horariosLivresResponseSchema = z
   .object({
@@ -187,5 +209,6 @@ export const agendamentoDetalheResponseSchema = agendamentoAgendaResponseSchema
     criado_em: z.iso.datetime(),
     acoes_permitidas: z.array(z.enum(ACAO_AGENDAMENTO)),
     avisos: z.array(z.enum(AVISO_ACAO_AGENDAMENTO)),
+    remarcado_vezes: z.number().int().nonnegative(),
   })
   .meta({ id: 'AgendamentoDetalheResponse' });

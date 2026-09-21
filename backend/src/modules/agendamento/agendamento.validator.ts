@@ -9,6 +9,7 @@ import type {
   ValidarConclusaoAgendamentoInput,
   ValidarCriacaoAgendamentoInput,
   ValidarFaltaAgendamentoInput,
+  ValidarRemarcacaoAgendamentoInput,
 } from '@/modules/agendamento/contracts';
 
 @Injectable()
@@ -85,6 +86,54 @@ export class AgendamentoValidator {
   validarCancelamento({ estado }: ValidarCancelamentoAgendamentoInput): void {
     if (estado !== 'agendado' && estado !== 'reservado') {
       throw new ConflictException('Este agendamento já foi encerrado.');
+    }
+  }
+
+  validarRemarcacao({
+    estado,
+    inicioEmAtual,
+    inicioEmNovo,
+    avaliacao,
+    confirmarExcecoes,
+  }: ValidarRemarcacaoAgendamentoInput): void {
+    if (estado === 'reservado') {
+      throw new BadRequestException(
+        'Só é possível remarcar um agendamento confirmado.',
+      );
+    }
+
+    if (estado !== 'agendado') {
+      throw new ConflictException('Este agendamento já foi encerrado.');
+    }
+
+    if (inicioEmNovo.getTime() === inicioEmAtual.getTime()) {
+      throw new BadRequestException('O agendamento já está nesse horário.');
+    }
+
+    // Na criação o passado é aviso confirmável; aqui não: mover um
+    // atendimento para trás é erro de operação, não encaixe.
+    if (avaliacao.avisos.includes('inicio_passado')) {
+      throw new BadRequestException(
+        'Não é possível remarcar para um horário que já passou.',
+      );
+    }
+
+    if (avaliacao.status === 'indisponivel') {
+      if (avaliacao.bloqueios.includes('sem_profissional_disponivel')) {
+        throw new ConflictException(
+          'Nenhuma profissional está disponível neste horário.',
+        );
+      }
+
+      throw new BadRequestException(
+        'O horário informado não pode ser agendado.',
+      );
+    }
+
+    if (avaliacao.status === 'requer_confirmacao' && !confirmarExcecoes) {
+      throw new BadRequestException(
+        'Confirme as exceções do horário antes de remarcar.',
+      );
     }
   }
 }
