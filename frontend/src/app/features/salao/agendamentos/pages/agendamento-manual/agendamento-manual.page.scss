@@ -41,8 +41,7 @@ form {
   gap: var(--fluy-space-4);
 }
 
-.form-card,
-.confirmation-card {
+.form-card {
   margin: 0;
   border: 1px solid var(--fluy-color-border-soft);
   border-radius: var(--fluy-radius-lg);
@@ -56,8 +55,7 @@ form {
   margin-bottom: var(--fluy-space-4);
 }
 
-.section-heading h2,
-.confirmation-card h2 {
+.section-heading h2 {
   margin: 0;
   color: var(--fluy-color-title);
   font-size: var(--fluy-font-size-subtitle);
@@ -84,41 +82,7 @@ ion-input {
 }
 
 .estado-pagina,
-.horarios-feedback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--fluy-space-3);
-  min-height: 160px;
-}
-
-.horarios-feedback {
-  min-height: 96px;
-}
-
-.horarios-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--fluy-space-2);
-  margin-top: var(--fluy-space-4);
-}
-
-.horario-manual {
-  margin-top: var(--fluy-space-4);
-}
-
-.horarios-grid ion-button {
-  margin: 0;
-}
-
-.horario-selecionado {
-  --background: var(--fluy-color-primary);
-  --color: var(--fluy-color-primary-contrast);
-}
-
 .avaliacao,
-.confirmation-card p,
-.mensagem-vazia,
 .mensagem-erro,
 .mensagem-sucesso {
   margin: var(--fluy-space-3) 0 0;
@@ -131,8 +95,7 @@ ion-input {
   background: var(--fluy-color-surface);
 }
 
-.avaliacao-alerta,
-.confirmation-card {
+.avaliacao-alerta {
   border-color: var(--fluy-color-warning);
 }
 
@@ -140,15 +103,9 @@ ion-input {
   margin: var(--fluy-space-2) 0 0;
 }
 
-.confirmation-actions,
 .form-actions {
   display: grid;
   gap: var(--fluy-space-3);
-}
-
-.confirmation-actions {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: var(--fluy-space-4);
 }
 
 .form-actions {
@@ -158,9 +115,5 @@ ion-input {
 @media (min-width: 768px) {
   .page-content {
     padding: var(--fluy-space-6);
-  }
-
-  .horarios-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }

@@ -45,6 +45,53 @@ describe('AgendamentoDisponibilidadeService', () => {
     );
   });
 
+  it('bloqueia data com override fechado', () => {
+    expect(
+      service.avaliarHorario(
+        criarInput({
+          profissionais: [
+            criarProfissional({
+              id: 'profissional-ana',
+              janelas: [],
+              fechado: true,
+            }),
+          ],
+        }),
+      ),
+    ).toEqual({
+      status: 'indisponivel',
+      avisos: [],
+      bloqueios: ['dia_fechado'],
+      profissionalId: undefined,
+    });
+  });
+
+  it('permite encaixe em dia sem janela quando não há override fechado', () => {
+    expect(
+      service.avaliarHorario(
+        criarInput({
+          profissionais: [
+            criarProfissional({ id: 'profissional-ana', janelas: [] }),
+          ],
+        }),
+      ),
+    ).toEqual({
+      status: 'requer_confirmacao',
+      avisos: ['fora_janela'],
+      bloqueios: [],
+      profissionalId: 'profissional-ana',
+    });
+  });
+
+  it('não confunde salão sem profissional ativa com dia fechado', () => {
+    expect(service.avaliarHorario(criarInput({ profissionais: [] }))).toEqual({
+      status: 'indisponivel',
+      avisos: [],
+      bloqueios: ['sem_profissional_disponivel'],
+      profissionalId: undefined,
+    });
+  });
+
   it('bloqueia horário que conflita com ocupação da profissional', () => {
     expect(
       service.avaliarHorario(
@@ -143,12 +190,15 @@ function criarInput(
 function criarProfissional({
   id,
   janelas = [{ hora_inicio: '09:00', hora_fim: '18:00' }],
+  fechado = false,
 }: {
   id: string;
   janelas?: Array<{ hora_inicio: string; hora_fim: string }>;
+  fechado?: boolean;
 }) {
   return {
     id,
     janelas,
+    fechado,
   };
 }

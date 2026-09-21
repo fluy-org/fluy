@@ -82,6 +82,7 @@ export function toAgendamentoDetalheResponse(
     criado_em: agendamento.criado_em.toISOString(),
     acoes_permitidas: agendamento.acoesPermitidas,
     avisos: agendamento.avisos,
+    remarcado_vezes: agendamento.remarcado_vezes,
   };
 }
 

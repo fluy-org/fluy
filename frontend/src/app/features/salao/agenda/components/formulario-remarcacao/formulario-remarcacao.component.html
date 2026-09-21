@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Remarcar agendamento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <section class="atual">
+    <p class="atual__rotulo">Horário atual</p>
+    <p class="atual__valor">
+      {{ dataAtualPorExtenso() }} às
+      {{ agendamento().inicio_em | horaSalao: agendamento().fuso_horario }}
+    </p>
+  </section>
+
+  <form [formGroup]="formulario">
+    <ion-input
+      type="date"
+      label="Nova data"
+      labelPlacement="stacked"
+      [value]="formulario.controls.data.value"
+      (ionChange)="mudarData($event.detail.value)"
+    ></ion-input>
+
+    <app-seletor-horario
+      [horarios]="horarios()"
+      [horarioSelecionado]="formulario.controls.hora_inicio.value"
+      [carregando]="carregandoHorarios()"
+      [desabilitado]="!formulario.controls.data.value"
+      (escolher)="mudarHorario($event)"
+    ></app-seletor-horario>
+
+    @if (formulario.controls.data.value && formulario.controls.hora_inicio.value) {
+      <section class="resumo" [class.resumo--alerta]="avaliacao()?.status === 'indisponivel'">
+        <p class="resumo__linha">
+          De
+          <strong>
+            {{ dataAtualPorExtenso() }} às
+            {{ agendamento().inicio_em | horaSalao: agendamento().fuso_horario }}
+          </strong>
+        </p>
+        <p class="resumo__linha">
+          Para
+          <strong>
+            {{ dataPorExtenso(formulario.controls.data.value) }} às
+            {{ formulario.controls.hora_inicio.value }}
+          </strong>
+        </p>
+        <p class="resumo__aviso">A cliente será notificada da alteração.</p>
+      </section>
+    }
+
+    @for (bloqueio of avaliacao()?.bloqueios ?? []; track bloqueio) {
+      <p class="mensagem-erro">{{ bloqueio | rotuloAvaliacao }}</p>
+    }
+
+    @if (erroValidacao()) {
+      <p class="mensagem-erro">{{ erroValidacao() }}</p>
+    }
+
+    @if (erroExterno()) {
+      <p class="mensagem-erro">{{ erroExterno() }}</p>
+    }
+
+    @if (confirmacaoExigida()) {
+      <app-confirmacao-encaixe
+        acao="remarcar"
+        [avisos]="avaliacao()?.avisos ?? []"
+        (confirmar)="confirmarExcecoes()"
+        (voltar)="cancelarConfirmacao()"
+      ></app-confirmacao-encaixe>
+    } @else {
+      <div class="acoes-formulario">
+        <ion-button
+          type="button"
+          fill="outline"
+          [disabled]="salvando()"
+          (click)="cancelarFormulario()"
+        >
+          Voltar
+        </ion-button>
+
+        <ion-button
+          type="button"
+          [disabled]="salvando() || formulario.invalid"
+          (click)="enviarFormulario()"
+        >
+          {{ salvando() ? 'Remarcando...' : 'Remarcar' }}
+        </ion-button>
+      </div>
+    }
+  </form>
+</ion-content>

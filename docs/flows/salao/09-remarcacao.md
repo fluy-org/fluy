@@ -40,9 +40,11 @@ Permitir que o salão mova um agendamento existente para outra data/horário (a 
 
 - **Sinal já pago é mantido** e vale para o novo agendamento.
 - **Não é criado novo agendamento** — o mesmo ID/UID é atualizado (importante para o `.ics` de update funcionar).
-- **Remarcação preserva:** cliente, procedimento, duração, sinal pago, valor pendente, imagens de referência, notas.
+- **Remarcação preserva:** cliente, profissional, procedimento, duração, sinal pago, valor pendente, imagens de referência, notas.
 - **Muda apenas:** data, hora, slot ocupado.
 - **Cliente é sempre notificada.**
+- **A profissional não muda.** A disponibilidade do novo horário é avaliada apenas para a profissional do agendamento; se ela não atende ali, o horário não é oferecido.
+- **Histórico de remarcações fica visível no detalhe** ("remarcado N vezes"), pela contagem dos eventos `remarcado`.
 - **Slot antigo é liberado imediatamente**; slot novo é ocupado imediatamente.
 - **Cliente NÃO pode remarcar sozinha pelo app** (decisão MVP) — precisa pedir ao salão via WhatsApp.
 - **Encaixe fora da janela de disponibilidade é permitido, com aviso** (decidido). Data com override "sem atendimento" continua bloqueada — ali o salão decidiu conscientemente fechar.
@@ -60,8 +62,8 @@ Permitir que o salão mova um agendamento existente para outra data/horário (a 
 - **Novo horário ultrapassa fim da janela:** mesma regra — permitido com aviso.
 - **Novo horário cai em data com override "sem atendimento":** bloqueado.
 - **Cliente muda de WhatsApp entre agendamento e remarcação:** notificação vai pro WhatsApp cadastrado no momento do agendamento (não muda automaticamente).
-- **Salão remarca para o mesmo horário** (sem mudança real): validação bloqueia ou aceita como no-op.
-- **Salão remarca para o passado:** bloquear (não faz sentido); exceção: correção de dados.
+- **Salão remarca para o mesmo horário** (sem mudança real): **bloqueado, com erro de validação** (decidido). Aceitar como no-op gravaria um evento `remarcado` sem remarcação, inflando o `SEQUENCE` do `.ics` e o "remarcado N vezes", e disparando aviso de alteração para a cliente à toa.
+- **Salão remarca para o passado:** **bloqueado, sem exceção** (decidido). Diferente do [agendamento manual](./05-agendamento-manual.md), onde o passado é aviso confirmável: ali é registro retroativo, aqui seria mover um atendimento para trás. Correção de dados não tem fluxo desenhado no MVP.
 - **Cliente já adicionou o evento ao calendário e agora precisa atualizar:** ver fluxo de [notificação de alteração](../cliente/05-notificacao-alteracao.md).
 - **Múltiplas remarcações em curto período:** cliente recebe múltiplos pushes; `SEQUENCE` incrementa a cada uma.
 
@@ -70,4 +72,3 @@ Permitir que o salão mova um agendamento existente para outra data/horário (a 
 - **Salão pode remarcar em massa** (ex.: viagem de 3 dias, mover todos os agendamentos): fora do MVP; um a um.
 - **Remarcação com custo/taxa:** fora do MVP; sinal apenas é preservado.
 - **Cliente pode aceitar/recusar a remarcação?** MVP: não — salão decide, cliente é comunicada. Se discordar, cancela e reagenda.
-- **Histórico de remarcações no card do agendamento:** exibir? Salão vê "remarcado 2 vezes"? Útil para clientes problemáticas. Sim, recomendo incluir.

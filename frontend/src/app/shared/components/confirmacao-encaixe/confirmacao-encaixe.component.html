@@ -1,0 +1,19 @@
+<section class="confirmacao-encaixe">
+  <h2>Confirmar encaixe?</h2>
+  <ul class="confirmacao-encaixe__avisos">
+    @for (aviso of avisos(); track aviso) {
+      <li>{{ aviso | rotuloAvaliacao }}</li>
+    }
+  </ul>
+
+  <p>Confirme para {{ acao() }} mesmo assim.</p>
+
+  <div class="confirmacao-encaixe__acoes">
+    <ion-button type="button" fill="outline" (click)="voltar.emit()">
+      Voltar
+    </ion-button>
+    <ion-button type="button" color="warning" (click)="confirmar.emit()">
+      Confirmar encaixe
+    </ion-button>
+  </div>
+</section>

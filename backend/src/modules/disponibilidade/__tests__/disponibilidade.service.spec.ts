@@ -73,6 +73,7 @@ describe('DisponibilidadeService', () => {
       {
         id: profissional.id,
         janelas: [{ hora_inicio: '12:00', hora_fim: '16:00' }],
+        fechado: false,
       },
     ]);
   });
@@ -96,7 +97,7 @@ describe('DisponibilidadeService', () => {
         salaoId: profissional.salao_id,
         data: '2026-12-25',
       }),
-    ).resolves.toEqual([{ id: profissional.id, janelas: [] }]);
+    ).resolves.toEqual([{ id: profissional.id, janelas: [], fechado: true }]);
   });
 
   it('busca janelas somente após confirmar o profissional no salão', async () => {

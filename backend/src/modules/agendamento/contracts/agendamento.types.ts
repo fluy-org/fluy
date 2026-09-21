@@ -7,6 +7,7 @@ import type {
   ConcluirAgendamentoDto,
   FusoHorarioBrasil,
   MetodoPagamentoManual,
+  RemarcarAgendamentoDto,
   StatusAvaliacaoAgendamento,
   StatusCobrancaGateway,
   agendamento,
@@ -26,6 +27,7 @@ export type OcupacaoProfissional = {
 export type ProfissionalComJanelas = {
   id: string;
   janelas: JanelaEfetiva[];
+  fechado: boolean;
 };
 
 export type AvaliarHorarioAgendamentoInput = {
@@ -154,6 +156,37 @@ export type CancelarAgendamentoPersistenciaInput = {
   motivo: string | undefined;
 };
 
+export type RemarcarAgendamentoInput = {
+  id: string;
+  salaoId: string;
+  dados: RemarcarAgendamentoDto;
+};
+
+export type AvaliarRemarcacaoInput = {
+  id: string;
+  salaoId: string;
+  data: string;
+  horaInicio: string;
+};
+
+export type ValidarRemarcacaoAgendamentoInput = {
+  estado: AgendamentoPersistido['estado'];
+  inicioEmAtual: Date;
+  inicioEmNovo: Date;
+  avaliacao: AvaliacaoHorarioAgendamento;
+  confirmarExcecoes: boolean;
+};
+
+export type RemarcarAgendamentoPersistenciaInput = {
+  id: string;
+  salaoId: string;
+  profissionalId: string;
+  dataAgendamento: string;
+  inicioEm: Date;
+  duracaoMin: number;
+  ocorreuEm: Date;
+};
+
 export type ClienteDoAgendamentoPersistida = {
   id: string;
   nome: string;
@@ -178,10 +211,27 @@ export type AgendamentoDaAgendaPersistido = AgendamentoPersistido & {
   pagamentos: PagamentoDoAgendamentoPersistido[];
 };
 
+export type AgendamentoDetalhePersistido = AgendamentoDaAgendaPersistido & {
+  remarcado_vezes: number;
+};
+
+export type AvaliacaoDaRemarcacao = {
+  agendamento: AgendamentoDetalhePersistido;
+  avaliacao: AvaliacaoHorarioAgendamento;
+  inicioEm: Date;
+};
+
 export type ListarAgendamentosDoDiaInput = {
   salaoId: string;
   data: string;
   fusoHorario: string;
+};
+
+export type ListarOcupacoesDoDiaInput = {
+  salaoId: string;
+  data: string;
+  fusoHorario: string;
+  ignorarAgendamentoId?: string;
 };
 
 export type ListarInstantesDoPeriodoInput = {
@@ -228,6 +278,7 @@ export type AcoesDoAgendamento = {
 export type AgendamentoDetalheResultado = AgendamentoDaAgendaResultado &
   AcoesDoAgendamento & {
     fusoHorario: FusoHorarioBrasil;
+    remarcado_vezes: number;
   };
 
 export type CalcularAcoesAgendamentoInput = {

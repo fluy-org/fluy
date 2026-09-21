@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, inArray, isNull, lt, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, isNull, lt, ne, sql } from 'drizzle-orm';
 import {
   agendamento,
   cliente,
@@ -17,6 +17,7 @@ import {
 } from '@/shared/horario-salao/horario-salao.utils';
 import type {
   AgendamentoDaAgendaPersistido,
+  AgendamentoDetalhePersistido,
   AgendamentoPersistido,
   BuscarAgendamentoInput,
   CancelarAgendamentoPersistenciaInput,
@@ -25,9 +26,11 @@ import type {
   InstanteDeAgendamentoPersistido,
   ListarAgendamentosDoDiaInput,
   ListarInstantesDoPeriodoInput,
+  ListarOcupacoesDoDiaInput,
   MarcarFaltaAgendamentoPersistenciaInput,
   OcupacaoProfissional,
   PagamentoDoAgendamentoPersistido,
+  RemarcarAgendamentoPersistenciaInput,
 } from '@/modules/agendamento/contracts';
 
 type LinhaDaAgenda = {
@@ -69,11 +72,8 @@ export class AgendamentoRepository {
     salaoId,
     data,
     fusoHorario,
-  }: {
-    salaoId: string;
-    data: string;
-    fusoHorario: string;
-  }): Promise<OcupacaoProfissional[]> {
+    ignorarAgendamentoId,
+  }: ListarOcupacoesDoDiaInput): Promise<OcupacaoProfissional[]> {
     const inicioDia = dataHoraCivilParaUtc({
       data,
       hora: '00:00',
@@ -98,6 +98,9 @@ export class AgendamentoRepository {
           inArray(agendamento.estado, ['reservado', 'agendado']),
           gte(agendamento.inicio_em, inicioDia),
           lt(agendamento.inicio_em, fimDia),
+          ignorarAgendamentoId
+            ? ne(agendamento.id, ignorarAgendamentoId)
+            : undefined,
         ),
       );
   }
@@ -165,13 +168,28 @@ export class AgendamentoRepository {
     id,
     salaoId,
   }: BuscarAgendamentoInput): Promise<
-    AgendamentoDaAgendaPersistido | undefined
+    AgendamentoDetalhePersistido | undefined
   > {
     const linhas = await this.selecionarAgenda().where(
       and(eq(agendamento.id, id), eq(agendamento.salao_id, salaoId)),
     );
+    const agendamentoDaAgenda = agruparAgendamentos(linhas)[0];
 
-    return agruparAgendamentos(linhas)[0];
+    if (!agendamentoDaAgenda) {
+      return undefined;
+    }
+
+    const remarcacoes = await this.database
+      .select({ id: eventoAgendamento.id })
+      .from(eventoAgendamento)
+      .where(
+        and(
+          eq(eventoAgendamento.agendamento_id, id),
+          eq(eventoAgendamento.tipo, 'remarcado'),
+        ),
+      );
+
+    return { ...agendamentoDaAgenda, remarcado_vezes: remarcacoes.length };
   }
 
   async criar(
@@ -189,9 +207,10 @@ export class AgendamentoRepository {
           and(
             eq(agendamento.salao_id, input.salaoId),
             eq(agendamento.profissional_id, input.profissionalId),
-            inArray(agendamento.estado, ['reservado', 'agendado']),
-            sql`${agendamento.inicio_em} < ${input.inicioEm}::timestamptz + ${input.duracaoMin} * interval '1 minute'`,
-            sql`${agendamento.inicio_em} + ${agendamento.duracao_min} * interval '1 minute' > ${input.inicioEm}::timestamptz`,
+            condicaoDeSobreposicao({
+              inicioEm: input.inicioEm,
+              duracaoMin: input.duracaoMin,
+            }),
           ),
         )
         .limit(1);
@@ -352,6 +371,67 @@ export class AgendamentoRepository {
     });
   }
 
+  async remarcar({
+    id,
+    salaoId,
+    profissionalId,
+    dataAgendamento,
+    inicioEm,
+    duracaoMin,
+    ocorreuEm,
+  }: RemarcarAgendamentoPersistenciaInput): Promise<
+    AgendamentoPersistido | undefined
+  > {
+    return this.database.transaction(async (tx) => {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${`${salaoId}:${dataAgendamento}`}))`,
+      );
+
+      const conflitos = await tx
+        .select({ id: agendamento.id })
+        .from(agendamento)
+        .where(
+          and(
+            eq(agendamento.salao_id, salaoId),
+            eq(agendamento.profissional_id, profissionalId),
+            ne(agendamento.id, id),
+            condicaoDeSobreposicao({ inicioEm, duracaoMin }),
+          ),
+        )
+        .limit(1);
+
+      if (conflitos.length > 0) {
+        return undefined;
+      }
+
+      const agendamentosRemarcados = await tx
+        .update(agendamento)
+        .set({ inicio_em: inicioEm })
+        .where(
+          and(
+            eq(agendamento.id, id),
+            eq(agendamento.salao_id, salaoId),
+            eq(agendamento.estado, 'agendado'),
+          ),
+        )
+        .returning();
+
+      const agendamentoRemarcado = agendamentosRemarcados[0];
+
+      if (!agendamentoRemarcado) {
+        return undefined;
+      }
+
+      await tx.insert(eventoAgendamento).values({
+        agendamento_id: agendamentoRemarcado.id,
+        tipo: 'remarcado',
+        ocorreu_em: ocorreuEm,
+      });
+
+      return agendamentoRemarcado;
+    });
+  }
+
   private selecionarAgenda() {
     return this.database
       .select({
@@ -385,6 +465,24 @@ export class AgendamentoRepository {
         eq(cobrancaGateway.id, pagamentoAgendamento.cobranca_gateway_id),
       );
   }
+}
+
+// O fim do agendamento candidato só existe somando `duracao_min` à coluna, e
+// não há operador Drizzle para intervalo entre colunas.
+function condicaoDeSobreposicao({
+  inicioEm,
+  duracaoMin,
+}: {
+  inicioEm: Date;
+  duracaoMin: number;
+}) {
+  const fimEm = new Date(inicioEm.getTime() + duracaoMin * 60_000);
+
+  return and(
+    inArray(agendamento.estado, ['reservado', 'agendado']),
+    lt(agendamento.inicio_em, fimEm),
+    sql`${agendamento.inicio_em} + ${agendamento.duracao_min} * interval '1 minute' > ${inicioEm}::timestamptz`,
+  );
 }
 
 function agruparAgendamentos(

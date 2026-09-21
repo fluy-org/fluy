@@ -19,6 +19,7 @@ export type ProfissionalComJanelasNoDia = {
     hora_inicio: string;
     hora_fim: string;
   }>;
+  fechado: boolean;
 };
 
 export type ListarProfissionaisComJanelasNoDiaInput = {

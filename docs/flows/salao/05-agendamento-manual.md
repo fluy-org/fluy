@@ -27,6 +27,7 @@ Permitir que o salão registre agendamentos criados fora do fluxo digital (clien
 - **Cliente nova:** cadastro criado; agendamento associado ao novo cadastro.
 - **Horário conflita com outro agendamento:** sistema bloqueia (mostra o conflito).
 - **Horário fora de janela:** sistema alerta e permite o override (salão está fazendo encaixe fora do expediente conscientemente).
+- **Data com override "sem atendimento":** sistema bloqueia; não há confirmação que libere.
 - **Salão desiste antes de confirmar:** nada persiste.
 
 ## Regras de negócio
@@ -37,6 +38,7 @@ Permitir que o salão registre agendamentos criados fora do fluxo digital (clien
 - **Se salão gera link de sinal para a cliente:** funciona como o fluxo digital normal — reserva por X min, cliente paga, vira `Agendado`.
 - **Todo agendamento manual segue as mesmas regras de disponibilidade** (não pode conflitar, não pode ultrapassar janela) — exceto se salão escolher override explícito.
 - **Encaixe fora da janela é permitido, com aviso** (decidido): "está fora do seu horário; confirmar?". Mesma regra da [remarcação](./09-remarcacao.md).
+- **Data com override "sem atendimento" é bloqueada**, e não vira encaixe: ali o salão decidiu conscientemente fechar o dia. Vale igual aqui e na [remarcação](./09-remarcacao.md). Dia sem janela por ausência de template semanal continua sendo encaixe com aviso — a distinção é o override explícito.
 - Cliente deve receber a mesma **notificação de novo agendamento** que receberia no fluxo digital.
 
 ## Dependências

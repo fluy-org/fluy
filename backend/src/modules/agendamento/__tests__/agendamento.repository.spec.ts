@@ -36,6 +36,7 @@ jest.mock(
       registrada_por: 'cobranca_manual.registrada_por',
     },
     eventoAgendamento: {
+      id: 'evento_agendamento.id',
       agendamento_id: 'evento_agendamento.agendamento_id',
       tipo: 'evento_agendamento.tipo',
       ocorreu_em: 'evento_agendamento.ocorreu_em',
@@ -57,6 +58,7 @@ jest.mock('drizzle-orm', () => ({
   inArray: jest.fn(),
   isNull: jest.fn(),
   lt: jest.fn(),
+  ne: jest.fn(),
   sql: jest.fn(),
 }));
 
@@ -64,7 +66,7 @@ jest.mock('@/database/database.provider', () => ({
   DATABASE: Symbol('DATABASE'),
 }));
 
-import { eq, gte, inArray, lt } from 'drizzle-orm';
+import { eq, gte, inArray, lt, ne } from 'drizzle-orm';
 import {
   agendamento,
   cobrancaManual,
@@ -122,7 +124,13 @@ describe('AgendamentoRepository', () => {
     leftJoin: jest.fn(() => encadearAgenda),
     where: filtrarAgenda,
   };
-  const origemAgenda = jest.fn(() => encadearAgenda);
+  let remarcacoes: unknown[] = [];
+  const filtrarRemarcacoes = jest.fn(() => Promise.resolve(remarcacoes));
+  const origemAgenda = jest.fn((tabela: unknown) =>
+    tabela === eventoAgendamento
+      ? ({ where: filtrarRemarcacoes } as unknown as EncadeamentoAgenda)
+      : encadearAgenda,
+  );
   const selecionarAgenda = jest.fn(() => ({ from: origemAgenda }));
   const database = {
     transaction: transacao,
@@ -135,6 +143,7 @@ describe('AgendamentoRepository', () => {
     jest.clearAllMocks();
     limitarConflitos.mockResolvedValue([]);
     linhasDaAgenda = [];
+    remarcacoes = [];
     ordenarAgenda.mockImplementation(() => Promise.resolve(linhasDaAgenda));
   });
 
@@ -466,6 +475,131 @@ describe('AgendamentoRepository', () => {
       expect(encontrado?.procedimento).toEqual({
         id: 'procedimento-corte',
         nome: 'Corte',
+      });
+    });
+
+    it('conta os eventos de remarcação do agendamento', async () => {
+      linhasDaAgenda = [linhaDaAgenda({ id: entrada.id })];
+      remarcacoes = [{ id: 'evento-um' }, { id: 'evento-dois' }];
+
+      const encontrado = await repository.buscarDetalhe(entrada);
+
+      expect(encontrado?.remarcado_vezes).toBe(2);
+      expect(eq).toHaveBeenCalledWith(
+        eventoAgendamento.agendamento_id,
+        entrada.id,
+      );
+      expect(eq).toHaveBeenCalledWith(eventoAgendamento.tipo, 'remarcado');
+    });
+
+    it('não conta remarcação quando o agendamento nunca foi movido', async () => {
+      linhasDaAgenda = [linhaDaAgenda({ id: entrada.id })];
+
+      await expect(repository.buscarDetalhe(entrada)).resolves.toMatchObject({
+        remarcado_vezes: 0,
+      });
+    });
+  });
+
+  describe('listarOcupacoesDoDia', () => {
+    const entrada = {
+      salaoId: 'salao-ana',
+      data: '2026-09-15',
+      fusoHorario: 'America/Sao_Paulo',
+    };
+
+    it('exclui o agendamento que está sendo remarcado', async () => {
+      await repository.listarOcupacoesDoDia({
+        ...entrada,
+        ignorarAgendamentoId: 'agendamento-ana',
+      });
+
+      expect(ne).toHaveBeenCalledWith(agendamento.id, 'agendamento-ana');
+    });
+
+    it('não exclui ninguém quando nenhum agendamento é informado', async () => {
+      await repository.listarOcupacoesDoDia(entrada);
+
+      expect(ne).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('remarcar', () => {
+    const OCORREU_EM = new Date('2026-09-15T14:10:00.000Z');
+    const entrada = {
+      id: 'agendamento-ana',
+      salaoId: 'salao-ana',
+      profissionalId: 'profissional-ana',
+      dataAgendamento: '2026-09-16',
+      inicioEm: new Date('2026-09-16T13:00:00.000Z'),
+      duracaoMin: 60,
+      ocorreuEm: OCORREU_EM,
+    };
+    const agendamentoRemarcado = {
+      id: 'agendamento-ana',
+      estado: 'agendado',
+    } as AgendamentoPersistido;
+
+    it('ignora a própria ocupação ao procurar conflito no novo horário', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoRemarcado]);
+
+      await repository.remarcar(entrada);
+
+      expect(executar).toHaveBeenCalledTimes(1);
+      expect(ne).toHaveBeenCalledWith(agendamento.id, entrada.id);
+      expect(eq).toHaveBeenCalledWith(
+        agendamento.profissional_id,
+        entrada.profissionalId,
+      );
+      expect(inArray).toHaveBeenCalledWith(agendamento.estado, [
+        'reservado',
+        'agendado',
+      ]);
+    });
+
+    it('não remarca quando o novo horário já está ocupado', async () => {
+      limitarConflitos.mockResolvedValue([{ id: 'agendamento-existente' }]);
+
+      await expect(repository.remarcar(entrada)).resolves.toBeUndefined();
+
+      expect(atualizarAgendamentos).not.toHaveBeenCalled();
+      expect(inserirAgendamentos).not.toHaveBeenCalled();
+    });
+
+    it('restringe a remarcação ao salão e ao estado agendado', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoRemarcado]);
+
+      await repository.remarcar(entrada);
+
+      expect(definirConclusao).toHaveBeenCalledWith({
+        inicio_em: entrada.inicioEm,
+      });
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, entrada.salaoId);
+      expect(eq).toHaveBeenCalledWith(agendamento.estado, 'agendado');
+    });
+
+    it('não grava evento quando a corrida é perdida', async () => {
+      retornarConclusao.mockResolvedValue([]);
+
+      await expect(repository.remarcar(entrada)).resolves.toBeUndefined();
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).not.toHaveBeenCalled();
+    });
+
+    it('grava o evento de remarcação na mesma transação', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoRemarcado]);
+
+      await expect(repository.remarcar(entrada)).resolves.toBe(
+        agendamentoRemarcado,
+      );
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).toHaveBeenCalledWith(eventoAgendamento);
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        agendamento_id: agendamentoRemarcado.id,
+        tipo: 'remarcado',
+        ocorreu_em: OCORREU_EM,
       });
     });
   });
