@@ -143,6 +143,46 @@ describe('AgendamentoDisponibilidadeService', () => {
     });
   });
 
+  it('bloqueia horário passado quando a chamada não aceita encaixe no passado', () => {
+    expect(
+      service.avaliarHorario(
+        criarInput({
+          agora: new Date('2026-04-10T15:00:00.000Z'),
+          bloquearInicioPassado: true,
+        }),
+      ),
+    ).toEqual({
+      status: 'indisponivel',
+      avisos: [],
+      bloqueios: ['inicio_passado'],
+      profissionalId: undefined,
+    });
+  });
+
+  it('não oferece horários passados quando a chamada não aceita encaixe no passado', () => {
+    expect(
+      service.listarHorariosLivres(
+        criarInput({
+          agora: new Date('2026-04-10T15:00:00.000Z'),
+          bloquearInicioPassado: true,
+        }),
+      ),
+    ).toEqual([
+      '12:00',
+      '12:30',
+      '13:00',
+      '13:30',
+      '14:00',
+      '14:30',
+      '15:00',
+      '15:30',
+      '16:00',
+      '16:30',
+      '17:00',
+      '17:30',
+    ]);
+  });
+
   it('exige confirmação fora das antecedências mínima e máxima', () => {
     expect(
       service.avaliarHorario(

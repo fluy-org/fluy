@@ -88,6 +88,13 @@ export class FormularioRemarcacaoComponent {
     ),
   );
 
+  readonly dataMinima = computed(() =>
+    extrairDataCivil({
+      instante: new Date().toISOString(),
+      fusoHorario: this.agendamento().fuso_horario,
+    }),
+  );
+
   mudarData(valor: unknown): void {
     if (typeof valor !== 'string') {
       return;

@@ -41,6 +41,7 @@ export type AvaliarHorarioAgendamentoInput = {
   agora: Date;
   profissionais: ProfissionalComJanelas[];
   ocupacoes: OcupacaoProfissional[];
+  bloquearInicioPassado?: boolean;
 };
 
 export type AvaliacaoHorarioAgendamento = {

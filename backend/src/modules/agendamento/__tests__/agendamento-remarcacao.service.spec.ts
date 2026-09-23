@@ -163,11 +163,19 @@ describe('AgendamentoRemarcacaoService', () => {
     expect(remarcarNoRepository).not.toHaveBeenCalled();
   });
 
+  it('pede ao motor que bloqueie horário no passado', async () => {
+    await service.remarcar(entrada);
+
+    expect(avaliarHorarioNoMotor).toHaveBeenCalledWith(
+      expect.objectContaining({ bloquearInicioPassado: true }),
+    );
+  });
+
   it('recusa remarcar para o passado mesmo com exceções confirmadas', async () => {
     avaliarHorarioNoMotor.mockReturnValue(
       criarAvaliacao({
-        status: 'requer_confirmacao',
-        avisos: ['inicio_passado'],
+        status: 'indisponivel',
+        bloqueios: ['inicio_passado'],
       }),
     );
 

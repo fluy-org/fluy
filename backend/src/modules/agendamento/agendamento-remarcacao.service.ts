@@ -161,17 +161,22 @@ export class AgendamentoRemarcacaoService {
         ignorarAgendamentoId: agendamento.id,
       });
 
-    return this.agendamentoService.montarDadosParaAvaliarDisponibilidade({
-      dadosParaAvaliacao: {
-        ...dadosParaAvaliacao,
-        profissionais: dadosParaAvaliacao.profissionais.filter(
-          (profissional) => profissional.id === agendamento.profissional_id,
-        ),
-      },
-      data,
-      horaInicio,
-      duracaoMin: agendamento.duracao_min,
-    });
+    return {
+      ...this.agendamentoService.montarDadosParaAvaliarDisponibilidade({
+        dadosParaAvaliacao: {
+          ...dadosParaAvaliacao,
+          profissionais: dadosParaAvaliacao.profissionais.filter(
+            (profissional) => profissional.id === agendamento.profissional_id,
+          ),
+        },
+        data,
+        horaInicio,
+        duracaoMin: agendamento.duracao_min,
+      }),
+      // Na criação o passado é aviso confirmável; aqui não: mover um
+      // atendimento para trás é erro de operação, não encaixe.
+      bloquearInicioPassado: true,
+    };
   }
 
   private async buscarAgendamento({

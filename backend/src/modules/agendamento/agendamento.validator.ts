@@ -110,9 +110,7 @@ export class AgendamentoValidator {
       throw new BadRequestException('O agendamento já está nesse horário.');
     }
 
-    // Na criação o passado é aviso confirmável; aqui não: mover um
-    // atendimento para trás é erro de operação, não encaixe.
-    if (avaliacao.avisos.includes('inicio_passado')) {
+    if (avaliacao.bloqueios.includes('inicio_passado')) {
       throw new BadRequestException(
         'Não é possível remarcar para um horário que já passou.',
       );

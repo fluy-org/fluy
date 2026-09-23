@@ -254,8 +254,8 @@ describe('AgendamentoValidator', () => {
         validator.validarRemarcacao({
           ...entrada,
           avaliacao: criarAvaliacao({
-            status: 'requer_confirmacao',
-            avisos: ['inicio_passado'],
+            status: 'indisponivel',
+            bloqueios: ['inicio_passado'],
           }),
           confirmarExcecoes: true,
         }),

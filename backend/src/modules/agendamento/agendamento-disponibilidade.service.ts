@@ -32,6 +32,12 @@ export class AgendamentoDisponibilidadeService {
       });
     }
 
+    if (input.bloquearInicioPassado && inicioAgendamento < input.agora) {
+      return this.criarAvaliacaoDeHorarioIndisponivel({
+        bloqueios: ['inicio_passado'],
+      });
+    }
+
     const bloqueios = this.listarBloqueiosPorCruzamentoDeMeiaNoite({
       fimAgendamento,
       input,

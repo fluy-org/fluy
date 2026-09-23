@@ -18,6 +18,7 @@
       type="date"
       label="Nova data"
       labelPlacement="stacked"
+      [min]="dataMinima()"
       [value]="formulario.controls.data.value"
       (ionChange)="mudarData($event.detail.value)"
     ></ion-input>
