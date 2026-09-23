@@ -11,7 +11,7 @@
   width: min(100%, 880px);
   margin: 0 auto;
   padding: var(--fluy-space-4) var(--fluy-space-4)
-    calc(var(--fluy-space-8) + env(safe-area-inset-bottom));
+    calc(104px + env(safe-area-inset-bottom));
 }
 
 .page-intro {
@@ -48,17 +48,51 @@ form {
   box-shadow: var(--fluy-shadow-sm);
 }
 
-.section-heading {
+.form-card-recolhido {
+  box-shadow: none;
+}
+
+.section-toggle {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--fluy-space-3);
-  margin-bottom: var(--fluy-space-4);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.section-heading {
+  display: grid;
+  flex: 1;
+  gap: var(--fluy-space-1);
 }
 
 .section-heading h2 {
   margin: 0;
   color: var(--fluy-color-title);
   font-size: var(--fluy-font-size-subtitle);
+}
+
+.section-heading p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section-chevron {
+  color: var(--fluy-color-primary);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.section-content {
+  margin-top: var(--fluy-space-4);
+  padding-top: var(--fluy-space-4);
+  border-top: 1px solid var(--fluy-color-border-soft);
 }
 
 .section-number {
@@ -79,6 +113,98 @@ ion-input {
   --border-color: var(--fluy-color-border);
   --border-radius: var(--fluy-radius-md);
   --highlight-color-focused: var(--fluy-color-focus);
+}
+
+ion-searchbar {
+  --background: var(--fluy-color-input);
+  --border-radius: var(--fluy-radius-md);
+  --box-shadow: none;
+  padding-inline: 0;
+}
+
+.cliente-picker {
+  display: grid;
+  gap: var(--fluy-space-3);
+}
+
+.cliente-selecionada,
+.cliente-opcao {
+  display: flex;
+  align-items: center;
+  gap: var(--fluy-space-3);
+  width: 100%;
+  padding: var(--fluy-space-3);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-md);
+  background: var(--fluy-color-surface);
+  color: var(--fluy-color-body);
+  text-align: left;
+}
+
+.cliente-selecionada {
+  border-color: var(--fluy-color-primary);
+}
+
+.cliente-selecionada > div,
+.cliente-identificacao {
+  display: grid;
+  flex: 1;
+  gap: var(--fluy-space-1);
+}
+
+.cliente-selecionada span,
+.cliente-identificacao small,
+.cliente-picker-actions,
+.cliente-sem-resultado {
+  color: var(--fluy-color-muted);
+}
+
+.cliente-selecionada-status {
+  color: var(--fluy-color-primary) !important;
+  font-size: var(--fluy-font-size-small);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.cliente-avatar {
+  display: grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--fluy-color-decorative-light);
+  color: var(--fluy-color-primary);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.clientes-resultados {
+  display: grid;
+  gap: var(--fluy-space-2);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.cliente-opcao {
+  cursor: pointer;
+}
+
+.cliente-opcao-selecionada {
+  border-color: var(--fluy-color-primary);
+  background: var(--fluy-color-decorative-light);
+}
+
+.cliente-picker-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fluy-space-2);
+  font-size: var(--fluy-font-size-small);
+}
+
+.cliente-sem-resultado {
+  margin: 0;
+  padding: var(--fluy-space-3);
+  text-align: center;
 }
 
 .estado-pagina,
@@ -103,17 +229,29 @@ ion-input {
   margin: var(--fluy-space-2) 0 0;
 }
 
-.form-actions {
+.agendamento-actions {
+  position: fixed;
+  z-index: 20;
+  right: var(--fluy-space-4);
+  bottom: 0;
+  left: var(--fluy-space-4);
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--fluy-space-3);
+  width: min(calc(100% - (var(--fluy-space-4) * 2)), 848px);
+  margin: 0 auto;
+  padding: var(--fluy-space-3) 0
+    calc(var(--fluy-space-3) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--fluy-color-border-soft);
+  background: var(--fluy-color-surface);
 }
 
-.form-actions {
-  padding-bottom: calc(var(--fluy-space-8) + env(safe-area-inset-bottom));
+.agendamento-actions ion-button {
+  margin: 0;
 }
 
 @media (min-width: 768px) {
   .page-content {
-    padding: var(--fluy-space-6);
+    padding: var(--fluy-space-6) var(--fluy-space-6) 104px;
   }
 }

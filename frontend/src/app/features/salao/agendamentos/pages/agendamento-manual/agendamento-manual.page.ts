@@ -7,9 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import type {
   AvaliacaoHorarioAgendamentoResponseDto,
   CriarAgendamentoDto,
+  CriarClienteDto,
   HorariosLivresResponseDto,
 } from '@fluy/schema';
 import { criarAgendamentoSchema } from '@fluy/schema';
@@ -21,6 +23,8 @@ import {
   IonContent,
   IonHeader,
   IonInput,
+  IonModal,
+  IonSearchbar,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -31,6 +35,7 @@ import { ConfirmacaoEncaixeComponent } from '@app/shared/components/confirmacao-
 import { SeletorHorarioComponent } from '@app/shared/components/seletor-horario/seletor-horario.component';
 import { RotuloAvaliacaoPipe } from '@app/shared/pipes/rotulo-avaliacao.pipe';
 import { AgendamentosService } from '@app/features/salao/agendamentos/services/agendamentos.service';
+import { FormularioClienteComponent } from '@app/features/salao/clientes/components/formulario-cliente/formulario-cliente.component';
 import { ClientesService } from '@app/features/salao/clientes/services/clientes.service';
 import { ProcedimentosService } from '@app/features/salao/procedimentos/services/procedimentos.service';
 import { HeaderComponent } from '@app/shared/components/header/header.component';
@@ -44,6 +49,7 @@ import { zodValidator } from '@app/shared/utils/zod-validator';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ConfirmacaoEncaixeComponent,
+    FormularioClienteComponent,
     HeaderComponent,
     SeletorHorarioComponent,
     IonBadge,
@@ -53,6 +59,8 @@ import { zodValidator } from '@app/shared/utils/zod-validator';
     IonContent,
     IonHeader,
     IonInput,
+    IonModal,
+    IonSearchbar,
     IonSelect,
     IonSelectOption,
     IonSpinner,
@@ -65,6 +73,7 @@ export class AgendamentoManualPage implements OnInit {
   private readonly agendamentosService = inject(AgendamentosService);
   private readonly clientesService = inject(ClientesService);
   private readonly procedimentosService = inject(ProcedimentosService);
+  private readonly router = inject(Router);
 
   readonly clientes = this.clientesService.clientes;
   readonly procedimentos = this.procedimentosService.procedimentos;
@@ -90,6 +99,57 @@ export class AgendamentoManualPage implements OnInit {
   readonly salvando = signal(false);
   readonly erro = signal<string | null>(null);
   readonly confirmacaoExigida = signal(false);
+  readonly termoPesquisaCliente = signal('');
+  readonly formularioClienteAberto = signal(false);
+  readonly salvandoCliente = signal(false);
+  readonly erroFormularioCliente = signal<string | null>(null);
+  readonly etapaAberta = signal<1 | 2 | 3>(1);
+
+  readonly clientesFiltrados = computed(() => {
+    const termoInformado = this.termoPesquisaCliente();
+    const termo = this.normalizarTexto(termoInformado);
+    const digitos = termoInformado.replace(/\D/g, '');
+
+    return this.clientes().filter((cliente) => {
+      const nomeCorresponde = this.normalizarTexto(cliente.nome).includes(termo);
+      const whatsappCorresponde =
+        digitos.length > 0 && cliente.whatsapp.includes(digitos);
+
+      return termo.length === 0 || nomeCorresponde || whatsappCorresponde;
+    });
+  });
+
+  clienteSelecionada() {
+    const clienteId = this.formulario.controls.cliente_id.value;
+
+    return this.clientes().find((cliente) => cliente.id === clienteId) ?? null;
+  }
+
+  procedimentoSelecionado() {
+    const procedimentoId = this.formulario.controls.procedimento_id.value;
+
+    return (
+      this.procedimentos().find(
+        (procedimento) => procedimento.id === procedimentoId,
+      ) ?? null
+    );
+  }
+
+  resumoDataHorario(): string {
+    const data = this.formulario.controls.data.value;
+    const hora = this.formulario.controls.hora_inicio.value;
+
+    if (!data) {
+      return 'Escolha a data e um horário disponível.';
+    }
+
+    const [ano, mes, dia] = data.split('-').map(Number);
+    const dataFormatada = new Intl.DateTimeFormat('pt-BR').format(
+      new Date(ano, mes - 1, dia),
+    );
+
+    return hora ? `${dataFormatada} · ${hora}` : dataFormatada;
+  }
 
   readonly procedimentosDisponiveis = computed(() =>
     [...this.procedimentos()].sort(
@@ -113,6 +173,66 @@ export class AgendamentoManualPage implements OnInit {
 
   ngOnInit(): void {
     void this.carregarDadosIniciais();
+  }
+
+  atualizarPesquisaCliente(valor: string | null | undefined): void {
+    this.termoPesquisaCliente.set(valor?.trim() ?? '');
+  }
+
+  selecionarCliente(clienteId: string): void {
+    this.formulario.controls.cliente_id.setValue(clienteId);
+    this.termoPesquisaCliente.set('');
+    this.etapaAberta.set(2);
+  }
+
+  alternarEtapa(etapa: 1 | 2 | 3): void {
+    this.etapaAberta.set(etapa);
+  }
+
+  async selecionarProcedimento(): Promise<void> {
+    await this.carregarHorarios();
+
+    if (this.formulario.controls.procedimento_id.value) {
+      this.etapaAberta.set(3);
+    }
+  }
+
+  cancelarAgendamento(): void {
+    void this.router.navigate(['/painel/agenda']);
+  }
+
+  abrirFormularioCliente(): void {
+    this.erroFormularioCliente.set(null);
+    this.formularioClienteAberto.set(true);
+  }
+
+  fecharFormularioCliente(): void {
+    if (this.salvandoCliente()) {
+      return;
+    }
+
+    this.formularioClienteAberto.set(false);
+    this.erroFormularioCliente.set(null);
+  }
+
+  async salvarCliente(dados: CriarClienteDto): Promise<void> {
+    this.salvandoCliente.set(true);
+    this.erroFormularioCliente.set(null);
+
+    try {
+      const clienteCriado = await this.clientesService.setEntidade(dados);
+
+      this.selecionarCliente(clienteCriado.id);
+      this.formularioClienteAberto.set(false);
+    } catch (error) {
+      this.erroFormularioCliente.set(
+        error instanceof ApiError
+          ? error.message
+          : 'Não foi possível cadastrar a cliente.',
+      );
+    } finally {
+      this.salvandoCliente.set(false);
+    }
   }
 
   async carregarHorarios(): Promise<void> {
@@ -257,5 +377,12 @@ export class AgendamentoManualPage implements OnInit {
     }
 
     this.erro.set(error.message);
+  }
+
+  private normalizarTexto(valor: string): string {
+    return valor
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('pt-BR');
   }
 }

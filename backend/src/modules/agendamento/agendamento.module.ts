@@ -12,9 +12,11 @@ import { DisponibilidadeModule } from '@/modules/disponibilidade/disponibilidade
 import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
 import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-configuracao.module';
 import { SalaoModule } from '@/modules/salao/salao.module';
+import { ClienteModule } from '@/modules/cliente/cliente.module';
 
 @Module({
   imports: [
+    ClienteModule,
     DisponibilidadeModule,
     ProcedimentoModule,
     SalaoConfiguracaoModule,

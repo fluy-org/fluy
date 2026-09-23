@@ -36,11 +36,11 @@ identificar a cliente pelo WhatsApp. Puxar esta antes de 2.2a.
 
 ### 2.1b Extrair cliente do motor de agendamento
 
-- [ ] Após criar `ClienteModule`, mover a validação temporária de cliente ativo do `AgendamentoService` para `ClienteService`. — **🔵 Leandro** — [DEP: 2.1](#21-clientes) · [DEP: 2.2b](#22b-motor-de-agendamento)
+- [x] Após criar `ClienteModule`, mover a validação temporária de cliente ativo do `AgendamentoService` para `ClienteService`. — **🔵 Leandro** — [DEP: 2.1](#21-clientes) · [DEP: 2.2b](#22b-motor-de-agendamento)
 
 ### 2.2a Tela de agendamento manual
 
-- [ ] Tela do painel: buscar/criar cliente, selecionar procedimento, escolher horário e tratar conflitos. Trabalha contra o contrato da API com mock local até a integração. — **🔵 Leandro** — [DEP: 2.1](#21-clientes) · [DEP: 1.3-FE](./bloco-1-setup-salao.md#13-fe-tela-de-procedimentos) `[SEED-OK]`
+- [x] Tela do painel: buscar/criar cliente, selecionar procedimento, escolher horário e tratar conflitos. Trabalha contra o contrato da API com mock local até a integração. — **🔵 Leandro** — [DEP: 2.1](#21-clientes) · [DEP: 1.3-FE](./bloco-1-setup-salao.md#13-fe-tela-de-procedimentos) `[SEED-OK]`
 
 ### 2.2b Motor de agendamento
 
@@ -48,7 +48,7 @@ identificar a cliente pelo WhatsApp. Puxar esta antes de 2.2a.
 
 ### 2.2c Integrar fluxo manual
 
-- [ ] Trocar o mock pela API real e validar o fluxo ponta a ponta. O frontend consome os contratos já publicados pelo motor; alterações em schema, controller, service, repository ou regra de disponibilidade exigem uma nova fase de backend, com revisão específica. — **🔵 Leandro** — [DEP: 2.2a](#22a-tela-de-agendamento-manual) · [DEP: 2.2b](#22b-motor-de-agendamento)
+- [x] Trocar o mock pela API real e validar o fluxo ponta a ponta. O frontend consome os contratos já publicados pelo motor; alterações em schema, controller, service, repository ou regra de disponibilidade exigem uma nova fase de backend, com revisão específica. — **🔵 Leandro** — [DEP: 2.2a](#22a-tela-de-agendamento-manual) · [DEP: 2.2b](#22b-motor-de-agendamento)
 
 **Critério de conclusão:** a tela usa os endpoints de horários livres, avaliação
 e criação; apresenta bloqueios e exige confirmação para avisos; e o fluxo manual

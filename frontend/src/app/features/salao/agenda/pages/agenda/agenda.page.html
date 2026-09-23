@@ -3,99 +3,76 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @let agenda = agendaDoDia();
+  @let agenda = agendaDoDia(); @if (agenda) {
+  <app-navegacao-dia
+    [data]="agenda.data"
+    [desabilitado]="carregando()"
+    (mudarDia)="mudarDia($event)"
+    (abrirCalendario)="abrirCalendario()"
+  ></app-navegacao-dia>
+  } @switch (estadoPagina()) { @case ('carregando') {
+  <div class="estado">
+    <ion-spinner></ion-spinner>
+  </div>
+  } @case ('offline') {
+  <div class="estado">
+    <ion-text color="medium">
+      <p>Sem conexão. A agenda não pôde ser carregada.</p>
+    </ion-text>
+    <ion-button fill="outline" (click)="recarregar()">
+      Tentar novamente
+    </ion-button>
+  </div>
+  } @case ('erro') {
+  <div class="estado">
+    <ion-text color="danger">
+      <p>{{ erro() }}</p>
+    </ion-text>
+    <ion-button fill="outline" (click)="recarregar()">
+      Tentar novamente
+    </ion-button>
+  </div>
+  } @case ('vazio') {
+  <div class="estado">
+    <ion-text color="medium">
+      <p>Sem agendamentos neste dia.</p>
+    </ion-text>
+  </div>
+  } @case ('lista') { @if (agenda) { @let agrupados = grupos(); @for
+  (agendamento of agrupados.ativos; track agendamento.id) {
+  <app-agendamento-card
+    [agendamento]="agendamento"
+    [fusoHorario]="agenda.fuso_horario"
+    (abrir)="abrirDetalhe($event)"
+  ></app-agendamento-card>
+  } @if (agrupados.encerrados.length > 0) {
+  <h2 class="titulo-grupo">Encerrados</h2>
 
-  @if (agenda) {
-    <app-navegacao-dia
-      [data]="agenda.data"
-      [desabilitado]="carregando()"
-      (mudarDia)="mudarDia($event)"
-      (abrirCalendario)="abrirCalendario()"
-    ></app-navegacao-dia>
-  }
-
-  @switch (estadoPagina()) {
-    @case ('carregando') {
-      <div class="estado">
-        <ion-spinner></ion-spinner>
-      </div>
+  <div class="encerrados">
+    @for (agendamento of agrupados.encerrados; track agendamento.id) {
+    <app-agendamento-card
+      [agendamento]="agendamento"
+      [fusoHorario]="agenda.fuso_horario"
+      (abrir)="abrirDetalhe($event)"
+    ></app-agendamento-card>
     }
-
-    @case ('offline') {
-      <div class="estado">
-        <ion-text color="medium">
-          <p>Sem conexão. A agenda não pôde ser carregada.</p>
-        </ion-text>
-        <ion-button fill="outline" (click)="recarregar()">
-          Tentar novamente
-        </ion-button>
-      </div>
-    }
-
-    @case ('erro') {
-      <div class="estado">
-        <ion-text color="danger">
-          <p>{{ erro() }}</p>
-        </ion-text>
-        <ion-button fill="outline" (click)="recarregar()">
-          Tentar novamente
-        </ion-button>
-      </div>
-    }
-
-    @case ('vazio') {
-      <div class="estado">
-        <ion-text color="medium">
-          <p>Sem agendamentos neste dia.</p>
-        </ion-text>
-      </div>
-    }
-
-    @case ('lista') {
-      @if (agenda) {
-        @let agrupados = grupos();
-
-        @for (agendamento of agrupados.ativos; track agendamento.id) {
-          <app-agendamento-card
-            [agendamento]="agendamento"
-            [fusoHorario]="agenda.fuso_horario"
-            (abrir)="abrirDetalhe($event)"
-          ></app-agendamento-card>
-        }
-
-        @if (agrupados.encerrados.length > 0) {
-          <h2 class="titulo-grupo">Encerrados</h2>
-
-          <div class="encerrados">
-            @for (agendamento of agrupados.encerrados; track agendamento.id) {
-              <app-agendamento-card
-                [agendamento]="agendamento"
-                [fusoHorario]="agenda.fuso_horario"
-                (abrir)="abrirDetalhe($event)"
-              ></app-agendamento-card>
-            }
-          </div>
-        }
-      }
-    }
-  }
+  </div>
+  } } } }
 </ion-content>
 
 <ion-modal [isOpen]="calendarioAberto()" (didDismiss)="fecharCalendario()">
   <ng-template>
-    @let agendaAtual = agendaDoDia();
-
-    @if (agendaAtual) {
-      <app-calendario-mes
-        [mes]="mesDoCalendario()"
-        [diaSelecionado]="agendaAtual.data"
-        [grade]="gradeDoCalendario()"
-        [carregando]="carregandoResumo()"
-        [erro]="erroResumo()"
-        (mudarMes)="mudarMesDoCalendario($event)"
-        (selecionarDia)="selecionarDiaDoCalendario($event)"
-        (tentarNovamente)="carregarResumo()"
-      ></app-calendario-mes>
+    @let agendaAtual = agendaDoDia(); @if (agendaAtual) {
+    <app-calendario-mes
+      [mes]="mesDoCalendario()"
+      [diaSelecionado]="agendaAtual.data"
+      [grade]="gradeDoCalendario()"
+      [carregando]="carregandoResumo()"
+      [erro]="erroResumo()"
+      (mudarMes)="mudarMesDoCalendario($event)"
+      (selecionarDia)="selecionarDiaDoCalendario($event)"
+      (tentarNovamente)="carregarResumo()"
+    ></app-calendario-mes>
     }
   </ng-template>
 </ion-modal>

@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, inArray, isNull, lt, ne, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
 import {
   agendamento,
   cliente,
@@ -45,28 +45,6 @@ type LinhaDaAgenda = {
 @Injectable()
 export class AgendamentoRepository {
   constructor(@InjectDatabase() private readonly database: Database) {}
-
-  async buscarClienteAtivo({
-    clienteId,
-    salaoId,
-  }: {
-    clienteId: string;
-    salaoId: string;
-  }): Promise<boolean> {
-    const clientes = await this.database
-      .select({ id: cliente.id })
-      .from(cliente)
-      .where(
-        and(
-          eq(cliente.id, clienteId),
-          eq(cliente.salao_id, salaoId),
-          isNull(cliente.removido_em),
-        ),
-      )
-      .limit(1);
-
-    return clientes.length > 0;
-  }
 
   listarOcupacoesDoDia({
     salaoId,

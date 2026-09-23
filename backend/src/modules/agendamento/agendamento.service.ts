@@ -37,6 +37,7 @@ import { DisponibilidadeService } from '@/modules/disponibilidade/disponibilidad
 import { ProcedimentoService } from '@/modules/procedimento/procedimento.service';
 import { SalaoConfiguracaoService } from '@/modules/salao-configuracao/salao-configuracao.service';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
+import { ClienteService } from '@/modules/cliente/cliente.service';
 
 @Injectable()
 export class AgendamentoService {
@@ -48,6 +49,7 @@ export class AgendamentoService {
     private readonly procedimentoService: ProcedimentoService,
     private readonly salaoConfiguracaoService: SalaoConfiguracaoService,
     private readonly salaoConsultaService: SalaoConsultaService,
+    private readonly clienteService: ClienteService,
   ) {}
 
   async listarHorariosLivres({
@@ -184,8 +186,8 @@ export class AgendamentoService {
     salaoId: string;
     dados: CriarAgendamentoDto;
   }) {
-    await this.garantirClienteAtivaDoSalao({
-      clienteId: dados.cliente_id,
+    await this.clienteService.buscarPorId({
+      id: dados.cliente_id,
       salaoId,
     });
     const dadosParaAvaliacao = await this.buscarDadosParaAvaliacaoHorario({
@@ -296,24 +298,6 @@ export class AgendamentoService {
       procedimento,
       profissionais,
     };
-  }
-
-  private async garantirClienteAtivaDoSalao({
-    clienteId,
-    salaoId,
-  }: {
-    clienteId: string;
-    salaoId: string;
-  }): Promise<void> {
-    // TODO(2.1b): mover para ClienteService quando ClienteModule existir.
-    const clienteAtiva = await this.agendamentoRepository.buscarClienteAtivo({
-      clienteId,
-      salaoId,
-    });
-
-    if (!clienteAtiva) {
-      throw new NotFoundException('Cliente não encontrada.');
-    }
   }
 
   private resolverHoje(fusoHorario: string): string {

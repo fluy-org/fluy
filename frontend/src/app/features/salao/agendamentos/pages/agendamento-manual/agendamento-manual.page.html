@@ -15,98 +15,185 @@
         <ion-text><p>Carregando clientes e procedimentos...</p></ion-text>
       </div>
     } @else {
-      <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
-        <ion-card class="form-card">
+      <form id="agendamento-form" [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
+        <ion-card class="form-card" [class.form-card-recolhido]="etapaAberta() !== 1">
           <ion-card-content>
-            <div class="section-heading">
+            <button
+              class="section-toggle"
+              type="button"
+              [attr.aria-expanded]="etapaAberta() === 1"
+              (click)="alternarEtapa(1)"
+            >
               <span class="section-number">1</span>
-              <div>
+              <span class="section-heading">
                 <h2>Cliente</h2>
-                <p>Selecione quem receberá o atendimento.</p>
-              </div>
-            </div>
+                <p>
+                  @if (clienteSelecionada(); as cliente) {
+                    {{ cliente.nome }} · {{ cliente.whatsapp }}
+                  } @else {
+                    Selecione quem receberá o atendimento.
+                  }
+                </p>
+              </span>
+              <span class="section-chevron" aria-hidden="true">
+                {{ etapaAberta() === 1 ? '−' : '+' }}
+              </span>
+            </button>
 
-            <ion-select
-              formControlName="cliente_id"
-              label="Cliente"
-              labelPlacement="stacked"
-              interface="popover"
-              placeholder="Selecione uma cliente"
-            >
-              @for (cliente of clientes(); track cliente.id) {
-                <ion-select-option [value]="cliente.id">
-                  {{ cliente.nome }} · {{ cliente.whatsapp }}
-                </ion-select-option>
+            @if (etapaAberta() === 1) {
+              <div class="section-content cliente-picker">
+              @if (clienteSelecionada(); as cliente) {
+                <div class="cliente-selecionada">
+                  <span class="cliente-avatar" aria-hidden="true">
+                    {{ cliente.nome.charAt(0).toUpperCase() }}
+                  </span>
+                  <div>
+                    <strong>{{ cliente.nome }}</strong>
+                    <span>{{ cliente.whatsapp }}</span>
+                  </div>
+                  <span class="cliente-selecionada-status">Selecionada</span>
+                </div>
               }
-            </ion-select>
-          </ion-card-content>
-        </ion-card>
 
-        <ion-card class="form-card">
-          <ion-card-content>
-            <div class="section-heading">
-              <span class="section-number">2</span>
-              <div>
-                <h2>Procedimento</h2>
-                <p>Procedimentos inativos continuam disponíveis para encaixes.</p>
-              </div>
-            </div>
+              <ion-searchbar
+                aria-label="Buscar cliente"
+                placeholder="Buscar por nome ou WhatsApp"
+                [value]="termoPesquisaCliente()"
+                (ionInput)="atualizarPesquisaCliente($event.detail.value)"
+              ></ion-searchbar>
 
-            <ion-select
-              formControlName="procedimento_id"
-              label="Procedimento"
-              labelPlacement="stacked"
-              interface="popover"
-              placeholder="Selecione um procedimento"
-              (ionChange)="carregarHorarios()"
-            >
-              @for (procedimento of procedimentosDisponiveis(); track procedimento.id) {
-                <ion-select-option [value]="procedimento.id">
-                  {{ procedimento.nome }} · {{ procedimento.duracao_min }} min
-                  {{ procedimento.ativo ? '' : ' · Inativo' }}
-                </ion-select-option>
-              }
-            </ion-select>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card class="form-card">
-          <ion-card-content>
-            <div class="section-heading">
-              <span class="section-number">3</span>
-              <div>
-                <h2>Data e horário</h2>
-                <p>Os horários consideram disponibilidade e conflitos.</p>
-              </div>
-            </div>
-
-            <ion-input
-              formControlName="data"
-              type="date"
-              label="Data"
-              labelPlacement="stacked"
-              (ionChange)="carregarHorarios()"
-            ></ion-input>
-
-            <app-seletor-horario
-              [horarios]="horarios()"
-              [horarioSelecionado]="formulario.controls.hora_inicio.value"
-              [carregando]="carregandoHorarios()"
-              [desabilitado]="!formulario.controls.procedimento_id.value || !formulario.controls.data.value"
-              (escolher)="selecionarHorario($event)"
-            ></app-seletor-horario>
-
-            @if (avaliacao(); as resultado) {
-              <div class="avaliacao" [class.avaliacao-alerta]="resultado.status === 'requer_confirmacao'">
-                <ion-badge [color]="resultado.status === 'disponivel' ? 'success' : 'warning'">
-                  {{ resultado.status === 'disponivel' ? 'Horário disponível' : 'Requer confirmação' }}
-                </ion-badge>
-
-                @for (aviso of resultado.avisos; track aviso) {
-                  <p>{{ aviso | rotuloAvaliacao }}</p>
+              <div class="clientes-resultados" aria-label="Clientes encontradas">
+                @for (cliente of clientesFiltrados(); track cliente.id) {
+                  <button
+                    class="cliente-opcao"
+                    type="button"
+                    [class.cliente-opcao-selecionada]="formulario.controls.cliente_id.value === cliente.id"
+                    (click)="selecionarCliente(cliente.id)"
+                  >
+                    <span class="cliente-avatar" aria-hidden="true">
+                      {{ cliente.nome.charAt(0).toUpperCase() }}
+                    </span>
+                    <span class="cliente-identificacao">
+                      <strong>{{ cliente.nome }}</strong>
+                      <small>{{ cliente.whatsapp }}</small>
+                    </span>
+                  </button>
+                } @empty {
+                  <p class="cliente-sem-resultado">Nenhuma cliente encontrada.</p>
                 }
-                @for (bloqueio of resultado.bloqueios; track bloqueio) {
-                  <p>{{ bloqueio | rotuloAvaliacao }}</p>
+              </div>
+
+              <div class="cliente-picker-actions">
+                <span>Não encontrou a cliente?</span>
+                <ion-button
+                  type="button"
+                  fill="clear"
+                  size="small"
+                  (click)="abrirFormularioCliente()"
+                >
+                  Cadastrar nova
+                </ion-button>
+              </div>
+              </div>
+            }
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="form-card" [class.form-card-recolhido]="etapaAberta() !== 2">
+          <ion-card-content>
+            <button
+              class="section-toggle"
+              type="button"
+              [attr.aria-expanded]="etapaAberta() === 2"
+              (click)="alternarEtapa(2)"
+            >
+              <span class="section-number">2</span>
+              <span class="section-heading">
+                <h2>Procedimento</h2>
+                <p>
+                  @if (procedimentoSelecionado(); as procedimento) {
+                    {{ procedimento.nome }} · {{ procedimento.duracao_min }} min
+                  } @else {
+                    Selecione o serviço que será realizado.
+                  }
+                </p>
+              </span>
+              <span class="section-chevron" aria-hidden="true">
+                {{ etapaAberta() === 2 ? '−' : '+' }}
+              </span>
+            </button>
+
+            @if (etapaAberta() === 2) {
+              <div class="section-content">
+                <ion-select
+                  formControlName="procedimento_id"
+                  label="Procedimento"
+                  labelPlacement="stacked"
+                  interface="popover"
+                  placeholder="Selecione um procedimento"
+                  (ionChange)="selecionarProcedimento()"
+                >
+                  @for (procedimento of procedimentosDisponiveis(); track procedimento.id) {
+                    <ion-select-option [value]="procedimento.id">
+                      {{ procedimento.nome }} · {{ procedimento.duracao_min }} min
+                      {{ procedimento.ativo ? '' : ' · Inativo' }}
+                    </ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            }
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="form-card" [class.form-card-recolhido]="etapaAberta() !== 3">
+          <ion-card-content>
+            <button
+              class="section-toggle"
+              type="button"
+              [attr.aria-expanded]="etapaAberta() === 3"
+              (click)="alternarEtapa(3)"
+            >
+              <span class="section-number">3</span>
+              <span class="section-heading">
+                <h2>Data e horário</h2>
+                <p>{{ resumoDataHorario() }}</p>
+              </span>
+              <span class="section-chevron" aria-hidden="true">
+                {{ etapaAberta() === 3 ? '−' : '+' }}
+              </span>
+            </button>
+
+            @if (etapaAberta() === 3) {
+              <div class="section-content">
+                <ion-input
+                  formControlName="data"
+                  type="date"
+                  label="Data"
+                  labelPlacement="stacked"
+                  (ionChange)="carregarHorarios()"
+                ></ion-input>
+
+                <app-seletor-horario
+                  [horarios]="horarios()"
+                  [horarioSelecionado]="formulario.controls.hora_inicio.value"
+                  [carregando]="carregandoHorarios()"
+                  [desabilitado]="!formulario.controls.procedimento_id.value || !formulario.controls.data.value"
+                  (escolher)="selecionarHorario($event)"
+                ></app-seletor-horario>
+
+                @if (avaliacao(); as resultado) {
+                  <div class="avaliacao" [class.avaliacao-alerta]="resultado.status === 'requer_confirmacao'">
+                    <ion-badge [color]="resultado.status === 'disponivel' ? 'success' : 'warning'">
+                      {{ resultado.status === 'disponivel' ? 'Horário disponível' : 'Requer confirmação' }}
+                    </ion-badge>
+
+                    @for (aviso of resultado.avisos; track aviso) {
+                      <p>{{ aviso | rotuloAvaliacao }}</p>
+                    }
+                    @for (bloqueio of resultado.bloqueios; track bloqueio) {
+                      <p>{{ bloqueio | rotuloAvaliacao }}</p>
+                    }
+                  </div>
                 }
               </div>
             }
@@ -134,12 +221,36 @@
           ></app-confirmacao-encaixe>
         }
 
-        <div class="form-actions">
-          <ion-button type="submit" expand="block" [disabled]="salvando() || formulario.invalid">
-            {{ salvando() ? 'Salvando...' : 'Confirmar agendamento' }}
-          </ion-button>
-        </div>
       </form>
     }
   </main>
 </ion-content>
+
+@if (!carregandoInicial()) {
+  <div class="agendamento-actions" role="group" aria-label="Ações do agendamento">
+    <ion-button type="button" fill="outline" (click)="cancelarAgendamento()">
+      Cancelar
+    </ion-button>
+    <ion-button
+      type="button"
+      [disabled]="salvando() || formulario.invalid"
+      (click)="enviarFormulario()"
+    >
+      {{ salvando() ? 'Salvando...' : 'Agendar' }}
+    </ion-button>
+  </div>
+}
+
+<ion-modal
+  [isOpen]="formularioClienteAberto()"
+  (didDismiss)="fecharFormularioCliente()"
+>
+  <ng-template>
+    <app-formulario-cliente
+      [salvando]="salvandoCliente()"
+      [erroExterno]="erroFormularioCliente()"
+      (salvar)="salvarCliente($event)"
+      (cancelar)="fecharFormularioCliente()"
+    ></app-formulario-cliente>
+  </ng-template>
+</ion-modal>
