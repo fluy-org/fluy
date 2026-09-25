@@ -28,6 +28,12 @@ export class TenantContextResolver {
     return this.tenantContextRepository.buscarPorSubdominio(subdominio);
   }
 
+  resolverPorSubdominio(
+    subdominio: string,
+  ): Promise<TenantContext | undefined> {
+    return this.tenantContextRepository.buscarPorSubdominio(subdominio);
+  }
+
   private extrairSubdominio(host: string): string | undefined {
     const dominioBase = this.config.get('TENANT_BASE_DOMAIN', {
       infer: true,

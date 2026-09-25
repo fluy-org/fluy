@@ -3,6 +3,7 @@ import type {
     cliente,
     CriarClienteDto,
     StatusFiltroCliente,
+    IdentificarClientePublicaDto,
 } from '@fluy/schema';
 
 
@@ -25,5 +26,15 @@ export type CriarClienteInput = {
 export type AtualizarClienteInput = {
     dados: AtualizarClienteDto;
     id: string;
+    salaoId: string;
+};
+
+export type ResolverSessaoClienteInput = {
+    credencial: string;
+    salaoId: string;
+};
+
+export type IdentificarClientePublicaInput = {
+    dados: IdentificarClientePublicaDto;
     salaoId: string;
 };

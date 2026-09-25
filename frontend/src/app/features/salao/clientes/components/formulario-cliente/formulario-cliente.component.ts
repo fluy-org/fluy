@@ -9,7 +9,10 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import type { ClienteResponseDto, CriarClienteDto } from '@fluy/schema';
-import { criarClienteSchema } from '@fluy/schema';
+import {
+  criarClienteSchema,
+  normalizarWhatsappInternacional,
+} from '@fluy/schema';
 import {
   IonButton,
   IonContent,
@@ -116,7 +119,14 @@ export class FormularioClienteComponent {
   }
 
   private formatarWhatsapp(valor: string): string {
-    const digitos = valor.replace(/\D/g, '').slice(0, 11);
+    const todosOsDigitos = valor.replace(/\D/g, '');
+    const possuiDdiBrasil =
+      valor.trim().startsWith('+55') ||
+      (todosOsDigitos.length > 11 && todosOsDigitos.startsWith('55'));
+    const digitos = (possuiDdiBrasil
+      ? todosOsDigitos.slice(2)
+      : todosOsDigitos
+    ).slice(0, 11);
 
     if (digitos.length === 0) {
       return '';
@@ -141,6 +151,7 @@ export class FormularioClienteComponent {
 
     return {
       ...dados,
+      whatsapp: normalizarWhatsappInternacional(dados.whatsapp),
       observacoes: observacoes || undefined,
     };
   }

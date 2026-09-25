@@ -4,6 +4,7 @@ import {
   LIMITE_SUBDOMINIO,
 } from "./salao.constants.js";
 import { FUSOS_HORARIOS_BRASIL } from "./salao.enums.js";
+import { whatsappInternacionalSchema } from "../whatsapp/whatsapp.schema.js";
 
 const MENSAGEM_SUBDOMINIO_INVALIDO = `Use de ${LIMITE_MINIMO_SUBDOMINIO} a ${LIMITE_SUBDOMINIO} caracteres minúsculos, números ou hífens.`;
 
@@ -13,9 +14,7 @@ const subdominioSchema = z
   .max(LIMITE_SUBDOMINIO, MENSAGEM_SUBDOMINIO_INVALIDO)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, MENSAGEM_SUBDOMINIO_INVALIDO);
 
-const contatoWhatsappSchema = z
-  .string()
-  .regex(/^\+55\d{10,11}$/, "Informe um WhatsApp brasileiro válido.");
+const contatoWhatsappSchema = whatsappInternacionalSchema;
 
 function textoObrigatorioSchema(mensagem: string) {
   return z.string().refine((valor) => valor.trim().length > 0, mensagem);
@@ -47,6 +46,15 @@ export const salaoResponseSchema = z
     criado_em: z.iso.datetime(),
   })
   .meta({ id: "SalaoResponse" });
+
+export const salaoPublicoResponseSchema = salaoResponseSchema
+  .pick({
+    nome: true,
+    subdominio: true,
+    contato_whatsapp: true,
+    endereco: true,
+  })
+  .meta({ id: "SalaoPublicoResponse" });
 
 export const subdominioIndisponivelSchema = z
   .object({

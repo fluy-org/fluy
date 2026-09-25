@@ -1,0 +1,67 @@
+:host {
+  display: block;
+}
+
+.cabecalho-publico {
+  display: flex;
+  align-items: center;
+  gap: var(--fluy-space-3);
+  width: 100%;
+  min-height: 68px;
+  padding: calc(var(--fluy-space-3) + env(safe-area-inset-top))
+    var(--fluy-space-4) var(--fluy-space-3);
+  box-sizing: border-box;
+  color: var(--fluy-color-on-primary);
+  background: linear-gradient(
+    135deg,
+    var(--fluy-color-primary),
+    var(--fluy-color-accent)
+  );
+  box-shadow: var(--fluy-shadow-md);
+}
+
+.marca {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, currentColor 55%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, white 35%, transparent);
+  font-size: var(--fluy-font-size-title);
+  font-weight: var(--fluy-font-weight-bold);
+}
+
+.identificacao {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: var(--fluy-space-1);
+}
+
+.identificacao strong,
+.identificacao span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identificacao strong {
+  font-size: var(--fluy-font-size-subtitle);
+}
+
+.identificacao span {
+  font-size: var(--fluy-font-size-small);
+}
+
+ion-icon {
+  flex: 0 0 auto;
+  font-size: 1.6rem;
+}
+
+@media (min-width: 768px) {
+  .cabecalho-publico {
+    padding-top: var(--fluy-space-4);
+  }
+}

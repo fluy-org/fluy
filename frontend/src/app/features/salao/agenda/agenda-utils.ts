@@ -2,6 +2,7 @@ import type {
   AgendamentoAgendaResponseDto,
   ResumoAgendaResponseDto,
 } from '@fluy/schema';
+import { formatarWhatsappInternacional } from '@fluy/schema';
 import { ESTADOS_ENCERRADOS } from './agenda-data';
 import type { GradeDoMes, GruposDaAgenda } from './contracts';
 
@@ -135,17 +136,7 @@ export function formatarValor(valor: number): string {
 }
 
 export function formatarWhatsapp(whatsapp: string): string {
-  const digitos = whatsapp.replace(/\D/g, '').replace(/^55/, '');
-
-  if (digitos.length < 10 || digitos.length > 11) {
-    return whatsapp;
-  }
-
-  const ddd = digitos.slice(0, 2);
-  const numero = digitos.slice(2);
-  const meio = numero.length === 9 ? numero.slice(0, 5) : numero.slice(0, 4);
-
-  return `(${ddd}) ${meio}-${numero.slice(meio.length)}`;
+  return formatarWhatsappInternacional(whatsapp);
 }
 
 export function formatarDuracao(duracaoMin: number): string {

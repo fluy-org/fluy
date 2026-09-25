@@ -20,6 +20,7 @@ import type {
   CriarClienteDto,
   StatusFiltroCliente,
 } from '@fluy/schema';
+import { formatarWhatsappInternacional } from '@fluy/schema';
 import { ApiError } from '@app/core/errors/api-error';
 import { FormularioClienteComponent } from '@app/features/salao/clientes/components/formulario-cliente/formulario-cliente.component';
 import { ClientesService } from '@app/features/salao/clientes/services/clientes.service';
@@ -106,14 +107,7 @@ export class ClientesPage implements OnInit {
   }
 
   formatarWhatsapp(valor: string): string {
-    const digitos = valor.replace(/\D/g, '').slice(0, 11);
-    const tamanhoPrefixo = digitos.length === 11 ? 5 : 4;
-    const ddd = digitos.slice(0, 2);
-    const numero = digitos.slice(2);
-    const prefixo = numero.slice(0, tamanhoPrefixo);
-    const sufixo = numero.slice(tamanhoPrefixo);
-
-    return `(${ddd}) ${prefixo}${sufixo ? `-${sufixo}` : ''}`;
+    return formatarWhatsappInternacional(valor);
   }
 
   abrirFormulario(): void {

@@ -54,6 +54,7 @@ export * from './imagem_procedimento/index.js';
 export * from './anexo_agendamento/index.js';
 export * from './nota/index.js';
 export * from './lembrete/index.js';
+export * from './whatsapp/index.js';
 
 export const schema = {
   ...salaoSchema,

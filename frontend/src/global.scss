@@ -39,3 +39,14 @@
  * controlado pelos tokens definidos em theme/variables.scss.
  */
 /* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+/*
+ * Área de rolagem segura para todas as páginas.
+ * O espaço fixo também protege a última ação nos simuladores de celular,
+ * onde env(safe-area-inset-bottom) normalmente retorna zero.
+ */
+.fluy-page-safe {
+  --padding-bottom: calc(
+    var(--fluy-space-8) + env(safe-area-inset-bottom, 0px)
+  ) !important;
+}

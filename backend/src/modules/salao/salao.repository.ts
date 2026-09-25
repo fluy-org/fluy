@@ -13,6 +13,10 @@ export class SalaoRepository {
     const saloes = await this.database
       .select({
         id: salao.id,
+        nome: salao.nome,
+        subdominio: salao.subdominio,
+        contato_whatsapp: salao.contato_whatsapp,
+        endereco: salao.endereco,
         fuso_horario: salao.fuso_horario,
       })
       .from(salao)

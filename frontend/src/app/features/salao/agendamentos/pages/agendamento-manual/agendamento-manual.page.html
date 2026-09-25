@@ -2,7 +2,7 @@
   <app-header titulo="Novo agendamento"></app-header>
 </ion-header>
 
-<ion-content class="agendamento-manual-page">
+<ion-content class="agendamento-manual-page fluy-page-safe">
   <main class="page-content">
     <header class="page-intro">
       <h1>Novo agendamento</h1>
@@ -29,7 +29,7 @@
                 <h2>Cliente</h2>
                 <p>
                   @if (clienteSelecionada(); as cliente) {
-                    {{ cliente.nome }} · {{ cliente.whatsapp }}
+                    {{ cliente.nome }} · {{ formatarWhatsapp(cliente.whatsapp) }}
                   } @else {
                     Selecione quem receberá o atendimento.
                   }
@@ -49,7 +49,7 @@
                   </span>
                   <div>
                     <strong>{{ cliente.nome }}</strong>
-                    <span>{{ cliente.whatsapp }}</span>
+                    <span>{{ formatarWhatsapp(cliente.whatsapp) }}</span>
                   </div>
                   <span class="cliente-selecionada-status">Selecionada</span>
                 </div>
@@ -75,7 +75,7 @@
                     </span>
                     <span class="cliente-identificacao">
                       <strong>{{ cliente.nome }}</strong>
-                      <small>{{ cliente.whatsapp }}</small>
+                      <small>{{ formatarWhatsapp(cliente.whatsapp) }}</small>
                     </span>
                   </button>
                 } @empty {

@@ -7,12 +7,18 @@ export class SalaoConsultaService {
   constructor(private readonly salaoRepository: SalaoRepository) {}
 
   async obterFusoHorario(salaoId: string): Promise<FusoHorarioBrasil> {
+    const salao = await this.buscarPorId(salaoId);
+
+    return salao.fuso_horario;
+  }
+
+  async buscarPorId(salaoId: string) {
     const salao = await this.salaoRepository.buscarPorId(salaoId);
 
     if (!salao) {
       throw new NotFoundException('Salão não encontrado.');
     }
 
-    return salao.fuso_horario;
+    return salao;
   }
 }
