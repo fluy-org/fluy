@@ -34,7 +34,7 @@ export const routes: Routes = [
           import('./features/demo/demo.routes').then((m) => m.routes),
       },
       {
-        path: ':subdominio',
+        path: 's/:subdominio',
         loadChildren: () =>
           import('./features/pagina-cliente/pagina-cliente.routes').then(
             (m) => m.PAGINA_CLIENTE_ROUTES,

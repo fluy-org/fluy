@@ -16,7 +16,10 @@ import type {
   CriarClienteDto,
   HorariosLivresResponseDto,
 } from '@fluy/schema';
-import { criarAgendamentoSchema } from '@fluy/schema';
+import {
+  criarAgendamentoSchema,
+  formatarWhatsappInternacional,
+} from '@fluy/schema';
 import {
   IonBadge,
   IonButton,
@@ -108,6 +111,7 @@ export class AgendamentoManualPage implements OnInit {
   readonly salvandoCliente = signal(false);
   readonly erroFormularioCliente = signal<string | null>(null);
   readonly etapaAberta = signal<1 | 2 | 3>(1);
+  readonly formatarWhatsapp = formatarWhatsappInternacional;
   // A lista de clientes é paginada; a selecionada pode não estar na página
   // carregada, então a tela guarda a própria referência.
   readonly clienteSelecionada = signal<ClienteResponseDto | null>(null);

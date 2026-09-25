@@ -1,19 +1,16 @@
 import { z } from "zod";
 import { ESTADO_AGENDAMENTO } from "../agendamento/agendamento.enums.js";
 import { FUSOS_HORARIOS_BRASIL } from "../salao/salao.enums.js";
+import { whatsappInternacionalSchema } from "../whatsapp/whatsapp.schema.js";
 import {
   ORDENACAO_CLIENTE,
   SEGMENTO_CLIENTE,
   STATUS_FILTRO_CLIENTE,
 } from "./cliente.enums.js";
 
-export const whatsappClienteSchema = z
-  .string()
-  // A normalização mantém um único formato no banco e evita duplicidade por máscara.
-  .transform((valor) => valor.replace(/\D/g, ""))
-  .refine((valor) => valor.length === 10 || valor.length === 11, {
-    message: "Informe um WhatsApp com DDD válido.",
-  });
+// O WhatsApp identifica a cliente dentro do salão; a normalização evita que
+// máscara, DDI omitido ou outro dispositivo criem cadastros duplicados.
+export const whatsappClienteSchema = whatsappInternacionalSchema;
 
 const nomeClienteSchema = z
   .string()
@@ -44,7 +41,7 @@ export const clienteResponseSchema = z
   .object({
     id: z.uuid(),
     nome: z.string(),
-    whatsapp: z.string(),
+    whatsapp: whatsappInternacionalSchema,
     observacoes: z.string().nullable(),
     ativo: z.boolean(),
     criada_em: z.iso.datetime(),

@@ -4,6 +4,7 @@ import type {
     ClienteResponseDto,
     ListaAgendamentosClienteResponseDto,
     ListaClientesResponseDto,
+    SessaoClientePublicaResponseDto,
 } from '@fluy/schema';
 import type {
     ClienteDaListaPersistido,
@@ -73,6 +74,16 @@ export function toAgendamentosDaClienteResponse({
             preco_total: Number(agendamento.preco_total),
         })),
         proximo_cursor: proximoCursor,
+    };
+}
+
+export function toSessaoClientePublicaResponse(
+    cliente: ClientePersistido | undefined,
+): SessaoClientePublicaResponseDto {
+    return {
+        cliente: cliente
+            ? { nome: cliente.nome, whatsapp: cliente.whatsapp }
+            : null,
     };
 }
 

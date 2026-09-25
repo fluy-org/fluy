@@ -65,7 +65,7 @@ normal que fecha o fluxo inteiro.
 *Backend — ficha*
 
 - Dados básicos da cliente + edição de nome, WhatsApp e observações livres.
-- **Editar WhatsApp exige confirmação** — é a chave única no salão. Usa a mesma validação do cadastro (`whatsappClienteSchema`: DDD + número); o formato internacional chega com a [4.1](./bloco-4-cliente-final.md#41-acesso-público-e-identificação-da-cliente), que ainda não foi entregue, e passa a valer para criação e edição de uma vez.
+- **Editar WhatsApp exige confirmação** — é a chave única no salão. Usa a mesma validação do cadastro (`whatsappClienteSchema`), no formato internacional definido pela [4.1](./bloco-4-cliente-final.md#41-acesso-público-e-identificação-da-cliente).
 - Timeline **paginada** do histórico de agendamentos: data, procedimento, valor, estado, com link para o detalhe. Cliente com centenas de agendamentos não pode travar a tela.
 - Métricas: total gasto acumulado, total de agendamentos, no-shows, cancelamentos e último atendimento. Derivadas de `agendamento` + `evento_agendamento` + `pagamento_agendamento`.
 - **Histórico é imutável** — a ficha não permite editar nem apagar agendamento passado.

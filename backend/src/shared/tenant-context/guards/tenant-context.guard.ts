@@ -56,6 +56,18 @@ export class TenantContextGuard implements CanActivate {
       );
     }
 
+    if (source === 'path') {
+      const subdominio = request.params.subdominio;
+
+      if (typeof subdominio !== 'string') {
+        return undefined;
+      }
+
+      return this.tenantContextResolver.resolverPorSubdominio(
+        subdominio,
+      );
+    }
+
     const identity = request.authenticatedIdentity;
 
     if (!identity) {

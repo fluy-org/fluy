@@ -2,6 +2,7 @@ import {
     BadRequestException,
     ConflictException,
     Injectable,
+    InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
 import {
@@ -20,10 +21,12 @@ import type {
     ClienteFichaResultado,
     ClientePersistido,
     CriarClienteInput,
+    IdentificarClientePublicaInput,
     ListaAgendamentosClienteResultado,
     ListaClientesResultado,
     ListarAgendamentosClienteInput,
     ListarClienteInput,
+    ResolverSessaoClienteInput,
 } from '@/modules/cliente/contracts';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 import { adicionarDiasNoInstante } from '@/shared/horario-salao/horario-salao.utils';
@@ -182,5 +185,29 @@ export class ClienteService {
         }
 
         return clienteReativado;
+    }
+
+    resolverSessaoPublica(input: ResolverSessaoClienteInput) {
+        return this.clienteRepository.resolverSessao(input);
+    }
+
+    async identificarPublicamente(
+        input: IdentificarClientePublicaInput,
+    ): Promise<ClientePersistido> {
+        const resultado = await this.clienteRepository.identificarPublicamente(input);
+
+        if (resultado.conflitoCredencial) {
+            throw new ConflictException(
+                'A identificação deste dispositivo precisa ser renovada.',
+            );
+        }
+
+        if (!resultado.cliente) {
+            throw new InternalServerErrorException(
+                'Não foi possível identificar a cliente.',
+            );
+        }
+
+        return resultado.cliente;
     }
 }

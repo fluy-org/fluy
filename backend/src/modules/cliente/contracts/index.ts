@@ -7,3 +7,6 @@ export * from '@/modules/cliente/contracts/lista-agendamentos-cliente-response.d
 export * from '@/modules/cliente/contracts/lista-clientes-response.dto';
 export * from '@/modules/cliente/contracts/listar-agendamentos-cliente-query.dto';
 export * from '@/modules/cliente/contracts/listar-cliente-query.dto';
+export * from '@/modules/cliente/contracts/consultar-sessao-cliente-query.dto';
+export * from '@/modules/cliente/contracts/identificar-cliente-publica-request.dto';
+export * from '@/modules/cliente/contracts/sessao-cliente-publica-response.dto';

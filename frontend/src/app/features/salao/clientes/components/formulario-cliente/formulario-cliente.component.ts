@@ -9,7 +9,10 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import type { ClienteResponseDto, CriarClienteDto } from '@fluy/schema';
-import { criarClienteSchema } from '@fluy/schema';
+import {
+  criarClienteSchema,
+  normalizarWhatsappInternacional,
+} from '@fluy/schema';
 import {
   IonButton,
   IonContent,
@@ -19,7 +22,6 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { normalizarWhatsapp } from '../../../../../shared/utils/formatacao';
 import { zodValidator } from '../../../../../shared/utils/zod-validator';
 
 @Component({
@@ -111,15 +113,20 @@ export class FormularioClienteComponent {
     this.erroValidacao.set(null);
     this.formulario.reset({
       nome: cliente?.nome ?? '',
-      whatsapp: this.formatarWhatsapp(
-        normalizarWhatsapp(cliente?.whatsapp ?? ''),
-      ),
+      whatsapp: this.formatarWhatsapp(cliente?.whatsapp ?? ''),
       observacoes: cliente?.observacoes ?? '',
     });
   }
 
   private formatarWhatsapp(valor: string): string {
-    const digitos = valor.replace(/\D/g, '').slice(0, 11);
+    const todosOsDigitos = valor.replace(/\D/g, '');
+    const possuiDdiBrasil =
+      valor.trim().startsWith('+55') ||
+      (todosOsDigitos.length > 11 && todosOsDigitos.startsWith('55'));
+    const digitos = (possuiDdiBrasil
+      ? todosOsDigitos.slice(2)
+      : todosOsDigitos
+    ).slice(0, 11);
 
     if (digitos.length === 0) {
       return '';
@@ -144,6 +151,7 @@ export class FormularioClienteComponent {
 
     return {
       ...dados,
+      whatsapp: normalizarWhatsappInternacional(dados.whatsapp),
       observacoes: observacoes || undefined,
     };
   }

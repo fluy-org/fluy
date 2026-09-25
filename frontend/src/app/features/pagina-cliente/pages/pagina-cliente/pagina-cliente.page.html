@@ -1,1 +1,131 @@
-<ion-content></ion-content>
+<ion-content class="tema-fluy fluy-page-safe">
+  @if (estado() === 'carregando') {
+    <div class="estado-pagina" role="status">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Carregando o salão...</p>
+    </div>
+  } @else if (estado() === 'erro') {
+    <div class="estado-pagina estado-erro">
+      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+      <h1>Salão não encontrado</h1>
+      <p>Confira o endereço informado ou tente novamente.</p>
+      <ion-button type="button" fill="outline" (click)="recarregar()">
+        Tentar novamente
+      </ion-button>
+    </div>
+  } @else if (salao(); as salaoAtual) {
+    <div class="portal-cliente">
+      <app-cabecalho-publico [salao]="salaoAtual"></app-cabecalho-publico>
+
+      <main class="conteudo-publico">
+        <section class="boas-vindas">
+          <span class="etiqueta">Agendamento online</span>
+          <h1>Cuide de você no seu tempo</h1>
+          <p>
+            Escolha o procedimento e encontre o melhor horário para o seu
+            atendimento.
+          </p>
+        </section>
+
+        <section class="informacoes-salao" aria-label="Informações do salão">
+          <div>
+            <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+            <span>{{ salaoAtual.endereco }}</span>
+          </div>
+          <div>
+            <ion-icon name="logo-whatsapp" aria-hidden="true"></ion-icon>
+            <span>{{ formatarWhatsapp(salaoAtual.contato_whatsapp) }}</span>
+          </div>
+        </section>
+
+        @if (cliente(); as clienteAtual) {
+          <section class="cartao-identificacao retorno-cliente">
+            <div>
+              <span class="etiqueta">Que bom ter você de volta</span>
+              <h2>Olá, {{ clienteAtual.nome }}</h2>
+              <p>{{ formatarWhatsapp(clienteAtual.whatsapp) }}</p>
+            </div>
+
+            <ion-button type="button" expand="block">
+              Continuar como {{ clienteAtual.nome }}
+            </ion-button>
+            <ion-button
+              type="button"
+              expand="block"
+              fill="clear"
+              (click)="agendarComoOutraPessoa()"
+            >
+              Agendar como outra pessoa
+            </ion-button>
+          </section>
+        } @else if (exibirFormulario()) {
+          <section class="cartao-identificacao">
+            <div class="titulo-identificacao">
+              <span class="passo">1</span>
+              <div>
+                <h2>Vamos começar</h2>
+                <p>Informe seus dados para acessar os agendamentos.</p>
+              </div>
+            </div>
+
+            <form [formGroup]="formulario" (ngSubmit)="identificar()">
+              <ion-input
+                formControlName="nome"
+                label="Nome"
+                labelPlacement="stacked"
+                maxlength="200"
+                placeholder="Como podemos chamar você?"
+              ></ion-input>
+
+              <ion-input
+                formControlName="whatsapp"
+                label="WhatsApp"
+                labelPlacement="stacked"
+                inputmode="tel"
+                maxlength="15"
+                placeholder="(11) 99999-9999"
+                (ionInput)="formatarCampoWhatsapp($event.detail.value)"
+              ></ion-input>
+
+              <ion-checkbox formControlName="consentimento_privacidade">
+                Concordo com o uso dos meus dados para identificação e
+                agendamentos.
+              </ion-checkbox>
+
+              <button
+                class="link-privacidade"
+                type="button"
+                (click)="exibirPrivacidade.set(!exibirPrivacidade())"
+              >
+                {{ exibirPrivacidade() ? 'Ocultar aviso' : 'Ler aviso de privacidade' }}
+              </button>
+
+              @if (exibirPrivacidade()) {
+                <p class="aviso-privacidade">
+                  Seu nome, WhatsApp e identificador deste dispositivo serão
+                  usados para reconhecer você e administrar seus agendamentos
+                  neste salão. Para exercer seus direitos sobre esses dados,
+                  entre em contato diretamente com o salão.
+                </p>
+              }
+
+              @if (erroIdentificacao()) {
+                <p class="mensagem-erro" role="alert">
+                  {{ erroIdentificacao() }}
+                </p>
+              }
+
+              <ion-button
+                type="submit"
+                expand="block"
+                [disabled]="identificando()"
+              >
+                {{ identificando() ? 'Continuando...' : 'Continuar' }}
+              </ion-button>
+            </form>
+          </section>
+        }
+      </main>
+    </div>
+  }
+</ion-content>

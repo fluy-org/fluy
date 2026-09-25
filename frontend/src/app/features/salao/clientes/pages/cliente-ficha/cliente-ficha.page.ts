@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { ClienteFichaResponseDto, CriarClienteDto } from '@fluy/schema';
+import { normalizarWhatsappInternacional } from '@fluy/schema';
 import {
   AlertController,
   InfiniteScrollCustomEvent,
@@ -25,10 +26,7 @@ import { HistoricoAgendamentosComponent } from '@app/features/salao/clientes/com
 import { MetricasClienteComponent } from '@app/features/salao/clientes/components/metricas-cliente/metricas-cliente.component';
 import type { EstadoPaginaFicha } from '@app/features/salao/clientes/contracts';
 import { ClientesService } from '@app/features/salao/clientes/services/clientes.service';
-import {
-  formatarWhatsapp,
-  normalizarWhatsapp,
-} from '@app/shared/utils/formatacao';
+import { formatarWhatsapp } from '@app/shared/utils/formatacao';
 
 @Component({
   selector: 'app-cliente-ficha',
@@ -151,9 +149,10 @@ export class ClienteFichaPage implements OnInit {
       return;
     }
 
-    // Cadastros antigos podem guardar o número em outro formato (ex.: +55...);
-    // a comparação é pelo número normalizado, não pelo texto salvo.
-    const whatsappMudou = dados.whatsapp !== normalizarWhatsapp(ficha.whatsapp);
+    // O formulário devolve o número já normalizado; comparar com o texto salvo
+    // cru pediria confirmação de troca para qualquer cadastro em formato legado.
+    const whatsappMudou =
+      dados.whatsapp !== normalizarWhatsappInternacional(ficha.whatsapp);
 
     if (whatsappMudou) {
       const trocaConfirmada = await this.confirmarTrocaWhatsapp(

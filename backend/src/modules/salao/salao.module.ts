@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
+import { SalaoPublicoController } from '@/modules/salao/salao-publico.controller';
 import { SalaoRepository } from '@/modules/salao/salao.repository';
 
 @Module({
+  controllers: [SalaoPublicoController],
   providers: [SalaoConsultaService, SalaoRepository],
   exports: [SalaoConsultaService],
 })

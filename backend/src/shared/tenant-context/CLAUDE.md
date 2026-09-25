@@ -14,6 +14,9 @@ Os decorators são parâmetros de controller e fornecem o metadado interpretado
 pelo guard. O resolver busca por dono ou host via `TenantContextRepository`; se
 não houver salão, o guard retorna 404.
 
+- `@TenantFromPath()` resolve o salão pelo parâmetro `:subdominio` em endpoint
+  público do MVP e também marca o handler como público.
+
 ## Fluxo
 
 1. Receba `TenantContext` pelo decorator.

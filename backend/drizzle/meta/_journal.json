@@ -40,8 +40,15 @@
     {
       "idx": 5,
       "version": "7",
-      "when": 1790284548888,
-      "tag": "0005_otimizar_consultas_de_clientes",
+      "when": 1790292448597,
+      "tag": "0005_normalizar_whatsapp_internacional",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790297258898,
+      "tag": "0006_otimizar_consultas_de_clientes",
       "breakpoints": true
     }
   ]

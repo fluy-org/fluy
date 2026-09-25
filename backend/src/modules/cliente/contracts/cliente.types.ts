@@ -7,6 +7,7 @@ import type {
     OrdenacaoCliente,
     SegmentoCliente,
     StatusFiltroCliente,
+    IdentificarClientePublicaDto,
 } from '@fluy/schema';
 
 
@@ -97,3 +98,13 @@ export type ListaAgendamentosClienteResultado =
     PaginaResultado<AgendamentoDaClientePersistido> & {
         fusoHorario: FusoHorarioBrasil;
     };
+
+export type ResolverSessaoClienteInput = {
+    credencial: string;
+    salaoId: string;
+};
+
+export type IdentificarClientePublicaInput = {
+    dados: IdentificarClientePublicaDto;
+    salaoId: string;
+};
