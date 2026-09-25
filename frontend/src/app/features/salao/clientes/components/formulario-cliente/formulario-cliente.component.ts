@@ -19,6 +19,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { normalizarWhatsapp } from '../../../../../shared/utils/formatacao';
 import { zodValidator } from '../../../../../shared/utils/zod-validator';
 
 @Component({
@@ -110,7 +111,9 @@ export class FormularioClienteComponent {
     this.erroValidacao.set(null);
     this.formulario.reset({
       nome: cliente?.nome ?? '',
-      whatsapp: this.formatarWhatsapp(cliente?.whatsapp ?? ''),
+      whatsapp: this.formatarWhatsapp(
+        normalizarWhatsapp(cliente?.whatsapp ?? ''),
+      ),
       observacoes: cliente?.observacoes ?? '',
     });
   }

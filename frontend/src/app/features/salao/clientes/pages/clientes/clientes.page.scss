@@ -1,5 +1,8 @@
 :host {
-  display: block;
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
 }
 
 .clientes-page {
@@ -22,18 +25,6 @@
   margin: 0;
 }
 
-.clientes-toolbar ion-select {
-  min-width: 140px;
-  padding-inline: var(--fluy-space-3);
-  border: 1px solid var(--fluy-color-border-soft);
-  border-radius: var(--fluy-radius-lg);
-  background: var(--fluy-color-input);
-}
-
-.erro-acao {
-  margin: 0 0 var(--fluy-space-4);
-}
-
 ion-searchbar {
   --background: var(--fluy-color-input);
   --border-radius: var(--fluy-radius-lg);
@@ -49,60 +40,30 @@ ion-searchbar {
   text-align: center;
 }
 
-.feedback-card,
-.cliente-card {
+.feedback-card {
   margin-inline: 0;
   border: 1px solid var(--fluy-color-border-soft);
   border-radius: var(--fluy-radius-lg);
   box-shadow: var(--fluy-shadow-sm);
+  text-align: center;
 }
 
-.feedback-card {
-  text-align: center;
+.clientes-filtros {
+  display: grid;
+  gap: var(--fluy-space-3);
+  margin-bottom: var(--fluy-space-4);
+}
+
+.clientes-filtros ion-select {
+  padding-inline: var(--fluy-space-3);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  background: var(--fluy-color-input);
 }
 
 .clientes-lista {
   display: grid;
   gap: var(--fluy-space-3);
-}
-
-.cliente-card h2,
-.cliente-card p {
-  margin: 0;
-}
-
-.cliente-card h2 {
-  color: var(--fluy-color-title);
-  font-size: var(--fluy-font-size-subtitle);
-  font-weight: var(--fluy-font-weight-semibold);
-}
-
-.cliente-dados {
-  display: grid;
-  gap: var(--fluy-space-1);
-}
-
-.cliente-identificacao {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--fluy-space-3);
-}
-
-.cliente-observacoes {
-  margin-top: var(--fluy-space-3) !important;
-  padding-top: var(--fluy-space-3);
-  border-top: 1px solid var(--fluy-color-border-soft);
-  color: var(--fluy-color-muted);
-}
-
-.cliente-acoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--fluy-space-2);
-  margin-top: var(--fluy-space-3);
-  padding-top: var(--fluy-space-3);
-  border-top: 1px solid var(--fluy-color-border-soft);
 }
 
 @media (min-width: 768px) {
@@ -115,7 +76,11 @@ ion-searchbar {
   }
 
   .clientes-toolbar {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
+  }
+
+  .clientes-filtros {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

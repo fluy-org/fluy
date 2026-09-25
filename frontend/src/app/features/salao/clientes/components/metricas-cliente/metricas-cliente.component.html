@@ -1,0 +1,34 @@
+@let dados = metricas();
+
+<dl class="metricas">
+  <div class="metrica metrica--destaque">
+    <dt>Total gasto</dt>
+    <dd>{{ totalGasto() }}</dd>
+  </div>
+
+  <div class="metrica">
+    <dt>Agendamentos</dt>
+    <dd>{{ dados.total_agendamentos }}</dd>
+  </div>
+
+  <div class="metrica">
+    <dt>Cancelamentos</dt>
+    <dd>{{ dados.cancelamentos }}</dd>
+  </div>
+
+  <div class="metrica">
+    <dt>No-shows</dt>
+    <dd>{{ dados.faltas }}</dd>
+  </div>
+
+  <div class="metrica metrica--destaque">
+    <dt>Último atendimento</dt>
+    <dd>
+      @if (dados.ultimo_atendimento_em) {
+        {{ dados.ultimo_atendimento_em | horaSalao: fusoHorario() : 'data-hora' }}
+      } @else {
+        Nenhum
+      }
+    </dd>
+  </div>
+</dl>

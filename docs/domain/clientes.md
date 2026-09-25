@@ -37,7 +37,7 @@ Representa uma cliente cadastrada no salão. É o dono do histórico de agendame
 ### Observações
 
 - **WhatsApp é chave única** dentro de um mesmo salão (dois acessos com o mesmo WhatsApp = um único cadastro).
-- **Edição do WhatsApp** exige confirmação e impacta o vínculo com sessões existentes.
+- **Edição do WhatsApp** exige confirmação. As `sessao_cliente` apontam para o cadastro (`cliente_id`), não para o WhatsApp, então seguem reconhecendo a mesma cliente com o número novo.
 - **Histórico permanece imutável**; exclusão de cliente é soft (`removido_em`) para preservar agendamentos passados e faturamento.
 - **Merge de cadastros duplicados** fica fora do MVP (ver [README — Decisões em aberto](./README.md)).
 

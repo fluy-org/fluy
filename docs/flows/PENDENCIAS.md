@@ -135,7 +135,6 @@ Este documento consolida as decisões que foram **explicitamente adiadas** duran
 - **Multi-salão para o mesmo dono** — 1 salão por usuário no MVP.
 - **Pausar conta do salão temporariamente** (viagens, licença) — fora do MVP.
 - **Domínio próprio do salão** (white-label) — fora do MVP; só subdomínio `nome.fluy.app`.
-- **Ordem padrão da lista de clientes** — não decidido.
 - **Cliente com múltiplos agendamentos simultâneos** — provavelmente permitir; confirmar.
 - **Horário de verão** — assumido inexistente (verdade em 2026); revisitar se voltar.
 - **Janela cruzando meia-noite** — bloqueado no MVP; sem suporte a atendimento noturno cruzando dias.

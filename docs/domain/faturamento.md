@@ -31,9 +31,10 @@ Estão descritas em [features/faturamento.md](../features/faturamento.md) e deta
 
 Também são cálculos, não campos persistidos:
 
-- **Total gasto acumulado** = soma dos `preco_total` dos agendamentos concluídos daquela cliente.
-- **Total de agendamentos, no-shows, cancelamentos** = contagem por estado.
-- **Último atendimento** = data do último agendamento em `concluido`.
+- **Total gasto acumulado** = mesma regra do "total faturado": soma das cobranças confirmadas (manual sempre; gateway com `status = confirmada`) vinculadas por `pagamento_agendamento` a qualquer agendamento da cliente — concluídos e sinais retidos em `cancelado`/`falta` — menos os reembolsos confirmados dessas cobranças. Dois números diferentes para "quanto entrou" no produto seriam bug de confiança.
+- **Total de agendamentos** = contagem dos estados `agendado`, `concluido`, `cancelado` e `falta`; reserva ainda não confirmada (`reservado`) não conta.
+- **No-shows e cancelamentos** = contagem por estado (`falta`, `cancelado`).
+- **Último atendimento** = `inicio_em` do agendamento em `concluido` mais recente.
 
 ## Features relacionadas
 

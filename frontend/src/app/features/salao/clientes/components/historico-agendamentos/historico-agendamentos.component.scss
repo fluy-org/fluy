@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.historico {
+  padding: 0;
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  overflow: hidden;
+}
+
+.historico h3 {
+  margin: 0;
+  color: var(--fluy-color-title);
+  font-weight: var(--fluy-font-weight-semibold);
+}

@@ -7,11 +7,13 @@ Fornecer ao salão uma visão completa de cada cliente — dados básicos, hist�
 ## Passo a passo (lista de clientes)
 
 1. Salão acessa a aba "Clientes".
-2. Sistema exibe lista de clientes cadastrados no salão, ordenada por (a definir: nome, último atendimento, cadastro mais recente).
+2. Sistema exibe a lista de clientes ativas do salão, paginada (rolagem infinita), ordenada por nome (A–Z).
 3. Salão pode:
-   - Buscar por nome ou WhatsApp.
-   - Filtrar (ex.: com atendimento no último mês, novas, VIP por valor gasto).
-   - Clicar em uma cliente para abrir a ficha.
+   - Buscar por nome (sem diferenciar acento nem maiúscula) ou WhatsApp.
+   - Filtrar por segmento: todas, atendidas nos últimos 30 dias (atendimento concluído com início nos últimos 30 dias) ou novas (cadastradas nos últimos 30 dias).
+   - Filtrar por status: ativas, inativas ou todas.
+   - Ordenar por nome (padrão), último atendimento (mais recente primeiro) ou maior valor gasto ("VIP" é esta ordenação, não um filtro com corte).
+   - Tocar em uma cliente para abrir a ficha. Cada item mostra nome, WhatsApp, último atendimento e se está inativa.
 
 ## Passo a passo (ficha da cliente)
 
@@ -21,14 +23,15 @@ Ao abrir uma cliente, o salão vê:
    - Nome
    - WhatsApp (chave, editar com cuidado — ver dúvidas)
    - Observações livres (texto amplo — preferências, alergias, etc.)
-2. **Histórico de agendamentos** (timeline, paginado):
-   - Data, procedimento, valor, status (`Concluído`, `Cancelado`, `No-show`)
+2. **Histórico de agendamentos** (timeline, paginado, do mais recente para o mais antigo):
+   - Todos os agendamentos da cliente, inclusive os futuros, com o estado atual (`Agendado`, `Concluído`, `Cancelado`, `No-show`)
+   - Data, procedimento, preço total congelado
    - Link para o detalhe do agendamento (com imagens/notas)
 3. **Galeria de imagens de referência** enviadas pela cliente ao longo do tempo (todas as imagens de todos os agendamentos, unificadas).
 4. **Galeria de anexos internos** adicionados pelo salão (fotos de resultado, uso interno; até 3 por agendamento).
 5. **Notas/observações** feitas pelo salão sobre ela (todas ao longo do tempo, cronológicas).
-6. **Métricas**:
-   - Total gasto acumulado
+6. **Métricas** (regras em [domain/faturamento.md](../../domain/faturamento.md#métricas-derivadas-da-ficha-da-cliente)):
+   - Total gasto acumulado (mesma regra do total faturado: o que efetivamente entrou)
    - Total de agendamentos
    - No-shows / cancelamentos
    - Último atendimento
@@ -36,11 +39,13 @@ Ao abrir uma cliente, o salão vê:
    - Criar agendamento manual para essa cliente (atalho para [agendamento manual](./05-agendamento-manual.md))
    - Criar nota/lembrete livre associado à cliente (ver [lembretes](./12-lembretes.md))
    - Editar dados básicos
+   - Inativar / reativar a cliente
    - (Fora do MVP) Mesclar cadastros duplicados
 
 ## Variações
 
-- **Cliente que só se cadastrou mas nunca agendou:** aparece na lista com histórico vazio.
+- **Cliente que só se cadastrou mas nunca agendou:** aparece na lista com histórico vazio e métricas zeradas; a ficha oferece o atalho de criar agendamento.
+- **Cliente inativa:** a ficha abre em modo leitura (dados, métricas e histórico); edição e criação de agendamento ficam bloqueadas até reativar.
 - **Cliente com histórico enorme:** paginação/lazy loading para não travar UI.
 - **Cliente sem imagens/notas:** seções aparecem vazias.
 - **Cliente que apareceu duas vezes com WhatsApp diferente (por engano):** dois cadastros; salão pode notar e pedir mesclagem (fora do MVP).
@@ -49,7 +54,7 @@ Ao abrir uma cliente, o salão vê:
 
 - **Cadastro de cliente é específico ao salão** (multi-tenant) — uma pessoa que agenda em 2 salões tem 2 cadastros independentes.
 - **WhatsApp é a chave única** dentro de um mesmo salão.
-- **Edição de WhatsApp** exige confirmação (impacto: perde vínculo com o UUID do dispositivo da cliente, que passará a ser tratada como "outra pessoa" no próximo acesso).
+- **Edição de WhatsApp** exige confirmação, porque o WhatsApp é a chave única da cliente no salão. As sessões do dispositivo (`sessao_cliente`) apontam para o cadastro, não para o WhatsApp: continuam reconhecendo a mesma cliente, agora com o número novo.
 - **Histórico é imutável** — não permite editar/apagar agendamentos passados (auditoria).
 - **Anexos do salão são apenas para o salão ver** (não vazam para a cliente).
 - **Imagens da cliente são visíveis para ambos** (cliente enviou; salão vê no atendimento e na ficha).
@@ -67,7 +72,7 @@ Ao abrir uma cliente, o salão vê:
 ## Casos extremos (edge cases)
 
 - **Cliente pediu para excluir dados (LGPD):** MVP não tem fluxo automatizado; salão trata via suporte / admin apaga. Precisa política.
-- **Salão apaga cliente:** cadastro é deletado mas histórico de agendamentos deve permanecer (para faturamento). Precisa "soft delete" ou detach.
+- **Salão apaga cliente:** a remoção é a inativação (soft delete em `cliente.removido_em`); o histórico de agendamentos permanece para faturamento e a cliente pode ser reativada.
 - **Dois cadastros da mesma pessoa** (WhatsApp digitado diferente): salão vê como duas clientes; fluxo de merge fora do MVP.
 - **Cliente muda de nome oficialmente** (casamento, mudança social): salão edita nome; histórico mantém referência sem repetir dados antigos.
 - **Cliente com histórico gigante** (10+ anos, 500+ agendamentos): performance de listagem.
@@ -80,5 +85,4 @@ Ao abrir uma cliente, o salão vê:
 - **Tags/categorias de clientes** (VIP, alérgica, recorrente): fora do MVP; observações livres cobrem por enquanto.
 - **Aniversário da cliente:** salões costumam mandar mensagem; salão pode registrar no campo observações no MVP. Feature dedicada fora do MVP.
 - **Exportar CSV** de clientes: fora do MVP; considerar LGPD/consentimento.
-- **Ordem padrão da lista de clientes:** por último atendimento (mais úteis primeiro) ou por nome? Não decidido.
 - **LGPD:** política clara de retenção, direito de exclusão, portabilidade. Fora do MVP mas precisa entrar cedo.

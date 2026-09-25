@@ -36,6 +36,13 @@
       "when": 1789772821073,
       "tag": "0004_adicionar_motivo_ao_evento_agendamento",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790284548888,
+      "tag": "0005_otimizar_consultas_de_clientes",
+      "breakpoints": true
     }
   ]
 }

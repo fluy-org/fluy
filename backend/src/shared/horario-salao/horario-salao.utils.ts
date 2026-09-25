@@ -102,6 +102,16 @@ export function adicionarDiasNaData({
     .padStart(2, '0')}-${resultado.getUTCDate().toString().padStart(2, '0')}`;
 }
 
+export function adicionarDiasNoInstante({
+  instante,
+  dias,
+}: {
+  instante: Date;
+  dias: number;
+}): Date {
+  return new Date(instante.getTime() + dias * 86_400_000);
+}
+
 function parseDataHoraCivil({ data, hora }: DataHoraCivil): PartesDataHora {
   const [ano, mes, dia] = data.split('-').map(Number);
   const [horaNumero, minuto] = hora.split(':').map(Number);

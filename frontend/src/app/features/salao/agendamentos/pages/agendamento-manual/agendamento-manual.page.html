@@ -59,16 +59,17 @@
                 aria-label="Buscar cliente"
                 placeholder="Buscar por nome ou WhatsApp"
                 [value]="termoPesquisaCliente()"
+                [debounce]="250"
                 (ionInput)="atualizarPesquisaCliente($event.detail.value)"
               ></ion-searchbar>
 
               <div class="clientes-resultados" aria-label="Clientes encontradas">
-                @for (cliente of clientesFiltrados(); track cliente.id) {
+                @for (cliente of clientes(); track cliente.id) {
                   <button
                     class="cliente-opcao"
                     type="button"
                     [class.cliente-opcao-selecionada]="formulario.controls.cliente_id.value === cliente.id"
-                    (click)="selecionarCliente(cliente.id)"
+                    (click)="selecionarCliente(cliente)"
                   >
                     <span class="cliente-avatar" aria-hidden="true">
                       {{ cliente.nome.charAt(0).toUpperCase() }}

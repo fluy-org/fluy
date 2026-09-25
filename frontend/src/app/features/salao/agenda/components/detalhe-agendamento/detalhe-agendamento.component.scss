@@ -48,6 +48,11 @@
   font-weight: var(--fluy-font-weight-medium);
   color: var(--fluy-color-title);
 }
+.bloco__link {
+  display: inline-block;
+  color: var(--fluy-color-primary);
+  text-decoration: underline;
+}
 .bloco__apoio {
   margin: var(--fluy-space-1) 0 0;
   font-size: var(--fluy-font-size-body);

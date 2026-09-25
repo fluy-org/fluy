@@ -20,10 +20,10 @@ export const AUTHENTICATED_ROUTES: Routes = [
   },
   {
     path: 'clientes',
-    loadComponent: () =>
-      import(
-        '../../features/salao/clientes/pages/clientes/clientes.page'
-      ).then((m) => m.ClientesPage),
+    loadChildren: () =>
+      import('../../features/salao/clientes/clientes.routes').then(
+        (m) => m.CLIENTES_ROUTES,
+      ),
   },
   {
     // A configuracao pertence ao painel e reutiliza o layout autenticado.

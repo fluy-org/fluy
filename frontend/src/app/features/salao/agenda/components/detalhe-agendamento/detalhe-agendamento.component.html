@@ -18,7 +18,13 @@
 
   <section class="bloco">
     <h2 class="bloco__titulo">Cliente</h2>
-    <p class="bloco__principal">{{ detalhe.cliente.nome }}</p>
+    <a
+      class="bloco__principal bloco__link"
+      [routerLink]="['/painel/clientes', detalhe.cliente.id]"
+      [replaceUrl]="true"
+    >
+      {{ detalhe.cliente.nome }}
+    </a>
     <p class="bloco__apoio">{{ whatsapp() }}</p>
   </section>
 

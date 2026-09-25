@@ -83,6 +83,22 @@ Para o salão autenticado, receba `@TenantFromOwner()`. Para o catálogo públic
 resolvido pelo host, use `@TenantFromHost()`. Não aceite `salaoId` diretamente
 do cliente nesses fluxos.
 
+## Paginação
+
+Listagem que pode crescer sem limite (clientes, histórico) pagina por cursor
+opaco. Referência: `cliente/`.
+
+- Query recebe `cursor` opcional; resposta é `{ itens, proximo_cursor }`, com
+  `proximo_cursor: null` na última página.
+- O tamanho da página é fixo no backend (`{feature}-data.ts`), não vem do
+  cliente.
+- O repository busca `limite + 1` para saber se há próxima página, sem `COUNT`.
+- Hoje o cursor codifica o offset. Quem consome não interpreta o cursor, então
+  ele pode passar a carregar a chave de ordenação (keyset) sem mudar o contrato.
+- Cursor inválido é `BadRequestException` no service.
+
+Listagem naturalmente limitada, como a agenda do dia, não pagina.
+
 ## Persistência
 
 Repositories recebem `Database` com `@InjectDatabase()`. Escritas em múltiplas

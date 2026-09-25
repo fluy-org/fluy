@@ -75,6 +75,18 @@ Refetch (`carregar()`) só como escape hatch: mutação em cascata no backend, f
 
 Endpoints de `POST`/`PUT`/`PATCH` devem devolver o objeto completo. Se um endpoint só devolver `{ ok: true }`, cai pra refetch naquela mutação.
 
+## Paginação
+
+Listas paginadas pelo backend (cursor opaco, ver `backend/src/modules/CLAUDE.md`)
+seguem `features/salao/clientes/`:
+
+- O service guarda itens e `proximo_cursor` em signals; trocar filtro ou busca
+  refaz a primeira página, e a próxima página acumula descartando ids repetidos.
+- A page usa `ion-infinite-scroll`, desabilitado quando `proximo_cursor` é
+  `null`.
+- Busca e filtro são server-side; não filtre em memória o que não foi
+  carregado.
+
 ## HTTP
 
 - Features usam `HttpClient` direto. Sem wrapper `ApiService`.

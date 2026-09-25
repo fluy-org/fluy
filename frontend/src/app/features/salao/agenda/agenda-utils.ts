@@ -127,27 +127,6 @@ export function agruparPorEncerramento(
   };
 }
 
-export function formatarValor(valor: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(valor);
-}
-
-export function formatarWhatsapp(whatsapp: string): string {
-  const digitos = whatsapp.replace(/\D/g, '').replace(/^55/, '');
-
-  if (digitos.length < 10 || digitos.length > 11) {
-    return whatsapp;
-  }
-
-  const ddd = digitos.slice(0, 2);
-  const numero = digitos.slice(2);
-  const meio = numero.length === 9 ? numero.slice(0, 5) : numero.slice(0, 4);
-
-  return `(${ddd}) ${meio}-${numero.slice(meio.length)}`;
-}
-
 export function formatarDuracao(duracaoMin: number): string {
   const horas = Math.floor(duracaoMin / 60);
   const minutos = duracaoMin % 60;

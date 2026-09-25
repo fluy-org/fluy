@@ -22,11 +22,20 @@ import {
 } from '@nestjs/swagger';
 import {
     AtualizarClienteRequestDto,
+    ClienteFichaResponseDto,
     ClienteResponseDto,
     CriarClienteRequestDto,
+    ListaAgendamentosClienteResponseDto,
+    ListaClientesResponseDto,
+    ListarAgendamentosClienteQueryDto,
     ListarClienteQueryDto,
 } from '@/modules/cliente/contracts';
-import { toClienteResponse } from '@/modules/cliente/cliente.mapper';
+import {
+    toAgendamentosDaClienteResponse,
+    toClienteFichaResponse,
+    toClienteResponse,
+    toListaClientesResponse,
+} from '@/modules/cliente/cliente.mapper';
 import { ClienteService } from '@/modules/cliente/cliente.service';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
 import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
@@ -63,47 +72,80 @@ export class ClienteController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Lista os clientes do salão atual' })
+    @ApiOperation({ summary: 'Lista os clientes do salão atual, paginada por cursor' })
     @ApiOkResponse({
-        description: 'Clientes ativos ordenados por nome.',
-        type: [ClienteResponseDto.Output],
+        description: 'Página de clientes filtrada e ordenada.',
+        type: ListaClientesResponseDto.Output,
+    })
+    @ApiBadRequestResponse({
+        description: 'Parâmetros de consulta ou cursor inválidos.',
     })
     @ApiUnauthorizedResponse({
         description: 'Bearer token ausente ou inválido.',
     })
+    @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
     async listar(
         @TenantFromOwner() tenant: TenantContext,
         @Query() query: ListarClienteQueryDto,
     ) {
-        const clientes = await this.clienteService.listar({
-            salaoId: tenant.salaoId,
-            status: query.status,
-        });
+        return toListaClientesResponse(
+            await this.clienteService.listar({
+                ...query,
+                salaoId: tenant.salaoId,
+            }),
+        );
+    }
 
-        return clientes.map(toClienteResponse);
+    @Get(':id/agendamentos')
+    @ApiOperation({
+        summary: 'Lista o histórico de agendamentos de um cliente, paginado por cursor',
+    })
+    @ApiOkResponse({
+        description: 'Página do histórico, do mais recente para o mais antigo.',
+        type: ListaAgendamentosClienteResponseDto.Output,
+    })
+    @ApiBadRequestResponse({ description: 'ID do cliente ou cursor inválido.' })
+    @ApiUnauthorizedResponse({
+        description: 'Bearer token ausente ou inválido.',
+    })
+    @ApiNotFoundResponse({ description: 'Cliente não encontrado.' })
+    async listarAgendamentos(
+        @Param('id', new ParseUUIDPipe()) id: string,
+        @TenantFromOwner() tenant: TenantContext,
+        @Query() query: ListarAgendamentosClienteQueryDto,
+    ) {
+        return toAgendamentosDaClienteResponse(
+            await this.clienteService.listarAgendamentos({
+                id,
+                salaoId: tenant.salaoId,
+                cursor: query.cursor,
+            }),
+        );
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Busca um cliente do salão atual' })
+    @ApiOperation({
+        summary: 'Busca a ficha de um cliente do salão atual, com métricas',
+    })
     @ApiOkResponse({
-        description: 'Cliente encontrado.',
-        type: ClienteResponseDto.Output,
+        description: 'Ficha do cliente, ativo ou inativo.',
+        type: ClienteFichaResponseDto.Output,
     })
     @ApiBadRequestResponse({ description: 'ID do cliente inválido.' })
     @ApiUnauthorizedResponse({
         description: 'Bearer token ausente ou inválido.',
     })
     @ApiNotFoundResponse({ description: 'Cliente não encontrado.' })
-    async buscarPorId(
+    async buscarFicha(
         @Param('id', new ParseUUIDPipe()) id: string,
         @TenantFromOwner() tenant: TenantContext,
     ) {
-        const cliente = await this.clienteService.buscarPorId({
-            id,
-            salaoId: tenant.salaoId,
-        });
-
-        return toClienteResponse(cliente);
+        return toClienteFichaResponse(
+            await this.clienteService.buscarFicha({
+                id,
+                salaoId: tenant.salaoId,
+            }),
+        );
     }
 
     @Put(':id')

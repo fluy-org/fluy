@@ -1,5 +1,6 @@
 import {
   adicionarDiasNaData,
+  adicionarDiasNoInstante,
   dataHoraCivilParaUtc,
   utcParaDataHoraCivil,
 } from '@/shared/horario-salao/horario-salao.utils';
@@ -124,6 +125,17 @@ describe('horario-salao.utils', () => {
           fusoHorario: FUSO_SAO_PAULO,
         }),
       ).toThrow('Data ou horário civil inválidos.');
+    });
+  });
+
+  describe('adicionarDiasNoInstante', () => {
+    it('recua trinta dias em UTC sem depender do fuso', () => {
+      expect(
+        adicionarDiasNoInstante({
+          instante: new Date('2026-09-24T02:30:00.000Z'),
+          dias: -30,
+        }).toISOString(),
+      ).toBe('2026-08-25T02:30:00.000Z');
     });
   });
 });

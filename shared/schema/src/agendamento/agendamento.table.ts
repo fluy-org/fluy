@@ -51,6 +51,7 @@ export const agendamento = pgTable(
     index('agendamento_profissional_inicio_ocupado_idx')
       .on(t.profissional_id, t.inicio_em)
       .where(sql`${t.estado} in ('reservado', 'agendado')`),
+    index('agendamento_cliente_inicio_idx').on(t.cliente_id, t.inicio_em),
   ],
 );
 
