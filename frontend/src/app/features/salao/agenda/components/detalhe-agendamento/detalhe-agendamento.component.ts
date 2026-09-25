@@ -4,16 +4,19 @@ import {
   computed,
   input,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import type { AgendamentoDetalheResponseDto } from '@fluy/schema';
 import { IonBadge } from '@ionic/angular/standalone';
 import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
-import { ESTILO_ESTADO_AGENDAMENTO } from '../../agenda-data';
+import { ESTILO_ESTADO_AGENDAMENTO } from '../../../../../shared/utils/estado-agendamento';
+import {
+  formatarValor,
+  formatarWhatsapp,
+} from '../../../../../shared/utils/formatacao';
 import {
   extrairDataCivil,
   formatarDataPorExtenso,
   formatarDuracao,
-  formatarValor,
-  formatarWhatsapp,
 } from '../../agenda-utils';
 
 @Component({
@@ -22,7 +25,7 @@ import {
   styleUrls: ['./detalhe-agendamento.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HoraSalaoPipe, IonBadge],
+  imports: [HoraSalaoPipe, IonBadge, RouterLink],
 })
 export class DetalheAgendamentoComponent {
   readonly agendamento = input.required<AgendamentoDetalheResponseDto>();

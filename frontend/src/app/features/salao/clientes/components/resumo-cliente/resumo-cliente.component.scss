@@ -1,0 +1,38 @@
+:host {
+  display: block;
+}
+
+.cliente-card {
+  height: 100%;
+  margin: 0;
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+.cliente-dados {
+  display: grid;
+  gap: var(--fluy-space-1);
+}
+
+.cliente-dados h2,
+.cliente-dados p {
+  margin: 0;
+}
+
+.cliente-dados h2 {
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.cliente-identificacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fluy-space-3);
+}
+
+.cliente-ultimo-atendimento {
+  color: var(--fluy-color-muted);
+}

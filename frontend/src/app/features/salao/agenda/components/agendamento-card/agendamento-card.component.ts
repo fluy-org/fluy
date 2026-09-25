@@ -15,8 +15,9 @@ import {
   IonIcon,
 } from '@ionic/angular/standalone';
 import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
-import { ESTILO_ESTADO_AGENDAMENTO } from '../../agenda-data';
-import { formatarDuracao, formatarValor } from '../../agenda-utils';
+import { ESTILO_ESTADO_AGENDAMENTO } from '../../../../../shared/utils/estado-agendamento';
+import { formatarValor } from '../../../../../shared/utils/formatacao';
+import { formatarDuracao } from '../../agenda-utils';
 
 @Component({
   selector: 'app-agendamento-card',

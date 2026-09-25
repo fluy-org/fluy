@@ -1,0 +1,23 @@
+@let dados = cliente();
+
+<ion-card button class="cliente-card" (click)="abrir.emit(dados.id)">
+  <ion-card-content class="cliente-dados">
+    <div class="cliente-identificacao">
+      <h2>{{ dados.nome }}</h2>
+      @if (!dados.ativo) {
+        <ion-badge color="medium">Inativa</ion-badge>
+      }
+    </div>
+
+    <p>{{ whatsapp() }}</p>
+
+    <p class="cliente-ultimo-atendimento">
+      @if (dados.ultimo_atendimento_em) {
+        Último atendimento:
+        {{ dados.ultimo_atendimento_em | horaSalao: fusoHorario() : 'data-hora' }}
+      } @else {
+        Nenhum atendimento concluído
+      }
+    </p>
+  </ion-card-content>
+</ion-card>

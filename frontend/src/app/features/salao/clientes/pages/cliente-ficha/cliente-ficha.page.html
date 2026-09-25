@@ -1,0 +1,147 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <!-- A ficha é filha da lista: voltar sobe para Clientes, venha de onde vier. -->
+      <ion-button
+        routerLink="/painel/clientes"
+        routerDirection="back"
+        aria-label="Voltar para clientes"
+      >
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Cliente</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @switch (estadoPagina()) {
+    @case ('carregando') {
+      <div class="estado">
+        <ion-spinner aria-label="Carregando cliente"></ion-spinner>
+      </div>
+    }
+
+    @case ('erro') {
+      <div class="estado">
+        <ion-text color="danger">
+          <p>{{ erro() }}</p>
+        </ion-text>
+        <ion-button fill="outline" (click)="recarregar()">
+          Tentar novamente
+        </ion-button>
+      </div>
+    }
+
+    @case ('ficha') {
+      @if (ficha(); as dados) {
+        <div class="ficha">
+          <!-- Dados básicos -->
+          <section class="bloco">
+            <div class="cabecalho">
+              <h1>{{ dados.nome }}</h1>
+              @if (!dados.ativo) {
+                <ion-badge color="medium">Inativa</ion-badge>
+              }
+            </div>
+            <p class="whatsapp">{{ whatsapp() }}</p>
+
+            @if (dados.observacoes) {
+              <p class="observacoes">{{ dados.observacoes }}</p>
+            }
+
+            @if (erroAcao()) {
+              <ion-text color="danger">
+                <p class="erro-acao">{{ erroAcao() }}</p>
+              </ion-text>
+            }
+
+            <div class="acoes">
+              <ion-button
+                [disabled]="!dados.ativo"
+                (click)="criarAgendamento()"
+              >
+                Criar agendamento
+              </ion-button>
+              <ion-button
+                fill="outline"
+                [disabled]="!dados.ativo"
+                (click)="abrirFormulario()"
+              >
+                Editar
+              </ion-button>
+              @if (dados.ativo) {
+                <ion-button
+                  fill="clear"
+                  color="medium"
+                  (click)="confirmarInativacao()"
+                >
+                  Inativar
+                </ion-button>
+              } @else {
+                <ion-button fill="clear" color="success" (click)="reativar()">
+                  Reativar
+                </ion-button>
+              }
+            </div>
+          </section>
+
+          <!-- Métricas -->
+          <section class="bloco">
+            <h2 class="bloco__titulo">Métricas</h2>
+            <app-metricas-cliente
+              [metricas]="dados.metricas"
+              [fusoHorario]="dados.fuso_horario"
+            ></app-metricas-cliente>
+          </section>
+
+          <!-- Histórico -->
+          <section class="bloco">
+            <h2 class="bloco__titulo">Histórico de agendamentos</h2>
+            @if (agendamentos().length > 0) {
+              <app-historico-agendamentos
+                [agendamentos]="agendamentos()"
+                [fusoHorario]="dados.fuso_horario"
+                [temMais]="!!proximoCursorAgendamentos()"
+                (abrir)="abrirAgendamento($event)"
+                (carregarMais)="carregarMaisAgendamentos($event)"
+              ></app-historico-agendamentos>
+            } @else {
+              <div class="vazio">
+                <p>Esta cliente ainda não tem agendamentos.</p>
+                @if (dados.ativo) {
+                  <ion-button fill="outline" (click)="criarAgendamento()">
+                    Criar agendamento
+                  </ion-button>
+                }
+              </div>
+            }
+          </section>
+
+          <!-- Galerias: preenchidas pela fatia 8.2 -->
+          <section class="bloco">
+            <h2 class="bloco__titulo">Imagens de referência</h2>
+            <p class="vazio">Nenhuma imagem de referência.</p>
+          </section>
+
+          <section class="bloco">
+            <h2 class="bloco__titulo">Anexos internos</h2>
+            <p class="vazio">Nenhum anexo interno.</p>
+          </section>
+        </div>
+      }
+    }
+  }
+</ion-content>
+
+<ion-modal [isOpen]="formularioAberto()" (didDismiss)="fecharFormulario()">
+  <ng-template>
+    <app-formulario-cliente
+      [cliente]="ficha()"
+      [salvando]="salvando()"
+      [erroExterno]="erroFormulario()"
+      (salvar)="salvarCliente($event)"
+      (cancelar)="fecharFormulario()"
+    ></app-formulario-cliente>
+  </ng-template>
+</ion-modal>

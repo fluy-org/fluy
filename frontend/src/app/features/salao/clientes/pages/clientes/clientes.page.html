@@ -8,25 +8,56 @@
       <ion-searchbar
         aria-label="Buscar clientes"
         placeholder="Buscar por nome ou WhatsApp"
+        [debounce]="250"
         (ionInput)="atualizarPesquisa($event.detail.value)"
       ></ion-searchbar>
-
-      <ion-select
-        aria-label="Filtrar clientes por status"
-        [value]="statusSelecionado()"
-        (ionChange)="alterarStatus($event.detail.value)"
-      >
-        <ion-select-option value="ativos">Ativos</ion-select-option>
-        <ion-select-option value="inativos">Inativos</ion-select-option>
-        <ion-select-option value="todos">Todos</ion-select-option>
-      </ion-select>
 
       <ion-button (click)="abrirFormulario()">Adicionar cliente</ion-button>
     </div>
 
-    @if (erroAcao()) {
-    <ion-text color="danger"><p class="erro-acao">{{ erroAcao() }}</p></ion-text>
-    }
+    <div class="clientes-filtros">
+      <ion-select
+        aria-label="Filtrar clientes por segmento"
+        label="Segmento"
+        label-placement="stacked"
+        [value]="filtros().segmento"
+        (ionChange)="alterarFiltro('segmento', $event.detail.value)"
+      >
+        @for (segmento of segmentos; track segmento) {
+          <ion-select-option [value]="segmento">
+            {{ rotuloSegmento[segmento] }}
+          </ion-select-option>
+        }
+      </ion-select>
+
+      <ion-select
+        aria-label="Filtrar clientes por status"
+        label="Status"
+        label-placement="stacked"
+        [value]="filtros().status"
+        (ionChange)="alterarFiltro('status', $event.detail.value)"
+      >
+        @for (status of statusFiltro; track status) {
+          <ion-select-option [value]="status">
+            {{ rotuloStatus[status] }}
+          </ion-select-option>
+        }
+      </ion-select>
+
+      <ion-select
+        aria-label="Ordenar clientes"
+        label="Ordenar por"
+        label-placement="stacked"
+        [value]="filtros().ordenacao"
+        (ionChange)="alterarFiltro('ordenacao', $event.detail.value)"
+      >
+        @for (ordenacao of ordenacoes; track ordenacao) {
+          <ion-select-option [value]="ordenacao">
+            {{ rotuloOrdenacao[ordenacao] }}
+          </ion-select-option>
+        }
+      </ion-select>
+    </div>
 
     @switch (estadoPagina()) { @case ('carregando') {
     <div class="feedback">
@@ -48,68 +79,33 @@
       </ion-card-content>
     </ion-card>
     } @case ('lista') {
+    @if (fusoHorario(); as fuso) {
     <section class="clientes-lista" aria-label="Lista de clientes">
-      @for (cliente of clientesFiltrados(); track cliente.id) {
-      <ion-card class="cliente-card">
-        <ion-card-content>
-          <div class="cliente-dados">
-            <div class="cliente-identificacao">
-              <h2>{{ cliente.nome }}</h2>
-              <ion-badge [color]="cliente.ativo ? 'success' : 'medium'">
-                {{ cliente.ativo ? 'Ativo' : 'Inativo' }}
-              </ion-badge>
-            </div>
-            <p>{{ formatarWhatsapp(cliente.whatsapp) }}</p>
-          </div>
-
-          @if (cliente.observacoes) {
-          <p class="cliente-observacoes">{{ cliente.observacoes }}</p>
-          }
-
-          <div class="cliente-acoes">
-            <ion-button
-              fill="outline"
-              size="small"
-              [disabled]="!cliente.ativo"
-              (click)="editarCliente(cliente)"
-            >
-              Editar
-            </ion-button>
-            @if (cliente.ativo) {
-            <ion-button
-              fill="clear"
-              size="small"
-              color="medium"
-              (click)="confirmarInativacao(cliente)"
-            >
-              Inativar
-            </ion-button>
-            } @else {
-            <ion-button
-              fill="clear"
-              size="small"
-              color="success"
-              (click)="reativarCliente(cliente)"
-            >
-              Reativar
-            </ion-button>
-            }
-          </div>
-        </ion-card-content>
-      </ion-card>
+      @for (cliente of clientes(); track cliente.id) {
+      <app-resumo-cliente
+        [cliente]="cliente"
+        [fusoHorario]="fuso"
+        (abrir)="abrirFicha($event)"
+      ></app-resumo-cliente>
       }
     </section>
+    }
+
+    <ion-infinite-scroll
+      [disabled]="!proximoCursor()"
+      (ionInfinite)="carregarMais($event)"
+    >
+      <ion-infinite-scroll-content
+        loadingText="Carregando mais clientes..."
+      ></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
     } }
   </section>
 </ion-content>
 
-<ion-modal
-  [isOpen]="formularioAberto()"
-  (didDismiss)="fecharFormulario()"
->
+<ion-modal [isOpen]="formularioAberto()" (didDismiss)="fecharFormulario()">
   <ng-template>
     <app-formulario-cliente
-      [cliente]="clienteEmEdicao()"
       [salvando]="salvandoCliente()"
       [erroExterno]="erroFormulario()"
       (salvar)="salvarCliente($event)"

@@ -1,0 +1,25 @@
+<ion-list class="historico" lines="full">
+  @for (agendamento of agendamentos(); track agendamento.id) {
+    <ion-item button detail (click)="abrir.emit(agendamento.id)">
+      <ion-label>
+        <h3>{{ agendamento.procedimento.nome }}</h3>
+        <p>
+          {{ agendamento.inicio_em | horaSalao: fusoHorario() : 'data-hora' }}
+          · {{ formatarValor(agendamento.preco_total) }}
+        </p>
+      </ion-label>
+      <ion-badge slot="end" [color]="estiloEstado[agendamento.estado].cor">
+        {{ estiloEstado[agendamento.estado].rotulo }}
+      </ion-badge>
+    </ion-item>
+  }
+</ion-list>
+
+<ion-infinite-scroll
+  [disabled]="!temMais()"
+  (ionInfinite)="carregarMais.emit($event)"
+>
+  <ion-infinite-scroll-content
+    loadingText="Carregando mais agendamentos..."
+  ></ion-infinite-scroll-content>
+</ion-infinite-scroll>

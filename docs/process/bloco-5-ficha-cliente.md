@@ -46,7 +46,7 @@ cria tabela.
 
 ### 5.1 Lista e ficha da cliente
 
-- [ ] Lista completa de clientes e a ficha individual com dados, histórico e métricas. — **🟣 Rudney** — [DEP: 2.1](./bloco-2-motor.md#21-clientes) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual) `[DECIDIR: ordem padrão da lista — nome vs. último atendimento]`
+- [ ] Lista completa de clientes e a ficha individual com dados, histórico e métricas. — **🟣 Rudney** — [DEP: 2.1](./bloco-2-motor.md#21-clientes) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
 
 **Por que lista e ficha juntas:** são o mesmo fluxo (`11-clientes-historico.md`)
 e a lista sem a ficha não entrega nada além do que a tela mínima de
@@ -65,7 +65,7 @@ normal que fecha o fluxo inteiro.
 *Backend — ficha*
 
 - Dados básicos da cliente + edição de nome, WhatsApp e observações livres.
-- **Editar WhatsApp exige confirmação** — é a chave única no salão e o vínculo com as `sessao_cliente` do dispositivo. Manter a normalização internacional de [4.1](./bloco-4-cliente-final.md#41-acesso-público-e-identificação-da-cliente).
+- **Editar WhatsApp exige confirmação** — é a chave única no salão. Usa a mesma validação do cadastro (`whatsappClienteSchema`), no formato internacional definido pela [4.1](./bloco-4-cliente-final.md#41-acesso-público-e-identificação-da-cliente).
 - Timeline **paginada** do histórico de agendamentos: data, procedimento, valor, estado, com link para o detalhe. Cliente com centenas de agendamentos não pode travar a tela.
 - Métricas: total gasto acumulado, total de agendamentos, no-shows, cancelamentos e último atendimento. Derivadas de `agendamento` + `evento_agendamento` + `pagamento_agendamento`.
 - **Histórico é imutável** — a ficha não permite editar nem apagar agendamento passado.
@@ -85,12 +85,15 @@ normal que fecha o fluxo inteiro.
 - Galerias de imagens → [8.2](./bloco-8-anexos-agendamento.md#82-imagens-de-referência-da-cliente-e-galerias-na-ficha).
 - Fora do MVP, confirmado nos fluxos: merge de cadastros duplicados, tags/categorias de cliente, exportar CSV, campo de aniversário.
 
-**Decisões que precisam estar fechadas antes**
+**Decisões fechadas**
 
-- **Ordem padrão da lista**: por nome ou por último atendimento? Os docs deixam em aberto; o fluxo 11 sugere "mais úteis primeiro".
-- **Métrica "total gasto"**: soma dos pagamentos confirmados ou soma do `preco_total` dos concluídos? **Precisa ser a mesma regra do "total faturado" do [Bloco 7](./bloco-7-faturamento.md)** — dois números diferentes para a mesma coisa no produto é bug de confiança.
-- **LGPD — direito à exclusão** (pendência 3): soft delete com `cliente.removido_em` preservando histórico, ou anonimização? Impacta esta tela diretamente.
-- Editar WhatsApp: o que acontece com as `sessao_cliente` já vinculadas? O fluxo 11 diz que a cliente "passará a ser tratada como outra pessoa no próximo acesso" — confirmar se é isso mesmo ou se as sessões seguem o cadastro.
+- **Ordem padrão da lista**: nome (A–Z). Último atendimento e maior valor gasto ficam como ordenações opcionais; "VIP por valor gasto" é a ordenação, não um filtro.
+- **Métrica "total gasto"**: mesma regra do "total faturado" do [Bloco 7](./bloco-7-faturamento.md) — o que efetivamente entrou, menos reembolsos. Registrada em [domain/faturamento.md](../domain/faturamento.md#métricas-derivadas-da-ficha-da-cliente).
+- **LGPD — direito à exclusão**: a inativação da [2.1](./bloco-2-motor.md#21-clientes) (soft delete em `cliente.removido_em`) segue como única remoção. Anonimização continua em aberto na pendência 3, fora desta fatia.
+- **Editar WhatsApp**: as `sessao_cliente` seguem o cadastro (apontam para `cliente_id`); nada é apagado. A confirmação fica só no frontend.
+- **Paginação**: cursor opaco, primeira do projeto — regra registrada em `backend/src/modules/CLAUDE.md` e `frontend/CLAUDE.md`.
+- **Filtros**: segmentos "atendidas nos últimos 30 dias" e "novas" (cadastro nos últimos 30 dias), combináveis com o status da 2.1.
+- **Ficha de cliente inativa**: abre em leitura, com reativar.
 
 **Critério de conclusão**
 

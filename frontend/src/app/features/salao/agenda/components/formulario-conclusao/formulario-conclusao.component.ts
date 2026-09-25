@@ -28,7 +28,7 @@ import {
   ROTULO_AVISO_ACAO_AGENDAMENTO,
   ROTULO_METODO_PAGAMENTO_MANUAL,
 } from '../../agenda-data';
-import { formatarValor } from '../../agenda-utils';
+import { formatarValor } from '../../../../../shared/utils/formatacao';
 
 @Component({
   selector: 'app-formulario-conclusao',

@@ -7,9 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import type {
   AvaliacaoHorarioAgendamentoResponseDto,
+  ClienteListaItemResponseDto,
+  ClienteResponseDto,
   CriarAgendamentoDto,
   CriarClienteDto,
   HorariosLivresResponseDto,
@@ -38,6 +40,7 @@ import { ConfirmacaoEncaixeComponent } from '@app/shared/components/confirmacao-
 import { SeletorHorarioComponent } from '@app/shared/components/seletor-horario/seletor-horario.component';
 import { RotuloAvaliacaoPipe } from '@app/shared/pipes/rotulo-avaliacao.pipe';
 import { AgendamentosService } from '@app/features/salao/agendamentos/services/agendamentos.service';
+import { FILTROS_PADRAO_LISTA_CLIENTES } from '@app/features/salao/clientes/clientes-data';
 import { FormularioClienteComponent } from '@app/features/salao/clientes/components/formulario-cliente/formulario-cliente.component';
 import { ClientesService } from '@app/features/salao/clientes/services/clientes.service';
 import { ProcedimentosService } from '@app/features/salao/procedimentos/services/procedimentos.service';
@@ -77,8 +80,9 @@ export class AgendamentoManualPage implements OnInit {
   private readonly clientesService = inject(ClientesService);
   private readonly procedimentosService = inject(ProcedimentosService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  readonly clientes = this.clientesService.clientes;
+  readonly clientes = signal<ClienteListaItemResponseDto[]>([]);
   readonly procedimentos = this.procedimentosService.procedimentos;
   readonly agendamentoCriado = this.agendamentosService.agendamentoCriado;
   readonly inicioAgendamentoFormatado = computed(() => {
@@ -108,26 +112,9 @@ export class AgendamentoManualPage implements OnInit {
   readonly erroFormularioCliente = signal<string | null>(null);
   readonly etapaAberta = signal<1 | 2 | 3>(1);
   readonly formatarWhatsapp = formatarWhatsappInternacional;
-
-  readonly clientesFiltrados = computed(() => {
-    const termoInformado = this.termoPesquisaCliente();
-    const termo = this.normalizarTexto(termoInformado);
-    const digitos = termoInformado.replace(/\D/g, '');
-
-    return this.clientes().filter((cliente) => {
-      const nomeCorresponde = this.normalizarTexto(cliente.nome).includes(termo);
-      const whatsappCorresponde =
-        digitos.length > 0 && cliente.whatsapp.includes(digitos);
-
-      return termo.length === 0 || nomeCorresponde || whatsappCorresponde;
-    });
-  });
-
-  clienteSelecionada() {
-    const clienteId = this.formulario.controls.cliente_id.value;
-
-    return this.clientes().find((cliente) => cliente.id === clienteId) ?? null;
-  }
+  // A lista de clientes é paginada; a selecionada pode não estar na página
+  // carregada, então a tela guarda a própria referência.
+  readonly clienteSelecionada = signal<ClienteResponseDto | null>(null);
 
   procedimentoSelecionado() {
     const procedimentoId = this.formulario.controls.procedimento_id.value;
@@ -179,14 +166,22 @@ export class AgendamentoManualPage implements OnInit {
     void this.carregarDadosIniciais();
   }
 
-  atualizarPesquisaCliente(valor: string | null | undefined): void {
+  async atualizarPesquisaCliente(
+    valor: string | null | undefined,
+  ): Promise<void> {
     this.termoPesquisaCliente.set(valor?.trim() ?? '');
+    await this.carregarClientes();
   }
 
-  selecionarCliente(clienteId: string): void {
-    this.formulario.controls.cliente_id.setValue(clienteId);
-    this.termoPesquisaCliente.set('');
+  selecionarCliente(cliente: ClienteResponseDto): void {
+    this.formulario.controls.cliente_id.setValue(cliente.id);
+    this.clienteSelecionada.set(cliente);
     this.etapaAberta.set(2);
+
+    if (this.termoPesquisaCliente()) {
+      this.termoPesquisaCliente.set('');
+      void this.carregarClientes();
+    }
   }
 
   alternarEtapa(etapa: 1 | 2 | 3): void {
@@ -202,7 +197,12 @@ export class AgendamentoManualPage implements OnInit {
   }
 
   cancelarAgendamento(): void {
-    void this.router.navigate(['/painel/agenda']);
+    const clienteId = this.route.snapshot.queryParamMap.get('cliente_id');
+
+    // Veio do atalho da ficha: cancelar devolve para a ficha da cliente.
+    void this.router.navigate(
+      clienteId ? ['/painel/clientes', clienteId] : ['/painel/agenda'],
+    );
   }
 
   abrirFormularioCliente(): void {
@@ -226,7 +226,7 @@ export class AgendamentoManualPage implements OnInit {
     try {
       const clienteCriado = await this.clientesService.setEntidade(dados);
 
-      this.selecionarCliente(clienteCriado.id);
+      this.selecionarCliente(clienteCriado);
       this.formularioClienteAberto.set(false);
     } catch (error) {
       this.erroFormularioCliente.set(
@@ -325,13 +325,55 @@ export class AgendamentoManualPage implements OnInit {
 
     try {
       await Promise.all([
-        this.clientesService.getLista('ativos'),
+        this.carregarClientes(),
         this.procedimentosService.getLista(),
+        this.preSelecionarCliente(),
       ]);
     } catch (error) {
       this.tratarErro(error);
     } finally {
       this.carregandoInicial.set(false);
+    }
+  }
+
+  private async carregarClientes(): Promise<void> {
+    const busca = this.termoPesquisaCliente() || undefined;
+
+    try {
+      const pagina = await this.clientesService.getPagina({
+        ...FILTROS_PADRAO_LISTA_CLIENTES,
+        busca,
+      });
+
+      // Digitação rápida dispara consultas em sequência; resposta atrasada de
+      // um termo antigo não sobrescreve a do termo atual.
+      if (busca === (this.termoPesquisaCliente() || undefined)) {
+        this.clientes.set(pagina.itens);
+      }
+    } catch (error) {
+      this.tratarErro(error);
+    }
+  }
+
+  // Atalho da ficha da cliente: chega com `?cliente_id=`. Cliente inativa ou
+  // inexistente é ignorada e a tela segue sem seleção.
+  private async preSelecionarCliente(): Promise<void> {
+    const clienteId = this.route.snapshot.queryParamMap.get('cliente_id');
+
+    if (!clienteId) {
+      return;
+    }
+
+    try {
+      const cliente = await this.clientesService.getFicha(clienteId);
+
+      if (cliente.ativo) {
+        this.selecionarCliente(cliente);
+      }
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        throw error;
+      }
     }
   }
 
@@ -366,6 +408,7 @@ export class AgendamentoManualPage implements OnInit {
     try {
       await this.agendamentosService.setEntidade(dados);
       this.formulario.reset({ confirmar_excecoes: false });
+      this.clienteSelecionada.set(null);
       this.horarios.set([]);
       this.avaliacao.set(null);
     } catch (error) {
@@ -381,12 +424,5 @@ export class AgendamentoManualPage implements OnInit {
     }
 
     this.erro.set(error.message);
-  }
-
-  private normalizarTexto(valor: string): string {
-    return valor
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLocaleLowerCase('pt-BR');
   }
 }

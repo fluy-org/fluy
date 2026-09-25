@@ -14,7 +14,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { ROTULO_AVISO_ACAO_AGENDAMENTO } from '../../agenda-data';
-import { formatarValor } from '../../agenda-utils';
+import { formatarValor } from '../../../../../shared/utils/formatacao';
 
 @Component({
   selector: 'app-confirmacao-falta',

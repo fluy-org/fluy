@@ -1,12 +1,14 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import {
-  AlertController,
-  IonBadge,
+  InfiniteScrollCustomEvent,
   IonButton,
   IonCard,
   IonCardContent,
   IonContent,
   IonHeader,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonModal,
   IonSearchbar,
   IonSelect,
@@ -14,15 +16,25 @@ import {
   IonSpinner,
   IonText,
 } from '@ionic/angular/standalone';
-import type {
-  AtualizarClienteDto,
-  ClienteResponseDto,
-  CriarClienteDto,
-  StatusFiltroCliente,
+import {
+  ORDENACAO_CLIENTE,
+  SEGMENTO_CLIENTE,
+  STATUS_FILTRO_CLIENTE,
+  type CriarClienteDto,
 } from '@fluy/schema';
-import { formatarWhatsappInternacional } from '@fluy/schema';
 import { ApiError } from '@app/core/errors/api-error';
+import {
+  FILTROS_PADRAO_LISTA_CLIENTES,
+  ROTULO_ORDENACAO_CLIENTE,
+  ROTULO_SEGMENTO_CLIENTE,
+  ROTULO_STATUS_FILTRO_CLIENTE,
+} from '@app/features/salao/clientes/clientes-data';
 import { FormularioClienteComponent } from '@app/features/salao/clientes/components/formulario-cliente/formulario-cliente.component';
+import { ResumoClienteComponent } from '@app/features/salao/clientes/components/resumo-cliente/resumo-cliente.component';
+import type {
+  EstadoPaginaClientes,
+  FiltrosListaClientes,
+} from '@app/features/salao/clientes/contracts';
 import { ClientesService } from '@app/features/salao/clientes/services/clientes.service';
 import { HeaderComponent } from '@app/shared/components/header/header.component';
 
@@ -34,48 +46,44 @@ import { HeaderComponent } from '@app/shared/components/header/header.component'
   imports: [
     FormularioClienteComponent,
     HeaderComponent,
-    IonBadge,
     IonButton,
     IonCard,
     IonCardContent,
     IonContent,
     IonHeader,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
     IonModal,
     IonSearchbar,
     IonSelect,
     IonSelectOption,
     IonSpinner,
     IonText,
+    ResumoClienteComponent,
   ],
 })
 export class ClientesPage implements OnInit {
   private readonly clientesService = inject(ClientesService);
-  private readonly alertController = inject(AlertController);
+  private readonly router = inject(Router);
+
+  readonly statusFiltro = STATUS_FILTRO_CLIENTE;
+  readonly segmentos = SEGMENTO_CLIENTE;
+  readonly ordenacoes = ORDENACAO_CLIENTE;
+  readonly rotuloStatus = ROTULO_STATUS_FILTRO_CLIENTE;
+  readonly rotuloSegmento = ROTULO_SEGMENTO_CLIENTE;
+  readonly rotuloOrdenacao = ROTULO_ORDENACAO_CLIENTE;
 
   readonly clientes = this.clientesService.clientes;
+  readonly proximoCursor = this.clientesService.proximoCursor;
+  readonly fusoHorario = this.clientesService.fusoHorario;
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
-  readonly termoPesquisa = signal('');
-  readonly statusSelecionado = signal<StatusFiltroCliente>('ativos');
+  readonly filtros = signal<FiltrosListaClientes>(FILTROS_PADRAO_LISTA_CLIENTES);
   readonly formularioAberto = signal(false);
-  readonly clienteEmEdicao = signal<ClienteResponseDto | null>(null);
   readonly salvandoCliente = signal(false);
   readonly erroFormulario = signal<string | null>(null);
-  readonly erroAcao = signal<string | null>(null);
 
-  readonly clientesFiltrados = computed(() => {
-    const termo = this.normalizarTexto(this.termoPesquisa());
-
-    return this.clientes().filter((cliente) => {
-      const conteudoPesquisavel = this.normalizarTexto(
-        `${cliente.nome} ${cliente.whatsapp}`,
-      );
-
-      return conteudoPesquisavel.includes(termo);
-    });
-  });
-
-  readonly estadoPagina = computed(() => {
+  readonly estadoPagina = computed<EstadoPaginaClientes>(() => {
     if (this.carregando()) {
       return 'carregando';
     }
@@ -84,40 +92,51 @@ export class ClientesPage implements OnInit {
       return 'erro';
     }
 
-    if (this.clientes().length === 0) {
-      return 'vazio';
+    if (this.clientes().length > 0) {
+      return 'lista';
     }
 
-    return this.clientesFiltrados().length === 0
-      ? 'sem-resultados'
-      : 'lista';
+    return this.usaFiltrosPadrao() ? 'vazio' : 'sem-resultados';
   });
 
   ngOnInit(): void {
     void this.carregar();
   }
 
-  atualizarPesquisa(valor: string | null | undefined): void {
-    this.termoPesquisa.set(valor?.trim() ?? '');
-  }
+  async atualizarPesquisa(valor: string | null | undefined): Promise<void> {
+    const busca = valor?.trim() || undefined;
 
-  async alterarStatus(status: StatusFiltroCliente): Promise<void> {
-    this.statusSelecionado.set(status);
+    this.filtros.update((filtros) => ({ ...filtros, busca }));
     await this.carregar();
   }
 
-  formatarWhatsapp(valor: string): string {
-    return formatarWhatsappInternacional(valor);
+  async alterarFiltro<Campo extends 'status' | 'segmento' | 'ordenacao'>(
+    campo: Campo,
+    valor: FiltrosListaClientes[Campo],
+  ): Promise<void> {
+    this.filtros.update((filtros) => ({ ...filtros, [campo]: valor }));
+    await this.carregar();
+  }
+
+  async carregarMais(evento: InfiniteScrollCustomEvent): Promise<void> {
+    try {
+      await this.clientesService.getProximaPagina();
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        throw error;
+      }
+
+      this.erro.set(error.message);
+    } finally {
+      await evento.target.complete();
+    }
+  }
+
+  abrirFicha(id: string): void {
+    void this.router.navigate(['/painel/clientes', id]);
   }
 
   abrirFormulario(): void {
-    this.clienteEmEdicao.set(null);
-    this.erroFormulario.set(null);
-    this.formularioAberto.set(true);
-  }
-
-  editarCliente(cliente: ClienteResponseDto): void {
-    this.clienteEmEdicao.set(cliente);
     this.erroFormulario.set(null);
     this.formularioAberto.set(true);
   }
@@ -128,7 +147,6 @@ export class ClientesPage implements OnInit {
     }
 
     this.formularioAberto.set(false);
-    this.clienteEmEdicao.set(null);
     this.erroFormulario.set(null);
   }
 
@@ -137,18 +155,9 @@ export class ClientesPage implements OnInit {
     this.erroFormulario.set(null);
 
     try {
-      const cliente = this.clienteEmEdicao();
-
-      if (cliente) {
-        await this.clientesService.updateEntidade(
-          cliente.id,
-          dados as AtualizarClienteDto,
-        );
-      } else {
-        await this.clientesService.setEntidade(dados);
-      }
-
+      await this.clientesService.setEntidade(dados);
       this.formularioAberto.set(false);
+      void this.carregar();
     } catch (error) {
       this.erroFormulario.set(
         error instanceof ApiError
@@ -160,56 +169,12 @@ export class ClientesPage implements OnInit {
     }
   }
 
-  async confirmarInativacao(cliente: ClienteResponseDto): Promise<void> {
-    const alerta = await this.alertController.create({
-      header: 'Inativar cliente',
-      message: `Deseja inativar ${cliente.nome}?`,
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        { text: 'Inativar', role: 'confirm' },
-      ],
-    });
-
-    await alerta.present();
-    const resultado = await alerta.onDidDismiss();
-
-    if (resultado.role !== 'confirm') {
-      return;
-    }
-
-    this.erroAcao.set(null);
-
-    try {
-      await this.clientesService.inativarEntidade(cliente.id);
-    } catch (error) {
-      this.erroAcao.set(
-        error instanceof ApiError
-          ? error.message
-          : 'Não foi possível inativar o cliente.',
-      );
-    }
-  }
-
-  async reativarCliente(cliente: ClienteResponseDto): Promise<void> {
-    this.erroAcao.set(null);
-
-    try {
-      await this.clientesService.reativarEntidade(cliente.id);
-    } catch (error) {
-      this.erroAcao.set(
-        error instanceof ApiError
-          ? error.message
-          : 'Não foi possível reativar o cliente.',
-      );
-    }
-  }
-
   private async carregar(): Promise<void> {
     this.carregando.set(true);
     this.erro.set(null);
 
     try {
-      await this.clientesService.getLista(this.statusSelecionado());
+      await this.clientesService.getLista(this.filtros());
     } catch (error) {
       if (!(error instanceof ApiError)) {
         throw error;
@@ -221,10 +186,13 @@ export class ClientesPage implements OnInit {
     }
   }
 
-  private normalizarTexto(valor: string): string {
-    return valor
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLocaleLowerCase('pt-BR');
+  private usaFiltrosPadrao(): boolean {
+    const filtros = this.filtros();
+
+    return (
+      !filtros.busca &&
+      filtros.status === FILTROS_PADRAO_LISTA_CLIENTES.status &&
+      filtros.segmento === FILTROS_PADRAO_LISTA_CLIENTES.segmento
+    );
   }
 }

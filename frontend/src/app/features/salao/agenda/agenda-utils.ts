@@ -2,7 +2,6 @@ import type {
   AgendamentoAgendaResponseDto,
   ResumoAgendaResponseDto,
 } from '@fluy/schema';
-import { formatarWhatsappInternacional } from '@fluy/schema';
 import { ESTADOS_ENCERRADOS } from './agenda-data';
 import type { GradeDoMes, GruposDaAgenda } from './contracts';
 
@@ -126,17 +125,6 @@ export function agruparPorEncerramento(
       ESTADOS_ENCERRADOS.includes(agendamento.estado),
     ),
   };
-}
-
-export function formatarValor(valor: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(valor);
-}
-
-export function formatarWhatsapp(whatsapp: string): string {
-  return formatarWhatsappInternacional(whatsapp);
 }
 
 export function formatarDuracao(duracaoMin: number): string {
