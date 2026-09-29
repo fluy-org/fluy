@@ -1,3 +1,4 @@
+import { PERIODO_MANUTENCAO_MAXIMO_DIAS } from '@fluy/schema';
 import {
   BadRequestException,
   ConflictException,
@@ -8,6 +9,8 @@ import type {
   AgendamentoDetalheResultado,
   CobrancaManualDaConclusao,
   ConcluirAgendamentoInput,
+  LembreteDaConclusao,
+  ProcedimentoDoAgendamentoPersistido,
 } from '@/modules/agendamento/contracts';
 import {
   calcularValorPago,
@@ -16,6 +19,11 @@ import {
 import { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { AgendamentoValidator } from '@/modules/agendamento/agendamento.validator';
+import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
+import {
+  adicionarDiasNaData,
+  utcParaDataHoraCivil,
+} from '@/shared/horario-salao/horario-salao.utils';
 
 @Injectable()
 export class AgendamentoConclusaoService {
@@ -23,6 +31,7 @@ export class AgendamentoConclusaoService {
     private readonly agendamentoRepository: AgendamentoRepository,
     private readonly agendamentoService: AgendamentoService,
     private readonly agendamentoValidator: AgendamentoValidator,
+    private readonly salaoConsultaService: SalaoConsultaService,
   ) {}
 
   async concluir({
@@ -53,15 +62,22 @@ export class AgendamentoConclusaoService {
       metodoPagamento,
     });
 
+    // O faturamento usa a data da conclusão, não a de `inicio_em`.
+    const ocorreuEm = new Date();
+
     const concluido = await this.agendamentoRepository.concluir({
       id,
       salaoId,
-      // O faturamento usa a data da conclusão, não a de `inicio_em`.
-      ocorreuEm: new Date(),
+      ocorreuEm,
       cobranca: this.montarCobranca({
         metodoPagamento,
         valorPendente,
         usuarioSalaoId,
+      }),
+      lembrete: await this.montarLembrete({
+        salaoId,
+        ocorreuEm,
+        procedimento: agendamento.procedimento,
       }),
     });
 
@@ -96,6 +112,38 @@ export class AgendamentoConclusaoService {
       valor: valorPendente,
       metodo: metodoPagamento,
       registradaPor: usuarioSalaoId,
+    };
+  }
+
+  // A data alvo parte do dia civil da conclusão no fuso do salão: concluir às
+  // 23h não pode empurrar o lembrete para o dia seguinte em UTC.
+  private async montarLembrete({
+    salaoId,
+    ocorreuEm,
+    procedimento,
+  }: {
+    salaoId: string;
+    ocorreuEm: Date;
+    procedimento: ProcedimentoDoAgendamentoPersistido;
+  }): Promise<LembreteDaConclusao | undefined> {
+    const periodo = procedimento.periodo_manutencao_dias;
+
+    // Procedimentos gravados antes do teto podem ter período sem data
+    // representável: sem lembrete, mas a conclusão e o pagamento seguem.
+    if (!periodo || periodo <= 0 || periodo > PERIODO_MANUTENCAO_MAXIMO_DIAS) {
+      return undefined;
+    }
+
+    const fusoHorario =
+      await this.salaoConsultaService.obterFusoHorario(salaoId);
+    const dataConclusao = utcParaDataHoraCivil({
+      dataHora: ocorreuEm,
+      fusoHorario,
+    }).data;
+
+    return {
+      texto: `Retorno de manutenção — ${procedimento.nome}`,
+      dataAlvo: adicionarDiasNaData({ data: dataConclusao, dias: periodo }),
     };
   }
 }

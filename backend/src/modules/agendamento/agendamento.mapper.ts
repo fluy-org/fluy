@@ -107,6 +107,6 @@ function toAgendamentoAgendaResponse(
     valor_pago: Number(agendamento.valorPago),
     valor_pendente: Number(agendamento.valorPendente),
     tem_imagens_referencia: false,
-    tem_observacoes: false,
+    tem_observacoes: agendamento.tem_observacoes,
   };
 }

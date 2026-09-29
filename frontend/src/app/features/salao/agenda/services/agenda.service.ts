@@ -160,6 +160,34 @@ export class AgendaService {
     return agendamento;
   }
 
+  // As notas são gravadas pela feature de notas; aqui só se reflete no
+  // detalhe e no card se o agendamento tem observação, sem recarregar a agenda.
+  atualizarObservacao({
+    id,
+    temObservacoes,
+  }: {
+    id: string;
+    temObservacoes: boolean;
+  }): void {
+    this._agendamento.update((agendamento) =>
+      agendamento?.id === id
+        ? { ...agendamento, tem_observacoes: temObservacoes }
+        : agendamento,
+    );
+    this._agendaDoDia.update((agenda) =>
+      agenda
+        ? {
+            ...agenda,
+            agendamentos: agenda.agendamentos.map((item) =>
+              item.id === id
+                ? { ...item, tem_observacoes: temObservacoes }
+                : item,
+            ),
+          }
+        : agenda,
+    );
+  }
+
   private substituirNaAgendaDoDia(
     agendamento: AgendamentoDetalheResponseDto,
   ): void {

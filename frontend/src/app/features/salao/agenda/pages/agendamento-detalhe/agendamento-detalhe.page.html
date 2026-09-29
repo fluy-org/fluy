@@ -80,6 +80,21 @@
             <p class="bloco__apoio">Este estado não permite nenhuma ação.</p>
           }
         </section>
+
+        <app-secao-lembretes
+          [clienteId]="detalhe.cliente.id"
+          [agendamentoId]="detalhe.id"
+          [fusoHorario]="detalhe.fuso_horario"
+        ></app-secao-lembretes>
+
+        <app-secao-notas
+          [clienteId]="detalhe.cliente.id"
+          [agendamentoId]="detalhe.id"
+          [fusoHorario]="detalhe.fuso_horario"
+          (notasAlteradas)="
+            atualizarObservacao({ id: detalhe.id, temObservacoes: $event })
+          "
+        ></app-secao-notas>
       }
     }
   }

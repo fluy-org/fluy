@@ -46,6 +46,12 @@ jest.mock(
       valor: 'cobranca_gateway.valor',
       status: 'cobranca_gateway.status',
     },
+    lembrete: {
+      id: 'lembrete.id',
+    },
+    nota: {
+      agendamento_id: 'nota.agendamento_id',
+    },
   }),
   { virtual: true },
 );
@@ -71,6 +77,7 @@ import {
   agendamento,
   cobrancaManual,
   eventoAgendamento,
+  lembrete,
   pagamentoAgendamento,
 } from '@fluy/schema';
 import type { Database } from '@/database/database.provider';
@@ -192,9 +199,12 @@ describe('AgendamentoRepository', () => {
       salaoId: 'salao-ana',
       ocorreuEm: OCORREU_EM,
       cobranca: undefined,
+      lembrete: undefined,
     };
     const agendamentoConcluido = {
       id: 'agendamento-ana',
+      cliente_id: 'cliente-ana',
+      procedimento_id: 'procedimento-corte',
       estado: 'concluido',
     } as AgendamentoPersistido;
 
@@ -263,6 +273,45 @@ describe('AgendamentoRepository', () => {
         agendamento_id: agendamentoConcluido.id,
         cobranca_manual_id: 'cobranca-ana',
       });
+    });
+
+    it('grava o lembrete automático na mesma transação da conclusão', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoConcluido]);
+
+      await repository.concluir({
+        ...entrada,
+        lembrete: {
+          texto: 'Retorno de manutenção — Corte',
+          dataAlvo: '2026-10-15',
+        },
+      });
+
+      expect(transacao).toHaveBeenCalledTimes(1);
+      expect(inserirAgendamentos).toHaveBeenNthCalledWith(1, eventoAgendamento);
+      expect(inserirAgendamentos).toHaveBeenNthCalledWith(2, lembrete);
+      expect(definirAgendamentos).toHaveBeenCalledWith({
+        cliente_id: 'cliente-ana',
+        agendamento_id: 'agendamento-ana',
+        procedimento_id: 'procedimento-corte',
+        texto: 'Retorno de manutenção — Corte',
+        data_alvo: '2026-10-15',
+        origem: 'automatica',
+        status: 'ativo',
+      });
+    });
+
+    it('não grava lembrete quando a corrida é perdida', async () => {
+      retornarConclusao.mockResolvedValue([]);
+
+      await repository.concluir({
+        ...entrada,
+        lembrete: {
+          texto: 'Retorno de manutenção — Corte',
+          dataAlvo: '2026-10-15',
+        },
+      });
+
+      expect(inserirAgendamentos).not.toHaveBeenCalled();
     });
   });
 

@@ -46,7 +46,7 @@ cria tabela.
 
 ### 5.1 Lista e ficha da cliente
 
-- [ ] Lista completa de clientes e a ficha individual com dados, histórico e métricas. — **🟣 Rudney** — [DEP: 2.1](./bloco-2-motor.md#21-clientes) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
+- [x] Lista completa de clientes e a ficha individual com dados, histórico e métricas. — **🟣 Rudney** — [DEP: 2.1](./bloco-2-motor.md#21-clientes) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
 
 **Por que lista e ficha juntas:** são o mesmo fluxo (`11-clientes-historico.md`)
 e a lista sem a ficha não entrega nada além do que a tela mínima de
@@ -108,7 +108,7 @@ a ficha de uma cliente sem histórico.
 
 ### 5.2 Notas e lembretes
 
-- [ ] Notas cronológicas na cliente e no agendamento + lembretes automáticos e manuais com aba própria. — **🟣 Rudney** — [DEP: 5.1](#51-lista-e-ficha-da-cliente) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
+- [x] Notas cronológicas na cliente e no agendamento + lembretes automáticos e manuais com aba própria. — **🟣 Rudney** — [DEP: 5.1](#51-lista-e-ficha-da-cliente) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
 
 **Por que juntas:** nos fluxos, uma nota **é** um lembrete sem data alvo — o
 mesmo formulário, o mesmo ponto de entrada, e o campo de data decide qual das

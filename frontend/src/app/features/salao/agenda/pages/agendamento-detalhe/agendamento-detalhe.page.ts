@@ -27,6 +27,9 @@ import { FormularioCancelamentoComponent } from '../../components/formulario-can
 import { FormularioConclusaoComponent } from '../../components/formulario-conclusao/formulario-conclusao.component';
 import { FormularioRemarcacaoComponent } from '../../components/formulario-remarcacao/formulario-remarcacao.component';
 import { AgendaService } from '../../services/agenda.service';
+import { SecaoLembretesComponent } from '../../../lembretes/components/secao-lembretes/secao-lembretes.component';
+import { SecaoNotasComponent } from '../../../notas/components/secao-notas/secao-notas.component';
+import { LembretesService } from '../../../lembretes/services/lembretes.service';
 import {
   ACOES_DO_ATENDIMENTO,
   ACOES_SEM_ATENDIMENTO,
@@ -57,10 +60,13 @@ import type { EstadoPaginaDetalhe } from '../../contracts';
     IonText,
     IonTitle,
     IonToolbar,
+    SecaoLembretesComponent,
+    SecaoNotasComponent,
   ],
 })
 export class AgendamentoDetalhePage implements OnInit {
   private readonly agendaService = inject(AgendaService);
+  private readonly lembretesService = inject(LembretesService);
   private readonly route = inject(ActivatedRoute);
 
   readonly agendamento = this.agendaService.agendamento;
@@ -144,11 +150,28 @@ export class AgendamentoDetalhePage implements OnInit {
     this.acaoAberta.set(null);
   }
 
+  // A conclusão pode criar o lembrete de manutenção no backend; as listas de
+  // lembretes abertas são recarregadas para mostrá-lo, sem que uma falha nisso
+  // pareça falha da conclusão.
   confirmarConclusao(dados: ConcluirAgendamentoDto): Promise<void> {
-    return this.executarAcao(
-      (id) => this.agendaService.concluir(id, dados),
-      'Sem conexão. A conclusão não foi registrada.',
-    );
+    return this.executarAcao(async (id) => {
+      const agendamento = await this.agendaService.concluir(id, dados);
+
+      await this.lembretesService.recarregarListas({
+        clienteId: agendamento.cliente.id,
+        agendamentoId: id,
+      });
+    }, 'Sem conexão. A conclusão não foi registrada.');
+  }
+
+  atualizarObservacao({
+    id,
+    temObservacoes,
+  }: {
+    id: string;
+    temObservacoes: boolean;
+  }): void {
+    this.agendaService.atualizarObservacao({ id, temObservacoes });
   }
 
   confirmarFalta(): Promise<void> {

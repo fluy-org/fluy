@@ -86,7 +86,9 @@ do cliente nesses fluxos.
 ## Paginação
 
 Listagem que pode crescer sem limite (clientes, histórico) pagina por cursor
-opaco. Referência: `cliente/`.
+opaco. Referência: `cliente/`. Cursor e montagem da página vivem em
+`shared/paginacao/paginacao.utils.ts`; a busca por nome e WhatsApp, em
+`shared/busca/busca.utils.ts`.
 
 - Query recebe `cursor` opcional; resposta é `{ itens, proximo_cursor }`, com
   `proximo_cursor: null` na última página.

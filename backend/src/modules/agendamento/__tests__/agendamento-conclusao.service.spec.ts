@@ -3,6 +3,9 @@
 jest.mock('@/modules/agendamento/agendamento.service', () => ({
   AgendamentoService: class {},
 }));
+jest.mock('@/modules/salao/salao-consulta.service', () => ({
+  SalaoConsultaService: class {},
+}));
 
 import {
   BadRequestException,
@@ -17,6 +20,7 @@ import { AgendamentoConclusaoService } from '@/modules/agendamento/agendamento-c
 import type { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import type { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { AgendamentoValidator } from '@/modules/agendamento/agendamento.validator';
+import type { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 
 describe('AgendamentoConclusaoService', () => {
   const buscarDetalheNoRepository = jest.fn();
@@ -29,10 +33,15 @@ describe('AgendamentoConclusaoService', () => {
   const agendamentoService = {
     buscarDetalhe: buscarDetalheNoService,
   } as unknown as AgendamentoService;
+  const obterFusoHorario = jest.fn();
+  const salaoConsultaService = {
+    obterFusoHorario,
+  } as unknown as SalaoConsultaService;
   const service = new AgendamentoConclusaoService(
     repository,
     agendamentoService,
     new AgendamentoValidator(),
+    salaoConsultaService,
   );
   const entrada = {
     id: 'agendamento-ana',
@@ -45,6 +54,11 @@ describe('AgendamentoConclusaoService', () => {
     buscarDetalheNoRepository.mockResolvedValue(criarAgendamentoPersistido());
     concluirNoRepository.mockResolvedValue({ id: entrada.id });
     buscarDetalheNoService.mockResolvedValue({ id: entrada.id });
+    obterFusoHorario.mockResolvedValue('America/Sao_Paulo');
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('não encontra agendamento de outro salão', async () => {
@@ -126,6 +140,72 @@ describe('AgendamentoConclusaoService', () => {
     expect(buscarDetalheNoService).not.toHaveBeenCalled();
   });
 
+  it('cria o lembrete de manutenção no dia civil do salão', async () => {
+    // 23h30 em São Paulo já é o dia seguinte em UTC.
+    jest.useFakeTimers({ now: new Date('2026-09-16T02:30:00.000Z') });
+    buscarDetalheNoRepository.mockResolvedValue(
+      criarAgendamentoPersistido({
+        procedimento: {
+          id: 'procedimento-corte',
+          nome: 'Corte',
+          periodo_manutencao_dias: 30,
+        },
+      }),
+    );
+
+    await service.concluir({ ...entrada, dados: { metodo_pagamento: null } });
+
+    expect(obterFusoHorario).toHaveBeenCalledWith(entrada.salaoId);
+    expect(concluirNoRepository).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lembrete: {
+          texto: 'Retorno de manutenção — Corte',
+          dataAlvo: '2026-10-15',
+        },
+      }),
+    );
+  });
+
+  it.each([null, 0])(
+    'não cria lembrete quando o período de manutenção é %p',
+    async (periodo) => {
+      buscarDetalheNoRepository.mockResolvedValue(
+        criarAgendamentoPersistido({
+          procedimento: {
+            id: 'procedimento-corte',
+            nome: 'Corte',
+            periodo_manutencao_dias: periodo,
+          },
+        }),
+      );
+
+      await service.concluir({ ...entrada, dados: { metodo_pagamento: null } });
+
+      expect(concluirNoRepository).toHaveBeenCalledWith(
+        expect.objectContaining({ lembrete: undefined }),
+      );
+      expect(obterFusoHorario).not.toHaveBeenCalled();
+    },
+  );
+
+  it('conclui sem lembrete quando o período passa do teto', async () => {
+    buscarDetalheNoRepository.mockResolvedValue(
+      criarAgendamentoPersistido({
+        procedimento: {
+          id: 'procedimento-corte',
+          nome: 'Corte',
+          periodo_manutencao_dias: 2_147_483_647,
+        },
+      }),
+    );
+
+    await service.concluir({ ...entrada, dados: { metodo_pagamento: null } });
+
+    expect(concluirNoRepository).toHaveBeenCalledWith(
+      expect.objectContaining({ lembrete: undefined }),
+    );
+  });
+
   it('devolve o detalhe atualizado depois de concluir', async () => {
     const detalhe = await service.concluir({
       ...entrada,
@@ -149,6 +229,11 @@ function criarAgendamentoPersistido(
     estado: 'agendado',
     preco_total: '120.00',
     valor_sinal: '36.00',
+    procedimento: {
+      id: 'procedimento-corte',
+      nome: 'Corte',
+      periodo_manutencao_dias: null,
+    },
     pagamentos: [],
     ...sobrescritas,
   } as AgendamentoDaAgendaPersistido;

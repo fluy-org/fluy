@@ -1,0 +1,3 @@
+export const TAMANHO_PAGINA_LEMBRETES = 20;
+export const DIAS_JANELA_SEMANA_LEMBRETE = 7;
+export const DIAS_JANELA_MES_LEMBRETE = 30;

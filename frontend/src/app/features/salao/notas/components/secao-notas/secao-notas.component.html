@@ -1,0 +1,114 @@
+<h2 class="titulo">Notas</h2>
+
+@if (erro()) {
+  <ion-text color="danger">
+    <p class="erro">{{ erro() }}</p>
+  </ion-text>
+}
+
+@if (notas().length > 0) {
+  <ul class="notas">
+    @for (nota of notas(); track nota.id) {
+      <li class="nota">
+        <p class="nota__data">
+          {{ nota.criada_em | horaSalao: fusoHorario() : 'data-hora' }}
+        </p>
+
+        @if (notaEmEdicaoId() === nota.id) {
+          <div class="campo">
+            <ion-textarea
+              [formControl]="textoEdicao"
+              aria-label="Editar nota"
+              autoGrow="true"
+              maxlength="2000"
+            ></ion-textarea>
+
+            @if (erroEdicao()) {
+              <p class="mensagem-erro">{{ erroEdicao() }}</p>
+            }
+
+            <div class="nota__acoes">
+              <ion-button
+                type="button"
+                fill="clear"
+                size="small"
+                color="medium"
+                [disabled]="salvandoEdicao()"
+                (click)="cancelarEdicao()"
+              >
+                Cancelar
+              </ion-button>
+              <ion-button
+                type="button"
+                size="small"
+                [disabled]="salvandoEdicao()"
+                (click)="salvarEdicao()"
+              >
+                {{ salvandoEdicao() ? 'Salvando...' : 'Salvar' }}
+              </ion-button>
+            </div>
+          </div>
+        } @else {
+          <p class="nota__texto">{{ nota.texto }}</p>
+
+          @if (!somenteLeitura()) {
+            <div class="nota__acoes">
+              <ion-button
+                type="button"
+                fill="clear"
+                size="small"
+                (click)="editar(nota)"
+              >
+                Editar
+              </ion-button>
+              <ion-button
+                type="button"
+                fill="clear"
+                size="small"
+                color="medium"
+                (click)="confirmarExclusao(nota)"
+              >
+                Excluir
+              </ion-button>
+            </div>
+          }
+        }
+      </li>
+    }
+  </ul>
+
+  @if (proximoCursor()) {
+    <app-ver-mais
+      [carregando]="carregandoMais()"
+      (verMais)="verMais()"
+    ></app-ver-mais>
+  }
+} @else {
+  <p class="vazio">Nenhuma nota registrada.</p>
+}
+
+@if (!somenteLeitura()) {
+  <div class="campo nova-nota">
+    <ion-textarea
+      [formControl]="texto"
+      aria-label="Nova nota"
+      autoGrow="true"
+      maxlength="2000"
+      placeholder="Escreva uma observação sobre a cliente"
+    ></ion-textarea>
+
+    @if (erroFormulario()) {
+      <p class="mensagem-erro">{{ erroFormulario() }}</p>
+    }
+
+    <ion-button
+      type="button"
+      fill="outline"
+      size="small"
+      [disabled]="salvando()"
+      (click)="salvar()"
+    >
+      {{ salvando() ? 'Salvando...' : 'Adicionar nota' }}
+    </ion-button>
+  </div>
+}

@@ -1,4 +1,7 @@
-import type { PaginaResultado } from '@/modules/cliente/contracts';
+export type PaginaResultado<T> = {
+  itens: T[];
+  proximoCursor: string | null;
+};
 
 // O cursor é opaco para quem consome a API: hoje carrega o offset, mas pode
 // passar a carregar a chave de ordenação (keyset) sem mudar o contrato.
@@ -39,12 +42,4 @@ export function montarPagina<T>({
       ? codificarCursorPagina({ offset: offset + tamanho })
       : null,
   };
-}
-
-export function montarPadraoBuscaNome({ termo }: { termo: string }): string {
-  return `%${termo.replace(/[\\%_]/g, '\\$&')}%`;
-}
-
-export function extrairDigitos({ termo }: { termo: string }): string {
-  return termo.replace(/\D/g, '');
 }

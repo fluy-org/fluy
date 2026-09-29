@@ -50,6 +50,15 @@ Sem `forms/`, `ui/`, `elements/`, `blocks/`, `views/` até doer.
 
 Se um componente de `components/` começa a fazer fetch ou orquestrar navegação, sobe pra page.
 
+**Exceção — bloco embutível:** quando 2+ pages precisam da mesma orquestração
+(fetch + mutation + modal) só com escopo diferente, ela vira um componente que
+injeta os services e recebe o escopo por `input()`, em vez de ser duplicada nas
+pages. A page que embute só passa o escopo e ouve `output()` para o que for
+dela. Cada bloco cuida de uma entidade e mora na feature dela. Referência:
+`features/salao/notas/components/secao-notas/` e
+`features/salao/lembretes/components/secao-lembretes/`, usados pela ficha da
+cliente e pelo detalhe do agendamento.
+
 ### Componentes de UI
 - **Exceção:** Além dos componentes do Ionic, o projeto pode utilizar um conjunto de componentes customizados com prefixo `app-*` (ex: `app-input-text`, `app-btn-salvar`) para agilizar o desenvolvimento de formulários e ações.
 
@@ -127,6 +136,8 @@ Pergunta única: **trafega HTTP entre front e back?**
 
 ## Nomeação
 
+- Funções e métodos com dois ou mais argumentos recebem um objeto de input; um
+  único argumento pode ser parâmetro direto. Mesma regra do backend.
 - Arquivos em `kebab-case`.
 - Componente: `{nome}.component.ts`. Página: `{nome}.page.ts`. Service: `{nome}.service.ts`.
 
@@ -144,7 +155,7 @@ Pergunta única: **trafega HTTP entre front e back?**
 - ❌ Wrapper `ApiService` envolvendo `HttpClient`.
 - ❌ Duplicar tipo que trafega HTTP no frontend.
 - ❌ `interface`/`type` exportado direto de service ou componente.
-- ❌ Fetch, mutation ou orquestração ativa em componente de `components/`.
+- ❌ Fetch, mutation ou orquestração ativa em componente de `components/` (salvo o bloco embutível descrito em "Componentes").
 - ❌ Signal escrito de fora do service.
 - ❌ `HttpClient` injetado em componente.
 - ❌ Refetch como padrão após mutação.
