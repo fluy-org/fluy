@@ -28,7 +28,7 @@ import type { Database } from '@/database/database.provider';
 import {
     extrairDigitos,
     montarPadraoBuscaNome,
-} from '@/modules/cliente/cliente-utils';
+} from '@/shared/busca/busca.utils';
 import type {
     AgendamentoDaClientePersistido,
     AtualizarClienteInput,

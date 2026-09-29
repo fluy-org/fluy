@@ -1,0 +1,8 @@
+<ion-button
+  fill="clear"
+  size="small"
+  [disabled]="carregando()"
+  (click)="verMais.emit()"
+>
+  {{ carregando() ? 'Carregando...' : 'Ver mais' }}
+</ion-button>

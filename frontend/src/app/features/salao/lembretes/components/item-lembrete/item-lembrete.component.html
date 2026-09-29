@@ -1,0 +1,52 @@
+<article class="lembrete" [class.lembrete--atrasado]="atrasado()">
+  <div class="lembrete__cabecalho">
+    <p class="lembrete__data">{{ dataPorExtenso() }}</p>
+
+    <div class="lembrete__selos">
+      @if (atrasado()) {
+        <ion-badge color="danger">Atrasado</ion-badge>
+      } @else if (venceHoje()) {
+        <ion-badge color="warning">Hoje</ion-badge>
+      }
+
+      @if (lembrete().origem === 'automatica') {
+        <ion-badge color="medium">Automático</ion-badge>
+      }
+    </div>
+  </div>
+
+  @if (mostrarCliente()) {
+    <button
+      type="button"
+      class="lembrete__cliente"
+      (click)="abrirCliente.emit(lembrete().cliente.id)"
+    >
+      {{ lembrete().cliente.nome }}
+    </button>
+  }
+
+  <p class="lembrete__texto">{{ lembrete().texto }}</p>
+
+  @if (!somenteLeitura()) {
+    <div class="lembrete__acoes">
+      <ion-button size="small" (click)="concluir.emit(lembrete().id)">
+        Concluir
+      </ion-button>
+      <ion-button
+        size="small"
+        fill="outline"
+        (click)="editar.emit(lembrete())"
+      >
+        Editar
+      </ion-button>
+      <ion-button
+        size="small"
+        fill="clear"
+        color="medium"
+        (click)="excluir.emit(lembrete())"
+      >
+        Excluir
+      </ion-button>
+    </div>
+  }
+</article>

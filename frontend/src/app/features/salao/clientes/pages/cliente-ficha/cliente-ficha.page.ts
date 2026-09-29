@@ -1,31 +1,30 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import type { ClienteFichaResponseDto, CriarClienteDto } from '@fluy/schema';
 import { normalizarWhatsappInternacional } from '@fluy/schema';
 import {
   AlertController,
   InfiniteScrollCustomEvent,
+  IonBackButton,
   IonBadge,
   IonButton,
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonModal,
-  IonRouterLink,
   IonSpinner,
   IonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { arrowBack } from 'ionicons/icons';
 import { ApiError } from '@app/core/errors/api-error';
 import { FormularioClienteComponent } from '@app/features/salao/clientes/components/formulario-cliente/formulario-cliente.component';
 import { HistoricoAgendamentosComponent } from '@app/features/salao/clientes/components/historico-agendamentos/historico-agendamentos.component';
 import { MetricasClienteComponent } from '@app/features/salao/clientes/components/metricas-cliente/metricas-cliente.component';
 import type { EstadoPaginaFicha } from '@app/features/salao/clientes/contracts';
 import { ClientesService } from '@app/features/salao/clientes/services/clientes.service';
+import { SecaoLembretesComponent } from '@app/features/salao/lembretes/components/secao-lembretes/secao-lembretes.component';
+import { SecaoNotasComponent } from '@app/features/salao/notas/components/secao-notas/secao-notas.component';
 import { formatarWhatsapp } from '@app/shared/utils/formatacao';
 
 @Component({
@@ -36,20 +35,20 @@ import { formatarWhatsapp } from '@app/shared/utils/formatacao';
   imports: [
     FormularioClienteComponent,
     HistoricoAgendamentosComponent,
+    IonBackButton,
     IonBadge,
     IonButton,
     IonButtons,
     IonContent,
     IonHeader,
-    IonIcon,
     IonModal,
-    IonRouterLink,
     IonSpinner,
     IonText,
     IonTitle,
     IonToolbar,
     MetricasClienteComponent,
-    RouterLink,
+    SecaoLembretesComponent,
+    SecaoNotasComponent,
   ],
 })
 export class ClienteFichaPage implements OnInit {
@@ -82,10 +81,6 @@ export class ClienteFichaPage implements OnInit {
 
     return ficha ? formatarWhatsapp(ficha.whatsapp) : '';
   });
-
-  constructor() {
-    addIcons({ arrowBack });
-  }
 
   ngOnInit(): void {
     void this.carregar();

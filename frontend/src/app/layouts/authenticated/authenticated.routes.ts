@@ -26,6 +26,14 @@ export const AUTHENTICATED_ROUTES: Routes = [
       ),
   },
   {
+    // Separada da agenda: o fluxo 12 não mistura atendimento com to-do interno.
+    path: 'lembretes',
+    loadChildren: () =>
+      import('../../features/salao/lembretes/lembretes.routes').then(
+        (m) => m.LEMBRETES_ROUTES,
+      ),
+  },
+  {
     // A configuracao pertence ao painel e reutiliza o layout autenticado.
     path: 'configuracao',
     loadComponent: () =>

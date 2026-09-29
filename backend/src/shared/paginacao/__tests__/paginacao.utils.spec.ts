@@ -1,14 +1,10 @@
-jest.mock('@fluy/schema', () => ({}));
-
 import {
   codificarCursorPagina,
   decodificarCursorPagina,
-  extrairDigitos,
-  montarPadraoBuscaNome,
   montarPagina,
-} from '@/modules/cliente/cliente-utils';
+} from '@/shared/paginacao/paginacao.utils';
 
-describe('cliente-utils', () => {
+describe('paginacao.utils', () => {
   describe('cursor de página', () => {
     it('decodifica o offset que foi codificado', () => {
       const cursor = codificarCursorPagina({ offset: 40 });
@@ -43,16 +39,6 @@ describe('cliente-utils', () => {
         itens: [1, 2],
         proximoCursor: null,
       });
-    });
-  });
-
-  describe('busca', () => {
-    it('escapa curingas do LIKE no termo digitado', () => {
-      expect(montarPadraoBuscaNome({ termo: '50%_ana' })).toBe('%50\\%\\_ana%');
-    });
-
-    it('extrai só os dígitos do termo', () => {
-      expect(extrairDigitos({ termo: '(11) 98888-7777' })).toBe('11988887777');
     });
   });
 });

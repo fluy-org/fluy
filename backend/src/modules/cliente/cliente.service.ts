@@ -13,7 +13,7 @@ import {
 import {
     decodificarCursorPagina,
     montarPagina,
-} from '@/modules/cliente/cliente-utils';
+} from '@/shared/paginacao/paginacao.utils';
 import { ClienteRepository } from '@/modules/cliente/cliente.repository';
 import type {
     AtualizarClienteInput,

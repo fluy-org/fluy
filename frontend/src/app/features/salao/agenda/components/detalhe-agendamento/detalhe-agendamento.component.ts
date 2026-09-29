@@ -16,8 +16,8 @@ import {
 import {
   extrairDataCivil,
   formatarDataPorExtenso,
-  formatarDuracao,
-} from '../../agenda-utils';
+} from '../../../../../shared/utils/data-civil';
+import { formatarDuracao } from '../../agenda-utils';
 
 @Component({
   selector: 'app-detalhe-agendamento',
