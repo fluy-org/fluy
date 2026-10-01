@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+.titulo {
+  margin: 0 0 var(--fluy-space-3);
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.erro {
+  margin: 0 0 var(--fluy-space-3);
+}
+
+.notas {
+  display: grid;
+  gap: var(--fluy-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nota {
+  padding-bottom: var(--fluy-space-3);
+  border-bottom: 1px solid var(--fluy-color-border-soft);
+}
+
+.nota__data {
+  margin: 0 0 var(--fluy-space-1);
+  font-size: var(--fluy-font-size-small);
+  color: var(--fluy-color-muted);
+}
+
+.nota__texto {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.nota__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--fluy-space-1);
+}
+
+.nota__acoes ion-button {
+  margin: 0;
+}
+
+.campo {
+  display: grid;
+  justify-items: end;
+  gap: var(--fluy-space-2);
+}
+
+.campo ion-textarea {
+  --background: var(--fluy-color-input);
+  --highlight-color-focused: var(--fluy-color-focus);
+  --padding-start: var(--fluy-space-3);
+  --padding-end: var(--fluy-space-3);
+  width: 100%;
+  border: 1px solid var(--fluy-color-border);
+  border-radius: var(--fluy-radius-md);
+}
+
+.nova-nota {
+  margin-top: var(--fluy-space-4);
+}
+
+.nova-nota > ion-button {
+  margin: 0;
+}
+
+.mensagem-erro {
+  justify-self: start;
+  margin: 0;
+  color: var(--fluy-color-danger);
+  font-size: var(--fluy-font-size-small);
+}
+
+.vazio {
+  margin: 0;
+  color: var(--fluy-color-muted);
+}

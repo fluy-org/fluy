@@ -108,7 +108,7 @@ a ficha de uma cliente sem histórico.
 
 ### 5.2 Notas e lembretes
 
-- [ ] Notas cronológicas na cliente e no agendamento + lembretes automáticos e manuais com aba própria. — **🟣 Rudney** — [DEP: 5.1](#51-lista-e-ficha-da-cliente) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
+- [x] Notas cronológicas na cliente e no agendamento + lembretes automáticos e manuais com aba própria. — **🟣 Rudney** — [DEP: 5.1](#51-lista-e-ficha-da-cliente) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
 
 **Por que juntas:** nos fluxos, uma nota **é** um lembrete sem data alvo — o
 mesmo formulário, o mesmo ponto de entrada, e o campo de data decide qual das

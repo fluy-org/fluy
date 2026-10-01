@@ -5,6 +5,8 @@ import {
   cobrancaGateway,
   cobrancaManual,
   eventoAgendamento,
+  lembrete,
+  nota,
   pagamentoAgendamento,
   procedimento,
 } from '@fluy/schema';
@@ -41,6 +43,7 @@ type LinhaDaAgenda = {
   valor_manual: string | null;
   valor_gateway: string | null;
   status_gateway: PagamentoDoAgendamentoPersistido['status'];
+  tem_observacoes: boolean;
 };
 
 @Injectable()
@@ -254,6 +257,7 @@ export class AgendamentoRepository {
     salaoId,
     ocorreuEm,
     cobranca,
+    lembrete: lembreteDaConclusao,
   }: ConcluirAgendamentoPersistenciaInput): Promise<
     AgendamentoPersistido | undefined
   > {
@@ -297,6 +301,18 @@ export class AgendamentoRepository {
         await tx.insert(pagamentoAgendamento).values({
           agendamento_id: agendamentoConcluido.id,
           cobranca_manual_id: cobrancasCriadas[0].id,
+        });
+      }
+
+      if (lembreteDaConclusao) {
+        await tx.insert(lembrete).values({
+          cliente_id: agendamentoConcluido.cliente_id,
+          agendamento_id: agendamentoConcluido.id,
+          procedimento_id: agendamentoConcluido.procedimento_id,
+          texto: lembreteDaConclusao.texto,
+          data_alvo: lembreteDaConclusao.dataAlvo,
+          origem: 'automatica',
+          status: 'ativo',
         });
       }
 
@@ -455,10 +471,12 @@ export class AgendamentoRepository {
         procedimento: {
           id: procedimento.id,
           nome: procedimento.nome,
+          periodo_manutencao_dias: procedimento.periodo_manutencao_dias,
         },
         valor_manual: cobrancaManual.valor,
         valor_gateway: cobrancaGateway.valor,
         status_gateway: cobrancaGateway.status,
+        tem_observacoes: sql<boolean>`exists (select 1 from ${nota} where ${nota.agendamento_id} = ${agendamento.id})`,
       })
       .from(agendamento)
       .innerJoin(cliente, eq(cliente.id, agendamento.cliente_id))
@@ -546,6 +564,7 @@ function agruparAgendamentos(
       cliente: linha.cliente,
       procedimento: linha.procedimento,
       pagamentos: pagamento ? [pagamento] : [],
+      tem_observacoes: linha.tem_observacoes,
     });
   }
 

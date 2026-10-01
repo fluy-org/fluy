@@ -27,7 +27,10 @@ import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
 import { RotuloAvaliacaoPipe } from '../../../../../shared/pipes/rotulo-avaliacao.pipe';
 import { SeletorHorarioComponent } from '../../../../../shared/components/seletor-horario/seletor-horario.component';
 import { zodValidator } from '../../../../../shared/utils/zod-validator';
-import { extrairDataCivil, formatarDataPorExtenso } from '../../agenda-utils';
+import {
+  extrairDataCivil,
+  formatarDataPorExtenso,
+} from '../../../../../shared/utils/data-civil';
 
 @Component({
   selector: 'app-formulario-remarcacao',

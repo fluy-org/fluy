@@ -1,0 +1,54 @@
+<h2 class="titulo">Lembretes</h2>
+
+@if (erro()) {
+  <ion-text color="danger">
+    <p class="erro">{{ erro() }}</p>
+  </ion-text>
+}
+
+@if (lembretes().length > 0) {
+  <div class="lembretes">
+    @for (lembrete of lembretes(); track lembrete.id) {
+      <app-item-lembrete
+        [lembrete]="lembrete"
+        [hoje]="hoje()"
+        [somenteLeitura]="somenteLeitura()"
+        (concluir)="concluir($event)"
+        (editar)="abrirFormulario($event)"
+        (excluir)="confirmarExclusao($event)"
+      ></app-item-lembrete>
+    }
+  </div>
+
+  @if (proximoCursor()) {
+    <app-ver-mais
+      [carregando]="carregandoMais()"
+      (verMais)="verMais()"
+    ></app-ver-mais>
+  }
+} @else {
+  <p class="vazio">Nenhum lembrete ativo.</p>
+}
+
+@if (!somenteLeitura()) {
+  <ion-button
+    class="adicionar"
+    expand="block"
+    fill="outline"
+    (click)="abrirFormulario()"
+  >
+    Adicionar lembrete
+  </ion-button>
+}
+
+<ion-modal [isOpen]="formularioAberto()" (didDismiss)="fecharFormulario()">
+  <ng-template>
+    <app-formulario-lembrete
+      [lembrete]="lembreteEmEdicao()"
+      [salvando]="salvando()"
+      [erroExterno]="erroFormulario()"
+      (salvar)="salvar($event)"
+      (cancelar)="fecharFormulario()"
+    ></app-formulario-lembrete>
+  </ng-template>
+</ion-modal>

@@ -9,7 +9,7 @@ import type {
     StatusFiltroCliente,
     IdentificarClientePublicaDto,
 } from '@fluy/schema';
-
+import type { PaginaResultado } from '@/shared/paginacao/paginacao.utils';
 
 export type ClientePersistido = typeof cliente.$inferSelect;
 export type BuscarClienteInput = {
@@ -79,11 +79,6 @@ export type AgendamentoDaClientePersistido = {
         id: string;
         nome: string;
     };
-};
-
-export type PaginaResultado<T> = {
-    itens: T[];
-    proximoCursor: string | null;
 };
 
 export type ListaClientesResultado = PaginaResultado<ClienteDaListaPersistido> & {

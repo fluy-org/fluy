@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.titulo {
+  margin: 0 0 var(--fluy-space-3);
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.erro {
+  margin: 0 0 var(--fluy-space-3);
+}
+
+.lembretes {
+  display: grid;
+  gap: var(--fluy-space-3);
+}
+
+.adicionar {
+  margin: var(--fluy-space-3) 0 0;
+}
+
+.vazio {
+  margin: 0;
+  color: var(--fluy-color-muted);
+}

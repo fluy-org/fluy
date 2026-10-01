@@ -20,6 +20,7 @@
         aria-label="Filtrar clientes por segmento"
         label="Segmento"
         label-placement="stacked"
+        interface="popover"
         [value]="filtros().segmento"
         (ionChange)="alterarFiltro('segmento', $event.detail.value)"
       >
@@ -34,6 +35,7 @@
         aria-label="Filtrar clientes por status"
         label="Status"
         label-placement="stacked"
+        interface="popover"
         [value]="filtros().status"
         (ionChange)="alterarFiltro('status', $event.detail.value)"
       >
@@ -48,6 +50,7 @@
         aria-label="Ordenar clientes"
         label="Ordenar por"
         label-placement="stacked"
+        interface="popover"
         [value]="filtros().ordenacao"
         (ionChange)="alterarFiltro('ordenacao', $event.detail.value)"
       >

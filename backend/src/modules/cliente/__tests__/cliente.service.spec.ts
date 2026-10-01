@@ -7,7 +7,7 @@ jest.mock('@/modules/salao/salao-consulta.service', () => ({
   SalaoConsultaService: class SalaoConsultaService {},
 }));
 
-import { codificarCursorPagina } from '@/modules/cliente/cliente-utils';
+import { codificarCursorPagina } from '@/shared/paginacao/paginacao.utils';
 import { ClienteRepository } from '@/modules/cliente/cliente.repository';
 import { ClienteService } from '@/modules/cliente/cliente.service';
 import type {

@@ -1,14 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <!-- A ficha é filha da lista: voltar sobe para Clientes, venha de onde vier. -->
-      <ion-button
-        routerLink="/painel/clientes"
-        routerDirection="back"
-        aria-label="Voltar para clientes"
-      >
-        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-      </ion-button>
+      <ion-back-button defaultHref="/painel/clientes"></ion-back-button>
     </ion-buttons>
     <ion-title>Cliente</ion-title>
   </ion-toolbar>
@@ -94,6 +87,18 @@
               [fusoHorario]="dados.fuso_horario"
             ></app-metricas-cliente>
           </section>
+
+          <app-secao-lembretes
+            [clienteId]="dados.id"
+            [fusoHorario]="dados.fuso_horario"
+            [somenteLeitura]="!dados.ativo"
+          ></app-secao-lembretes>
+
+          <app-secao-notas
+            [clienteId]="dados.id"
+            [fusoHorario]="dados.fuso_horario"
+            [somenteLeitura]="!dados.ativo"
+          ></app-secao-notas>
 
           <!-- Histórico -->
           <section class="bloco">

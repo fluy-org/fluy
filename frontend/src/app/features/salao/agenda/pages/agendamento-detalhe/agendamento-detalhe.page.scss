@@ -34,3 +34,8 @@ ion-button {
   margin: var(--fluy-space-4) 0 var(--fluy-space-3);
   background: var(--fluy-color-border-soft);
 }
+
+app-secao-lembretes,
+app-secao-notas {
+  margin-top: var(--fluy-space-5);
+}

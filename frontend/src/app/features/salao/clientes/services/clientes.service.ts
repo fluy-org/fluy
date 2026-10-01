@@ -14,6 +14,7 @@ import type {
 import { firstValueFrom } from 'rxjs';
 import { FILTROS_PADRAO_LISTA_CLIENTES } from '@app/features/salao/clientes/clientes-data';
 import type { FiltrosListaClientes } from '@app/features/salao/clientes/contracts';
+import { acumularPagina } from '@app/shared/utils/paginacao';
 
 @Injectable({ providedIn: 'root' })
 export class ClientesService {
@@ -68,15 +69,9 @@ export class ClientesService {
       return;
     }
 
-    // Offset pode repetir item se a lista mudou entre as páginas.
-    this._clientes.update((clientes) => {
-      const idsCarregados = new Set(clientes.map((cliente) => cliente.id));
-
-      return [
-        ...clientes,
-        ...pagina.itens.filter((cliente) => !idsCarregados.has(cliente.id)),
-      ];
-    });
+    this._clientes.update((clientes) =>
+      acumularPagina({ itens: clientes, novos: pagina.itens }),
+    );
     this._proximoCursor.set(pagina.proximo_cursor);
   }
 
@@ -129,19 +124,9 @@ export class ClientesService {
       ),
     );
 
-    // Offset pode repetir item se o histórico mudou entre as páginas.
-    this._agendamentos.update((agendamentos) => {
-      const idsCarregados = new Set(
-        agendamentos.map((agendamento) => agendamento.id),
-      );
-
-      return [
-        ...agendamentos,
-        ...pagina.itens.filter(
-          (agendamento) => !idsCarregados.has(agendamento.id),
-        ),
-      ];
-    });
+    this._agendamentos.update((agendamentos) =>
+      acumularPagina({ itens: agendamentos, novos: pagina.itens }),
+    );
     this._proximoCursorAgendamentos.set(pagina.proximo_cursor);
   }
 

@@ -126,11 +126,17 @@ export type CobrancaManualDaConclusao = {
   registradaPor: string;
 };
 
+export type LembreteDaConclusao = {
+  texto: string;
+  dataAlvo: string;
+};
+
 export type ConcluirAgendamentoPersistenciaInput = {
   id: string;
   salaoId: string;
   ocorreuEm: Date;
   cobranca: CobrancaManualDaConclusao | undefined;
+  lembrete: LembreteDaConclusao | undefined;
 };
 
 export type ValidarFaltaAgendamentoInput = {
@@ -207,6 +213,7 @@ export type ClienteDoAgendamentoPersistida = {
 export type ProcedimentoDoAgendamentoPersistido = {
   id: string;
   nome: string;
+  periodo_manutencao_dias: number | null;
 };
 
 // `status` nulo identifica cobrança manual, que não tem coluna de status:
@@ -220,6 +227,7 @@ export type AgendamentoDaAgendaPersistido = AgendamentoPersistido & {
   cliente: ClienteDoAgendamentoPersistida;
   procedimento: ProcedimentoDoAgendamentoPersistido;
   pagamentos: PagamentoDoAgendamentoPersistido[];
+  tem_observacoes: boolean;
 };
 
 export type AgendamentoDetalhePersistido = AgendamentoDaAgendaPersistido & {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { imagemProcedimentoInputSchema } from "../imagem_procedimento/imagem_procedimento.schema.js";
 import { TIPO_SINAL } from "./procedimento.enums.js";
+import { PERIODO_MANUTENCAO_MAXIMO_DIAS } from "./procedimento.constants.js";
 
 const MENSAGEM_NOME_INVALIDO = "Informe o nome do procedimento.";
 const MENSAGEM_VALOR_INVALIDO = "Informe um valor com até duas casas decimais.";
@@ -38,7 +39,10 @@ const camposCriarProcedimento = {
     .number()
     .int("Informe o período em dias inteiros.")
     .positive("Informe um período maior que zero.")
-    .max(LIMITE_INTEIRO_POSTGRES, "Informe um período dentro do limite aceito.")
+    .max(
+      PERIODO_MANUTENCAO_MAXIMO_DIAS,
+      `Informe um período de até ${PERIODO_MANUTENCAO_MAXIMO_DIAS} dias.`,
+    )
     .optional(),
 };
 
@@ -58,8 +62,8 @@ export const atualizarProcedimentoSchema = z
       .int("Informe o período em dias inteiros.")
       .positive("Informe um período maior que zero.")
       .max(
-        LIMITE_INTEIRO_POSTGRES,
-        "Informe um período dentro do limite aceito.",
+        PERIODO_MANUTENCAO_MAXIMO_DIAS,
+        `Informe um período de até ${PERIODO_MANUTENCAO_MAXIMO_DIAS} dias.`,
       )
       .nullable()
       .optional(),

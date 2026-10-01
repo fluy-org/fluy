@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ titulo() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding fluy-page-safe">
+  <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
+    <ion-textarea
+      formControlName="texto"
+      label="Texto"
+      labelPlacement="stacked"
+      autoGrow="true"
+      maxlength="2000"
+      placeholder="Ex.: ligar para agendar a manutenção"
+    ></ion-textarea>
+
+    <ion-input
+      type="date"
+      label="Data do lembrete"
+      labelPlacement="stacked"
+      [value]="formulario.controls.data_alvo.value"
+      (ionChange)="mudarData($event.detail.value)"
+    ></ion-input>
+
+    @if (erroValidacao()) {
+      <p class="mensagem-erro">{{ erroValidacao() }}</p>
+    }
+
+    @if (erroExterno()) {
+      <p class="mensagem-erro">{{ erroExterno() }}</p>
+    }
+
+    <div class="acoes-formulario">
+      <ion-button
+        type="button"
+        fill="outline"
+        [disabled]="salvando()"
+        (click)="cancelarFormulario()"
+      >
+        Cancelar
+      </ion-button>
+
+      <ion-button type="submit" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando...' : 'Salvar lembrete' }}
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

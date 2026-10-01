@@ -12,10 +12,8 @@ import {
   chevronForwardOutline,
 } from 'ionicons/icons';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
-import {
-  adicionarDiasNaData,
-  formatarDataPorExtenso,
-} from '../../agenda-utils';
+import { formatarDataPorExtenso } from '../../../../../shared/utils/data-civil';
+import { adicionarDiasNaData } from '../../agenda-utils';
 
 @Component({
   selector: 'app-navegacao-dia',
