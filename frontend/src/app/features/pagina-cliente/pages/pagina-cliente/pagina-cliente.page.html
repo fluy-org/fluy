@@ -1,131 +1,215 @@
 <ion-content class="tema-fluy fluy-page-safe">
   @if (estado() === 'carregando') {
-    <div class="estado-pagina" role="status">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Carregando o salão...</p>
-    </div>
+  <div class="estado-pagina" role="status">
+    <ion-spinner name="crescent"></ion-spinner>
+    <ion-text>Carregando o salão...</ion-text>
+  </div>
   } @else if (estado() === 'erro') {
-    <div class="estado-pagina estado-erro">
-      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-      <h1>Salão não encontrado</h1>
-      <p>Confira o endereço informado ou tente novamente.</p>
-      <ion-button type="button" fill="outline" (click)="recarregar()">
-        Tentar novamente
-      </ion-button>
-    </div>
+  <div class="estado-pagina estado-erro">
+    <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+    <h1>Salão não encontrado</h1>
+    <ion-text>Confira o endereço informado ou tente novamente.</ion-text>
+    <ion-button type="button" fill="outline" (click)="recarregar()">
+      Tentar novamente
+    </ion-button>
+  </div>
   } @else if (salao(); as salaoAtual) {
-    <div class="portal-cliente">
-      <app-cabecalho-publico [salao]="salaoAtual"></app-cabecalho-publico>
+  <div class="portal-cliente">
+    <app-cabecalho-publico [salao]="salaoAtual"></app-cabecalho-publico>
 
-      <main class="conteudo-publico">
-        <section class="boas-vindas">
-          <span class="etiqueta">Agendamento online</span>
-          <h1>Cuide de você no seu tempo</h1>
-          <p>
-            Escolha o procedimento e encontre o melhor horário para o seu
-            atendimento.
-          </p>
-        </section>
+    <main class="conteudo-publico">
+      @if (catalogoAberto()) {
+      @if (!revisandoAgendamento() && !agendamentoCriado()) {
+      <ion-button
+        type="button"
+        class="voltar-etapa"
+        fill="clear"
+        (click)="escolhendoHorario() ? voltarAoCatalogo() : fecharCatalogo()"
+      >
+        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+        Voltar
+      </ion-button>
+      }
 
-        <section class="informacoes-salao" aria-label="Informações do salão">
+      @if (agendamentoCriado()) {
+      <section class="agendamento-confirmado" role="status">
+        <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+        <h1>Agendamento confirmado!</h1>
+        <ion-text>Seu horário foi reservado e já aparece na agenda do salão.</ion-text>
+        <ion-text>
+          {{ dataSelecionada() }} às {{ horaSelecionada() }} ·
+          {{ procedimentoSelecionado()?.nome }}
+        </ion-text>
+      </section>
+      <div class="acao-confirmacao">
+        <ion-button type="button" expand="block" (click)="fecharAgendamentoConfirmado()">
+          Fechar
+        </ion-button>
+      </div>
+      } @else if (revisandoAgendamento() && procedimentoSelecionado(); as procedimento) {
+      <app-confirmacao-agendamento
+        [salao]="salaoAtual"
+        [procedimento]="procedimento"
+        [data]="dataSelecionada()"
+        [hora]="horaSelecionada()!"
+        [salvando]="salvandoAgendamento()"
+        [erro]="erroAgendamento()"
+        (voltar)="voltarAoHorario()"
+        (confirmar)="confirmarAgendamento()"
+      ></app-confirmacao-agendamento>
+      } @else if (escolhendoHorario()) {
+      <app-escolha-horario
+        [data]="dataSelecionada()"
+        [dataMinima]="dataMinima"
+        [horarios]="horarios()"
+        [horaSelecionada]="horaSelecionada()"
+        [carregando]="carregandoHorarios()"
+        [erro]="erroHorarios()"
+        (alterarData)="alterarData($event)"
+        (selecionarHora)="selecionarHora($event)"
+      ></app-escolha-horario>
+
+      @if (horaSelecionada(); as hora) {
+      <section class="selecao-atual" aria-live="polite">
+        <div>
+          <ion-text>Horário selecionado</ion-text>
+          <strong>{{ dataSelecionada() }} às {{ hora }}</strong>
+        </div>
+        <ion-button type="button" expand="block" (click)="revisarAgendamento()">
+          Revisar agendamento
+        </ion-button>
+      </section>
+      } } @else {
+      <app-catalogo-procedimentos
+        [procedimentos]="procedimentos()"
+        [procedimentoSelecionadoId]="procedimentoSelecionado()?.id ?? null"
+        [carregando]="carregandoCatalogo()"
+        [erro]="erroCatalogo()"
+        (selecionar)="selecionarProcedimento($event)"
+      ></app-catalogo-procedimentos>
+
+      @if (procedimentoSelecionado(); as procedimento) {
+      <section class="selecao-atual" aria-live="polite">
+        <div>
+          <ion-text>Procedimento selecionado</ion-text>
+          <strong>{{ procedimento.nome }}</strong>
+        </div>
+        <ion-button
+          type="button"
+          expand="block"
+          (click)="abrirEscolhaHorario()"
+        >
+          Escolher data e horário
+        </ion-button>
+      </section>
+      } } } @else {
+      <section class="boas-vindas">
+        <ion-text class="etiqueta">Agendamento online</ion-text>
+        <h1>Cuide de você no seu tempo</h1>
+        <ion-text>
+          Escolha o procedimento e encontre o melhor horário para o seu
+          atendimento.
+        </ion-text>
+      </section>
+
+      <section class="informacoes-salao" aria-label="Informações do salão">
+        <div>
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+          <ion-text>{{ salaoAtual.endereco }}</ion-text>
+        </div>
+        <div>
+          <ion-icon name="logo-whatsapp" aria-hidden="true"></ion-icon>
+          <ion-text
+            >{{ formatarWhatsapp(salaoAtual.contato_whatsapp) }}</ion-text
+          >
+        </div>
+      </section>
+
+      @if (cliente(); as clienteAtual) {
+      <section class="cartao-identificacao retorno-cliente">
+        <div>
+          <ion-text class="etiqueta">Que bom ter você de volta</ion-text>
+          <h2>Olá, {{ clienteAtual.nome }}</h2>
+          <ion-text>{{ formatarWhatsapp(clienteAtual.whatsapp) }}</ion-text>
+        </div>
+
+        <ion-button type="button" expand="block" (click)="abrirCatalogo()">
+          Continuar como {{ clienteAtual.nome }}
+        </ion-button>
+        <ion-button
+          type="button"
+          expand="block"
+          fill="clear"
+          (click)="agendarComoOutraPessoa()"
+        >
+          Agendar como outra pessoa
+        </ion-button>
+      </section>
+      } @else if (exibirFormulario()) {
+      <section class="cartao-identificacao">
+        <div class="titulo-identificacao">
+          <ion-text class="passo">1</ion-text>
           <div>
-            <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
-            <span>{{ salaoAtual.endereco }}</span>
-          </div>
-          <div>
-            <ion-icon name="logo-whatsapp" aria-hidden="true"></ion-icon>
-            <span>{{ formatarWhatsapp(salaoAtual.contato_whatsapp) }}</span>
-          </div>
-        </section>
-
-        @if (cliente(); as clienteAtual) {
-          <section class="cartao-identificacao retorno-cliente">
-            <div>
-              <span class="etiqueta">Que bom ter você de volta</span>
-              <h2>Olá, {{ clienteAtual.nome }}</h2>
-              <p>{{ formatarWhatsapp(clienteAtual.whatsapp) }}</p>
-            </div>
-
-            <ion-button type="button" expand="block">
-              Continuar como {{ clienteAtual.nome }}
-            </ion-button>
-            <ion-button
-              type="button"
-              expand="block"
-              fill="clear"
-              (click)="agendarComoOutraPessoa()"
+            <h2>Vamos começar</h2>
+            <ion-text
+              >Informe seus dados para acessar os agendamentos.</ion-text
             >
-              Agendar como outra pessoa
-            </ion-button>
-          </section>
-        } @else if (exibirFormulario()) {
-          <section class="cartao-identificacao">
-            <div class="titulo-identificacao">
-              <span class="passo">1</span>
-              <div>
-                <h2>Vamos começar</h2>
-                <p>Informe seus dados para acessar os agendamentos.</p>
-              </div>
-            </div>
+          </div>
+        </div>
 
-            <form [formGroup]="formulario" (ngSubmit)="identificar()">
-              <ion-input
-                formControlName="nome"
-                label="Nome"
-                labelPlacement="stacked"
-                maxlength="200"
-                placeholder="Como podemos chamar você?"
-              ></ion-input>
+        <form [formGroup]="formulario" (ngSubmit)="identificar()">
+          <ion-input
+            formControlName="nome"
+            label="Nome"
+            labelPlacement="stacked"
+            maxlength="200"
+            placeholder="Como podemos chamar você?"
+          ></ion-input>
 
-              <ion-input
-                formControlName="whatsapp"
-                label="WhatsApp"
-                labelPlacement="stacked"
-                inputmode="tel"
-                maxlength="15"
-                placeholder="(11) 99999-9999"
-                (ionInput)="formatarCampoWhatsapp($event.detail.value)"
-              ></ion-input>
+          <ion-input
+            formControlName="whatsapp"
+            label="WhatsApp"
+            labelPlacement="stacked"
+            inputmode="tel"
+            maxlength="15"
+            placeholder="(11) 99999-9999"
+            (ionInput)="formatarCampoWhatsapp($event.detail.value)"
+          ></ion-input>
 
-              <ion-checkbox formControlName="consentimento_privacidade">
-                Concordo com o uso dos meus dados para identificação e
-                agendamentos.
-              </ion-checkbox>
+          <ion-checkbox formControlName="consentimento_privacidade">
+            Concordo com o uso dos meus dados para identificação e agendamentos.
+          </ion-checkbox>
 
-              <button
-                class="link-privacidade"
-                type="button"
-                (click)="exibirPrivacidade.set(!exibirPrivacidade())"
-              >
-                {{ exibirPrivacidade() ? 'Ocultar aviso' : 'Ler aviso de privacidade' }}
-              </button>
+          <ion-button
+            class="link-privacidade"
+            type="button"
+            fill="clear"
+            (click)="exibirPrivacidade.set(!exibirPrivacidade())"
+          >
+            {{ exibirPrivacidade() ? 'Ocultar aviso' : 'Ler aviso de
+            privacidade' }}
+          </ion-button>
 
-              @if (exibirPrivacidade()) {
-                <p class="aviso-privacidade">
-                  Seu nome, WhatsApp e identificador deste dispositivo serão
-                  usados para reconhecer você e administrar seus agendamentos
-                  neste salão. Para exercer seus direitos sobre esses dados,
-                  entre em contato diretamente com o salão.
-                </p>
-              }
+          @if (exibirPrivacidade()) {
+          <ion-text class="aviso-privacidade">
+            Seu nome, WhatsApp e identificador deste dispositivo serão usados
+            para reconhecer você e administrar seus agendamentos neste salão.
+            Para exercer seus direitos sobre esses dados, entre em contato
+            diretamente com o salão.
+          </ion-text>
+          } @if (erroIdentificacao()) {
+          <ion-text class="mensagem-erro" role="alert"
+            >{{ erroIdentificacao() }}</ion-text
+          >
+          }
 
-              @if (erroIdentificacao()) {
-                <p class="mensagem-erro" role="alert">
-                  {{ erroIdentificacao() }}
-                </p>
-              }
-
-              <ion-button
-                type="submit"
-                expand="block"
-                [disabled]="identificando()"
-              >
-                {{ identificando() ? 'Continuando...' : 'Continuar' }}
-              </ion-button>
-            </form>
-          </section>
-        }
-      </main>
-    </div>
+          <ion-button type="submit" expand="block" [disabled]="identificando()">
+            {{ identificando() ? 'Continuando...' : 'Continuar' }}
+          </ion-button>
+        </form>
+      </section>
+      } }
+    </main>
+  </div>
   }
 </ion-content>

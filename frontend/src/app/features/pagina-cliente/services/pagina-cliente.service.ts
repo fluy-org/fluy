@@ -2,6 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import type {
   IdentificarClientePublicaDto,
+  HorariosLivresResponseDto,
+  ListarHorariosLivresPublicosQueryDto,
+  CriarAgendamentoPublicoDto,
+  AgendamentoResponseDto,
+  ProcedimentoPublicoResponseDto,
   SalaoPublicoResponseDto,
   SessaoClientePublicaResponseDto,
 } from '@fluy/schema';
@@ -11,8 +16,10 @@ import { firstValueFrom } from 'rxjs';
 export class PaginaClienteService {
   private readonly http = inject(HttpClient);
   private readonly _salao = signal<SalaoPublicoResponseDto | null>(null);
+  private readonly _procedimentos = signal<ProcedimentoPublicoResponseDto[]>([]);
 
   readonly salao = this._salao.asReadonly();
+  readonly procedimentos = this._procedimentos.asReadonly();
 
   async getEntidade(subdominio: string): Promise<SalaoPublicoResponseDto> {
     const salao = await firstValueFrom(
@@ -41,6 +48,41 @@ export class PaginaClienteService {
     return firstValueFrom(
       this.http.post<SessaoClientePublicaResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/cliente/identificacao`,
+        dados,
+      ),
+    );
+  }
+
+  async getProcedimentos(subdominio: string): Promise<ProcedimentoPublicoResponseDto[]> {
+    const procedimentos = await firstValueFrom(
+      this.http.get<ProcedimentoPublicoResponseDto[]>(
+        `/publico/s/${encodeURIComponent(subdominio)}/procedimentos`,
+      ),
+    );
+
+    this._procedimentos.set(procedimentos);
+    return procedimentos;
+  }
+
+  listarHorariosLivres(
+    subdominio: string,
+    dados: ListarHorariosLivresPublicosQueryDto,
+  ): Promise<HorariosLivresResponseDto> {
+    return firstValueFrom(
+      this.http.get<HorariosLivresResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/horarios-livres`,
+        { params: dados },
+      ),
+    );
+  }
+
+  criarAgendamento(
+    subdominio: string,
+    dados: CriarAgendamentoPublicoDto,
+  ): Promise<AgendamentoResponseDto> {
+    return firstValueFrom(
+      this.http.post<AgendamentoResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos`,
         dados,
       ),
     );

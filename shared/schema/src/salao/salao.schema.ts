@@ -54,6 +54,11 @@ export const salaoPublicoResponseSchema = salaoResponseSchema
     contato_whatsapp: true,
     endereco: true,
   })
+  .extend({
+    mensagem_confirmacao: z.string().nullable(),
+    politica_atraso: z.string().nullable(),
+    tolerancia_atraso_min: z.number().int().positive(),
+  })
   .meta({ id: "SalaoPublicoResponse" });
 
 export const subdominioIndisponivelSchema = z

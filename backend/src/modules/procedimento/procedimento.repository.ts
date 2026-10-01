@@ -43,6 +43,7 @@ export class ProcedimentoRepository {
         salao_id: procedimento.salao_id,
         nome: procedimento.nome,
         descricao: procedimento.descricao,
+        info_pre_procedimento: procedimento.info_pre_procedimento,
         duracao_min: procedimento.duracao_min,
         preco: procedimento.preco,
         imagem: {

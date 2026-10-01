@@ -5,6 +5,8 @@ import { AgendamentoDisponibilidadeService } from '@/modules/agendamento/agendam
 import { AgendamentoFaltaService } from '@/modules/agendamento/agendamento-falta.service';
 import { AgendamentoRemarcacaoService } from '@/modules/agendamento/agendamento-remarcacao.service';
 import { AgendamentoController } from '@/modules/agendamento/agendamento.controller';
+import { AgendamentoPublicoController } from '@/modules/agendamento/agendamento-publico.controller';
+import { AgendamentoPublicoService } from '@/modules/agendamento/agendamento-publico.service';
 import { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { AgendamentoValidator } from '@/modules/agendamento/agendamento.validator';
@@ -22,7 +24,7 @@ import { ClienteModule } from '@/modules/cliente/cliente.module';
     SalaoConfiguracaoModule,
     SalaoModule,
   ],
-  controllers: [AgendamentoController],
+  controllers: [AgendamentoController, AgendamentoPublicoController],
   providers: [
     AgendamentoCancelamentoService,
     AgendamentoConclusaoService,
@@ -30,6 +32,7 @@ import { ClienteModule } from '@/modules/cliente/cliente.module';
     AgendamentoFaltaService,
     AgendamentoRemarcacaoService,
     AgendamentoRepository,
+    AgendamentoPublicoService,
     AgendamentoService,
     AgendamentoValidator,
   ],

@@ -182,9 +182,11 @@ export class AgendamentoService {
   async criar({
     salaoId,
     dados,
+    bloquearProcedimentoDuplicadoNoDia = false,
   }: {
     salaoId: string;
     dados: CriarAgendamentoDto;
+    bloquearProcedimentoDuplicadoNoDia?: boolean;
   }) {
     await this.clienteService.buscarPorId({
       id: dados.cliente_id,
@@ -195,6 +197,25 @@ export class AgendamentoService {
       procedimentoId: dados.procedimento_id,
       data: dados.data,
     });
+
+    const escopoDuplicidade = {
+      salaoId,
+      clienteId: dados.cliente_id,
+      procedimentoId: dados.procedimento_id,
+      data: dados.data,
+      fusoHorario: dadosParaAvaliacao.fusoHorario,
+    };
+
+    if (
+      bloquearProcedimentoDuplicadoNoDia &&
+      await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
+        escopoDuplicidade,
+      )
+    ) {
+      throw new ConflictException(
+        'A cliente já possui este procedimento agendado neste dia.',
+      );
+    }
 
     const avaliacao = this.agendamentoDisponibilidadeService.avaliarHorario(
       this.montarDadosParaAvaliarDisponibilidade({
@@ -224,9 +245,22 @@ export class AgendamentoService {
       duracaoMin: procedimento.duracao_min,
       precoTotal: procedimento.preco,
       valorSinal: calcularValorSinalDoProcedimento(procedimento),
+      fusoHorario: dadosParaAvaliacao.fusoHorario,
+      bloquearProcedimentoDuplicadoNoDia,
     });
 
     if (!agendamento) {
+      if (
+        bloquearProcedimentoDuplicadoNoDia &&
+        await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
+          escopoDuplicidade,
+        )
+      ) {
+        throw new ConflictException(
+          'A cliente já possui este procedimento agendado neste dia.',
+        );
+      }
+
       throw new ConflictException('O horário deixou de estar disponível.');
     }
 

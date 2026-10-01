@@ -93,6 +93,7 @@ export const procedimentoPublicoResponseSchema = z
     id: z.uuid(),
     nome: z.string(),
     descricao: z.string().nullable(),
+    info_pre_procedimento: z.string().nullable(),
     duracao_min: z.number().int().positive(),
     preco: z.number().nonnegative(),
     imagem_url: z.url().nullable(),

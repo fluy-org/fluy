@@ -1,0 +1,69 @@
+<section class="catalogo" aria-labelledby="titulo-catalogo">
+  <header>
+    <ion-text class="passo">2</ion-text>
+    <div>
+      <h1 id="titulo-catalogo">Escolha o procedimento</h1>
+      <ion-text>Selecione o serviço que você deseja agendar.</ion-text>
+    </div>
+  </header>
+
+  @if (carregando()) {
+    <div class="feedback" role="status">
+      <ion-spinner name="crescent"></ion-spinner>
+      <ion-text>Carregando procedimentos...</ion-text>
+    </div>
+  } @else if (erro()) {
+    <div class="feedback feedback--erro" role="alert">
+      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+      <ion-text>{{ erro() }}</ion-text>
+    </div>
+  } @else if (procedimentos().length === 0) {
+    <div class="feedback">
+      <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+      <ion-text>Este salão ainda não possui procedimentos disponíveis.</ion-text>
+    </div>
+  } @else {
+    <div class="lista">
+      @for (procedimento of procedimentos(); track procedimento.id) {
+        <ion-card
+          [button]="true"
+          class="procedimento"
+          [class.procedimento--selecionado]="procedimentoSelecionadoId() === procedimento.id"
+          [attr.aria-pressed]="procedimentoSelecionadoId() === procedimento.id"
+          (click)="selecionar.emit(procedimento)"
+        >
+          <div class="procedimento-conteudo">
+          <div class="imagem">
+            @if (procedimento.imagem_url) {
+              <img
+                [src]="procedimento.imagem_url"
+                [alt]="'Imagem de ' + procedimento.nome"
+              />
+            } @else {
+              <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+            }
+          </div>
+
+          <div class="dados">
+            <div class="nome-selecao">
+              <h2>{{ procedimento.nome }}</h2>
+              @if (procedimentoSelecionadoId() === procedimento.id) {
+                <ion-icon name="checkmark-circle" aria-label="Selecionado"></ion-icon>
+              }
+            </div>
+
+            @if (procedimento.descricao) {
+              <ion-text>{{ procedimento.descricao }}</ion-text>
+            }
+
+            <div class="resumo">
+              <ion-text>{{ formatarDuracao(procedimento.duracao_min) }}</ion-text>
+              <strong>{{ formatarPreco(procedimento.preco) }}</strong>
+            </div>
+          </div>
+          </div>
+        </ion-card>
+      }
+    </div>
+  }
+</section>

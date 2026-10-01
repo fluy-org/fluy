@@ -148,7 +148,9 @@ describe('AgendamentoRepository', () => {
   });
 
   it('não cria quando o conflito é encontrado na transação', async () => {
-    limitarConflitos.mockResolvedValue([{ id: 'agendamento-existente' }]);
+    limitarConflitos
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'agendamento-existente' }]);
 
     await expect(repository.criar(input)).resolves.toBeUndefined();
 
@@ -160,6 +162,23 @@ describe('AgendamentoRepository', () => {
       agendamento.profissional_id,
       input.profissionalId,
     );
+  });
+
+  it('não cria o mesmo procedimento duas vezes para a cliente no dia', async () => {
+    limitarConflitos.mockResolvedValueOnce([
+      { id: 'agendamento-duplicado' },
+    ]);
+
+    await expect(repository.criar(input)).resolves.toBeUndefined();
+
+    expect(transacao).toHaveBeenCalledTimes(1);
+    expect(executar).toHaveBeenCalledTimes(1);
+    expect(eq).toHaveBeenCalledWith(agendamento.cliente_id, input.clienteId);
+    expect(eq).toHaveBeenCalledWith(
+      agendamento.procedimento_id,
+      input.procedimentoId,
+    );
+    expect(inserirAgendamentos).not.toHaveBeenCalled();
   });
 
   it('cria depois de adquirir o lock e não encontrar conflito', async () => {
@@ -700,5 +719,7 @@ function criarInput(): CriarAgendamentoComValidacaoInput {
     duracaoMin: 30,
     precoTotal: '80.00',
     valorSinal: '20.00',
+    fusoHorario: 'America/Sao_Paulo',
+    bloquearProcedimentoDuplicadoNoDia: true,
   };
 }

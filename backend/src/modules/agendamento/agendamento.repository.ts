@@ -30,6 +30,7 @@ import type {
   MarcarFaltaAgendamentoPersistenciaInput,
   OcupacaoProfissional,
   PagamentoDoAgendamentoPersistido,
+  PossuiAgendamentoDoProcedimentoNoDiaInput,
   RemarcarAgendamentoPersistenciaInput,
 } from '@/modules/agendamento/contracts';
 
@@ -81,6 +82,18 @@ export class AgendamentoRepository {
             : undefined,
         ),
       );
+  }
+
+  async possuiAgendamentoDoProcedimentoNoDia(
+    input: PossuiAgendamentoDoProcedimentoNoDiaInput,
+  ): Promise<boolean> {
+    const resultados = await this.database
+      .select({ id: agendamento.id })
+      .from(agendamento)
+      .where(this.condicaoAgendamentoDoProcedimentoNoDia(input))
+      .limit(1);
+
+    return resultados.length > 0;
   }
 
   async listarDoDia({
@@ -177,6 +190,26 @@ export class AgendamentoRepository {
       await tx.execute(
         sql`select pg_advisory_xact_lock(hashtext(${`${input.salaoId}:${input.dataAgendamento}`}))`,
       );
+
+      if (input.bloquearProcedimentoDuplicadoNoDia) {
+        const duplicados = await tx
+          .select({ id: agendamento.id })
+          .from(agendamento)
+          .where(
+            this.condicaoAgendamentoDoProcedimentoNoDia({
+              salaoId: input.salaoId,
+              clienteId: input.clienteId,
+              procedimentoId: input.procedimentoId,
+              data: input.dataAgendamento,
+              fusoHorario: input.fusoHorario,
+            }),
+          )
+          .limit(1);
+
+        if (duplicados.length > 0) {
+          return undefined;
+        }
+      }
 
       const conflitos = await tx
         .select({ id: agendamento.id })
@@ -442,6 +475,34 @@ export class AgendamentoRepository {
         cobrancaGateway,
         eq(cobrancaGateway.id, pagamentoAgendamento.cobranca_gateway_id),
       );
+  }
+
+  private condicaoAgendamentoDoProcedimentoNoDia({
+    salaoId,
+    clienteId,
+    procedimentoId,
+    data,
+    fusoHorario,
+  }: PossuiAgendamentoDoProcedimentoNoDiaInput) {
+    const inicioDia = dataHoraCivilParaUtc({
+      data,
+      hora: '00:00',
+      fusoHorario,
+    });
+    const fimDia = dataHoraCivilParaUtc({
+      data: adicionarDiasNaData({ data, dias: 1 }),
+      hora: '00:00',
+      fusoHorario,
+    });
+
+    return and(
+      eq(agendamento.salao_id, salaoId),
+      eq(agendamento.cliente_id, clienteId),
+      eq(agendamento.procedimento_id, procedimentoId),
+      inArray(agendamento.estado, ['reservado', 'agendado']),
+      gte(agendamento.inicio_em, inicioDia),
+      lt(agendamento.inicio_em, fimDia),
+    );
   }
 }
 

@@ -31,6 +31,13 @@ export const listarHorariosLivresQuerySchema = z
   .strict()
   .meta({ id: 'ListarHorariosLivresQuery' });
 
+export const listarHorariosLivresPublicosQuerySchema =
+  listarHorariosLivresQuerySchema
+    .extend({
+      credencial: z.uuid('Informe uma credencial de dispositivo válida.'),
+    })
+    .meta({ id: 'ListarHorariosLivresPublicosQuery' });
+
 export const avaliarHorarioAgendamentoQuerySchema = z
   .object({
     procedimento_id: procedimentoIdSchema,
@@ -63,6 +70,13 @@ export const criarAgendamentoSchema = z
   })
   .strict()
   .meta({ id: 'CriarAgendamento' });
+
+export const criarAgendamentoPublicoSchema = criarAgendamentoSchema
+  .omit({ cliente_id: true })
+  .extend({
+    credencial: z.uuid('Informe uma credencial de dispositivo válida.'),
+  })
+  .meta({ id: 'CriarAgendamentoPublico' });
 
 export const concluirAgendamentoSchema = z
   .object({

@@ -1,0 +1,75 @@
+<section class="confirmacao" aria-labelledby="titulo-confirmacao">
+  <header>
+    <ion-text class="passo">3</ion-text>
+    <div>
+      <h1 id="titulo-confirmacao">Confirme seu agendamento</h1>
+      <ion-text>Confira os dados antes de finalizar.</ion-text>
+    </div>
+  </header>
+
+  <div class="resumo">
+    <div>
+      <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+      <div>
+        <ion-text>Procedimento</ion-text>
+        <strong>{{ procedimento().nome }}</strong>
+      </div>
+    </div>
+    <div>
+      <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+      <div>
+        <ion-text>Data e horário</ion-text>
+        <strong>{{ formatarData(data()) }} às {{ hora() }}</strong>
+      </div>
+    </div>
+    <div>
+      <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+      <div>
+        <ion-text>Local</ion-text>
+        <strong>{{ salao().endereco }}</strong>
+      </div>
+    </div>
+    <div>
+      <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
+      <div>
+        <ion-text>Valor do procedimento</ion-text>
+        <strong>{{ formatarPreco(procedimento().preco) }}</strong>
+      </div>
+    </div>
+  </div>
+
+  @if (procedimento().info_pre_procedimento) {
+    <aside>
+      <h2>Antes do procedimento</h2>
+      <ion-text>{{ procedimento().info_pre_procedimento }}</ion-text>
+    </aside>
+  }
+
+  @if (salao().politica_atraso) {
+    <aside>
+      <h2>Política de atraso</h2>
+      <ion-text>{{ salao().politica_atraso }}</ion-text>
+      <ion-text>Tolerância: {{ salao().tolerancia_atraso_min }} minutos.</ion-text>
+    </aside>
+  }
+
+  @if (salao().mensagem_confirmacao) {
+    <aside>
+      <h2>Mensagem do salão</h2>
+      <ion-text>{{ salao().mensagem_confirmacao }}</ion-text>
+    </aside>
+  }
+
+  @if (erro()) {
+    <ion-text class="erro" role="alert">{{ erro() }}</ion-text>
+  }
+
+  <div class="acoes">
+    <ion-button type="button" fill="outline" [disabled]="salvando()" (click)="voltar.emit()">
+      Voltar
+    </ion-button>
+    <ion-button type="button" [disabled]="salvando()" (click)="confirmar.emit()">
+      {{ salvando() ? 'Agendando...' : 'Confirmar agendamento' }}
+    </ion-button>
+  </div>
+</section>

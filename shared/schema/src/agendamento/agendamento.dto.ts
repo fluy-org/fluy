@@ -10,9 +10,11 @@ import type {
   cancelarAgendamentoSchema,
   concluirAgendamentoSchema,
   criarAgendamentoSchema,
+  criarAgendamentoPublicoSchema,
   horariosLivresResponseSchema,
   listarAgendaDiaQuerySchema,
   listarHorariosLivresQuerySchema,
+  listarHorariosLivresPublicosQuerySchema,
   listarHorariosLivresRemarcacaoQuerySchema,
   listarResumoAgendaQuerySchema,
   remarcarAgendamentoSchema,
@@ -22,10 +24,16 @@ import type {
 export type ListarHorariosLivresQueryDto = z.infer<
   typeof listarHorariosLivresQuerySchema
 >;
+export type ListarHorariosLivresPublicosQueryDto = z.infer<
+  typeof listarHorariosLivresPublicosQuerySchema
+>;
 export type AvaliarHorarioAgendamentoQueryDto = z.infer<
   typeof avaliarHorarioAgendamentoQuerySchema
 >;
 export type CriarAgendamentoDto = z.infer<typeof criarAgendamentoSchema>;
+export type CriarAgendamentoPublicoDto = z.infer<
+  typeof criarAgendamentoPublicoSchema
+>;
 export type ConcluirAgendamentoDto = z.infer<typeof concluirAgendamentoSchema>;
 export type CancelarAgendamentoDto = z.infer<typeof cancelarAgendamentoSchema>;
 export type RemarcarAgendamentoDto = z.infer<typeof remarcarAgendamentoSchema>;

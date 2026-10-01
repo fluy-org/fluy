@@ -83,6 +83,16 @@ export type CriarAgendamentoPersistenciaInput = {
   duracaoMin: number;
   precoTotal: string;
   valorSinal: string;
+  fusoHorario: string;
+  bloquearProcedimentoDuplicadoNoDia?: boolean;
+};
+
+export type PossuiAgendamentoDoProcedimentoNoDiaInput = {
+  salaoId: string;
+  clienteId: string;
+  procedimentoId: string;
+  data: string;
+  fusoHorario: string;
 };
 
 export type AgendamentoPersistido = typeof agendamento.$inferSelect;

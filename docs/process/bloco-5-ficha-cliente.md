@@ -46,7 +46,7 @@ cria tabela.
 
 ### 5.1 Lista e ficha da cliente
 
-- [ ] Lista completa de clientes e a ficha individual com dados, histórico e métricas. — **🟣 Rudney** — [DEP: 2.1](./bloco-2-motor.md#21-clientes) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
+- [x] Lista completa de clientes e a ficha individual com dados, histórico e métricas. — **🟣 Rudney** — [DEP: 2.1](./bloco-2-motor.md#21-clientes) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
 
 **Por que lista e ficha juntas:** são o mesmo fluxo (`11-clientes-historico.md`)
 e a lista sem a ficha não entrega nada além do que a tela mínima de

@@ -8,9 +8,11 @@ export * from '@/modules/agendamento/contracts/avaliar-horario-remarcacao-query.
 export * from '@/modules/agendamento/contracts/cancelar-agendamento-request.dto';
 export * from '@/modules/agendamento/contracts/concluir-agendamento-request.dto';
 export * from '@/modules/agendamento/contracts/criar-agendamento-request.dto';
+export * from '@/modules/agendamento/contracts/criar-agendamento-publico-request.dto';
 export * from '@/modules/agendamento/contracts/horarios-livres-response.dto';
 export * from '@/modules/agendamento/contracts/listar-agenda-dia-query.dto';
 export * from '@/modules/agendamento/contracts/listar-horarios-livres-query.dto';
+export * from '@/modules/agendamento/contracts/listar-horarios-livres-publicos-query.dto';
 export * from '@/modules/agendamento/contracts/listar-horarios-livres-remarcacao-query.dto';
 export * from '@/modules/agendamento/contracts/listar-resumo-agenda-query.dto';
 export * from '@/modules/agendamento/contracts/remarcar-agendamento-request.dto';

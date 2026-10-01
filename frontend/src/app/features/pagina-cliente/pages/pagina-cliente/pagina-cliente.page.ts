@@ -8,6 +8,8 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
+  type ProcedimentoPublicoResponseDto,
+  type HorariosLivresResponseDto,
   identificarClientePublicaSchema,
   type SessaoClientePublicaResponseDto,
 } from '@fluy/schema';
@@ -18,23 +20,32 @@ import {
   IonIcon,
   IonInput,
   IonSpinner,
+  IonText,
 } from '@ionic/angular/standalone';
-import type { EstadoPaginaCliente } from '../../contracts';
+import type { EstadoPaginaCliente } from '@app/features/pagina-cliente/contracts';
 import { formatarWhatsappInternacional } from '@fluy/schema';
-import { CabecalhoPublicoComponent } from '../../components/cabecalho-publico/cabecalho-publico.component';
-import { PaginaClienteService } from '../../services/pagina-cliente.service';
+import { CabecalhoPublicoComponent } from '@app/features/pagina-cliente/components/cabecalho-publico/cabecalho-publico.component';
+import { CatalogoProcedimentosComponent } from '@app/features/pagina-cliente/components/catalogo-procedimentos/catalogo-procedimentos.component';
+import { EscolhaHorarioComponent } from '@app/features/pagina-cliente/components/escolha-horario/escolha-horario.component';
+import { ConfirmacaoAgendamentoComponent } from '@app/features/pagina-cliente/components/confirmacao-agendamento/confirmacao-agendamento.component';
+import { PaginaClienteService } from '@app/features/pagina-cliente/services/pagina-cliente.service';
+import { ApiError } from '@app/core/errors/api-error';
 
 @Component({
   selector: 'app-pagina-cliente-page',
   standalone: true,
   imports: [
     CabecalhoPublicoComponent,
+    CatalogoProcedimentosComponent,
+    EscolhaHorarioComponent,
+    ConfirmacaoAgendamentoComponent,
     IonButton,
     IonCheckbox,
     IonContent,
     IonIcon,
     IonInput,
     IonSpinner,
+    IonText,
     ReactiveFormsModule,
   ],
   templateUrl: './pagina-cliente.page.html',
@@ -53,6 +64,22 @@ export class PaginaClientePage implements OnInit {
   readonly erroIdentificacao = signal<string | null>(null);
   readonly exibirFormulario = signal(false);
   readonly exibirPrivacidade = signal(false);
+  readonly catalogoAberto = signal(false);
+  readonly carregandoCatalogo = signal(false);
+  readonly erroCatalogo = signal<string | null>(null);
+  readonly procedimentoSelecionado = signal<ProcedimentoPublicoResponseDto | null>(null);
+  readonly procedimentos = this.paginaClienteService.procedimentos;
+  readonly escolhendoHorario = signal(false);
+  readonly dataSelecionada = signal('');
+  readonly horaSelecionada = signal<string | null>(null);
+  readonly horarios = signal<HorariosLivresResponseDto['horarios']>([]);
+  readonly carregandoHorarios = signal(false);
+  readonly erroHorarios = signal<string | null>(null);
+  readonly revisandoAgendamento = signal(false);
+  readonly salvandoAgendamento = signal(false);
+  readonly erroAgendamento = signal<string | null>(null);
+  readonly agendamentoCriado = signal(false);
+  readonly dataMinima = this.obterDataLocal(new Date());
 
   readonly formulario = new FormGroup({
     nome: new FormControl('', { nonNullable: true }),
@@ -105,6 +132,148 @@ export class PaginaClientePage implements OnInit {
     this.cliente.set(null);
     this.formulario.reset();
     this.exibirFormulario.set(true);
+  }
+
+  async abrirCatalogo(): Promise<void> {
+    if (!this.cliente()) return;
+
+    this.catalogoAberto.set(true);
+
+    if (this.procedimentos().length > 0) return;
+
+    this.carregandoCatalogo.set(true);
+    this.erroCatalogo.set(null);
+
+    try {
+      await this.paginaClienteService.getProcedimentos(this.obterSubdominio());
+    } catch {
+      this.erroCatalogo.set('Não foi possível carregar os procedimentos.');
+    } finally {
+      this.carregandoCatalogo.set(false);
+    }
+  }
+
+  fecharCatalogo(): void {
+    this.catalogoAberto.set(false);
+  }
+
+  selecionarProcedimento(procedimento: ProcedimentoPublicoResponseDto): void {
+    this.procedimentoSelecionado.set(procedimento);
+  }
+
+  abrirEscolhaHorario(): void {
+    if (!this.procedimentoSelecionado()) return;
+    this.escolhendoHorario.set(true);
+  }
+
+  voltarAoCatalogo(): void {
+    this.escolhendoHorario.set(false);
+    this.horaSelecionada.set(null);
+  }
+
+  async alterarData(data: string): Promise<void> {
+    const procedimento = this.procedimentoSelecionado();
+    const credencial = this.paginaClienteService.obterCredencial(
+      this.obterSubdominio(),
+    );
+
+    if (!procedimento || !credencial) return;
+
+    this.dataSelecionada.set(data);
+    this.horaSelecionada.set(null);
+    this.horarios.set([]);
+    this.carregandoHorarios.set(true);
+    this.erroHorarios.set(null);
+
+    try {
+      const resposta = await this.paginaClienteService.listarHorariosLivres(
+        this.obterSubdominio(),
+        {
+          procedimento_id: procedimento.id,
+          data,
+          credencial,
+        },
+      );
+      this.horarios.set(resposta.horarios);
+    } catch {
+      this.erroHorarios.set('Não foi possível carregar os horários desta data.');
+    } finally {
+      this.carregandoHorarios.set(false);
+    }
+  }
+
+  selecionarHora(hora: string): void {
+    this.horaSelecionada.set(hora);
+  }
+
+  revisarAgendamento(): void {
+    if (!this.horaSelecionada()) return;
+    this.revisandoAgendamento.set(true);
+    this.erroAgendamento.set(null);
+  }
+
+  voltarAoHorario(): void {
+    this.revisandoAgendamento.set(false);
+    this.erroAgendamento.set(null);
+  }
+
+  async confirmarAgendamento(): Promise<void> {
+    const procedimento = this.procedimentoSelecionado();
+    const hora = this.horaSelecionada();
+    const credencial = this.paginaClienteService.obterCredencial(
+      this.obterSubdominio(),
+    );
+
+    if (!procedimento || !hora || !credencial || !this.dataSelecionada()) return;
+
+    this.salvandoAgendamento.set(true);
+    this.erroAgendamento.set(null);
+
+    try {
+      await this.paginaClienteService.criarAgendamento(
+        this.obterSubdominio(),
+        {
+          credencial,
+          procedimento_id: procedimento.id,
+          data: this.dataSelecionada(),
+          hora_inicio: hora,
+          confirmar_excecoes: false,
+        },
+      );
+      this.agendamentoCriado.set(true);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        const mensagem = this.obterMensagemApi(error);
+
+        if (mensagem.includes('já possui este procedimento')) {
+          this.erroAgendamento.set(mensagem);
+          return;
+        }
+
+        this.revisandoAgendamento.set(false);
+        this.horaSelecionada.set(null);
+        this.erroHorarios.set(
+          'Este horário acabou de ser ocupado. Escolha outro horário.',
+        );
+      } else {
+        this.erroAgendamento.set(
+          'Não foi possível confirmar o agendamento. Tente novamente.',
+        );
+      }
+    } finally {
+      this.salvandoAgendamento.set(false);
+    }
+  }
+
+  fecharAgendamentoConfirmado(): void {
+    this.agendamentoCriado.set(false);
+    this.revisandoAgendamento.set(false);
+    this.escolhendoHorario.set(false);
+    this.catalogoAberto.set(false);
+    this.procedimentoSelecionado.set(null);
+    this.dataSelecionada.set('');
+    this.horaSelecionada.set(null);
+    this.horarios.set([]);
   }
 
   formatarCampoWhatsapp(valor: string | null | undefined): void {
@@ -165,5 +334,21 @@ export class PaginaClientePage implements OnInit {
 
   private obterSubdominio(): string {
     return this.route.snapshot.paramMap.get('subdominio') ?? '';
+  }
+
+  private obterDataLocal(data: Date): string {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  private obterMensagemApi(error: ApiError): string {
+    if (typeof error.body !== 'object' || error.body === null) return '';
+
+    const mensagens = (error.body as { messages?: unknown }).messages;
+    return Array.isArray(mensagens) && typeof mensagens[0] === 'string'
+      ? mensagens[0]
+      : '';
   }
 }

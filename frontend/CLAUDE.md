@@ -51,6 +51,15 @@ Sem `forms/`, `ui/`, `elements/`, `blocks/`, `views/` até doer.
 Se um componente de `components/` começa a fazer fetch ou orquestrar navegação, sobe pra page.
 
 ### Componentes de UI
+- Prefira componentes do Ionic sempre que existir um equivalente adequado. Use,
+  por exemplo, `ion-button`, `ion-input`, `ion-checkbox`, `ion-list`, `ion-item`,
+  `ion-card` e `ion-text` em vez de recriar esses elementos com HTML puro.
+- Para textos simples exibidos na interface, prefira `ion-text` a elementos como
+  `<p>` e `<span>`. HTML nativo continua permitido quando não houver equivalente
+  Ionic ou quando for necessário para estrutura, semântica e acessibilidade,
+  como `div`, `main`, `section`, `header`, `form`, títulos e labels.
+- Não substitua uma tag semântica por um componente Ionic se isso empobrecer a
+  hierarquia do documento ou a experiência de tecnologias assistivas.
 - **Exceção:** Além dos componentes do Ionic, o projeto pode utilizar um conjunto de componentes customizados com prefixo `app-*` (ex: `app-input-text`, `app-btn-salvar`) para agilizar o desenvolvimento de formulários e ações.
 
 ## Services
@@ -129,6 +138,11 @@ Pergunta única: **trafega HTTP entre front e back?**
 
 - Arquivos em `kebab-case`.
 - Componente: `{nome}.component.ts`. Página: `{nome}.page.ts`. Service: `{nome}.service.ts`.
+- Imports internos de `src/app` usam o alias `@app/*`. Não use caminhos
+  relativos ascendentes como `../` ou `../../`; por exemplo, prefira
+  `@app/features/pagina-cliente/services/pagina-cliente.service`.
+- Imports relativos com `./` ficam permitidos apenas para arquivos irmãos muito
+  próximos quando o alias não tornar a origem mais clara.
 
 ## Auxiliares e constantes
 

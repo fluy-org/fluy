@@ -41,7 +41,7 @@
 }
 
 .identificacao strong,
-.identificacao span {
+.identificacao ion-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -51,7 +51,7 @@
   font-size: var(--fluy-font-size-subtitle);
 }
 
-.identificacao span {
+.identificacao ion-text {
   font-size: var(--fluy-font-size-small);
 }
 

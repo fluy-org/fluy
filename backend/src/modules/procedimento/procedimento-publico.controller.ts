@@ -17,6 +17,7 @@ import type { Env } from '@/config/env.schema';
 import { Public } from '@/modules/auth/decorators/public.decorator';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
 import { TenantFromHost } from '@/shared/tenant-context/decorators/tenant-from-host.decorator';
+import { TenantFromPath } from '@/shared/tenant-context/decorators/tenant-from-path.decorator';
 import { ProcedimentoPublicoResponseDto } from '@/modules/procedimento/contracts';
 import { toProcedimentoPublicoResponse } from '@/modules/procedimento/procedimento.mapper';
 import { ProcedimentoService } from '@/modules/procedimento/procedimento.service';
@@ -29,6 +30,17 @@ export class ProcedimentoPublicoController {
     private readonly config: ConfigService<Env, true>,
   ) {}
 
+  @Get('s/:subdominio/procedimentos')
+  @ApiOperation({ summary: 'Lista o catálogo público pela URL do salão' })
+  @ApiOkResponse({
+    description: 'Procedimentos ativos do salão informado na URL.',
+    type: [ProcedimentoPublicoResponseDto.Output],
+  })
+  @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
+  listarPorSubdominio(@TenantFromPath() tenant: TenantContext) {
+    return this.mapearCatalogo(tenant.salaoId);
+  }
+
   @Get('procedimentos')
   @ApiOperation({ summary: 'Lista o catálogo público do salão' })
   @ApiOkResponse({
@@ -38,8 +50,12 @@ export class ProcedimentoPublicoController {
   })
   @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
   async listar(@TenantFromHost() tenant: TenantContext) {
+    return this.mapearCatalogo(tenant.salaoId);
+  }
+
+  private async mapearCatalogo(salaoId: string) {
     const procedimentos = await this.procedimentoService.listarAtivos(
-      tenant.salaoId,
+      salaoId,
     );
 
     const apiPublicUrl = this.config.get('API_PUBLIC_URL', { infer: true });

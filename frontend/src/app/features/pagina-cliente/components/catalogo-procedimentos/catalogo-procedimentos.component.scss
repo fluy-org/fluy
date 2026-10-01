@@ -1,0 +1,173 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.catalogo {
+  display: grid;
+  gap: var(--fluy-space-4);
+}
+
+header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fluy-space-3);
+}
+
+header > div {
+  min-width: 0;
+}
+
+h1,
+h2,
+ion-text {
+  margin: 0;
+}
+
+h1 {
+  color: var(--fluy-color-title);
+  font-size: 1.375rem;
+  line-height: 1.2;
+}
+
+header > div ion-text {
+  margin-top: var(--fluy-space-1);
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-body);
+}
+
+.passo {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--fluy-color-on-primary);
+  background: var(--fluy-color-primary);
+  font-weight: var(--fluy-font-weight-bold);
+}
+
+.lista {
+  display: grid;
+  gap: var(--fluy-space-3);
+}
+
+.procedimento {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  color: inherit;
+  background: var(--fluy-color-surface);
+  box-shadow: var(--fluy-shadow-sm);
+  text-align: left;
+  cursor: pointer;
+  margin: 0;
+}
+
+.procedimento-conteudo {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  width: 100%;
+  min-height: 112px;
+}
+
+.procedimento--selecionado {
+  border-color: var(--fluy-color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--fluy-color-primary-rgb), 0.18);
+}
+
+.imagem {
+  display: grid;
+  min-height: 112px;
+  place-items: center;
+  color: var(--fluy-color-primary-hover);
+  background: var(--fluy-color-decorative-light);
+}
+
+.imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagem ion-icon {
+  font-size: 2rem;
+}
+
+.dados {
+  display: grid;
+  align-content: center;
+  gap: var(--fluy-space-2);
+  min-width: 0;
+  padding: var(--fluy-space-3);
+}
+
+.nome-selecao {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fluy-space-2);
+}
+
+.nome-selecao h2 {
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.nome-selecao ion-icon {
+  flex: 0 0 auto;
+  color: var(--fluy-color-primary-hover);
+  font-size: 1.25rem;
+}
+
+.dados > ion-text {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-small);
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.resumo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fluy-space-2);
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-small);
+}
+
+.resumo strong {
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-body);
+}
+
+.feedback {
+  display: grid;
+  min-height: 180px;
+  padding: var(--fluy-space-5);
+  place-content: center;
+  justify-items: center;
+  gap: var(--fluy-space-2);
+  border: 1px dashed var(--fluy-color-border);
+  border-radius: var(--fluy-radius-lg);
+  color: var(--fluy-color-muted);
+  text-align: center;
+}
+
+.feedback ion-icon {
+  font-size: 2rem;
+}
+
+.feedback--erro {
+  color: var(--fluy-color-danger);
+  background: var(--fluy-color-danger-bg);
+}

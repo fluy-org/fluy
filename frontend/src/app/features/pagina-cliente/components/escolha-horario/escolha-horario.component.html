@@ -1,0 +1,43 @@
+<section class="escolha-horario" aria-labelledby="titulo-horario">
+  <header>
+    <ion-text>2</ion-text>
+    <div>
+      <h2 id="titulo-horario">Data e horário</h2>
+      <ion-text>Escolha quando deseja realizar o procedimento.</ion-text>
+    </div>
+  </header>
+
+  <ion-input
+    type="date"
+    label="Data"
+    labelPlacement="stacked"
+    [min]="dataMinima()"
+    [value]="data()"
+    (ionChange)="aoAlterarData($event.detail.value)"
+  ></ion-input>
+
+  @if (carregando()) {
+    <div class="estado" role="status">
+      <ion-spinner name="crescent"></ion-spinner>
+      <ion-text>Buscando horários...</ion-text>
+    </div>
+  } @else if (erro()) {
+    <ion-text class="erro" role="alert">{{ erro() }}</ion-text>
+  } @else if (data() && horarios().length === 0) {
+    <ion-text class="vazio">Não há horários livres nesta data. Escolha outro dia.</ion-text>
+  } @else if (horarios().length > 0) {
+    <div class="horarios" aria-label="Horários disponíveis">
+      @for (horario of horarios(); track horario.hora_inicio) {
+        <ion-button
+          type="button"
+          fill="outline"
+          [class.selecionado]="horaSelecionada() === horario.hora_inicio"
+          [attr.aria-pressed]="horaSelecionada() === horario.hora_inicio"
+          (click)="selecionarHora.emit(horario.hora_inicio)"
+        >
+          {{ horario.hora_inicio }}
+        </ion-button>
+      }
+    </div>
+  }
+</section>

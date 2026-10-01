@@ -42,6 +42,7 @@ export function toProcedimentoPublicoResponse({
     id: procedimento.id,
     nome: procedimento.nome,
     descricao: procedimento.descricao,
+    info_pre_procedimento: procedimento.info_pre_procedimento,
     duracao_min: procedimento.duracao_min,
     preco: Number(procedimento.preco),
     imagem_url: criarUrlImagemProcedimento({ procedimento, apiPublicUrl }),

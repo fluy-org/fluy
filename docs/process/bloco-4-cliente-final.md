@@ -62,7 +62,7 @@ futura para host real (`nome.fluy.app`) mexe só nesse resolver — ver
 
 ### 4.1 Acesso público e identificação da cliente
 
-- [ ] Página pública do salão + identificação por UUID de dispositivo e WhatsApp, incluindo o reconhecimento no retorno. — **🔵 Leandro** — [DEP: 1.1](./bloco-1-setup-salao.md#11-onboarding) · [DEP: 2.1](./bloco-2-motor.md#21-clientes) `[DECIDIR: LGPD mínimo — consentimento + política de privacidade]`
+- [x] Página pública do salão + identificação por UUID de dispositivo e WhatsApp, incluindo o reconhecimento no retorno. — **🔵 Leandro** — [DEP: 1.1](./bloco-1-setup-salao.md#11-onboarding) · [DEP: 2.1](./bloco-2-motor.md#21-clientes) `[DECIDIR: LGPD mínimo — consentimento + política de privacidade]`
 
 **Por que o retorno entra junto:** o fluxo `02-retorno.md` não tem tela nem
 endpoint próprio — é o mesmo serviço de identificação decidindo entre "conheço
@@ -122,7 +122,7 @@ volta ao primeiro acesso sem perder histórico ao reinformar o WhatsApp.
 
 ### 4.2 Criação de agendamento pela cliente
 
-- [ ] Catálogo público, escolha de dia e horário, e confirmação — indo direto para `agendado`, sem pagamento. — **🔵 Leandro** — [DEP: 4.1](#41-acesso-público-e-identificação-da-cliente) `[BLOQ:gateway — sinal, estado reservado e expira_em ficam para 9.2]`
+- [x] Catálogo público, escolha de dia e horário, e confirmação — indo direto para `agendado`, sem pagamento. — **🔵 Leandro** — [DEP: 4.1](#41-acesso-público-e-identificação-da-cliente) `[BLOQ:gateway — sinal, estado reservado e expira_em ficam para 9.2]`
 
 **O que deve existir**
 
