@@ -78,6 +78,26 @@ export const criarAgendamentoPublicoSchema = criarAgendamentoSchema
   })
   .meta({ id: 'CriarAgendamentoPublico' });
 
+export const listarAgendamentosPublicosQuerySchema = z
+  .object({
+    credencial: z.uuid('Informe uma credencial de dispositivo válida.'),
+    cursor: z.string().optional(),
+  })
+  .strict()
+  .meta({ id: 'ListarAgendamentosPublicosQuery' });
+
+export const consultarAgendamentoPublicoQuerySchema = z
+  .object({
+    credencial: z.uuid('Informe uma credencial de dispositivo válida.'),
+  })
+  .strict()
+  .meta({ id: 'ConsultarAgendamentoPublicoQuery' });
+
+export const cancelarAgendamentoPublicoSchema =
+  consultarAgendamentoPublicoQuerySchema.meta({
+    id: 'CancelarAgendamentoPublico',
+  });
+
 export const concluirAgendamentoSchema = z
   .object({
     // `null` é a marcação explícita "não recebeu o valor pendente".
@@ -226,3 +246,16 @@ export const agendamentoDetalheResponseSchema = agendamentoAgendaResponseSchema
     remarcado_vezes: z.number().int().nonnegative(),
   })
   .meta({ id: 'AgendamentoDetalheResponse' });
+
+export const agendamentoPublicoDetalheResponseSchema = z
+  .object({
+    id: z.uuid(),
+    inicio_em: z.iso.datetime(),
+    duracao_min: z.number().int().positive(),
+    estado: z.enum(ESTADO_AGENDAMENTO),
+    procedimento: procedimentoDoAgendamentoSchema,
+    preco_total: z.number().nonnegative(),
+    valor_sinal: z.number().nonnegative(),
+    fuso_horario: fusoHorarioSchema,
+  })
+  .meta({ id: 'AgendamentoPublicoDetalheResponse' });

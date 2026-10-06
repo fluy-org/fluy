@@ -73,8 +73,10 @@ describe('cliente.mapper', () => {
         {
           id: 'agendamento-ana',
           inicio_em: new Date('2026-09-10T15:00:00.000Z'),
+          duracao_min: 60,
           estado: 'concluido',
           preco_total: '120.00',
+          valor_sinal: '30.00',
           procedimento: { id: 'procedimento-corte', nome: 'Corte' },
         },
       ],
@@ -83,9 +85,11 @@ describe('cliente.mapper', () => {
     expect(resposta.itens[0]).toEqual({
       id: 'agendamento-ana',
       inicio_em: '2026-09-10T15:00:00.000Z',
+      duracao_min: 60,
       estado: 'concluido',
       procedimento: { id: 'procedimento-corte', nome: 'Corte' },
       preco_total: 120,
+      valor_sinal: 30,
     });
   });
 });

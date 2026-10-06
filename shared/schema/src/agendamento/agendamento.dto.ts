@@ -3,16 +3,20 @@ import type {
   agendaDiaResponseSchema,
   agendamentoAgendaResponseSchema,
   agendamentoDetalheResponseSchema,
+  agendamentoPublicoDetalheResponseSchema,
   agendamentoResponseSchema,
   avaliacaoHorarioAgendamentoResponseSchema,
   avaliarHorarioAgendamentoQuerySchema,
   avaliarHorarioRemarcacaoQuerySchema,
   cancelarAgendamentoSchema,
+  cancelarAgendamentoPublicoSchema,
   concluirAgendamentoSchema,
   criarAgendamentoSchema,
   criarAgendamentoPublicoSchema,
   horariosLivresResponseSchema,
+  consultarAgendamentoPublicoQuerySchema,
   listarAgendaDiaQuerySchema,
+  listarAgendamentosPublicosQuerySchema,
   listarHorariosLivresQuerySchema,
   listarHorariosLivresPublicosQuerySchema,
   listarHorariosLivresRemarcacaoQuerySchema,
@@ -36,6 +40,15 @@ export type CriarAgendamentoPublicoDto = z.infer<
 >;
 export type ConcluirAgendamentoDto = z.infer<typeof concluirAgendamentoSchema>;
 export type CancelarAgendamentoDto = z.infer<typeof cancelarAgendamentoSchema>;
+export type CancelarAgendamentoPublicoDto = z.infer<
+  typeof cancelarAgendamentoPublicoSchema
+>;
+export type ConsultarAgendamentoPublicoQueryDto = z.infer<
+  typeof consultarAgendamentoPublicoQuerySchema
+>;
+export type ListarAgendamentosPublicosQueryDto = z.infer<
+  typeof listarAgendamentosPublicosQuerySchema
+>;
 export type RemarcarAgendamentoDto = z.infer<typeof remarcarAgendamentoSchema>;
 export type ListarHorariosLivresRemarcacaoQueryDto = z.infer<
   typeof listarHorariosLivresRemarcacaoQuerySchema
@@ -61,6 +74,9 @@ export type AgendamentoAgendaResponseDto = z.infer<
 export type AgendaDiaResponseDto = z.infer<typeof agendaDiaResponseSchema>;
 export type AgendamentoDetalheResponseDto = z.infer<
   typeof agendamentoDetalheResponseSchema
+>;
+export type AgendamentoPublicoDetalheResponseDto = z.infer<
+  typeof agendamentoPublicoDetalheResponseSchema
 >;
 export type ListarResumoAgendaQueryDto = z.infer<
   typeof listarResumoAgendaQuerySchema

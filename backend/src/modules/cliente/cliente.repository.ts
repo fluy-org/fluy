@@ -154,8 +154,10 @@ export class ClienteRepository {
             .select({
                 id: agendamento.id,
                 inicio_em: agendamento.inicio_em,
+                duracao_min: agendamento.duracao_min,
                 estado: agendamento.estado,
                 preco_total: agendamento.preco_total,
+                valor_sinal: agendamento.valor_sinal,
                 procedimento: {
                     id: procedimento.id,
                     nome: procedimento.nome,

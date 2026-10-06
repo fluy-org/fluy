@@ -6,6 +6,9 @@ import type {
   ListarHorariosLivresPublicosQueryDto,
   CriarAgendamentoPublicoDto,
   AgendamentoResponseDto,
+  AgendamentoClienteResponseDto,
+  AgendamentoPublicoDetalheResponseDto,
+  ListaAgendamentosClienteResponseDto,
   ProcedimentoPublicoResponseDto,
   SalaoPublicoResponseDto,
   SessaoClientePublicaResponseDto,
@@ -17,9 +20,16 @@ export class PaginaClienteService {
   private readonly http = inject(HttpClient);
   private readonly _salao = signal<SalaoPublicoResponseDto | null>(null);
   private readonly _procedimentos = signal<ProcedimentoPublicoResponseDto[]>([]);
+  private readonly _agendamentos = signal<AgendamentoClienteResponseDto[]>([]);
+  private readonly _fusoHorarioAgendamentos = signal<string | null>(null);
+  private readonly _proximoCursorAgendamentos = signal<string | null>(null);
 
   readonly salao = this._salao.asReadonly();
   readonly procedimentos = this._procedimentos.asReadonly();
+  readonly agendamentos = this._agendamentos.asReadonly();
+  readonly fusoHorarioAgendamentos = this._fusoHorarioAgendamentos.asReadonly();
+  readonly proximoCursorAgendamentos =
+    this._proximoCursorAgendamentos.asReadonly();
 
   async getEntidade(subdominio: string): Promise<SalaoPublicoResponseDto> {
     const salao = await firstValueFrom(
@@ -86,6 +96,67 @@ export class PaginaClienteService {
         dados,
       ),
     );
+  }
+
+  async getAgendamentos(
+    subdominio: string,
+    credencial: string,
+    cursor?: string,
+  ): Promise<ListaAgendamentosClienteResponseDto> {
+    const resposta = await firstValueFrom(
+      this.http.get<ListaAgendamentosClienteResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos`,
+        { params: { credencial, ...(cursor ? { cursor } : {}) } },
+      ),
+    );
+
+    this._agendamentos.update((atuais) =>
+      cursor ? [...atuais, ...resposta.itens] : resposta.itens,
+    );
+    this._fusoHorarioAgendamentos.set(resposta.fuso_horario);
+    this._proximoCursorAgendamentos.set(resposta.proximo_cursor);
+    return resposta;
+  }
+
+  getAgendamento(
+    subdominio: string,
+    id: string,
+    credencial: string,
+  ): Promise<AgendamentoPublicoDetalheResponseDto> {
+    return firstValueFrom(
+      this.http.get<AgendamentoPublicoDetalheResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(id)}`,
+        { params: { credencial } },
+      ),
+    );
+  }
+
+  async cancelarAgendamento(
+    subdominio: string,
+    id: string,
+    credencial: string,
+  ): Promise<AgendamentoPublicoDetalheResponseDto> {
+    const resposta = await firstValueFrom(
+      this.http.patch<AgendamentoPublicoDetalheResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(id)}/cancelar`,
+        { credencial },
+      ),
+    );
+
+    this._agendamentos.update((agendamentos) =>
+      agendamentos.map((agendamento) =>
+        agendamento.id === resposta.id
+          ? { ...agendamento, estado: resposta.estado }
+          : agendamento,
+      ),
+    );
+    return resposta;
+  }
+
+  limparAgendamentos(): void {
+    this._agendamentos.set([]);
+    this._fusoHorarioAgendamentos.set(null);
+    this._proximoCursorAgendamentos.set(null);
   }
 
   obterCredencial(subdominio: string): string | null {

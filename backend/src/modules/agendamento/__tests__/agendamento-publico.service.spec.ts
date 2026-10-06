@@ -6,7 +6,12 @@ jest.mock('@/modules/cliente/cliente.service', () => ({
   ClienteService: class ClienteService {},
 }));
 
-import { NotFoundException } from '@nestjs/common';
+jest.mock('@/modules/agendamento/agendamento-cancelamento.service', () => ({
+  AgendamentoCancelamentoService: class AgendamentoCancelamentoService {},
+}));
+
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import type { AgendamentoCancelamentoService } from '@/modules/agendamento/agendamento-cancelamento.service';
 import { AgendamentoPublicoService } from '@/modules/agendamento/agendamento-publico.service';
 import type { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import type { ClienteService } from '@/modules/cliente/cliente.service';
@@ -14,10 +19,21 @@ import type { ClienteService } from '@/modules/cliente/cliente.service';
 describe('AgendamentoPublicoService', () => {
   const listarHorariosLivres = jest.fn();
   const criar = jest.fn();
+  const buscarDetalhe = jest.fn();
+  const cancelar = jest.fn();
+  const listarAgendamentos = jest.fn();
   const resolverSessaoPublica = jest.fn();
   const service = new AgendamentoPublicoService(
-    { listarHorariosLivres, criar } as unknown as AgendamentoService,
-    { resolverSessaoPublica } as unknown as ClienteService,
+    {
+      listarHorariosLivres,
+      criar,
+      buscarDetalhe,
+    } as unknown as AgendamentoService,
+    { cancelar } as unknown as AgendamentoCancelamentoService,
+    {
+      resolverSessaoPublica,
+      listarAgendamentos,
+    } as unknown as ClienteService,
   );
   const dados = {
     credencial: 'ca76ae02-2e2f-4d50-b7c6-d0d2a45523b3',
@@ -80,5 +96,74 @@ describe('AgendamentoPublicoService', () => {
         confirmar_excecoes: false,
       },
     });
+  });
+
+  it('lista somente os agendamentos da cliente resolvida pela sessao', async () => {
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    listarAgendamentos.mockResolvedValue({ itens: [] });
+
+    await service.listar({
+      salaoId: 'salao-do-path',
+      dados: { credencial: dados.credencial, cursor: 'cursor-2' },
+    });
+
+    expect(listarAgendamentos).toHaveBeenCalledWith({
+      id: 'cliente-da-sessao',
+      salaoId: 'salao-do-path',
+      cursor: 'cursor-2',
+    });
+  });
+
+  it('nao revela o agendamento de outra cliente', async () => {
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    buscarDetalhe.mockResolvedValue({
+      cliente: { id: 'outra-cliente' },
+    });
+
+    await expect(
+      service.buscarDetalhe({
+        id: 'agendamento-1',
+        salaoId: 'salao-do-path',
+        dados: { credencial: dados.credencial },
+      }),
+    ).rejects.toThrow(new NotFoundException('Agendamento não encontrado.'));
+  });
+
+  it('cancela o proprio agendamento confirmado pelo servico compartilhado', async () => {
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    buscarDetalhe.mockResolvedValue({
+      estado: 'agendado',
+      cliente: { id: 'cliente-da-sessao' },
+    });
+    cancelar.mockResolvedValue({ estado: 'cancelado' });
+
+    await service.cancelar({
+      id: 'agendamento-1',
+      salaoId: 'salao-do-path',
+      dados: { credencial: dados.credencial },
+    });
+
+    expect(cancelar).toHaveBeenCalledWith({
+      id: 'agendamento-1',
+      salaoId: 'salao-do-path',
+      dados: { motivo: 'Cancelado pela cliente.' },
+    });
+  });
+
+  it('rejeita o cancelamento de agendamento encerrado', async () => {
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    buscarDetalhe.mockResolvedValue({
+      estado: 'cancelado',
+      cliente: { id: 'cliente-da-sessao' },
+    });
+
+    await expect(
+      service.cancelar({
+        id: 'agendamento-1',
+        salaoId: 'salao-do-path',
+        dados: { credencial: dados.credencial },
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(cancelar).not.toHaveBeenCalled();
   });
 });

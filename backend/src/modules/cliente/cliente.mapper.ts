@@ -66,12 +66,14 @@ export function toAgendamentosDaClienteResponse({
         itens: itens.map((agendamento) => ({
             id: agendamento.id,
             inicio_em: agendamento.inicio_em.toISOString(),
+            duracao_min: agendamento.duracao_min,
             estado: agendamento.estado,
             procedimento: {
                 id: agendamento.procedimento.id,
                 nome: agendamento.procedimento.nome,
             },
             preco_total: Number(agendamento.preco_total),
+            valor_sinal: Number(agendamento.valor_sinal),
         })),
         proximo_cursor: proximoCursor,
     };

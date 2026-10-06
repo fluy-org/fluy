@@ -8,17 +8,21 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
+  type AgendamentoPublicoDetalheResponseDto,
   type ProcedimentoPublicoResponseDto,
   type HorariosLivresResponseDto,
   identificarClientePublicaSchema,
   type SessaoClientePublicaResponseDto,
 } from '@fluy/schema';
+import type { InfiniteScrollCustomEvent } from '@ionic/angular';
 import {
   IonButton,
   IonCheckbox,
   IonContent,
   IonIcon,
   IonInput,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonSpinner,
   IonText,
 } from '@ionic/angular/standalone';
@@ -28,6 +32,7 @@ import { CabecalhoPublicoComponent } from '@app/features/pagina-cliente/componen
 import { CatalogoProcedimentosComponent } from '@app/features/pagina-cliente/components/catalogo-procedimentos/catalogo-procedimentos.component';
 import { EscolhaHorarioComponent } from '@app/features/pagina-cliente/components/escolha-horario/escolha-horario.component';
 import { ConfirmacaoAgendamentoComponent } from '@app/features/pagina-cliente/components/confirmacao-agendamento/confirmacao-agendamento.component';
+import { MeusAgendamentosComponent } from '@app/features/pagina-cliente/components/meus-agendamentos/meus-agendamentos.component';
 import { PaginaClienteService } from '@app/features/pagina-cliente/services/pagina-cliente.service';
 import { ApiError } from '@app/core/errors/api-error';
 
@@ -39,11 +44,14 @@ import { ApiError } from '@app/core/errors/api-error';
     CatalogoProcedimentosComponent,
     EscolhaHorarioComponent,
     ConfirmacaoAgendamentoComponent,
+    MeusAgendamentosComponent,
     IonButton,
     IonCheckbox,
     IonContent,
     IonIcon,
     IonInput,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
     IonSpinner,
     IonText,
     ReactiveFormsModule,
@@ -79,6 +87,20 @@ export class PaginaClientePage implements OnInit {
   readonly salvandoAgendamento = signal(false);
   readonly erroAgendamento = signal<string | null>(null);
   readonly agendamentoCriado = signal(false);
+  readonly meusAgendamentosAberto = signal(false);
+  readonly carregandoAgendamentos = signal(false);
+  readonly erroAgendamentos = signal<string | null>(null);
+  readonly detalheAgendamento =
+    signal<AgendamentoPublicoDetalheResponseDto | null>(null);
+  readonly carregandoDetalheAgendamento = signal(false);
+  readonly confirmandoCancelamento = signal(false);
+  readonly cancelandoAgendamento = signal(false);
+  readonly erroCancelamento = signal<string | null>(null);
+  readonly agendamentos = this.paginaClienteService.agendamentos;
+  readonly fusoHorarioAgendamentos =
+    this.paginaClienteService.fusoHorarioAgendamentos;
+  readonly proximoCursorAgendamentos =
+    this.paginaClienteService.proximoCursorAgendamentos;
   readonly dataMinima = this.obterDataLocal(new Date());
 
   readonly formulario = new FormGroup({
@@ -129,9 +151,125 @@ export class PaginaClientePage implements OnInit {
   }
 
   agendarComoOutraPessoa(): void {
+    this.paginaClienteService.limparAgendamentos();
     this.cliente.set(null);
     this.formulario.reset();
     this.exibirFormulario.set(true);
+  }
+
+  async abrirMeusAgendamentos(): Promise<void> {
+    if (!this.cliente()) return;
+
+    this.meusAgendamentosAberto.set(true);
+    this.fecharDetalheAgendamento();
+    await this.carregarAgendamentos();
+  }
+
+  fecharMeusAgendamentos(): void {
+    this.meusAgendamentosAberto.set(false);
+    this.fecharDetalheAgendamento();
+  }
+
+  async carregarAgendamentos(cursor?: string): Promise<void> {
+    const subdominio = this.obterSubdominio();
+    const credencial = this.paginaClienteService.obterCredencial(subdominio);
+
+    if (!credencial) return;
+
+    if (!cursor) {
+      this.carregandoAgendamentos.set(true);
+      this.erroAgendamentos.set(null);
+    }
+
+    try {
+      await this.paginaClienteService.getAgendamentos(
+        subdominio,
+        credencial,
+        cursor,
+      );
+    } catch {
+      this.erroAgendamentos.set('Não foi possível carregar seus agendamentos.');
+    } finally {
+      this.carregandoAgendamentos.set(false);
+    }
+  }
+
+  async carregarMaisAgendamentos(
+    event: InfiniteScrollCustomEvent,
+  ): Promise<void> {
+    const cursor = this.proximoCursorAgendamentos();
+
+    if (cursor) {
+      await this.carregarAgendamentos(cursor);
+    }
+
+    await event.target.complete();
+  }
+
+  async abrirDetalheAgendamento(id: string): Promise<void> {
+    const subdominio = this.obterSubdominio();
+    const credencial = this.paginaClienteService.obterCredencial(subdominio);
+
+    if (!credencial) return;
+
+    this.carregandoDetalheAgendamento.set(true);
+    this.erroAgendamentos.set(null);
+    this.erroCancelamento.set(null);
+
+    try {
+      const detalhe = await this.paginaClienteService.getAgendamento(
+        subdominio,
+        id,
+        credencial,
+      );
+      this.detalheAgendamento.set(detalhe);
+    } catch {
+      this.erroAgendamentos.set('Não foi possível abrir este agendamento.');
+    } finally {
+      this.carregandoDetalheAgendamento.set(false);
+    }
+  }
+
+  fecharDetalheAgendamento(): void {
+    this.detalheAgendamento.set(null);
+    this.confirmandoCancelamento.set(false);
+    this.erroCancelamento.set(null);
+  }
+
+  solicitarCancelamento(): void {
+    this.confirmandoCancelamento.set(true);
+    this.erroCancelamento.set(null);
+  }
+
+  desistirCancelamento(): void {
+    this.confirmandoCancelamento.set(false);
+  }
+
+  async cancelarAgendamento(): Promise<void> {
+    const agendamento = this.detalheAgendamento();
+    const subdominio = this.obterSubdominio();
+    const credencial = this.paginaClienteService.obterCredencial(subdominio);
+
+    if (!agendamento || !credencial) return;
+
+    this.cancelandoAgendamento.set(true);
+    this.erroCancelamento.set(null);
+
+    try {
+      const detalhe = await this.paginaClienteService.cancelarAgendamento(
+        subdominio,
+        agendamento.id,
+        credencial,
+      );
+      this.detalheAgendamento.set(detalhe);
+      this.confirmandoCancelamento.set(false);
+    } catch {
+      this.erroCancelamento.set(
+        'Não foi possível cancelar. Atualize a lista e tente novamente.',
+      );
+    } finally {
+      this.cancelandoAgendamento.set(false);
+    }
   }
 
   async abrirCatalogo(): Promise<void> {

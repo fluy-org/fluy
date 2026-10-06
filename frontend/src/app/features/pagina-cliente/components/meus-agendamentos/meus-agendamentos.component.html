@@ -1,0 +1,167 @@
+<section class="meus-agendamentos" aria-labelledby="titulo-meus-agendamentos">
+  <ion-button
+    type="button"
+    class="voltar"
+    fill="clear"
+    (click)="detalhe() ? fecharDetalhe.emit() : voltar.emit()"
+  >
+    <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+    {{ detalhe() ? "Voltar para a lista" : "Voltar" }}
+  </ion-button>
+
+  @if (carregandoDetalhe()) {
+    <div class="feedback" role="status">
+      <ion-spinner name="crescent"></ion-spinner>
+      <ion-text>Carregando o agendamento...</ion-text>
+    </div>
+  } @else if (detalhe(); as agendamento) {
+    <header>
+      <h1 id="titulo-meus-agendamentos">Detalhes do agendamento</h1>
+      <ion-badge [color]="obterCorEstado(agendamento.estado)">
+        {{ obterRotuloEstado(agendamento.estado) }}
+      </ion-badge>
+    </header>
+
+    <ion-card class="detalhe">
+      <ion-card-content>
+        <div class="linha-destaque">
+          <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+          <div>
+            <ion-text>Procedimento</ion-text>
+            <strong>{{ agendamento.procedimento.nome }}</strong>
+          </div>
+        </div>
+        <div class="linha-destaque">
+          <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+          <div>
+            <ion-text>Data e horário</ion-text>
+            <strong>{{
+              formatarDataHora(agendamento.inicio_em, agendamento.fuso_horario)
+            }}</strong>
+          </div>
+        </div>
+        <dl>
+          <div>
+            <dt>Duração</dt>
+            <dd>{{ formatarDuracao(agendamento.duracao_min) }}</dd>
+          </div>
+          <div>
+            <dt>Valor total</dt>
+            <dd>{{ formatarPreco(agendamento.preco_total) }}</dd>
+          </div>
+          <div>
+            <dt>Sinal</dt>
+            <dd>{{ formatarPreco(agendamento.valor_sinal) }}</dd>
+          </div>
+        </dl>
+      </ion-card-content>
+    </ion-card>
+
+    @if (erroCancelamento()) {
+      <ion-text class="erro" role="alert">{{ erroCancelamento() }}</ion-text>
+    }
+
+    @if (agendamento.estado === "agendado") {
+      @if (confirmandoCancelamento()) {
+        <section
+          class="confirmacao-cancelamento"
+          aria-labelledby="titulo-cancelamento"
+        >
+          <h2 id="titulo-cancelamento">Cancelar agendamento?</h2>
+          <ion-text>
+            Ao cancelar, o sinal pago ({{
+              formatarPreco(agendamento.valor_sinal)
+            }}) não será devolvido. Deseja continuar?
+          </ion-text>
+          <div class="acoes">
+            <ion-button
+              type="button"
+              expand="block"
+              fill="outline"
+              [disabled]="cancelando()"
+              (click)="desistirCancelamento.emit()"
+            >
+              Manter agendamento
+            </ion-button>
+            <ion-button
+              type="button"
+              expand="block"
+              color="danger"
+              [disabled]="cancelando()"
+              (click)="confirmarCancelamento.emit()"
+            >
+              {{ cancelando() ? "Cancelando..." : "Sim, cancelar" }}
+            </ion-button>
+          </div>
+        </section>
+      } @else {
+        <ion-button
+          type="button"
+          expand="block"
+          fill="outline"
+          color="danger"
+          (click)="solicitarCancelamento.emit()"
+        >
+          Cancelar agendamento
+        </ion-button>
+      }
+    }
+  } @else {
+    <header>
+      <div>
+        <h1 id="titulo-meus-agendamentos">Meus agendamentos</h1>
+        <ion-text>Acompanhe seus horários e cancelamentos.</ion-text>
+      </div>
+    </header>
+
+    @if (carregando()) {
+      <div class="feedback" role="status">
+        <ion-spinner name="crescent"></ion-spinner>
+        <ion-text>Carregando seus agendamentos...</ion-text>
+      </div>
+    } @else if (erro()) {
+      <div class="feedback feedback--erro" role="alert">
+        <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+        <ion-text>{{ erro() }}</ion-text>
+        <ion-button
+          type="button"
+          fill="outline"
+          (click)="tentarNovamente.emit()"
+        >
+          Tentar novamente
+        </ion-button>
+      </div>
+    } @else if (agendamentos().length === 0) {
+      <div class="feedback">
+        <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
+        <ion-text>Você ainda não possui agendamentos neste salão.</ion-text>
+      </div>
+    } @else {
+      <div class="lista">
+        @for (agendamento of agendamentos(); track agendamento.id) {
+          <ion-card
+            class="agendamento"
+            [button]="true"
+            (click)="selecionar.emit(agendamento.id)"
+          >
+            <ion-card-content>
+              <div class="cabecalho-card">
+                <h2>{{ agendamento.procedimento.nome }}</h2>
+                <ion-badge [color]="obterCorEstado(agendamento.estado)">
+                  {{ obterRotuloEstado(agendamento.estado) }}
+                </ion-badge>
+              </div>
+              <ion-text>{{ formatarDataHora(agendamento.inicio_em) }}</ion-text>
+              <div class="resumo-card">
+                <ion-text>{{
+                  formatarDuracao(agendamento.duracao_min)
+                }}</ion-text>
+                <strong>{{ formatarPreco(agendamento.preco_total) }}</strong>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        }
+      </div>
+    }
+  }
+</section>

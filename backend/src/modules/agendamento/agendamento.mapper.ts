@@ -2,10 +2,12 @@ import type {
   AgendaDiaResponseDto,
   AgendamentoAgendaResponseDto,
   AgendamentoDetalheResponseDto,
+  AgendamentoPublicoDetalheResponseDto,
   AgendamentoResponseDto,
   AvaliacaoHorarioAgendamentoResponseDto,
   HorariosLivresResponseDto,
   ResumoAgendaResponseDto,
+  ListaAgendamentosClienteResponseDto,
 } from '@fluy/schema';
 import type {
   AgendaDoDiaResultado,
@@ -15,6 +17,7 @@ import type {
   AvaliacaoHorarioAgendamento,
   ResumoDaAgendaResultado,
 } from '@/modules/agendamento/contracts';
+import type { ListaAgendamentosClienteResultado } from '@/modules/cliente/contracts';
 
 export function toAgendamentoResponse(
   agendamento: AgendamentoPersistido,
@@ -83,6 +86,44 @@ export function toAgendamentoDetalheResponse(
     acoes_permitidas: agendamento.acoesPermitidas,
     avisos: agendamento.avisos,
     remarcado_vezes: agendamento.remarcado_vezes,
+  };
+}
+
+export function toAgendamentoPublicoDetalheResponse(
+  agendamento: AgendamentoDetalheResultado,
+): AgendamentoPublicoDetalheResponseDto {
+  return {
+    id: agendamento.id,
+    inicio_em: agendamento.inicio_em.toISOString(),
+    duracao_min: agendamento.duracao_min,
+    estado: agendamento.estado,
+    procedimento: {
+      id: agendamento.procedimento.id,
+      nome: agendamento.procedimento.nome,
+    },
+    preco_total: Number(agendamento.preco_total),
+    valor_sinal: Number(agendamento.valor_sinal),
+    fuso_horario: agendamento.fusoHorario,
+  };
+}
+
+export function toListaAgendamentosPublicosResponse({
+  fusoHorario,
+  itens,
+  proximoCursor,
+}: ListaAgendamentosClienteResultado): ListaAgendamentosClienteResponseDto {
+  return {
+    fuso_horario: fusoHorario,
+    itens: itens.map((agendamento) => ({
+      id: agendamento.id,
+      inicio_em: agendamento.inicio_em.toISOString(),
+      duracao_min: agendamento.duracao_min,
+      estado: agendamento.estado,
+      procedimento: agendamento.procedimento,
+      preco_total: Number(agendamento.preco_total),
+      valor_sinal: Number(agendamento.valor_sinal),
+    })),
+    proximo_cursor: proximoCursor,
   };
 }
 

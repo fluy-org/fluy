@@ -18,7 +18,35 @@
     <app-cabecalho-publico [salao]="salaoAtual"></app-cabecalho-publico>
 
     <main class="conteudo-publico">
-      @if (catalogoAberto()) {
+      @if (meusAgendamentosAberto()) {
+      <app-meus-agendamentos
+        [agendamentos]="agendamentos()"
+        [fusoHorario]="fusoHorarioAgendamentos() ?? 'America/Sao_Paulo'"
+        [carregando]="carregandoAgendamentos()"
+        [erro]="erroAgendamentos()"
+        [detalhe]="detalheAgendamento()"
+        [carregandoDetalhe]="carregandoDetalheAgendamento()"
+        [confirmandoCancelamento]="confirmandoCancelamento()"
+        [cancelando]="cancelandoAgendamento()"
+        [erroCancelamento]="erroCancelamento()"
+        (voltar)="fecharMeusAgendamentos()"
+        (selecionar)="abrirDetalheAgendamento($event)"
+        (fecharDetalhe)="fecharDetalheAgendamento()"
+        (solicitarCancelamento)="solicitarCancelamento()"
+        (desistirCancelamento)="desistirCancelamento()"
+        (confirmarCancelamento)="cancelarAgendamento()"
+        (tentarNovamente)="carregarAgendamentos()"
+      ></app-meus-agendamentos>
+
+      @if (!detalheAgendamento() && proximoCursorAgendamentos()) {
+      <ion-infinite-scroll (ionInfinite)="carregarMaisAgendamentos($event)">
+        <ion-infinite-scroll-content
+          loadingSpinner="crescent"
+          loadingText="Carregando mais agendamentos..."
+        ></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+      }
+      } @else if (catalogoAberto()) {
       @if (!revisandoAgendamento() && !agendamentoCriado()) {
       <ion-button
         type="button"
@@ -135,6 +163,14 @@
 
         <ion-button type="button" expand="block" (click)="abrirCatalogo()">
           Continuar como {{ clienteAtual.nome }}
+        </ion-button>
+        <ion-button
+          type="button"
+          expand="block"
+          fill="outline"
+          (click)="abrirMeusAgendamentos()"
+        >
+          Meus agendamentos
         </ion-button>
         <ion-button
           type="button"

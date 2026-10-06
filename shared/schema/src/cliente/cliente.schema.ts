@@ -103,12 +103,14 @@ export const agendamentoClienteResponseSchema = z
   .object({
     id: z.uuid(),
     inicio_em: z.iso.datetime(),
+    duracao_min: z.number().int().positive(),
     estado: z.enum(ESTADO_AGENDAMENTO),
     procedimento: z.object({
       id: z.uuid(),
       nome: z.string(),
     }),
     preco_total: z.number().nonnegative(),
+    valor_sinal: z.number().nonnegative(),
   })
   .meta({ id: "AgendamentoClienteResponse" });
 

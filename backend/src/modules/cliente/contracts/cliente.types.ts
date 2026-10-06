@@ -73,8 +73,10 @@ export type ClienteFichaPersistido = {
 export type AgendamentoDaClientePersistido = {
     id: string;
     inicio_em: Date;
+    duracao_min: number;
     estado: EstadoAgendamento;
     preco_total: string;
+    valor_sinal: string;
     procedimento: {
         id: string;
         nome: string;

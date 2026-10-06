@@ -167,7 +167,7 @@ no horário certo.
 
 ### 4.3 Meus agendamentos e cancelamento
 
-- [ ] Lista dos agendamentos da cliente identificada e cancelamento do próprio agendamento. — **🔵 Leandro** — [DEP: 4.2](#42-criação-de-agendamento-pela-cliente) · [DEP: 3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento) `[SEED-OK]`
+- [x] Lista dos agendamentos da cliente identificada e cancelamento do próprio agendamento. — **🔵 Leandro** — [DEP: 4.2](#42-criação-de-agendamento-pela-cliente) · [DEP: 3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento) `[SEED-OK]`
 
 **O que deve existir**
 
