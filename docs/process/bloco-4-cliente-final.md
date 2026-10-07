@@ -174,7 +174,7 @@ no horário certo.
 *Backend*
 
 - Listagem dos agendamentos da cliente resolvida pela sessão do dispositivo — nunca por id de cliente vindo do request.
-- Cancelamento pela cliente, **consumindo o `AgendamentoCancelamentoService` de [3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento)**, com política de autorização própria: só os próprios agendamentos, e só em `agendado`.
+- Cancelamento pela cliente, **consumindo o `AgendamentoCancelamentoService` de [3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento)**, com política de autorização própria: só os próprios agendamentos, e só em `agendado`. Grava `cancelado_por = 'cliente'` no evento (entrou na [7.1](./bloco-7-faturamento.md#71-agregação-de-período)), que o faturamento usa como motivo do sinal retido.
 - **Sem antecedência mínima** — pode cancelar até segundos antes do horário.
 - Slot liberado imediatamente.
 - Estados terminais e agendamentos de outra cliente retornam erro; race com uma ação do salão resolve por "primeiro vence".

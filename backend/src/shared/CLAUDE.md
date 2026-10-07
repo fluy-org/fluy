@@ -13,6 +13,14 @@ contratos e implementações de storage, provedores externos e filtros.
 `storage/contracts`, por exemplo, define `STORAGE_PROVIDER` e
 `StorageProvider`; o módulo R2 conecta a implementação concreta.
 
+## Fragmentos de consulta compartilhados
+
+Quando duas ou mais features precisam da mesma regra dentro de uma query, o
+fragmento Drizzle mora aqui, em vez de ser copiado ou de uma feature importar o
+repository de outra. `recebimento/` guarda o "quanto entrou" usado pelo
+faturamento e pelo total gasto da ficha da cliente; `busca/` e `paginacao/`
+seguem a mesma ideia para busca e cursor.
+
 ## Resposta de erro
 
 `filters/all-exceptions.filter.ts` é global e é o **único** lugar que monta o

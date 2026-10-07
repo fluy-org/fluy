@@ -103,6 +103,7 @@ export class AgendamentoPublicoService {
       id,
       salaoId,
       dados: { motivo: 'Cancelado pela cliente.' },
+      canceladoPor: 'cliente',
       notificarCliente: false,
     });
 

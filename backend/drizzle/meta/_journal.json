@@ -71,6 +71,13 @@
       "when": 1791331166255,
       "tag": "0009_nifty_pandemic",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791384391593,
+      "tag": "0010_adicionar_autor_cancelamento_e_tipo_pagamento",
+      "breakpoints": true
     }
   ]
 }

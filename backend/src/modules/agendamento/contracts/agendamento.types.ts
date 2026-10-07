@@ -1,5 +1,6 @@
 import type {
   AcaoAgendamento,
+  AutorCancelamento,
   AvisoAcaoAgendamento,
   AvisoAvaliacaoAgendamento,
   BloqueioAvaliacaoAgendamento,
@@ -164,6 +165,7 @@ export type CancelarAgendamentoInput = {
   id: string;
   salaoId: string;
   dados: CancelarAgendamentoDto;
+  canceladoPor: AutorCancelamento;
   notificarCliente?: boolean;
 };
 
@@ -172,6 +174,7 @@ export type CancelarAgendamentoPersistenciaInput = {
   salaoId: string;
   ocorreuEm: Date;
   motivo: string | undefined;
+  canceladoPor: AutorCancelamento;
 };
 
 export type RemarcarAgendamentoInput = {

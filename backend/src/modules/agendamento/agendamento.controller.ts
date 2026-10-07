@@ -380,6 +380,7 @@ export class AgendamentoController {
         id,
         salaoId: tenant.salaoId,
         dados,
+        canceladoPor: 'salao',
       }),
     );
   }

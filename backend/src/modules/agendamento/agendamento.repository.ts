@@ -301,6 +301,7 @@ export class AgendamentoRepository {
         await tx.insert(pagamentoAgendamento).values({
           agendamento_id: agendamentoConcluido.id,
           cobranca_manual_id: cobrancasCriadas[0].id,
+          tipo: 'restante',
         });
       }
 
@@ -363,6 +364,7 @@ export class AgendamentoRepository {
     salaoId,
     ocorreuEm,
     motivo,
+    canceladoPor,
   }: CancelarAgendamentoPersistenciaInput): Promise<
     AgendamentoPersistido | undefined
   > {
@@ -392,6 +394,7 @@ export class AgendamentoRepository {
         tipo: 'cancelado',
         ocorreu_em: ocorreuEm,
         motivo,
+        cancelado_por: canceladoPor,
       });
 
       return agendamentoCancelado;

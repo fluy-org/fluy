@@ -176,6 +176,7 @@ describe('AgendamentoPublicoService', () => {
       id: 'agendamento-1',
       salaoId: 'salao-do-path',
       dados: { motivo: 'Cancelado pela cliente.' },
+      canceladoPor: 'cliente',
       notificarCliente: false,
     });
     expect(notificarCancelamentoPelaCliente).toHaveBeenCalledWith(

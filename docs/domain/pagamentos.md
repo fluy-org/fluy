@@ -123,6 +123,7 @@ Registra dinheiro que entrou **fora do gateway** — pagamento presencial (dinhe
 | `agendamento_id` | UUID | Sim | Agendamento coberto. |
 | `cobranca_gateway_id` | UUID | Não | Cobrança de gateway referenciada. |
 | `cobranca_manual_id` | UUID | Não | Cobrança manual referenciada. |
+| `tipo` | tipo_pagamento_agendamento | Sim | Se a cobrança pagou o sinal ou o restante. A conclusão grava `restante`; o pagamento online do sinal grava `sinal`. |
 
 **Regra:** exatamente um entre `cobranca_gateway_id` e `cobranca_manual_id` é preenchido (XOR).
 
@@ -221,6 +222,13 @@ Valores efetivos dependem do gateway escolhido (Woovi = só `pix`; Asaas = `pix`
 | `confirmada` | Pagamento confirmado pelo gateway. |
 | `expirada` | Prazo de pagamento no gateway expirou. |
 | `falhou` | Tentativa de pagamento recusada. |
+
+### `tipo_pagamento_agendamento`
+
+| Valor | Significado |
+|---|---|
+| `sinal` | Cobrança do sinal, paga antes do atendimento. |
+| `restante` | Cobrança do valor restante, registrada na conclusão. |
 
 ### `metodo_pagamento_manual`
 

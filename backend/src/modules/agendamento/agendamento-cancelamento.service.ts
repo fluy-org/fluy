@@ -25,6 +25,7 @@ export class AgendamentoCancelamentoService {
     id,
     salaoId,
     dados,
+    canceladoPor,
     notificarCliente = true,
   }: CancelarAgendamentoInput): Promise<AgendamentoDetalheResultado> {
     const agendamento = await this.agendamentoRepository.buscarDetalhe({
@@ -46,6 +47,7 @@ export class AgendamentoCancelamentoService {
       // O faturamento usa a data do cancelamento, não a de `inicio_em`.
       ocorreuEm: new Date(),
       motivo: dados.motivo,
+      canceladoPor,
     });
 
     if (!cancelado) {

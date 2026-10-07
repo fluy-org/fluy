@@ -1,8 +1,9 @@
 import { relations, sql } from 'drizzle-orm';
-import { pgTable, uuid, check } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, check } from 'drizzle-orm/pg-core';
 import { agendamento } from '@schema/agendamento/agendamento.table.js';
 import { cobrancaGateway } from '@schema/cobranca_gateway/cobranca_gateway.table.js';
 import { cobrancaManual } from '@schema/cobranca_manual/cobranca_manual.table.js';
+import type { TipoPagamentoAgendamento } from './pagamento_agendamento.enums.js';
 
 export const pagamentoAgendamento = pgTable(
   'pagamento_agendamento',
@@ -17,6 +18,7 @@ export const pagamentoAgendamento = pgTable(
     cobranca_manual_id: uuid('cobranca_manual_id').references(() => cobrancaManual.id, {
       onDelete: 'restrict',
     }),
+    tipo: varchar('tipo', { length: 20 }).notNull().$type<TipoPagamentoAgendamento>(),
   },
   (t) => [
     check(

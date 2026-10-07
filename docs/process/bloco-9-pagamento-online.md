@@ -43,7 +43,7 @@ dentro do motor.
 - Criação de cobrança no gateway escolhido, com `idempotency_key`.
 - Recebimento de webhook, com registro em `webhook_gateway_evento` e normalização do tipo bruto do gateway.
 - **Dedupe idempotente:** o mesmo evento chegando duas vezes não pode gerar dois agendamentos nem dois pagamentos. Regra crítica e com teste obrigatório ([CLAUDE.md](../../CLAUDE.md)).
-- Vínculo `cobranca_gateway` → `pagamento_agendamento` → `agendamento`.
+- Vínculo `cobranca_gateway` → `pagamento_agendamento` → `agendamento`, gravando `pagamento_agendamento.tipo` (`sinal` ou `restante`) — é por ele que o [faturamento](./bloco-7-faturamento.md) separa as colunas de sinal e restante.
 - Tratamento de pagamento recusado e expirado.
 
 *Backend — estado reservado*
@@ -114,7 +114,7 @@ recusar o pagamento e tentar de novo dentro do prazo.
 - Escolha de tratamento do sinal no modal de cancelamento da [3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento), com o padrão sugerido sendo reembolsar (é decisão do salão, não da cliente).
 - Reembolso via gateway, registrado em `reembolso`.
 - Estado **"reembolso pendente" com retry** quando o gateway falha — o agendamento fica `cancelado` de qualquer forma, mas o dinheiro fica sinalizado.
-- Reflexo no [Bloco 7](./bloco-7-faturamento.md): cancelamento com reembolso **não** é receita; sem reembolso, o sinal retido aparece na seção 4.
+- Reflexo no [Bloco 7](./bloco-7-faturamento.md): cancelamento com reembolso **não** é receita; sem reembolso, o sinal retido aparece na seção 4. O reembolso é descontado no período em que foi confirmado, nunca reabre período fechado (ambig #5) — a 7.1 ainda não desconta reembolso no faturamento por período.
 - Cancelamento pela cliente e no-show continuam sempre retendo o sinal.
 
 **Decisões que precisam estar fechadas antes**

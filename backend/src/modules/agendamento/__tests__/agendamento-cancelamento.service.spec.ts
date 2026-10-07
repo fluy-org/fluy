@@ -34,7 +34,12 @@ describe('AgendamentoCancelamentoService', () => {
     new AgendamentoValidator(),
     { notificarCancelamento } as unknown as AgendamentoAvisoService,
   );
-  const entrada = { id: 'agendamento-ana', salaoId: 'salao-ana', dados: {} };
+  const entrada = {
+    id: 'agendamento-ana',
+    salaoId: 'salao-ana',
+    dados: {},
+    canceladoPor: 'salao' as const,
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -74,6 +79,14 @@ describe('AgendamentoCancelamentoService', () => {
 
     expect(cancelarNoRepository).toHaveBeenCalledWith(
       expect.objectContaining({ motivo: 'Profissional doente' }),
+    );
+  });
+
+  it('repassa quem cancelou até o repository', async () => {
+    await service.cancelar({ ...entrada, canceladoPor: 'cliente' });
+
+    expect(cancelarNoRepository).toHaveBeenCalledWith(
+      expect.objectContaining({ canceladoPor: 'cliente' }),
     );
   });
 
