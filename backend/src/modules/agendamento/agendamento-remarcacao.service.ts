@@ -22,6 +22,7 @@ import { AgendamentoDisponibilidadeService } from '@/modules/agendamento/agendam
 import { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { AgendamentoValidator } from '@/modules/agendamento/agendamento.validator';
+import { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.service';
 
 @Injectable()
 export class AgendamentoRemarcacaoService {
@@ -30,6 +31,7 @@ export class AgendamentoRemarcacaoService {
     private readonly agendamentoRepository: AgendamentoRepository,
     private readonly agendamentoService: AgendamentoService,
     private readonly agendamentoValidator: AgendamentoValidator,
+    private readonly agendamentoAvisoService: AgendamentoAvisoService,
   ) {}
 
   async listarHorariosLivres({
@@ -113,7 +115,16 @@ export class AgendamentoRemarcacaoService {
       );
     }
 
-    return this.agendamentoService.buscarDetalhe({ id, salaoId });
+    const detalhe = await this.agendamentoService.buscarDetalhe({
+      id,
+      salaoId,
+    });
+    await this.agendamentoAvisoService.notificarRemarcacao({
+      anterior: agendamento,
+      atual: detalhe,
+    });
+
+    return detalhe;
   }
 
   private async avaliar({

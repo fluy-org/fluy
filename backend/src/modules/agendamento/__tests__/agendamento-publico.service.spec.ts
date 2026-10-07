@@ -10,11 +10,21 @@ jest.mock('@/modules/agendamento/agendamento-cancelamento.service', () => ({
   AgendamentoCancelamentoService: class AgendamentoCancelamentoService {},
 }));
 
+jest.mock('@/modules/aviso/calendario-ics.service', () => ({
+  CalendarioIcsService: class CalendarioIcsService {},
+}));
+
+jest.mock('@/modules/aviso/agendamento-aviso.service', () => ({
+  AgendamentoAvisoService: class AgendamentoAvisoService {},
+}));
+
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import type { AgendamentoCancelamentoService } from '@/modules/agendamento/agendamento-cancelamento.service';
 import { AgendamentoPublicoService } from '@/modules/agendamento/agendamento-publico.service';
 import type { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import type { ClienteService } from '@/modules/cliente/cliente.service';
+import type { CalendarioIcsService } from '@/modules/aviso/calendario-ics.service';
+import type { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.service';
 
 describe('AgendamentoPublicoService', () => {
   const listarHorariosLivres = jest.fn();
@@ -23,6 +33,9 @@ describe('AgendamentoPublicoService', () => {
   const cancelar = jest.fn();
   const listarAgendamentos = jest.fn();
   const resolverSessaoPublica = jest.fn();
+  const gerarCalendario = jest.fn();
+  const notificarCriacaoPublica = jest.fn();
+  const notificarCancelamentoPelaCliente = jest.fn();
   const service = new AgendamentoPublicoService(
     {
       listarHorariosLivres,
@@ -34,6 +47,11 @@ describe('AgendamentoPublicoService', () => {
       resolverSessaoPublica,
       listarAgendamentos,
     } as unknown as ClienteService,
+    { gerar: gerarCalendario } as unknown as CalendarioIcsService,
+    {
+      notificarCriacaoPublica,
+      notificarCancelamentoPelaCliente,
+    } as unknown as AgendamentoAvisoService,
   );
   const dados = {
     credencial: 'ca76ae02-2e2f-4d50-b7c6-d0d2a45523b3',
@@ -75,6 +93,10 @@ describe('AgendamentoPublicoService', () => {
   it('cria usando a cliente da sessao e revalida pelo motor', async () => {
     resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
     criar.mockResolvedValue({ id: 'agendamento-1' });
+    buscarDetalhe.mockResolvedValue({
+      id: 'agendamento-1',
+      cliente: { id: 'cliente-da-sessao' },
+    });
 
     await service.criar({
       salaoId: 'salao-do-path',
@@ -88,6 +110,7 @@ describe('AgendamentoPublicoService', () => {
     expect(criar).toHaveBeenCalledWith({
       salaoId: 'salao-do-path',
       bloquearProcedimentoDuplicadoNoDia: true,
+      notificarCliente: false,
       dados: {
         cliente_id: 'cliente-da-sessao',
         procedimento_id: dados.procedimento_id,
@@ -96,6 +119,9 @@ describe('AgendamentoPublicoService', () => {
         confirmar_excecoes: false,
       },
     });
+    expect(notificarCriacaoPublica).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'agendamento-1' }),
+    );
   });
 
   it('lista somente os agendamentos da cliente resolvida pela sessao', async () => {
@@ -135,7 +161,10 @@ describe('AgendamentoPublicoService', () => {
       estado: 'agendado',
       cliente: { id: 'cliente-da-sessao' },
     });
-    cancelar.mockResolvedValue({ estado: 'cancelado' });
+    cancelar.mockResolvedValue({
+      id: 'agendamento-1',
+      estado: 'cancelado',
+    });
 
     await service.cancelar({
       id: 'agendamento-1',
@@ -147,7 +176,31 @@ describe('AgendamentoPublicoService', () => {
       id: 'agendamento-1',
       salaoId: 'salao-do-path',
       dados: { motivo: 'Cancelado pela cliente.' },
+      notificarCliente: false,
     });
+    expect(notificarCancelamentoPelaCliente).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'agendamento-1' }),
+    );
+  });
+
+  it('gera calendário apenas para agendamento da cliente da sessão', async () => {
+    const agendamento = {
+      id: 'agendamento-1',
+      cliente: { id: 'cliente-da-sessao' },
+    };
+    const calendario = { conteudo: 'BEGIN:VCALENDAR', metodo: 'REQUEST' };
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    buscarDetalhe.mockResolvedValue(agendamento);
+    gerarCalendario.mockResolvedValue(calendario);
+
+    await expect(
+      service.gerarCalendario({
+        id: agendamento.id,
+        salaoId: 'salao-do-path',
+        dados: { credencial: dados.credencial },
+      }),
+    ).resolves.toBe(calendario);
+    expect(gerarCalendario).toHaveBeenCalledWith(agendamento);
   });
 
   it('rejeita o cancelamento de agendamento encerrado', async () => {

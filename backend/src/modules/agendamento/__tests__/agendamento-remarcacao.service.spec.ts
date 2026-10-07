@@ -4,6 +4,10 @@ jest.mock('@/modules/agendamento/agendamento.service', () => ({
   AgendamentoService: class {},
 }));
 
+jest.mock('@/modules/aviso/agendamento-aviso.service', () => ({
+  AgendamentoAvisoService: class {},
+}));
+
 import {
   BadRequestException,
   ConflictException,
@@ -18,6 +22,7 @@ import { AgendamentoRemarcacaoService } from '@/modules/agendamento/agendamento-
 import type { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import type { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { AgendamentoValidator } from '@/modules/agendamento/agendamento.validator';
+import type { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.service';
 
 describe('AgendamentoRemarcacaoService', () => {
   const avaliarHorarioNoMotor = jest.fn();
@@ -27,6 +32,7 @@ describe('AgendamentoRemarcacaoService', () => {
   const buscarDadosParaAvaliacao = jest.fn();
   const montarDadosParaAvaliar = jest.fn();
   const buscarDetalheNoService = jest.fn();
+  const notificarRemarcacao = jest.fn();
   const motor = {
     avaliarHorario: avaliarHorarioNoMotor,
     listarHorariosLivres: listarHorariosLivresNoMotor,
@@ -45,6 +51,7 @@ describe('AgendamentoRemarcacaoService', () => {
     repository,
     agendamentoService,
     new AgendamentoValidator(),
+    { notificarRemarcacao } as unknown as AgendamentoAvisoService,
   );
   // 10:00 em America/Sao_Paulo no dia pedido.
   const INICIO_NOVO = new Date('2026-09-16T13:00:00.000Z');
@@ -74,6 +81,7 @@ describe('AgendamentoRemarcacaoService', () => {
     listarHorariosLivresNoMotor.mockReturnValue(['09:00', '10:00']);
     remarcarNoRepository.mockResolvedValue({ id: entrada.id });
     buscarDetalheNoService.mockResolvedValue({ id: entrada.id });
+    notificarRemarcacao.mockResolvedValue(undefined);
   });
 
   it('não encontra agendamento de outro salão', async () => {
@@ -256,6 +264,17 @@ describe('AgendamentoRemarcacaoService', () => {
       salaoId: entrada.salaoId,
     });
     expect(detalhe).toEqual({ id: entrada.id });
+  });
+
+  it('avisa a cliente com os horários anterior e atual', async () => {
+    const anterior = criarAgendamentoPersistido();
+    const atual = { id: entrada.id, inicio_em: INICIO_NOVO };
+    buscarDetalheNoRepository.mockResolvedValue(anterior);
+    buscarDetalheNoService.mockResolvedValue(atual);
+
+    await service.remarcar(entrada);
+
+    expect(notificarRemarcacao).toHaveBeenCalledWith({ anterior, atual });
   });
 
   describe('listarHorariosLivres', () => {

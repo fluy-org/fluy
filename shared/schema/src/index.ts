@@ -29,6 +29,7 @@ import * as imagemProcedimentoSchema from './imagem_procedimento/index.js';
 import * as anexoAgendamentoSchema from './anexo_agendamento/index.js';
 import * as notaSchema from './nota/index.js';
 import * as lembreteSchema from './lembrete/index.js';
+import * as avisoSchema from './aviso/index.js';
 
 export * from './salao/index.js';
 export * from './usuario/index.js';
@@ -54,6 +55,7 @@ export * from './imagem_procedimento/index.js';
 export * from './anexo_agendamento/index.js';
 export * from './nota/index.js';
 export * from './lembrete/index.js';
+export * from './aviso/index.js';
 export * from './whatsapp/index.js';
 
 export const schema = {
@@ -81,6 +83,7 @@ export const schema = {
   ...anexoAgendamentoSchema,
   ...notaSchema,
   ...lembreteSchema,
+  ...avisoSchema,
 } as const;
 
 export type Schema = typeof schema;

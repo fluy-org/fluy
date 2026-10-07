@@ -15,10 +15,12 @@ import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
 import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-configuracao.module';
 import { SalaoModule } from '@/modules/salao/salao.module';
 import { ClienteModule } from '@/modules/cliente/cliente.module';
+import { AvisoModule } from '@/modules/aviso/aviso.module';
 
 @Module({
   imports: [
     ClienteModule,
+    AvisoModule,
     DisponibilidadeModule,
     ProcedimentoModule,
     SalaoConfiguracaoModule,

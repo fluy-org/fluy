@@ -38,6 +38,7 @@ import { ProcedimentoService } from '@/modules/procedimento/procedimento.service
 import { SalaoConfiguracaoService } from '@/modules/salao-configuracao/salao-configuracao.service';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 import { ClienteService } from '@/modules/cliente/cliente.service';
+import { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.service';
 
 @Injectable()
 export class AgendamentoService {
@@ -50,6 +51,7 @@ export class AgendamentoService {
     private readonly salaoConfiguracaoService: SalaoConfiguracaoService,
     private readonly salaoConsultaService: SalaoConsultaService,
     private readonly clienteService: ClienteService,
+    private readonly agendamentoAvisoService: AgendamentoAvisoService,
   ) {}
 
   async listarHorariosLivres({
@@ -183,10 +185,12 @@ export class AgendamentoService {
     salaoId,
     dados,
     bloquearProcedimentoDuplicadoNoDia = false,
+    notificarCliente = false,
   }: {
     salaoId: string;
     dados: CriarAgendamentoDto;
     bloquearProcedimentoDuplicadoNoDia?: boolean;
+    notificarCliente?: boolean;
   }) {
     await this.clienteService.buscarPorId({
       id: dados.cliente_id,
@@ -208,9 +212,9 @@ export class AgendamentoService {
 
     if (
       bloquearProcedimentoDuplicadoNoDia &&
-      await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
+      (await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
         escopoDuplicidade,
-      )
+      ))
     ) {
       throw new ConflictException(
         'A cliente já possui este procedimento agendado neste dia.',
@@ -252,9 +256,9 @@ export class AgendamentoService {
     if (!agendamento) {
       if (
         bloquearProcedimentoDuplicadoNoDia &&
-        await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
+        (await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
           escopoDuplicidade,
-        )
+        ))
       ) {
         throw new ConflictException(
           'A cliente já possui este procedimento agendado neste dia.',
@@ -262,6 +266,12 @@ export class AgendamentoService {
       }
 
       throw new ConflictException('O horário deixou de estar disponível.');
+    }
+
+    if (notificarCliente) {
+      await this.agendamentoAvisoService.notificarCriacaoManual(
+        await this.buscarDetalhe({ id: agendamento.id, salaoId }),
+      );
     }
 
     return agendamento;

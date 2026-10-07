@@ -16,6 +16,7 @@ import type {
 import { TAMANHO_PAGINA_LEMBRETES } from '@/modules/lembrete/lembrete-data';
 import { calcularJanelaDoPeriodo } from '@/modules/lembrete/lembrete-utils';
 import { LembreteRepository } from '@/modules/lembrete/lembrete.repository';
+import { LembreteNotificacaoService } from '@/modules/lembrete/lembrete-notificacao.service';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 import { utcParaDataHoraCivil } from '@/shared/horario-salao/horario-salao.utils';
 import {
@@ -29,6 +30,7 @@ export class LembreteService {
     private readonly lembreteRepository: LembreteRepository,
     private readonly clienteService: ClienteService,
     private readonly salaoConsultaService: SalaoConsultaService,
+    private readonly lembreteNotificacaoService: LembreteNotificacaoService,
   ) {}
 
   async listar({
@@ -91,6 +93,7 @@ export class LembreteService {
       dados,
       autorId: usuarioSalaoId,
     });
+    await this.lembreteNotificacaoService.processarVencidosDoSalao(salaoId);
 
     return {
       ...lembreteCriado,
@@ -102,11 +105,20 @@ export class LembreteService {
     input: AtualizarLembreteInput,
   ): Promise<LembreteComClientePersistido> {
     const lembreteAtivo = await this.buscarAtivo(input);
-    const lembreteAtualizado = await this.lembreteRepository.atualizar(input);
+    const lembreteAtualizado = await this.lembreteRepository.atualizar({
+      ...input,
+      reiniciarNotificacao:
+        input.dados.data_alvo !== undefined &&
+        input.dados.data_alvo !== lembreteAtivo.data_alvo,
+    });
 
     if (!lembreteAtualizado) {
       throw new ConflictException('Este lembrete já foi concluído.');
     }
+
+    await this.lembreteNotificacaoService.processarVencidosDoSalao(
+      input.salaoId,
+    );
 
     return { ...lembreteAtualizado, cliente: lembreteAtivo.cliente };
   }

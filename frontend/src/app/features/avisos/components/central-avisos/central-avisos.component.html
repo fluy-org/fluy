@@ -1,0 +1,147 @@
+<ion-button
+  type="button"
+  class="acionador"
+  fill="clear"
+  [attr.aria-label]="
+    aberto() ? 'Central de avisos aberta' : 'Abrir central de avisos'
+  "
+  [attr.aria-expanded]="aberto()"
+  (click)="abrir()"
+>
+  <ion-icon name="notifications-outline" aria-hidden="true"></ion-icon>
+  @if (avisos().length > 0) {
+    <ion-badge>
+      {{ proximoCursor() ? avisos().length + "+" : avisos().length }}
+    </ion-badge>
+  }
+</ion-button>
+
+@if (aberto()) {
+  <section class="painel-avisos" aria-label="Central de avisos">
+    <div class="cabecalho-avisos">
+      <div>
+        <ion-text class="titulo">Avisos</ion-text>
+        <ion-text class="subtitulo"
+          >Atualizações que precisam da sua atenção.</ion-text
+        >
+      </div>
+      <ion-button
+        type="button"
+        fill="clear"
+        aria-label="Fechar central de avisos"
+        (click)="fechar()"
+      >
+        <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </div>
+
+    @if (carregando()) {
+      <div class="estado-avisos" role="status">
+        <ion-spinner name="crescent"></ion-spinner>
+        <ion-text>Carregando avisos...</ion-text>
+      </div>
+    } @else if (erro()) {
+      <div class="estado-avisos estado-erro" role="alert">
+        <ion-text>{{ erro() }}</ion-text>
+        <ion-button
+          type="button"
+          fill="outline"
+          size="small"
+          (click)="carregar()"
+        >
+          Tentar novamente
+        </ion-button>
+      </div>
+    } @else if (avisos().length === 0) {
+      <div class="estado-avisos">
+        <ion-icon name="checkmark-outline" aria-hidden="true"></ion-icon>
+        <ion-text>Nenhum aviso pendente.</ion-text>
+      </div>
+    } @else {
+      <div class="lista-avisos">
+        @for (aviso of avisos(); track aviso.id) {
+          <article class="aviso">
+            <ion-text class="titulo-aviso">{{ aviso.titulo }}</ion-text>
+            <ion-text class="mensagem-aviso">{{ aviso.mensagem }}</ion-text>
+            <ion-text class="data-aviso">{{
+              formatarData(aviso.criado_em)
+            }}</ion-text>
+            @if (escopo() === "cliente" && aviso.agendamento_id) {
+              <div class="acoes-aviso">
+                @if (textoAcaoCalendario(aviso); as textoCalendario) {
+                  <ion-button
+                    type="button"
+                    fill="outline"
+                    size="small"
+                    [disabled]="baixandoCalendarioId() !== null"
+                    (click)="baixarCalendario(aviso)"
+                  >
+                    @if (baixandoCalendarioId() === aviso.id) {
+                      <ion-spinner name="crescent"></ion-spinner>
+                    } @else {
+                      <ion-icon
+                        slot="start"
+                        name="calendar-outline"
+                        aria-hidden="true"
+                      ></ion-icon>
+                      {{ textoCalendario }}
+                    }
+                  </ion-button>
+                }
+                <ion-button
+                  type="button"
+                  fill="clear"
+                  size="small"
+                  (click)="selecionarAgendamento.emit(aviso.agendamento_id)"
+                >
+                  <ion-icon
+                    slot="start"
+                    name="open-outline"
+                    aria-hidden="true"
+                  ></ion-icon>
+                  Ver agendamento
+                </ion-button>
+              </div>
+            }
+            <ion-button
+              type="button"
+              fill="clear"
+              size="small"
+              [disabled]="reconhecendoId() !== null"
+              (click)="reconhecer(aviso)"
+            >
+              @if (reconhecendoId() === aviso.id) {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                <ion-icon
+                  slot="start"
+                  name="checkmark-outline"
+                  aria-hidden="true"
+                ></ion-icon>
+                Marcar como visto
+              }
+            </ion-button>
+          </article>
+        }
+      </div>
+
+      @if (proximoCursor()) {
+        <ion-button
+          type="button"
+          expand="block"
+          fill="outline"
+          [disabled]="carregandoMais()"
+          (click)="carregar(proximoCursor()!)"
+        >
+          {{ carregandoMais() ? "Carregando..." : "Carregar mais" }}
+        </ion-button>
+      }
+
+      @if (erroCalendario()) {
+        <ion-text class="erro-calendario" role="alert">
+          {{ erroCalendario() }}
+        </ion-text>
+      }
+    }
+  </section>
+}

@@ -10,18 +10,21 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
-import { agendamento, cliente, lembrete } from '@fluy/schema';
+import { agendamento, cliente, lembrete, salao } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
 import { InjectDatabase } from '@/database/inject-database.decorator';
 import type { Database } from '@/database/database.provider';
 import type {
-  AtualizarLembreteInput,
+  AtualizarLembretePersistenciaInput,
   BuscarLembreteInput,
   ConcluirLembretePersistenciaInput,
   CriarLembretePersistenciaInput,
   LembreteComClientePersistido,
   LembretePersistido,
+  LembreteVencidoPersistido,
   ListarLembretePersistenciaInput,
+  ListarLembretesVencidosInput,
+  MarcarLembreteNotificadoInput,
   PossuiAgendamentoDaClienteInput,
 } from '@/modules/lembrete/contracts';
 import {
@@ -129,10 +132,16 @@ export class LembreteRepository {
     id,
     salaoId,
     dados,
-  }: AtualizarLembreteInput): Promise<LembretePersistido | undefined> {
+    reiniciarNotificacao,
+  }: AtualizarLembretePersistenciaInput): Promise<
+    LembretePersistido | undefined
+  > {
     const lembretesAtualizados = await this.database
       .update(lembrete)
-      .set(dados)
+      .set({
+        ...dados,
+        ...(reiniciarNotificacao ? { notificado_em: null } : {}),
+      })
       .where(
         and(
           eq(lembrete.id, id),
@@ -173,6 +182,59 @@ export class LembreteRepository {
     await this.database
       .delete(lembrete)
       .where(and(eq(lembrete.id, id), this.pertenceACliente({ salaoId })));
+  }
+
+  async listarVencidosParaNotificacao({
+    salaoId,
+    limite,
+  }: ListarLembretesVencidosInput): Promise<LembreteVencidoPersistido[]> {
+    return this.database
+      .select({
+        id: lembrete.id,
+        salaoId: cliente.salao_id,
+        texto: lembrete.texto,
+        cliente: {
+          id: cliente.id,
+          nome: cliente.nome,
+        },
+      })
+      .from(lembrete)
+      .innerJoin(cliente, eq(cliente.id, lembrete.cliente_id))
+      .innerJoin(salao, eq(salao.id, cliente.salao_id))
+      .where(
+        and(
+          eq(lembrete.status, 'ativo'),
+          isNull(lembrete.notificado_em),
+          isNull(cliente.removido_em),
+          salaoId ? eq(cliente.salao_id, salaoId) : undefined,
+          lte(
+            lembrete.data_alvo,
+            sql`(current_timestamp at time zone ${salao.fuso_horario})::date`,
+          ),
+        ),
+      )
+      .orderBy(asc(lembrete.data_alvo), asc(lembrete.id))
+      .limit(limite);
+  }
+
+  async marcarNotificado({
+    id,
+    salaoId,
+    notificadoEm,
+  }: MarcarLembreteNotificadoInput): Promise<LembretePersistido | undefined> {
+    const lembretes = await this.database
+      .update(lembrete)
+      .set({ notificado_em: notificadoEm })
+      .where(
+        and(
+          eq(lembrete.id, id),
+          isNull(lembrete.notificado_em),
+          this.pertenceACliente({ salaoId }),
+        ),
+      )
+      .returning();
+
+    return lembretes[0];
   }
 
   private selecionarComCliente() {

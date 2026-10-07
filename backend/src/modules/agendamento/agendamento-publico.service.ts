@@ -13,6 +13,8 @@ import type {
 import { AgendamentoCancelamentoService } from '@/modules/agendamento/agendamento-cancelamento.service';
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { ClienteService } from '@/modules/cliente/cliente.service';
+import { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.service';
+import { CalendarioIcsService } from '@/modules/aviso/calendario-ics.service';
 
 @Injectable()
 export class AgendamentoPublicoService {
@@ -20,6 +22,8 @@ export class AgendamentoPublicoService {
     private readonly agendamentoService: AgendamentoService,
     private readonly agendamentoCancelamentoService: AgendamentoCancelamentoService,
     private readonly clienteService: ClienteService,
+    private readonly calendarioIcsService: CalendarioIcsService,
+    private readonly agendamentoAvisoService: AgendamentoAvisoService,
   ) {}
 
   async listar({
@@ -66,6 +70,20 @@ export class AgendamentoPublicoService {
     return agendamento;
   }
 
+  async gerarCalendario({
+    id,
+    salaoId,
+    dados,
+  }: {
+    id: string;
+    salaoId: string;
+    dados: ConsultarAgendamentoPublicoQueryDto;
+  }) {
+    const agendamento = await this.buscarDetalhe({ id, salaoId, dados });
+
+    return this.calendarioIcsService.gerar(agendamento);
+  }
+
   async cancelar({
     id,
     salaoId,
@@ -81,11 +99,18 @@ export class AgendamentoPublicoService {
       throw new ConflictException('Este agendamento não pode ser cancelado.');
     }
 
-    return this.agendamentoCancelamentoService.cancelar({
+    const cancelado = await this.agendamentoCancelamentoService.cancelar({
       id,
       salaoId,
       dados: { motivo: 'Cancelado pela cliente.' },
+      notificarCliente: false,
     });
+
+    await this.agendamentoAvisoService.notificarCancelamentoPelaCliente(
+      cancelado,
+    );
+
+    return cancelado;
   }
 
   async listarHorariosLivres({
@@ -121,9 +146,10 @@ export class AgendamentoPublicoService {
       credencial: dados.credencial,
     });
 
-    return this.agendamentoService.criar({
+    const criado = await this.agendamentoService.criar({
       salaoId,
       bloquearProcedimentoDuplicadoNoDia: true,
+      notificarCliente: false,
       dados: {
         cliente_id: cliente.id,
         procedimento_id: dados.procedimento_id,
@@ -132,6 +158,15 @@ export class AgendamentoPublicoService {
         confirmar_excecoes: dados.confirmar_excecoes,
       },
     });
+
+    await this.agendamentoAvisoService.notificarCriacaoPublica(
+      await this.agendamentoService.buscarDetalhe({
+        id: criado.id,
+        salaoId,
+      }),
+    );
+
+    return criado;
   }
 
   private async resolverCliente({

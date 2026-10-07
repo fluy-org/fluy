@@ -55,7 +55,14 @@
   font-size: var(--fluy-font-size-small);
 }
 
-ion-icon {
+.acoes-cabecalho {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--fluy-space-1);
+}
+
+.acoes-cabecalho > ion-icon {
   flex: 0 0 auto;
   font-size: 1.6rem;
 }

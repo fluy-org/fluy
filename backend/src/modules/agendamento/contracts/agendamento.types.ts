@@ -164,6 +164,7 @@ export type CancelarAgendamentoInput = {
   id: string;
   salaoId: string;
   dados: CancelarAgendamentoDto;
+  notificarCliente?: boolean;
 };
 
 export type CancelarAgendamentoPersistenciaInput = {

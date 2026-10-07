@@ -4,17 +4,23 @@ jest.mock('@/modules/agendamento/agendamento.service', () => ({
   AgendamentoService: class {},
 }));
 
+jest.mock('@/modules/aviso/agendamento-aviso.service', () => ({
+  AgendamentoAvisoService: class {},
+}));
+
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import type { AgendamentoDaAgendaPersistido } from '@/modules/agendamento/contracts';
 import { AgendamentoCancelamentoService } from '@/modules/agendamento/agendamento-cancelamento.service';
 import type { AgendamentoRepository } from '@/modules/agendamento/agendamento.repository';
 import type { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { AgendamentoValidator } from '@/modules/agendamento/agendamento.validator';
+import type { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.service';
 
 describe('AgendamentoCancelamentoService', () => {
   const buscarDetalheNoRepository = jest.fn();
   const cancelarNoRepository = jest.fn();
   const buscarDetalheNoService = jest.fn();
+  const notificarCancelamento = jest.fn();
   const repository = {
     buscarDetalhe: buscarDetalheNoRepository,
     cancelar: cancelarNoRepository,
@@ -26,6 +32,7 @@ describe('AgendamentoCancelamentoService', () => {
     repository,
     agendamentoService,
     new AgendamentoValidator(),
+    { notificarCancelamento } as unknown as AgendamentoAvisoService,
   );
   const entrada = { id: 'agendamento-ana', salaoId: 'salao-ana', dados: {} };
 
@@ -34,6 +41,7 @@ describe('AgendamentoCancelamentoService', () => {
     buscarDetalheNoRepository.mockResolvedValue(criarAgendamentoPersistido());
     cancelarNoRepository.mockResolvedValue({ id: entrada.id });
     buscarDetalheNoService.mockResolvedValue({ id: entrada.id });
+    notificarCancelamento.mockResolvedValue(undefined);
   });
 
   it('não encontra agendamento de outro salão', async () => {
@@ -120,6 +128,21 @@ describe('AgendamentoCancelamentoService', () => {
       salaoId: entrada.salaoId,
     });
     expect(detalhe).toEqual({ id: entrada.id });
+  });
+
+  it('cria o aviso da cliente quando o salão cancela', async () => {
+    const detalhe = { id: entrada.id, estado: 'cancelado' };
+    buscarDetalheNoService.mockResolvedValue(detalhe);
+
+    await service.cancelar(entrada);
+
+    expect(notificarCancelamento).toHaveBeenCalledWith(detalhe);
+  });
+
+  it('não avisa a cliente sobre o cancelamento feito por ela mesma', async () => {
+    await service.cancelar({ ...entrada, notificarCliente: false });
+
+    expect(notificarCancelamento).not.toHaveBeenCalled();
   });
 });
 

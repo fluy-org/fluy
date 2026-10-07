@@ -39,6 +39,10 @@ export type AtualizarLembreteInput = BuscarLembreteInput & {
   dados: AtualizarLembreteDto;
 };
 
+export type AtualizarLembretePersistenciaInput = AtualizarLembreteInput & {
+  reiniciarNotificacao: boolean;
+};
+
 export type ConcluirLembretePersistenciaInput = BuscarLembreteInput & {
   concluidoEm: Date;
 };
@@ -78,3 +82,19 @@ export type ListaLembretesResultado =
   PaginaResultado<LembreteComClientePersistido> & {
     fusoHorario: FusoHorarioBrasil;
   };
+
+export type LembreteVencidoPersistido = {
+  id: string;
+  salaoId: string;
+  texto: string;
+  cliente: ClienteDoLembretePersistida;
+};
+
+export type ListarLembretesVencidosInput = {
+  salaoId?: string;
+  limite: number;
+};
+
+export type MarcarLembreteNotificadoInput = BuscarLembreteInput & {
+  notificadoEm: Date;
+};

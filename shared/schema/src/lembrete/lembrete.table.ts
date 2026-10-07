@@ -1,5 +1,12 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, uuid, text, varchar, date, timestamp } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  text,
+  varchar,
+  date,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 import { cliente } from '@schema/cliente/cliente.table.js';
 import { agendamento } from '@schema/agendamento/agendamento.table.js';
 import { procedimento } from '@schema/procedimento/procedimento.table.js';
@@ -28,6 +35,7 @@ export const lembrete = pgTable('lembrete', {
     .notNull()
     .defaultNow(),
   concluido_em: timestamp('concluido_em', { withTimezone: true }),
+  notificado_em: timestamp('notificado_em', { withTimezone: true }),
 });
 
 export const lembreteRelations = relations(lembrete, ({ one }) => ({

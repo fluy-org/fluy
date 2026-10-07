@@ -35,6 +35,8 @@ import { ConfirmacaoAgendamentoComponent } from '@app/features/pagina-cliente/co
 import { MeusAgendamentosComponent } from '@app/features/pagina-cliente/components/meus-agendamentos/meus-agendamentos.component';
 import { PaginaClienteService } from '@app/features/pagina-cliente/services/pagina-cliente.service';
 import { ApiError } from '@app/core/errors/api-error';
+import { CentralAvisosComponent } from '@app/features/avisos/components/central-avisos/central-avisos.component';
+import { CalendarioAgendamentoService } from '@app/features/avisos/services/calendario-agendamento.service';
 
 @Component({
   selector: 'app-pagina-cliente-page',
@@ -45,6 +47,7 @@ import { ApiError } from '@app/core/errors/api-error';
     EscolhaHorarioComponent,
     ConfirmacaoAgendamentoComponent,
     MeusAgendamentosComponent,
+    CentralAvisosComponent,
     IonButton,
     IonCheckbox,
     IonContent,
@@ -63,8 +66,11 @@ import { ApiError } from '@app/core/errors/api-error';
 export class PaginaClientePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly paginaClienteService = inject(PaginaClienteService);
+  private readonly calendarioService = inject(CalendarioAgendamentoService);
 
   readonly salao = this.paginaClienteService.salao;
+  readonly subdominio = signal('');
+  readonly credencialCliente = signal<string | null>(null);
   readonly estado = signal<EstadoPaginaCliente>('carregando');
   readonly formatarWhatsapp = formatarWhatsappInternacional;
   readonly cliente = signal<SessaoClientePublicaResponseDto['cliente']>(null);
@@ -87,6 +93,9 @@ export class PaginaClientePage implements OnInit {
   readonly salvandoAgendamento = signal(false);
   readonly erroAgendamento = signal<string | null>(null);
   readonly agendamentoCriado = signal(false);
+  readonly agendamentoCriadoId = signal<string | null>(null);
+  readonly baixandoCalendario = signal(false);
+  readonly erroCalendario = signal<string | null>(null);
   readonly meusAgendamentosAberto = signal(false);
   readonly carregandoAgendamentos = signal(false);
   readonly erroAgendamentos = signal<string | null>(null);
@@ -141,9 +150,11 @@ export class PaginaClientePage implements OnInit {
         resultado.data,
       );
       this.cliente.set(resposta.cliente);
+      this.credencialCliente.set(credencial);
       this.exibirFormulario.set(false);
     } catch {
       this.paginaClienteService.removerCredencial(subdominio);
+      this.credencialCliente.set(null);
       this.erroIdentificacao.set('Não foi possível continuar. Tente novamente.');
     } finally {
       this.identificando.set(false);
@@ -163,6 +174,11 @@ export class PaginaClientePage implements OnInit {
     this.meusAgendamentosAberto.set(true);
     this.fecharDetalheAgendamento();
     await this.carregarAgendamentos();
+  }
+
+  async abrirAgendamentoDoAviso(id: string): Promise<void> {
+    await this.abrirMeusAgendamentos();
+    await this.abrirDetalheAgendamento(id);
   }
 
   fecharMeusAgendamentos(): void {
@@ -368,7 +384,7 @@ export class PaginaClientePage implements OnInit {
     this.erroAgendamento.set(null);
 
     try {
-      await this.paginaClienteService.criarAgendamento(
+      const agendamento = await this.paginaClienteService.criarAgendamento(
         this.obterSubdominio(),
         {
           credencial,
@@ -378,6 +394,7 @@ export class PaginaClientePage implements OnInit {
           confirmar_excecoes: false,
         },
       );
+      this.agendamentoCriadoId.set(agendamento.id);
       this.agendamentoCriado.set(true);
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
@@ -405,6 +422,8 @@ export class PaginaClientePage implements OnInit {
 
   fecharAgendamentoConfirmado(): void {
     this.agendamentoCriado.set(false);
+    this.agendamentoCriadoId.set(null);
+    this.erroCalendario.set(null);
     this.revisandoAgendamento.set(false);
     this.escolhendoHorario.set(false);
     this.catalogoAberto.set(false);
@@ -412,6 +431,30 @@ export class PaginaClientePage implements OnInit {
     this.dataSelecionada.set('');
     this.horaSelecionada.set(null);
     this.horarios.set([]);
+  }
+
+  async baixarCalendarioCriado(): Promise<void> {
+    const agendamentoId = this.agendamentoCriadoId();
+    const credencial = this.credencialCliente();
+
+    if (!agendamentoId || !credencial || this.baixandoCalendario()) return;
+
+    this.baixandoCalendario.set(true);
+    this.erroCalendario.set(null);
+
+    try {
+      await this.calendarioService.baixarPublico({
+        subdominio: this.subdominio(),
+        credencial,
+        agendamentoId,
+      });
+    } catch {
+      this.erroCalendario.set(
+        'Não foi possível baixar o evento de calendário.',
+      );
+    } finally {
+      this.baixandoCalendario.set(false);
+    }
   }
 
   formatarCampoWhatsapp(valor: string | null | undefined): void {
@@ -449,11 +492,14 @@ export class PaginaClientePage implements OnInit {
       return;
     }
 
+    this.subdominio.set(subdominio);
+
     this.estado.set('carregando');
 
     try {
       await this.paginaClienteService.getEntidade(subdominio);
       const credencial = this.paginaClienteService.obterCredencial(subdominio);
+      this.credencialCliente.set(credencial);
 
       if (credencial) {
         const sessao = await this.paginaClienteService.consultarSessao(
@@ -466,6 +512,7 @@ export class PaginaClientePage implements OnInit {
       this.exibirFormulario.set(!this.cliente());
       this.estado.set('pronto');
     } catch {
+      this.credencialCliente.set(null);
       this.estado.set('erro');
     }
   }

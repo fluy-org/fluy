@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  StreamableFile,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -15,6 +16,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
   ApiTags,
 } from '@nestjs/swagger';
 import { AgendamentoPublicoService } from '@/modules/agendamento/agendamento-publico.service';
@@ -102,6 +104,34 @@ export class AgendamentoPublicoController {
         dados,
       }),
     );
+  }
+
+  @Get(':id/calendario.ics')
+  @ApiOperation({ summary: 'Baixa o evento de calendário do agendamento' })
+  @ApiProduces('text/calendar')
+  @ApiOkResponse({
+    description: 'Arquivo de calendário do agendamento.',
+    schema: { type: 'string', format: 'binary' },
+  })
+  @ApiBadRequestResponse({
+    description: 'Identificador ou credencial inválido.',
+  })
+  @ApiNotFoundResponse({ description: 'Agendamento não encontrado.' })
+  async baixarCalendario(
+    @TenantFromPath() tenant: TenantContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() dados: ConsultarAgendamentoPublicoQueryDto,
+  ) {
+    const calendario = await this.agendamentoPublicoService.gerarCalendario({
+      id,
+      salaoId: tenant.salaoId,
+      dados,
+    });
+
+    return new StreamableFile(Buffer.from(calendario.conteudo, 'utf8'), {
+      type: `text/calendar; charset=utf-8; method=${calendario.metodo}`,
+      disposition: `attachment; filename="${calendario.nomeArquivo}"`,
+    });
   }
 
   @Patch(':id/cancelar')

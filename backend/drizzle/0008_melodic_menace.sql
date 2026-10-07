@@ -1,0 +1,1 @@
+ALTER TABLE "aviso" ADD COLUMN "tipo" varchar(40) DEFAULT 'generico' NOT NULL;

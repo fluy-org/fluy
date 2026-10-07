@@ -13,11 +13,15 @@ jest.mock('@/modules/salao/salao-consulta.service', () => ({
 jest.mock('@/modules/cliente/cliente.service', () => ({
   ClienteService: class ClienteService {},
 }));
+jest.mock('@/modules/lembrete/lembrete-notificacao.service', () => ({
+  LembreteNotificacaoService: class LembreteNotificacaoService {},
+}));
 
 import type { ClienteService } from '@/modules/cliente/cliente.service';
 import type { LembreteComClientePersistido } from '@/modules/lembrete/contracts';
 import type { LembreteRepository } from '@/modules/lembrete/lembrete.repository';
 import { LembreteService } from '@/modules/lembrete/lembrete.service';
+import type { LembreteNotificacaoService } from '@/modules/lembrete/lembrete-notificacao.service';
 import type { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 
 describe('LembreteService', () => {
@@ -36,10 +40,12 @@ describe('LembreteService', () => {
   const salaoConsultaService = {
     obterFusoHorario: jest.fn(),
   } as unknown as SalaoConsultaService;
+  const processarVencidosDoSalao = jest.fn();
   const service = new LembreteService(
     repository,
     clienteService,
     salaoConsultaService,
+    { processarVencidosDoSalao } as unknown as LembreteNotificacaoService,
   );
   const escopo = { id: 'lembrete-ana', salaoId: 'salao-ana' };
   const dados = {
@@ -141,6 +147,7 @@ describe('LembreteService', () => {
         dados,
         autorId: 'usuario-salao-ana',
       });
+      expect(processarVencidosDoSalao).toHaveBeenCalledWith('salao-ana');
     });
   });
 
@@ -160,6 +167,44 @@ describe('LembreteService', () => {
       expect(repository.atualizar).not.toHaveBeenCalled();
       expect(repository.concluir).not.toHaveBeenCalled();
       expect(repository.remover).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('atualizar', () => {
+    it('reinicia a notificação quando a data alvo muda', async () => {
+      jest.spyOn(repository, 'atualizar').mockResolvedValue({
+        id: 'lembrete-ana',
+        data_alvo: '2026-06-21',
+      } as never);
+
+      await service.atualizar({
+        ...escopo,
+        dados: { data_alvo: '2026-06-21' },
+      });
+
+      expect(repository.atualizar).toHaveBeenCalledWith({
+        ...escopo,
+        dados: { data_alvo: '2026-06-21' },
+        reiniciarNotificacao: true,
+      });
+    });
+
+    it('mantém a notificação ao alterar somente o texto', async () => {
+      jest.spyOn(repository, 'atualizar').mockResolvedValue({
+        id: 'lembrete-ana',
+        data_alvo: '2026-06-20',
+      } as never);
+
+      await service.atualizar({
+        ...escopo,
+        dados: { texto: 'Novo texto.' },
+      });
+
+      expect(repository.atualizar).toHaveBeenCalledWith({
+        ...escopo,
+        dados: { texto: 'Novo texto.' },
+        reiniciarNotificacao: false,
+      });
     });
   });
 
@@ -210,6 +255,7 @@ function criarLembrete(
   return {
     id: 'lembrete-ana',
     status: 'ativo',
+    data_alvo: '2026-06-20',
     cliente: { id: 'cliente-ana', nome: 'Ana' },
     ...sobrescritas,
   } as LembreteComClientePersistido;

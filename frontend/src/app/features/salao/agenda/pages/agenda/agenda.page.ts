@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonContent,
@@ -8,19 +15,19 @@ import {
   IonText,
   IonButton,
 } from '@ionic/angular/standalone';
-import { ApiError } from '../../../../../core/errors/api-error';
-import { HeaderComponent } from '../../../../../shared/components/header/header.component';
-import { AgendamentoCardComponent } from '../../components/agendamento-card/agendamento-card.component';
-import { CalendarioMesComponent } from '../../components/calendario-mes/calendario-mes.component';
-import { NavegacaoDiaComponent } from '../../components/navegacao-dia/navegacao-dia.component';
-import { AgendaService } from '../../services/agenda.service';
+import { ApiError } from '@app/core/errors/api-error';
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+import { AgendamentoCardComponent } from '@app/features/salao/agenda/components/agendamento-card/agendamento-card.component';
+import { CalendarioMesComponent } from '@app/features/salao/agenda/components/calendario-mes/calendario-mes.component';
+import { NavegacaoDiaComponent } from '@app/features/salao/agenda/components/navegacao-dia/navegacao-dia.component';
+import { AgendaService } from '@app/features/salao/agenda/services/agenda.service';
 import {
   agruparPorEncerramento,
   calcularIntervaloDoMes,
   extrairMesDaData,
   gerarGradeDoMes,
-} from '../../agenda-utils';
-import type { EstadoPaginaAgenda } from '../../contracts';
+} from '@app/features/salao/agenda/agenda-utils';
+import type { EstadoPaginaAgenda } from '@app/features/salao/agenda/contracts';
 
 @Component({
   selector: 'app-agenda',
@@ -40,7 +47,7 @@ import type { EstadoPaginaAgenda } from '../../contracts';
     IonText,
   ],
 })
-export class AgendaPage implements OnInit {
+export class AgendaPage implements OnInit, OnDestroy {
   private readonly agendaService = inject(AgendaService);
   private readonly router = inject(Router);
 
@@ -54,6 +61,7 @@ export class AgendaPage implements OnInit {
   readonly mesDoCalendario = signal('');
   readonly carregandoResumo = signal(false);
   readonly erroResumo = signal<string | null>(null);
+  private pollingId: ReturnType<typeof setInterval> | null = null;
 
   readonly grupos = computed(() =>
     agruparPorEncerramento(this.agendaDoDia()?.agendamentos ?? []),
@@ -90,6 +98,18 @@ export class AgendaPage implements OnInit {
 
   ngOnInit(): void {
     void this.carregar();
+  }
+
+  ngOnDestroy(): void {
+    this.pararPolling();
+  }
+
+  ionViewDidEnter(): void {
+    this.iniciarPolling();
+  }
+
+  ionViewDidLeave(): void {
+    this.pararPolling();
   }
 
   mudarDia(data: string): void {
@@ -175,6 +195,31 @@ export class AgendaPage implements OnInit {
       }
     } finally {
       this.carregando.set(false);
+    }
+  }
+
+  private iniciarPolling(): void {
+    if (this.pollingId !== null) return;
+
+    this.pollingId = setInterval(() => {
+      void this.atualizarEmSegundoPlano();
+    }, 15_000);
+  }
+
+  private pararPolling(): void {
+    if (this.pollingId === null) return;
+
+    clearInterval(this.pollingId);
+    this.pollingId = null;
+  }
+
+  private async atualizarEmSegundoPlano(): Promise<void> {
+    if (document.hidden || this.carregando()) return;
+
+    try {
+      await this.agendaService.getLista(this.agendaDoDia()?.data);
+    } catch {
+      // A agenda atual permanece visível; a próxima rodada tenta convergir.
     }
   }
 }

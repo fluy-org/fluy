@@ -282,6 +282,7 @@ export class AgendamentoController {
       await this.agendamentoService.criar({
         salaoId: tenant.salaoId,
         dados,
+        notificarCliente: true,
       }),
     );
   }

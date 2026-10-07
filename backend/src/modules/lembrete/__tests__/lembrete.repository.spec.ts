@@ -1,30 +1,32 @@
-jest.mock(
-  '@fluy/schema',
-  () => ({
-    agendamento: {
-      id: 'agendamento.id',
-      salao_id: 'agendamento.salao_id',
-      cliente_id: 'agendamento.cliente_id',
-    },
-    cliente: {
-      id: 'cliente.id',
-      salao_id: 'cliente.salao_id',
-      nome: 'cliente.nome',
-      whatsapp: 'cliente.whatsapp',
-      removido_em: 'cliente.removido_em',
-    },
-    lembrete: {
-      id: 'lembrete.id',
-      cliente_id: 'lembrete.cliente_id',
-      agendamento_id: 'lembrete.agendamento_id',
-      data_alvo: 'lembrete.data_alvo',
-      origem: 'lembrete.origem',
-      status: 'lembrete.status',
-      criado_em: 'lembrete.criado_em',
-    },
-  }),
-  { virtual: true },
-);
+jest.mock('@fluy/schema', () => ({
+  agendamento: {
+    id: 'agendamento.id',
+    salao_id: 'agendamento.salao_id',
+    cliente_id: 'agendamento.cliente_id',
+  },
+  cliente: {
+    id: 'cliente.id',
+    salao_id: 'cliente.salao_id',
+    nome: 'cliente.nome',
+    whatsapp: 'cliente.whatsapp',
+    removido_em: 'cliente.removido_em',
+  },
+  lembrete: {
+    id: 'lembrete.id',
+    cliente_id: 'lembrete.cliente_id',
+    agendamento_id: 'lembrete.agendamento_id',
+    data_alvo: 'lembrete.data_alvo',
+    origem: 'lembrete.origem',
+    status: 'lembrete.status',
+    texto: 'lembrete.texto',
+    notificado_em: 'lembrete.notificado_em',
+    criado_em: 'lembrete.criado_em',
+  },
+  salao: {
+    id: 'salao.id',
+    fuso_horario: 'salao.fuso_horario',
+  },
+}));
 
 jest.mock('drizzle-orm', () => ({
   and: jest.fn(),
@@ -147,6 +149,17 @@ describe('LembreteRepository', () => {
     });
   });
 
+  describe('listarVencidosParaNotificacao', () => {
+    it('filtra lembretes ativos ainda não notificados no dia civil do salão', async () => {
+      await repository.listarVencidosParaNotificacao({ limite: 100 });
+
+      expect(eq).toHaveBeenCalledWith(lembrete.status, 'ativo');
+      expect(isNull).toHaveBeenCalledWith(lembrete.notificado_em);
+      expect(lte).toHaveBeenCalled();
+      expect(jest.mocked(lte).mock.calls[0]?.[0]).toBe(lembrete.data_alvo);
+    });
+  });
+
   describe.each([
     [
       'atualizar',
@@ -155,6 +168,7 @@ describe('LembreteRepository', () => {
           id: 'lembrete-ana',
           salaoId: 'salao-ana',
           dados: { texto: 'Ligar para remarcar.' },
+          reiniciarNotificacao: false,
         }),
     ],
     [
@@ -169,6 +183,15 @@ describe('LembreteRepository', () => {
     [
       'remover',
       () => repository.remover({ id: 'lembrete-ana', salaoId: 'salao-ana' }),
+    ],
+    [
+      'marcarNotificado',
+      () =>
+        repository.marcarNotificado({
+          id: 'lembrete-ana',
+          salaoId: 'salao-ana',
+          notificadoEm: new Date('2026-06-10T12:00:00.000Z'),
+        }),
     ],
   ])('%s', (_nome, executar) => {
     it('só alcança lembrete de cliente ativa do salão', async () => {

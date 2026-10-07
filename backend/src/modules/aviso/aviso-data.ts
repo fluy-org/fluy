@@ -1,0 +1,1 @@
+export const TAMANHO_PAGINA_AVISOS = 20;

@@ -14,6 +14,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { CentralAvisosComponent } from '@app/features/avisos/components/central-avisos/central-avisos.component';
 
 @Component({
   selector: 'app-authenticated-layout',
@@ -34,6 +35,7 @@ import {
     IonTitle,
     IonToolbar,
     RouterLink,
+    CentralAvisosComponent,
   ],
 })
 export class AuthenticatedLayoutComponent {}
