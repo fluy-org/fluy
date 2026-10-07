@@ -64,6 +64,11 @@ jest.mock('drizzle-orm', () => ({
   })),
 }));
 
+jest.mock('@/shared/recebimento/recebimento.utils', () => ({
+  montarValorRecebido: jest.fn(() => 'valor-recebido'),
+  montarFiltroEstadosComRecebimento: jest.fn(() => 'estados-com-recebimento'),
+}));
+
 jest.mock('@/database/database.provider', () => ({
   DATABASE: Symbol('DATABASE'),
 }));
@@ -73,6 +78,10 @@ import { agendamento, cliente } from '@fluy/schema';
 import type { Database } from '@/database/database.provider';
 import { ClienteRepository } from '@/modules/cliente/cliente.repository';
 import type { ListarClientePersistenciaInput } from '@/modules/cliente/contracts';
+import {
+  montarFiltroEstadosComRecebimento,
+  montarValorRecebido,
+} from '@/shared/recebimento/recebimento.utils';
 
 type Consulta = PromiseLike<unknown[]> & Record<string, unknown>;
 
@@ -184,6 +193,13 @@ describe('ClienteRepository', () => {
           .mocked(eq)
           .mock.calls.filter(([coluna]) => coluna === agendamento.salao_id),
       ).toHaveLength(2);
+    });
+
+    it('calcula o total gasto pela mesma regra de recebimento do faturamento', async () => {
+      await repository.buscarFicha({ id: 'cliente-ana', salaoId: 'salao-ana' });
+
+      expect(montarValorRecebido).toHaveBeenCalled();
+      expect(montarFiltroEstadosComRecebimento).toHaveBeenCalled();
     });
 
     it('não filtra por cliente ativo', async () => {

@@ -35,7 +35,7 @@ Ao final, o salão consegue:
 
 ### 7.1 Agregação de período
 
-- [ ] Backend do fechamento: toda a regra de cálculo, exposta por API e coberta por teste. — **🟣 Rudney** — [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual) · [DEP: 3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento)
+- [x] Backend do fechamento: toda a regra de cálculo, exposta por API e coberta por teste. — **🟣 Rudney** — [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual) · [DEP: 3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento)
 
 **O que deve existir**
 
@@ -64,6 +64,15 @@ Ao final, o salão consegue:
 - ~~**Ambig #5**~~ — **resolvida na [3.3](./bloco-3-painel-operacao.md#33-encerramentos-sem-atendimento-no-show-e-cancelamento): rebate no período atual, nunca reabre período fechado.** O período de um encerramento é sempre o do `evento_agendamento`, não o de `inicio_em` — vale igual para conclusão, cancelamento e no-show.
 - **Fonte única do "quanto a cliente gastou"**: o "total gasto" da ficha ([5.1](./bloco-5-ficha-cliente.md#51-lista-e-ficha-da-cliente)) e o "total faturado" daqui têm que sair da mesma regra.
 - Sinal retido em cancelamento pelo salão conta como receita antes de o reembolso existir? MVP: conta, e o [Bloco 9](./bloco-9-pagamento-online.md) ajusta.
+
+**Decisões fechadas no planejamento**
+
+- **Fonte única** — o "total gasto" da ficha e o "total faturado" usam o mesmo cálculo de valor recebido, e os dois só contam agendamentos em `concluido`, `cancelado` ou `falta` (a ficha contava sinal de agendamento futuro).
+- **Quem cancelou e o que é sinal** — não eram gravados. Entraram `evento_agendamento.cancelado_por` e `pagamento_agendamento.tipo`, por migração aditiva com preenchimento dos registros existentes.
+- **Presets** — semana de segunda a domingo; quinzena é a atual do mês (1–15 ou 16–fim).
+- **Resumo** — total faturado inclui sinais retidos; ticket médio é o recebido dos concluídos ÷ concluídos; "sem método registrado" e "restante pendente" são um alerta só.
+- **API** — `GET /faturamento` (período resolvido, resumo, recebimento por método e sinais retidos) e `GET /faturamento/atendimentos` (lista paginada). Datas trafegam como instante + `fuso_horario`.
+- **Reembolso** — não é descontado no faturamento por período até a [9.3](./bloco-9-pagamento-online.md#93-reembolso-no-cancelamento).
 
 **Critério de conclusão**
 

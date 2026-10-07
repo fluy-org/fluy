@@ -17,6 +17,7 @@ import { ArquivoModule } from '@/modules/arquivo/arquivo.module';
 import { ClienteModule } from '@/modules/cliente/cliente.module';
 import { AgendamentoModule } from '@/modules/agendamento/agendamento.module';
 import { DisponibilidadeModule } from '@/modules/disponibilidade/disponibilidade.module';
+import { FaturamentoModule } from '@/modules/faturamento/faturamento.module';
 import { LembreteModule } from '@/modules/lembrete/lembrete.module';
 import { NotaModule } from '@/modules/nota/nota.module';
 import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
@@ -105,6 +106,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
     ClienteModule,
     AgendamentoModule,
     DisponibilidadeModule,
+    FaturamentoModule,
     LembreteModule,
     NotaModule,
     TenantContextModule,

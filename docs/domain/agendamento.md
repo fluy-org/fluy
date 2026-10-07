@@ -74,7 +74,7 @@ Marca **quando** um agendamento atingiu um estado terminal ou foi remarcado. Exi
 - **`.ics` `SEQUENCE`** é a contagem de eventos `remarcado` do agendamento.
 - **Histórico de remarcações** na ficha da cliente é a lista de eventos `remarcado` daquele agendamento.
 
-Começa mínima. Novos campos (autor, payload detalhado) entram por migração aditiva quando surgir necessidade real — foi assim que `motivo` entrou, com o cancelamento pelo salão.
+Começa mínima. Novos campos (autor, payload detalhado) entram por migração aditiva quando surgir necessidade real — foi assim que `motivo` entrou, com o cancelamento pelo salão, e `cancelado_por`, com o faturamento.
 
 ### Atributos principais
 
@@ -85,6 +85,7 @@ Começa mínima. Novos campos (autor, payload detalhado) entram por migração a
 | `tipo` | tipo_evento_agendamento | Sim | Tipo do evento ocorrido. |
 | `ocorreu_em` | timestamp | Sim | Momento do evento. |
 | `motivo` | text | Não | Registro interno do salão no cancelamento. Nunca exibido para a cliente. |
+| `cancelado_por` | autor_cancelamento | Não | Quem cancelou. Preenchido só em `tipo = cancelado`. O faturamento usa para distinguir o sinal retido por cancelamento da cliente do retido por cancelamento do salão. |
 
 ### Relacionamentos
 
@@ -124,3 +125,10 @@ Começa mínima. Novos campos (autor, payload detalhado) entram por migração a
 | `concluido` | Agendamento entrou em `concluido`. |
 | `falta` | Agendamento entrou em `falta`. |
 | `remarcado` | Data/hora do agendamento foi alterada. |
+
+### `autor_cancelamento`
+
+| Valor | Significado |
+|---|---|
+| `cliente` | A cliente cancelou pelo portal público. |
+| `salao` | O salão cancelou pelo painel. |

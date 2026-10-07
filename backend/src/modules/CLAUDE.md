@@ -75,8 +75,11 @@ Documente também as respostas de erro possíveis da rota
 (`@ApiNotFoundResponse`, `@ApiBadRequestResponse`, `@ApiUnauthorizedResponse`),
 como nas rotas existentes.
 
-O pipe Zod global valida body e query estruturalmente. Regras que dependem de
-outro campo, dado persistido ou estado de negócio ficam no validator/service.
+O pipe Zod global valida body e query estruturalmente. Regra entre campos do
+mesmo payload, sem dado persistido, pode ficar no `superRefine` do schema em
+`@fluy/schema` (ex.: `listarResumoAgendaQuerySchema`,
+`listarFaturamentoQuerySchema`). Regras que dependem de dado persistido ou
+estado de negócio ficam no validator/service.
 Use `ParseUUIDPipe` para parâmetros UUID, como nas rotas existentes.
 
 Para o salão autenticado, receba `@TenantFromOwner()`. Para o catálogo público

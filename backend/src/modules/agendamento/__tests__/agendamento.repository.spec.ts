@@ -263,7 +263,7 @@ describe('AgendamentoRepository', () => {
       });
     });
 
-    it('grava evento, cobrança manual e vínculo na mesma transação', async () => {
+    it('grava evento, cobrança manual e vínculo do restante na mesma transação', async () => {
       retornarConclusao.mockResolvedValue([agendamentoConcluido]);
       retornarAgendamentos.mockResolvedValue([{ id: 'cobranca-ana' }]);
 
@@ -291,6 +291,7 @@ describe('AgendamentoRepository', () => {
       expect(definirAgendamentos).toHaveBeenCalledWith({
         agendamento_id: agendamentoConcluido.id,
         cobranca_manual_id: 'cobranca-ana',
+        tipo: 'restante',
       });
     });
 
@@ -390,6 +391,7 @@ describe('AgendamentoRepository', () => {
       salaoId: 'salao-ana',
       ocorreuEm: OCORREU_EM,
       motivo: undefined,
+      canceladoPor: 'salao' as const,
     };
     const agendamentoCancelado = {
       id: 'agendamento-ana',
@@ -430,6 +432,7 @@ describe('AgendamentoRepository', () => {
         tipo: 'cancelado',
         ocorreu_em: OCORREU_EM,
         motivo: 'Profissional doente',
+        cancelado_por: 'salao',
       });
     });
 
@@ -443,6 +446,7 @@ describe('AgendamentoRepository', () => {
         tipo: 'cancelado',
         ocorreu_em: OCORREU_EM,
         motivo: undefined,
+        cancelado_por: 'salao',
       });
     });
   });

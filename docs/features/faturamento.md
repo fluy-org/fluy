@@ -12,7 +12,7 @@ Consolidar a receita do salão em um período selecionado (semana, quinzena, mê
 
 ### Seleção de período
 
-- Presets: semana atual, semana anterior, mês atual, mês anterior, quinzena.
+- Presets: semana atual, semana anterior, mês atual, mês anterior, quinzena (semana de segunda a domingo; quinzena atual do mês, 1–15 ou 16–fim).
 - Intervalo customizado (data inicial + data final).
 - Usar o fuso do salão para determinar em qual período cada evento cai.
 
@@ -20,7 +20,7 @@ Consolidar a receita do salão em um período selecionado (semana, quinzena, mê
 
 - Total faturado (efetivamente recebido).
 - Número de atendimentos concluídos.
-- Ticket médio (opcional).
+- Ticket médio (recebido dos concluídos ÷ número de concluídos).
 
 ### Atendimentos realizados
 
@@ -41,6 +41,7 @@ Consolidar a receita do salão em um período selecionado (semana, quinzena, mê
 
 - Alertar quando existem atendimentos concluídos sem método do restante registrado (situação de erro).
 - Destacar atendimentos concluídos com valor restante ainda pendente.
+- No modelo atual os dois casos são o mesmo (concluir com "não recebeu" não registra método nem valor) e viram um alerta só.
 
 ## Documentos de referência
 
@@ -67,6 +68,6 @@ Usado por:
 - **Cancelamento pelo salão com reembolso** não aparece como receita.
 - **Valores congelados** protegem contra alteração do catálogo depois do agendamento.
 - **Exportação (CSV/PDF), gráficos, comparação com período anterior, comissões, reconciliação bancária** estão fora do MVP.
-- **Refund tardio em período fechado** (política de rebate no período atual vs. reabrir período) precisa ser definido.
+- **Refund tardio em período fechado**: decidido (ambig #5) — rebate no período atual, nunca reabre período fechado. O desconto do reembolso no faturamento por período entra com a 9.3.
 - **Descontos concedidos** — fluxo explícito não está desenhado; hoje só cobre indiretamente via "valor pendente = total − sinal".
 - **Coluna/filtro por profissional** deve ser prevista na modelagem para o futuro multi-profissional.
