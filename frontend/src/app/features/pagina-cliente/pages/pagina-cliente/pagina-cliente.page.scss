@@ -136,6 +136,161 @@ ion-content {
   color: var(--fluy-color-muted);
 }
 
+ion-modal.modal-mensagem-natasha {
+  --width: calc(100% - (var(--fluy-space-4) * 2));
+  --max-width: 360px;
+  --height: 440px;
+  --max-height: calc(100% - (var(--fluy-space-6) * 2));
+  --border-radius: var(--fluy-radius-lg);
+  --box-shadow: var(--fluy-shadow-lg);
+}
+
+ion-modal.modal-mensagem-natasha::part(backdrop) {
+  background: rgba(55, 33, 45, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+ion-modal.modal-mensagem-natasha::part(content) {
+  overflow: hidden;
+  border: 2px solid rgba(var(--fluy-color-primary-rgb), 0.35);
+}
+
+.mensagem-natasha {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  height: 100%;
+  overflow: hidden;
+  padding: var(--fluy-space-6) var(--fluy-space-5) var(--fluy-space-5);
+  box-sizing: border-box;
+  align-content: center;
+  gap: var(--fluy-space-3);
+  color: var(--fluy-color-title);
+  background:
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(255, 255, 255, 0.95) 0 0.35rem,
+      transparent 0.4rem
+    ),
+    radial-gradient(
+      circle at 88% 82%,
+      rgba(255, 255, 255, 0.8) 0 0.25rem,
+      transparent 0.3rem
+    ),
+    linear-gradient(
+      135deg,
+      var(--fluy-color-decorative-light),
+      rgba(var(--fluy-color-primary-rgb), 0.16),
+      var(--fluy-color-surface)
+    );
+  box-shadow:
+    0 0 0 4px rgba(var(--fluy-color-primary-rgb), 0.08),
+    0 0.75rem 1.5rem rgba(var(--fluy-color-primary-rgb), 0.18);
+  line-height: var(--fluy-line-height-body);
+  text-align: center;
+  animation: entrada-mensagem-natasha 450ms ease-out;
+}
+
+.mensagem-natasha h2,
+.mensagem-natasha ion-text {
+  margin: 0;
+}
+
+.mensagem-natasha h2 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.mensagem-natasha > ion-text:not(.decoracao-mensagem) {
+  color: var(--fluy-color-body);
+}
+
+.mensagem-natasha .decoracao-mensagem {
+  color: var(--fluy-color-primary);
+  font-size: 2rem;
+  letter-spacing: var(--fluy-space-2);
+}
+
+.mensagem-natasha > ion-button:last-child {
+  min-height: 48px;
+  margin: var(--fluy-space-2) 0 0;
+}
+
+.fechar-mensagem-natasha {
+  position: absolute;
+  z-index: 2;
+  top: var(--fluy-space-2);
+  right: var(--fluy-space-2);
+  margin: 0;
+  color: var(--fluy-color-primary-hover);
+}
+
+.mensagem-natasha::before,
+.mensagem-natasha::after {
+  position: absolute;
+  z-index: -1;
+  font-size: 1.5rem;
+  filter: drop-shadow(0 0.25rem 0.35rem rgba(var(--fluy-color-primary-rgb), 0.25));
+  animation: flutuar-mensagem-natasha 2.8s ease-in-out infinite;
+}
+
+.mensagem-natasha::before {
+  top: var(--fluy-space-2);
+  left: var(--fluy-space-2);
+  content: '✨';
+  transform: rotate(-12deg);
+}
+
+.mensagem-natasha::after {
+  right: var(--fluy-space-2);
+  bottom: var(--fluy-space-2);
+  content: '💖';
+  animation-delay: 400ms;
+}
+
+.mensagem-natasha strong {
+  display: block;
+  width: fit-content;
+  margin: var(--fluy-space-3) auto 0;
+  padding: var(--fluy-space-2) var(--fluy-space-3);
+  border-radius: var(--fluy-radius-pill);
+  color: var(--fluy-color-primary-hover);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0.25rem 0.75rem rgba(var(--fluy-color-primary-rgb), 0.15);
+  letter-spacing: 0.01em;
+}
+
+@keyframes entrada-mensagem-natasha {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes flutuar-mensagem-natasha {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-8deg);
+  }
+
+  50% {
+    transform: translateY(-0.3rem) rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mensagem-natasha,
+  .mensagem-natasha::before,
+  .mensagem-natasha::after {
+    animation: none;
+  }
+}
+
 .passo {
   display: grid;
   width: 2.25rem;

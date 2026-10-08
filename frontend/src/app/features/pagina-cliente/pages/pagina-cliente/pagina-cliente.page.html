@@ -282,4 +282,46 @@
     </main>
   </div>
   }
+
+  <ion-modal
+    class="modal-mensagem-natasha"
+    [isOpen]="mensagemNatashaAberta()"
+    [backdropDismiss]="false"
+    (didDismiss)="fecharMensagemNatasha()"
+  >
+    <ng-template>
+      <section
+        class="mensagem-natasha"
+        aria-labelledby="titulo-mensagem-natasha"
+      >
+        <ion-button
+          class="fechar-mensagem-natasha"
+          type="button"
+          fill="clear"
+          aria-label="Fechar mensagem"
+          (click)="fecharMensagemNatasha()"
+        >
+          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+        </ion-button>
+
+        <ion-text class="decoracao-mensagem" aria-hidden="true">
+          💖 ✨ 🥰
+        </ion-text>
+        <h2 id="titulo-mensagem-natasha">Uma mensagem para você</h2>
+        <ion-text>
+          Bem-vinda ao teste do Fluy, xuxu! Está bem limitado, mas funcional
+          para o que é proposto. Espero que goste! ❤️🥰
+        </ion-text>
+        <strong>Parabéns por ser a primeira tester! 🥳🥳🥳</strong>
+
+        <ion-button
+          type="button"
+          expand="block"
+          (click)="fecharMensagemNatasha()"
+        >
+          Continuar
+        </ion-button>
+      </section>
+    </ng-template>
+  </ion-modal>
 </ion-content>
