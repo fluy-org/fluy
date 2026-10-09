@@ -6,7 +6,10 @@ jest.mock('file-type', () => ({ fileTypeFromBuffer: jest.fn() }), {
 
 import { fileTypeFromBuffer } from 'file-type';
 import type { ArquivoRecebido } from '@/modules/arquivo/contracts';
-import { TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES } from '@/modules/arquivo/arquivo-data';
+import {
+  TAMANHO_MAXIMO_ANEXO_BYTES,
+  TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES,
+} from '@/modules/arquivo/arquivo-data';
 import { ArquivoValidator } from '@/modules/arquivo/arquivo.validator';
 
 describe('ArquivoValidator', () => {
@@ -31,6 +34,17 @@ describe('ArquivoValidator', () => {
 
     await expect(validator.validar(arquivo)).rejects.toThrow(
       new BadRequestException('O arquivo deve ter no maximo 20 MiB.'),
+    );
+    expect(detectarTipo).not.toHaveBeenCalled();
+  });
+
+  it('rejeita anexo acima de 5 MiB sem tentar processar o conteudo', async () => {
+    const arquivo = criarArquivo({
+      tamanhoBytes: TAMANHO_MAXIMO_ANEXO_BYTES + 1,
+    });
+
+    await expect(validator.validarAnexo(arquivo)).rejects.toThrow(
+      new BadRequestException('O arquivo deve ter no maximo 5 MiB.'),
     );
     expect(detectarTipo).not.toHaveBeenCalled();
   });

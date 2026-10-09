@@ -11,6 +11,7 @@ import { ConfigModule } from '@/config/config.module';
 import type { Env } from '@/config/env.schema';
 import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
+import { AnexoAgendamentoModule } from '@/modules/anexo-agendamento/anexo-agendamento.module';
 import { AvisoModule } from '@/modules/aviso/aviso.module';
 import { AuthGuard } from '@/modules/auth/guards/auth.guard';
 import { ArquivoModule } from '@/modules/arquivo/arquivo.module';
@@ -100,6 +101,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
     ClerkModule,
     R2StorageModule,
     AuthModule,
+    AnexoAgendamentoModule,
     AvisoModule,
     ArquivoModule,
     ClienteModule,

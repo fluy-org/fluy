@@ -5,7 +5,9 @@ import type {
   ArquivoValidado,
 } from '@/modules/arquivo/contracts';
 import {
+  LIMITE_TAMANHO_ANEXO_MIB,
   LIMITE_TAMANHO_ARQUIVO_RECEBIDO_MIB,
+  TAMANHO_MAXIMO_ANEXO_BYTES,
   TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES,
 } from '@/modules/arquivo/arquivo-data';
 import { ehTipoMimeImagem } from '@/modules/arquivo/arquivo-utils';
@@ -15,13 +17,39 @@ export class ArquivoValidator {
   async validar(
     arquivo: ArquivoRecebido | undefined,
   ): Promise<ArquivoValidado> {
+    return this.validarComLimite({
+      arquivo,
+      limiteBytes: TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES,
+      limiteMiB: LIMITE_TAMANHO_ARQUIVO_RECEBIDO_MIB,
+    });
+  }
+
+  async validarAnexo(
+    arquivo: ArquivoRecebido | undefined,
+  ): Promise<ArquivoValidado> {
+    return this.validarComLimite({
+      arquivo,
+      limiteBytes: TAMANHO_MAXIMO_ANEXO_BYTES,
+      limiteMiB: LIMITE_TAMANHO_ANEXO_MIB,
+    });
+  }
+
+  private async validarComLimite({
+    arquivo,
+    limiteBytes,
+    limiteMiB,
+  }: {
+    arquivo: ArquivoRecebido | undefined;
+    limiteBytes: number;
+    limiteMiB: number;
+  }): Promise<ArquivoValidado> {
     if (!arquivo) {
       throw new BadRequestException('Envie um arquivo.');
     }
 
-    if (arquivo.tamanhoBytes > TAMANHO_MAXIMO_ARQUIVO_RECEBIDO_BYTES) {
+    if (arquivo.tamanhoBytes > limiteBytes) {
       throw new BadRequestException(
-        `O arquivo deve ter no maximo ${LIMITE_TAMANHO_ARQUIVO_RECEBIDO_MIB} MiB.`,
+        `O arquivo deve ter no maximo ${limiteMiB} MiB.`,
       );
     }
 

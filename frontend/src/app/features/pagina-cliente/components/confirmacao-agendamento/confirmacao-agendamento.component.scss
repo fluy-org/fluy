@@ -16,3 +16,12 @@ header ion-text, aside ion-text { color: var(--fluy-color-muted); line-height: v
 .erro { display: block; padding: var(--fluy-space-3); border-radius: var(--fluy-radius-md); color: var(--fluy-color-danger); background: var(--fluy-color-danger-bg); }
 .acoes { position: sticky; bottom: 0; display: grid; grid-template-columns: 1fr 1.5fr; gap: var(--fluy-space-2); padding-block: var(--fluy-space-3); background: var(--fluy-color-background); }
 .acoes ion-button { min-height: 48px; margin: 0; }
+.referencias { display: grid; gap: var(--fluy-space-3); padding: var(--fluy-space-4); border: 1px solid var(--fluy-color-border-soft); border-radius: var(--fluy-radius-lg); background: var(--fluy-color-surface); }
+.referencias > div:first-child { display: grid; gap: var(--fluy-space-1); }
+.referencias ion-text { color: var(--fluy-color-muted); line-height: var(--fluy-line-height-body); }
+.seletor-arquivo { display: none; }
+.galeria-referencias { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--fluy-space-2); }
+.galeria-referencias article { position: relative; display: grid; gap: var(--fluy-space-1); min-width: 0; }
+.galeria-referencias ion-img { width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: var(--fluy-radius-md); background: var(--fluy-color-background); }
+.galeria-referencias ion-img::part(image) { object-fit: cover; }
+.galeria-referencias ion-button { margin: 0; font-size: 0.6875rem; }

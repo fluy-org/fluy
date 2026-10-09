@@ -171,6 +171,32 @@ dd {
   background: var(--fluy-color-danger-bg);
 }
 
+.referencias-detalhe {
+  display: grid;
+  gap: var(--fluy-space-3);
+  padding: var(--fluy-space-4);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  background: var(--fluy-color-surface);
+}
+
+.galeria-referencias {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fluy-space-2);
+}
+
+.galeria-referencias ion-img {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--fluy-radius-md);
+}
+
+.galeria-referencias ion-img::part(image) {
+  object-fit: cover;
+}
+
 @media (max-width: 430px) {
   .acoes {
     align-items: stretch;

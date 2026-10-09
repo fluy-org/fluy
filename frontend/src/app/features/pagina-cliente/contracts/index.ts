@@ -1,1 +1,4 @@
-export type { EstadoPaginaCliente } from './pagina-cliente.types';
+export type {
+  EstadoPaginaCliente,
+  ReferenciaAgendamentoVisual,
+} from './pagina-cliente.types';

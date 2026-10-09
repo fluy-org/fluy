@@ -223,6 +223,7 @@ export const agendamentoAgendaResponseSchema = z
     valor_sinal: z.number().nonnegative(),
     valor_pago: z.number().nonnegative(),
     valor_pendente: z.number().nonnegative(),
+    quantidade_anexos: z.number().int().nonnegative(),
     tem_imagens_referencia: z.boolean(),
     tem_observacoes: z.boolean(),
   })

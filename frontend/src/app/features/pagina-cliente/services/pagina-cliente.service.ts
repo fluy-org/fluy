@@ -12,6 +12,8 @@ import type {
   ProcedimentoPublicoResponseDto,
   SalaoPublicoResponseDto,
   SessaoClientePublicaResponseDto,
+  AnexoAgendamentoResponseDto,
+  ListaAnexosAgendamentoResponseDto,
 } from '@fluy/schema';
 import { firstValueFrom } from 'rxjs';
 
@@ -94,6 +96,65 @@ export class PaginaClienteService {
       this.http.post<AgendamentoResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos`,
         dados,
+      ),
+    );
+  }
+
+  enviarReferencia({
+    agendamentoId,
+    arquivo,
+    credencial,
+    subdominio,
+  }: {
+    agendamentoId: string;
+    arquivo: File;
+    credencial: string;
+    subdominio: string;
+  }): Promise<AnexoAgendamentoResponseDto> {
+    const dados = new FormData();
+    dados.append('arquivo', arquivo);
+
+    return firstValueFrom(
+      this.http.post<AnexoAgendamentoResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(agendamentoId)}/referencias`,
+        dados,
+        { params: { credencial } },
+      ),
+    );
+  }
+
+  listarReferencias({
+    agendamentoId,
+    credencial,
+    subdominio,
+  }: {
+    agendamentoId: string;
+    credencial: string;
+    subdominio: string;
+  }): Promise<ListaAnexosAgendamentoResponseDto> {
+    return firstValueFrom(
+      this.http.get<ListaAnexosAgendamentoResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(agendamentoId)}/referencias`,
+        { params: { credencial } },
+      ),
+    );
+  }
+
+  obterConteudoReferencia({
+    agendamentoId,
+    credencial,
+    id,
+    subdominio,
+  }: {
+    agendamentoId: string;
+    credencial: string;
+    id: string;
+    subdominio: string;
+  }): Promise<Blob> {
+    return firstValueFrom(
+      this.http.get(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(agendamentoId)}/referencias/${encodeURIComponent(id)}/conteudo`,
+        { params: { credencial }, responseType: 'blob' },
       ),
     );
   }

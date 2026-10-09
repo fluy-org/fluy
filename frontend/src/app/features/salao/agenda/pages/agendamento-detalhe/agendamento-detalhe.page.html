@@ -9,13 +9,12 @@
 
 <ion-content class="ion-padding fluy-page-safe">
   @switch (estadoPagina()) {
-    @case ('carregando') {
+    @case ("carregando") {
       <div class="estado">
         <ion-spinner></ion-spinner>
       </div>
     }
-
-    @case ('offline') {
+    @case ("offline") {
       <div class="estado">
         <ion-text color="medium">
           <p>Sem conexão. O agendamento não pôde ser carregado.</p>
@@ -25,8 +24,7 @@
         </ion-button>
       </div>
     }
-
-    @case ('erro') {
+    @case ("erro") {
       <div class="estado">
         <ion-text color="danger">
           <p>{{ erro() }}</p>
@@ -36,12 +34,25 @@
         </ion-button>
       </div>
     }
-
-    @case ('detalhe') {
+    @case ("detalhe") {
       @if (agendamento(); as detalhe) {
         <app-detalhe-agendamento
           [agendamento]="detalhe"
         ></app-detalhe-agendamento>
+
+        <app-secao-referencias
+          [agendamentoId]="detalhe.id"
+        ></app-secao-referencias>
+
+        <app-secao-anexos
+          [agendamentoId]="detalhe.id"
+          (quantidadeAlterada)="
+            atualizarQuantidadeAnexos({
+              id: detalhe.id,
+              quantidade: $event,
+            })
+          "
+        ></app-secao-anexos>
 
         <section class="bloco">
           <h2 class="bloco__titulo">Ações</h2>
@@ -49,7 +60,6 @@
           @for (aviso of avisos(); track aviso) {
             <p class="aviso">{{ aviso }}</p>
           }
-
           @if (temAcoes()) {
             @for (acao of acoesDoAtendimento(); track acao.acao) {
               <ion-button
@@ -61,7 +71,6 @@
                 {{ acao.rotulo }}
               </ion-button>
             }
-
             @if (acoesSemAtendimento().length > 0) {
               <div class="acoes__divisor"></div>
 
@@ -100,16 +109,19 @@
   }
 </ion-content>
 
-<ion-modal
-  [isOpen]="acaoAberta() === 'concluir'"
-  (didDismiss)="aoFecharAcao()"
->
+<ion-modal [isOpen]="acaoAberta() === 'concluir'" (didDismiss)="aoFecharAcao()">
   <ng-template>
     @if (agendamento(); as detalhe) {
       <app-formulario-conclusao
         [agendamento]="detalhe"
         [salvando]="executando()"
         [erroExterno]="erroAcao()"
+        (quantidadeAnexosAlterada)="
+          atualizarQuantidadeAnexos({
+            id: detalhe.id,
+            quantidade: $event,
+          })
+        "
         (confirmar)="confirmarConclusao($event)"
         (cancelar)="fecharAcao()"
       ></app-formulario-conclusao>
@@ -134,10 +146,7 @@
   </ng-template>
 </ion-modal>
 
-<ion-modal
-  [isOpen]="acaoAberta() === 'cancelar'"
-  (didDismiss)="aoFecharAcao()"
->
+<ion-modal [isOpen]="acaoAberta() === 'cancelar'" (didDismiss)="aoFecharAcao()">
   <ng-template>
     <app-formulario-cancelamento
       [salvando]="executando()"
@@ -148,10 +157,7 @@
   </ng-template>
 </ion-modal>
 
-<ion-modal
-  [isOpen]="acaoAberta() === 'remarcar'"
-  (didDismiss)="aoFecharAcao()"
->
+<ion-modal [isOpen]="acaoAberta() === 'remarcar'" (didDismiss)="aoFecharAcao()">
   <ng-template>
     @if (agendamento(); as detalhe) {
       <app-formulario-remarcacao

@@ -57,6 +57,29 @@
       </ion-card-content>
     </ion-card>
 
+    <section
+      class="referencias-detalhe"
+      aria-labelledby="titulo-referencias-detalhe"
+    >
+      <h2 id="titulo-referencias-detalhe">Suas imagens de referência</h2>
+      @if (carregandoReferencias()) {
+        <ion-spinner aria-label="Carregando imagens de referência"></ion-spinner>
+      } @else if (erroReferencias()) {
+        <ion-text class="erro" role="alert">{{ erroReferencias() }}</ion-text>
+      } @else if (referencias().length > 0) {
+        <div class="galeria-referencias">
+          @for (referencia of referencias(); track referencia.id; let indice = $index) {
+            <ion-img
+              [src]="referencia.url"
+              [alt]="'Imagem de referência ' + (indice + 1)"
+            ></ion-img>
+          }
+        </div>
+      } @else {
+        <ion-text color="medium">Nenhuma imagem de referência enviada.</ion-text>
+      }
+    </section>
+
     @if (erroCancelamento()) {
       <ion-text class="erro" role="alert">{{ erroCancelamento() }}</ion-text>
     }

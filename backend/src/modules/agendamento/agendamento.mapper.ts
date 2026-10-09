@@ -147,7 +147,8 @@ function toAgendamentoAgendaResponse(
     valor_sinal: Number(agendamento.valor_sinal),
     valor_pago: Number(agendamento.valorPago),
     valor_pendente: Number(agendamento.valorPendente),
-    tem_imagens_referencia: false,
+    quantidade_anexos: agendamento.quantidade_anexos,
+    tem_imagens_referencia: agendamento.tem_imagens_referencia,
     tem_observacoes: agendamento.tem_observacoes,
   };
 }

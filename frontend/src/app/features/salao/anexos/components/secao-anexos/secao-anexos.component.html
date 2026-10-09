@@ -1,0 +1,62 @@
+<section class="anexos" aria-labelledby="titulo-anexos-internos">
+  <div class="cabecalho">
+    <div>
+      <h2 id="titulo-anexos-internos">Anexos internos</h2>
+      <ion-text color="medium">
+        Fotos visíveis somente para o salão ({{ anexos().length }}/{{
+          limite
+        }}).
+      </ion-text>
+    </div>
+
+    <input
+      #seletor
+      class="seletor-arquivo"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      (change)="selecionarArquivo($event)"
+    />
+
+    <ion-button
+      size="small"
+      fill="outline"
+      [disabled]="enviando() || anexos().length >= limite"
+      (click)="abrirSeletor()"
+    >
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      {{ enviando() ? "Enviando..." : "Adicionar" }}
+    </ion-button>
+  </div>
+
+  @if (carregando()) {
+    <div class="estado"><ion-spinner></ion-spinner></div>
+  } @else if (anexos().length > 0) {
+    <div class="galeria">
+      @for (anexo of anexos(); track anexo.id; let indice = $index) {
+        <article class="anexo">
+          <ion-img
+            [src]="anexo.url"
+            [alt]="'Anexo interno ' + (indice + 1)"
+          ></ion-img>
+          <ion-button
+            class="remover"
+            size="small"
+            color="danger"
+            fill="solid"
+            aria-label="Remover anexo"
+            [disabled]="removendoId() === anexo.id"
+            (click)="remover(anexo)"
+          >
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </article>
+      }
+    </div>
+  } @else {
+    <ion-text color="medium">Nenhum anexo interno adicionado.</ion-text>
+  }
+
+  @if (erro()) {
+    <ion-text class="erro" color="danger">{{ erro() }}</ion-text>
+  }
+</section>

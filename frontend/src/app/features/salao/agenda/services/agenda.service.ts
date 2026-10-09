@@ -18,8 +18,9 @@ import { firstValueFrom } from 'rxjs';
 export class AgendaService {
   private readonly http = inject(HttpClient);
   private readonly _agendaDoDia = signal<AgendaDiaResponseDto | null>(null);
-  private readonly _agendamento =
-    signal<AgendamentoDetalheResponseDto | null>(null);
+  private readonly _agendamento = signal<AgendamentoDetalheResponseDto | null>(
+    null,
+  );
   private readonly _resumoDoPeriodo = signal<ResumoAgendaResponseDto | null>(
     null,
   );
@@ -181,6 +182,32 @@ export class AgendaService {
             agendamentos: agenda.agendamentos.map((item) =>
               item.id === id
                 ? { ...item, tem_observacoes: temObservacoes }
+                : item,
+            ),
+          }
+        : agenda,
+    );
+  }
+
+  atualizarQuantidadeAnexos({
+    id,
+    quantidade,
+  }: {
+    id: string;
+    quantidade: number;
+  }): void {
+    this._agendamento.update((agendamento) =>
+      agendamento?.id === id
+        ? { ...agendamento, quantidade_anexos: quantidade }
+        : agendamento,
+    );
+    this._agendaDoDia.update((agenda) =>
+      agenda
+        ? {
+            ...agenda,
+            agendamentos: agenda.agendamentos.map((item) =>
+              item.id === id
+                ? { ...item, quantidade_anexos: quantidade }
                 : item,
             ),
           }

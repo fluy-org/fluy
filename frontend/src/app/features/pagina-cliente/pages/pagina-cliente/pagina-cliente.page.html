@@ -36,6 +36,9 @@
         [erro]="erroAgendamentos()"
         [detalhe]="detalheAgendamento()"
         [carregandoDetalhe]="carregandoDetalheAgendamento()"
+        [referencias]="referenciasDetalhe()"
+        [carregandoReferencias]="carregandoReferenciasDetalhe()"
+        [erroReferencias]="erroReferenciasDetalhe()"
         [confirmandoCancelamento]="confirmandoCancelamento()"
         [cancelando]="cancelandoAgendamento()"
         [erroCancelamento]="erroCancelamento()"
@@ -79,6 +82,11 @@
         </ion-text>
       </section>
       <div class="acao-confirmacao">
+        @if (erroAgendamento()) {
+        <ion-text class="mensagem-erro" role="alert">
+          {{ erroAgendamento() }}
+        </ion-text>
+        }
         @if (erroCalendario()) {
         <ion-text class="mensagem-erro" role="alert">
           {{ erroCalendario() }}
@@ -117,7 +125,7 @@
         [salvando]="salvandoAgendamento()"
         [erro]="erroAgendamento()"
         (voltar)="voltarAoHorario()"
-        (confirmar)="confirmarAgendamento()"
+        (confirmar)="confirmarAgendamento($event)"
       ></app-confirmacao-agendamento>
       } @else if (escolhendoHorario()) {
       <app-escolha-horario

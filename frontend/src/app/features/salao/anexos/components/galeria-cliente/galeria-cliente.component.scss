@@ -1,0 +1,6 @@
+:host { display: block; }
+.galeria-cliente { display: grid; gap: var(--fluy-space-3); }
+h2 { margin: 0; color: var(--fluy-color-title); font-size: 1.125rem; }
+.imagens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--fluy-space-2); }
+.imagens ion-img { width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: var(--fluy-radius-md); background: var(--fluy-color-background); }
+.imagens ion-img::part(image) { object-fit: cover; }

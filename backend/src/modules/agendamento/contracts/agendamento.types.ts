@@ -228,6 +228,8 @@ export type AgendamentoDaAgendaPersistido = AgendamentoPersistido & {
   cliente: ClienteDoAgendamentoPersistida;
   procedimento: ProcedimentoDoAgendamentoPersistido;
   pagamentos: PagamentoDoAgendamentoPersistido[];
+  quantidade_anexos: number;
+  tem_imagens_referencia: boolean;
   tem_observacoes: boolean;
 };
 
