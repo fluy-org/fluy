@@ -1,0 +1,198 @@
+<ion-card class="secao-atendimentos">
+  <ion-card-header><h2>Atendimentos realizados</h2></ion-card-header>
+  <ion-card-content>
+    @if (atendimentos().length === 0) {
+      <ion-text>Nenhum atendimento concluído neste período.</ion-text>
+    } @else {
+      <div class="tabela-desktop">
+        <table>
+          <caption>
+            Atendimentos concluídos, do mais recente para o mais antigo
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Data da conclusão</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Procedimento</th>
+              <th scope="col" class="coluna-valor">Valor total</th>
+              <th scope="col" class="coluna-valor">Sinal</th>
+              <th scope="col" class="coluna-valor">Restante</th>
+              <th scope="col" class="coluna-valor">Valor pendente</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              atendimento of atendimentos();
+              track atendimento.agendamento_id
+            ) {
+              <tr [class.pendente]="atendimento.valor_pendente > 0">
+                <td>
+                  <ion-text class="data-conclusao">{{
+                    atendimento.ocorreu_em
+                      | horaSalao: fusoHorario() : 'data-hora'
+                  }}</ion-text>
+                  <a
+                    class="link-detalhe"
+                    [routerLink]="[
+                      '/painel/agenda',
+                      atendimento.agendamento_id,
+                    ]"
+                    [attr.aria-label]="
+                      'Ver atendimento de ' + atendimento.cliente.nome
+                    "
+                  >
+                    Ver atendimento
+                    <ion-icon
+                      name="arrow-forward-outline"
+                      aria-hidden="true"
+                    ></ion-icon>
+                  </a>
+                </td>
+                <th scope="row">
+                  <a
+                    class="link-cliente"
+                    [routerLink]="['/painel/clientes', atendimento.cliente.id]"
+                  >
+                    <ion-text>{{ atendimento.cliente.nome }}</ion-text>
+                    <ion-icon
+                      name="chevron-forward-outline"
+                      aria-hidden="true"
+                    ></ion-icon>
+                  </a>
+                </th>
+                <td>
+                  <ion-text>{{ atendimento.procedimento.nome }}</ion-text>
+                </td>
+                <td class="coluna-valor valor-total">
+                  <ion-text>{{
+                    formatarValor(atendimento.valor_total)
+                  }}</ion-text>
+                </td>
+                <td class="coluna-valor">
+                  <app-pagamento-faturamento
+                    [pagamento]="atendimento.sinal"
+                  ></app-pagamento-faturamento>
+                </td>
+                <td class="coluna-valor">
+                  <app-pagamento-faturamento
+                    [pagamento]="atendimento.restante"
+                  ></app-pagamento-faturamento>
+                </td>
+                <td class="coluna-valor valor-total">
+                  <ion-text>{{
+                    formatarValor(atendimento.valor_pendente)
+                  }}</ion-text>
+                  @if (atendimento.valor_pendente > 0) {
+                    <ion-badge class="aviso-pendente"
+                      >Restante pendente</ion-badge
+                    >
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cards-mobile">
+        @for (atendimento of atendimentos(); track atendimento.agendamento_id) {
+          <ion-card [class.pendente]="atendimento.valor_pendente > 0">
+            <ion-card-content>
+              <h3>
+                <a
+                  class="link-cliente"
+                  [routerLink]="['/painel/clientes', atendimento.cliente.id]"
+                >
+                  <ion-text>{{ atendimento.cliente.nome }}</ion-text>
+                  <ion-icon
+                    name="chevron-forward-outline"
+                    aria-hidden="true"
+                  ></ion-icon>
+                </a>
+              </h3>
+              <dl>
+                <div class="contexto-mobile">
+                  <dt>Procedimento</dt>
+                  <dd>
+                    <ion-text>{{ atendimento.procedimento.nome }}</ion-text>
+                  </dd>
+                </div>
+                <div class="contexto-mobile">
+                  <dt>Data da conclusão</dt>
+                  <dd>
+                    <ion-text>{{
+                      atendimento.ocorreu_em
+                        | horaSalao: fusoHorario() : 'data-hora'
+                    }}</ion-text>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Valor total</dt>
+                  <dd>
+                    <ion-text>{{
+                      formatarValor(atendimento.valor_total)
+                    }}</ion-text>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Sinal</dt>
+                  <dd>
+                    <app-pagamento-faturamento
+                      [pagamento]="atendimento.sinal"
+                    ></app-pagamento-faturamento>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Restante</dt>
+                  <dd>
+                    <app-pagamento-faturamento
+                      [pagamento]="atendimento.restante"
+                    ></app-pagamento-faturamento>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Valor pendente</dt>
+                  <dd>
+                    <ion-text>{{
+                      formatarValor(atendimento.valor_pendente)
+                    }}</ion-text>
+                    @if (atendimento.valor_pendente > 0) {
+                      <ion-badge class="aviso-pendente"
+                        >Restante pendente</ion-badge
+                      >
+                    }
+                  </dd>
+                </div>
+              </dl>
+              <a
+                class="link-detalhe"
+                [routerLink]="['/painel/agenda', atendimento.agendamento_id]"
+                [attr.aria-label]="
+                  'Ver atendimento de ' + atendimento.cliente.nome
+                "
+              >
+                Ver atendimento
+                <ion-icon
+                  name="arrow-forward-outline"
+                  aria-hidden="true"
+                ></ion-icon>
+              </a>
+            </ion-card-content>
+          </ion-card>
+        }
+      </div>
+    }
+    @if (erroPaginacao()) {
+      <div class="erro-paginacao" role="alert">
+        <ion-text color="danger">{{ erroPaginacao() }}</ion-text>
+        <ion-button
+          fill="outline"
+          [disabled]="carregandoMais()"
+          (click)="tentarNovamente.emit()"
+        >
+          Tentar carregar mais atendimentos
+        </ion-button>
+      </div>
+    }
+  </ion-card-content>
+</ion-card>

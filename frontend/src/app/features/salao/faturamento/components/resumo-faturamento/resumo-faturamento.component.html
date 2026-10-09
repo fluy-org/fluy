@@ -1,0 +1,64 @@
+@let dados = resumo();
+<section class="resumo" aria-label="Resumo do faturamento">
+  <header>
+    <h2>Resumo</h2>
+    <ion-text class="descricao"
+      >Os principais números do período selecionado.</ion-text
+    >
+  </header>
+  <div class="indicadores">
+    <ion-card class="indicador indicador-principal">
+      <ion-card-content>
+        <dl>
+          <dt>Total faturado</dt>
+          <dd>{{ formatarValor(dados.total_faturado) }}</dd>
+        </dl>
+        <ion-text class="contexto"
+          >Efetivamente recebido, incluindo sinais retidos.</ion-text
+        >
+      </ion-card-content>
+    </ion-card>
+    <ion-card class="indicador">
+      <ion-card-content>
+        <dl>
+          <dt>Atendimentos concluídos</dt>
+          <dd>{{ dados.total_concluidos }}</dd>
+        </dl>
+        <ion-text class="contexto">Concluídos dentro deste período.</ion-text>
+      </ion-card-content>
+    </ion-card>
+    <ion-card class="indicador">
+      <ion-card-content>
+        <dl>
+          <dt>Ticket médio</dt>
+          <dd>
+            {{
+              dados.ticket_medio === null
+                ? '—'
+                : formatarValor(dados.ticket_medio)
+            }}
+          </dd>
+        </dl>
+        <ion-text class="contexto"
+          >Recebido por atendimento. Não inclui sinais retidos.</ion-text
+        >
+      </ion-card-content>
+    </ion-card>
+  </div>
+  @if (dados.total_pendentes > 0) {
+    <div class="alerta-pendentes" role="status">
+      <ion-text class="alerta-titulo">
+        {{ dados.total_pendentes }}
+        {{
+          dados.total_pendentes === 1
+            ? 'atendimento sem método registrado'
+            : 'atendimentos sem método registrado'
+        }}
+      </ion-text>
+      <ion-text
+        >Confira os valores destacados como restante pendente. Eles não entram
+        no total faturado.</ion-text
+      >
+    </div>
+  }
+</section>

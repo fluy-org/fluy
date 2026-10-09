@@ -1,0 +1,58 @@
+<ion-card>
+  <ion-card-header>
+    <h2>Sinais retidos por cancelamento e no-show</h2>
+    <ion-text class="descricao"
+      >Esses valores já estão incluídos no total faturado.</ion-text
+    >
+  </ion-card-header>
+  <ion-card-content>
+    <ion-list>
+      @for (sinal of sinaisRetidos(); track sinal.agendamento_id) {
+        <ion-item class="retencao">
+          <div class="sinal-retido">
+            <div class="contexto-retencao">
+              <a
+                class="link-cliente"
+                [routerLink]="['/painel/clientes', sinal.cliente.id]"
+              >
+                <ion-text>{{ sinal.cliente.nome }}</ion-text>
+                <ion-icon
+                  name="chevron-forward-outline"
+                  aria-hidden="true"
+                ></ion-icon>
+              </a>
+              <ion-text class="procedimento"
+                >{{ sinal.procedimento.nome }} · não realizado</ion-text
+              >
+              <ion-text class="data-encerramento">{{
+                sinal.ocorreu_em | horaSalao: fusoHorario() : 'data-hora'
+              }}</ion-text>
+              <ion-text class="motivo">{{
+                rotuloMotivo[sinal.motivo]
+              }}</ion-text>
+            </div>
+            <div class="valor-retencao">
+              <ion-text class="rotulo-valor">Valor do sinal</ion-text>
+              <ion-text class="valor">{{
+                formatarValor(sinal.valor)
+              }}</ion-text>
+              <a
+                class="link-detalhe"
+                [routerLink]="['/painel/agenda', sinal.agendamento_id]"
+                [attr.aria-label]="'Ver agendamento de ' + sinal.cliente.nome"
+              >
+                Ver agendamento
+                <ion-icon
+                  name="arrow-forward-outline"
+                  aria-hidden="true"
+                ></ion-icon>
+              </a>
+            </div>
+          </div>
+        </ion-item>
+      } @empty {
+        <ion-text class="vazio">Nenhum sinal retido neste período.</ion-text>
+      }
+    </ion-list>
+  </ion-card-content>
+</ion-card>

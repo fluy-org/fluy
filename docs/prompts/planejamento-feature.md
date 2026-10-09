@@ -7,6 +7,10 @@ A seguir vou descrever a fatia que quero implementar.
      "O que deve existir", "Fora desta fatia", "Decisões que precisam estar
      fechadas antes" e "Critério de conclusão" são o escopo fechado. -->
 
+### 7.2 Dashboard de faturamento
+
+
+
 ## Contexto do repositório
 
 Este é um mono-repo do projeto **Fluy** (SaaS multi-tenant para salões de beleza, NestJS + Angular + Drizzle).

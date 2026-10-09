@@ -1,0 +1,78 @@
+<ion-header>
+  <app-header titulo="Faturamento"></app-header>
+</ion-header>
+
+<ion-content class="faturamento-page fluy-page-safe">
+  <main class="page-content">
+    <header class="cabecalho-pagina">
+      <h1>Visão financeira</h1>
+      <ion-text
+        >Recebimentos e atendimentos do seu salão, em um só lugar.</ion-text
+      >
+    </header>
+    <app-seletor-periodo
+      [selecao]="selecao()"
+      [periodoAtual]="faturamento()?.periodo ?? null"
+      [intervaloAplicado]="intervaloAplicado()"
+      [fusoHorario]="faturamento()?.fuso_horario ?? ''"
+      [carregando]="carregando()"
+      (selecionar)="selecionarPeriodo($event)"
+      (aplicar)="aplicarPeriodo($event)"
+    ></app-seletor-periodo>
+
+    @switch (estadoPagina()) {
+      @case ('carregando') {
+        <section class="feedback" role="status" aria-live="polite">
+          <ion-spinner aria-label="Carregando faturamento"></ion-spinner>
+          <ion-text>Carregando faturamento...</ion-text>
+        </section>
+      }
+      @case ('erro') {
+        <section class="feedback" role="alert">
+          <ion-text color="danger">{{ erro() }}</ion-text>
+          <ion-button fill="outline" (click)="tentarNovamente()"
+            >Tentar novamente</ion-button
+          >
+        </section>
+      }
+      @default {
+        @if (faturamento(); as relatorio) {
+          @if (estadoPagina() === 'vazio') {
+            <ion-text class="aviso-vazio" role="status"
+              >Nenhum movimento neste período.</ion-text
+            >
+          }
+
+          <app-resumo-faturamento
+            [resumo]="relatorio.resumo"
+          ></app-resumo-faturamento>
+          <app-atendimentos-realizados
+            [atendimentos]="atendimentos()"
+            [fusoHorario]="relatorio.fuso_horario"
+            [erroPaginacao]="erroPaginacao()"
+            [carregandoMais]="carregandoMais()"
+            (tentarNovamente)="carregarMais()"
+          ></app-atendimentos-realizados>
+          <div class="detalhamento-receita">
+            <app-recebimento-por-metodo
+              [recebimentos]="relatorio.recebimento_por_metodo"
+            ></app-recebimento-por-metodo>
+            <app-sinais-retidos
+              [sinaisRetidos]="relatorio.sinais_retidos"
+              [fusoHorario]="relatorio.fuso_horario"
+            ></app-sinais-retidos>
+          </div>
+
+          <ion-infinite-scroll
+            [disabled]="!proximoCursor() || !!erroPaginacao()"
+            (ionInfinite)="carregarMais($event)"
+          >
+            <ion-infinite-scroll-content
+              loadingText="Carregando mais atendimentos..."
+            ></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+        }
+      }
+    }
+  </main>
+</ion-content>
