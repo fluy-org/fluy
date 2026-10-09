@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import type {
   AcaoAgendamento,
@@ -30,6 +37,8 @@ import { AgendaService } from '../../services/agenda.service';
 import { SecaoLembretesComponent } from '../../../lembretes/components/secao-lembretes/secao-lembretes.component';
 import { SecaoNotasComponent } from '../../../notas/components/secao-notas/secao-notas.component';
 import { LembretesService } from '../../../lembretes/services/lembretes.service';
+import { SecaoAnexosComponent } from '@app/features/salao/anexos/components/secao-anexos/secao-anexos.component';
+import { SecaoReferenciasComponent } from '@app/features/salao/anexos/components/secao-referencias/secao-referencias.component';
 import {
   ACOES_DO_ATENDIMENTO,
   ACOES_SEM_ATENDIMENTO,
@@ -50,7 +59,7 @@ import type { EstadoPaginaDetalhe } from '../../contracts';
     FormularioCancelamentoComponent,
     FormularioConclusaoComponent,
     FormularioRemarcacaoComponent,
-      IonBackButton,
+    IonBackButton,
     IonButton,
     IonButtons,
     IonContent,
@@ -62,6 +71,8 @@ import type { EstadoPaginaDetalhe } from '../../contracts';
     IonToolbar,
     SecaoLembretesComponent,
     SecaoNotasComponent,
+    SecaoAnexosComponent,
+    SecaoReferenciasComponent,
   ],
 })
 export class AgendamentoDetalhePage implements OnInit {
@@ -70,6 +81,7 @@ export class AgendamentoDetalhePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly agendamento = this.agendaService.agendamento;
+  readonly secaoAnexos = viewChild(SecaoAnexosComponent);
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
   readonly offline = signal(false);
@@ -174,6 +186,17 @@ export class AgendamentoDetalhePage implements OnInit {
     this.agendaService.atualizarObservacao({ id, temObservacoes });
   }
 
+  atualizarQuantidadeAnexos({
+    id,
+    quantidade,
+  }: {
+    id: string;
+    quantidade: number;
+  }): void {
+    this.agendaService.atualizarQuantidadeAnexos({ id, quantidade });
+    this.secaoAnexos()?.recarregar();
+  }
+
   confirmarFalta(): Promise<void> {
     return this.executarAcao(
       (id) => this.agendaService.marcarFalta(id),
@@ -217,7 +240,10 @@ export class AgendamentoDetalhePage implements OnInit {
 
       this.horariosDaRemarcacao.set(resposta.horarios);
     } catch (error) {
-      this.tratarErroDaAcao(error, 'Sem conexão. Os horários não foram carregados.');
+      this.tratarErroDaAcao(
+        error,
+        'Sem conexão. Os horários não foram carregados.',
+      );
     } finally {
       this.carregandoHorarios.set(false);
     }

@@ -1,6 +1,7 @@
 import { and, asc, eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
 import {
   agendamento,
+  anexoAgendamento,
   cliente,
   cobrancaGateway,
   cobrancaManual,
@@ -44,6 +45,8 @@ type LinhaDaAgenda = {
   valor_gateway: string | null;
   status_gateway: PagamentoDoAgendamentoPersistido['status'];
   tem_observacoes: boolean;
+  quantidade_anexos: number;
+  tem_imagens_referencia: boolean;
 };
 
 @Injectable()
@@ -479,6 +482,18 @@ export class AgendamentoRepository {
         valor_manual: cobrancaManual.valor,
         valor_gateway: cobrancaGateway.valor,
         status_gateway: cobrancaGateway.status,
+        quantidade_anexos: sql<number>`(
+          select count(*)::int
+          from ${anexoAgendamento}
+          where ${anexoAgendamento.agendamento_id} = ${agendamento.id}
+            and ${anexoAgendamento.visibilidade} = 'interna_do_salao'
+        )`,
+        tem_imagens_referencia: sql<boolean>`exists (
+          select 1
+          from ${anexoAgendamento}
+          where ${anexoAgendamento.agendamento_id} = ${agendamento.id}
+            and ${anexoAgendamento.visibilidade} = 'publica_para_cliente'
+        )`,
         tem_observacoes: sql<boolean>`exists (select 1 from ${nota} where ${nota.agendamento_id} = ${agendamento.id})`,
       })
       .from(agendamento)
@@ -567,6 +582,8 @@ function agruparAgendamentos(
       cliente: linha.cliente,
       procedimento: linha.procedimento,
       pagamentos: pagamento ? [pagamento] : [],
+      quantidade_anexos: linha.quantidade_anexos,
+      tem_imagens_referencia: linha.tem_imagens_referencia,
       tem_observacoes: linha.tem_observacoes,
     });
   }

@@ -13,6 +13,7 @@ import {
   IonCard,
   IonCardContent,
   IonIcon,
+  IonText,
 } from '@ionic/angular/standalone';
 import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
 import { ESTILO_ESTADO_AGENDAMENTO } from '../../../../../shared/utils/estado-agendamento';
@@ -25,7 +26,7 @@ import { formatarDuracao } from '../../agenda-utils';
   styleUrls: ['./agendamento-card.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonBadge, IonCard, IonCardContent, IonIcon, HoraSalaoPipe],
+  imports: [IonBadge, IonCard, IonCardContent, IonIcon, IonText, HoraSalaoPipe],
 })
 export class AgendamentoCardComponent {
   readonly agendamento = input.required<AgendamentoAgendaResponseDto>();

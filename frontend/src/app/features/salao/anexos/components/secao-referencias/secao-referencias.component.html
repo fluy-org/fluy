@@ -1,0 +1,26 @@
+<section class="referencias" aria-labelledby="titulo-referencias-cliente">
+  <div>
+    <h2 id="titulo-referencias-cliente">Imagens de referência</h2>
+    <ion-text color="medium">Fotos enviadas pela cliente.</ion-text>
+  </div>
+
+  @if (carregando()) {
+    <ion-spinner aria-label="Carregando imagens de referência"></ion-spinner>
+  } @else if (erro()) {
+    <ion-text color="danger" role="alert">{{ erro() }}</ion-text>
+    <ion-button type="button" fill="outline" size="small" (click)="recarregar()">
+      Tentar novamente
+    </ion-button>
+  } @else if (referencias().length > 0) {
+    <div class="galeria">
+      @for (referencia of referencias(); track referencia.id; let indice = $index) {
+        <ion-img
+          [src]="referencia.url"
+          [alt]="'Imagem de referência ' + (indice + 1)"
+        ></ion-img>
+      }
+    </div>
+  } @else {
+    <ion-text color="medium">Nenhuma imagem de referência enviada.</ion-text>
+  }
+</section>

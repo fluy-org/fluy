@@ -1,0 +1,90 @@
+:host {
+  display: block;
+}
+
+.anexos {
+  padding: var(--fluy-space-4);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  background: var(--fluy-color-surface);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fluy-space-3);
+}
+
+h2 {
+  margin: 0 0 var(--fluy-space-1);
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+}
+
+ion-text {
+  display: block;
+  font-size: var(--fluy-font-size-small);
+}
+
+.seletor-arquivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fluy-space-2);
+  margin-top: var(--fluy-space-3);
+}
+
+.anexo {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border-radius: var(--fluy-radius-md);
+  background: var(--fluy-color-background);
+}
+
+.anexo ion-img {
+  width: 100%;
+  height: 100%;
+}
+
+.anexo ion-img::part(image) {
+  object-fit: cover;
+}
+
+.remover {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: var(--fluy-space-1);
+}
+
+.estado {
+  display: grid;
+  min-height: 96px;
+  place-items: center;
+}
+
+.erro {
+  margin-top: var(--fluy-space-2);
+}
+
+@media (max-width: 390px) {
+  .cabecalho {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cabecalho ion-button {
+    align-self: flex-start;
+  }
+}

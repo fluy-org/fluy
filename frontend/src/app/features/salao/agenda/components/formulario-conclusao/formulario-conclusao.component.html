@@ -29,6 +29,11 @@
     </dd>
   </dl>
 
+  <app-secao-anexos
+    [agendamentoId]="detalhe.id"
+    (quantidadeAlterada)="quantidadeAnexosAlterada.emit($event)"
+  ></app-secao-anexos>
+
   <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
     @if (metodoExigido()) {
       <ion-select
@@ -86,7 +91,7 @@
       </ion-button>
 
       <ion-button type="submit" [disabled]="salvando()">
-        {{ salvando() ? 'Concluindo...' : 'Concluir atendimento' }}
+        {{ salvando() ? "Concluindo..." : "Concluir atendimento" }}
       </ion-button>
     </div>
   </form>

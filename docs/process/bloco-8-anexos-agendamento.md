@@ -42,7 +42,7 @@ nem configura storage novo.
 
 ### 8.1 Módulo de anexos e anexos internos do salão
 
-- [ ] Backend completo de `anexo_agendamento` + upload e visualização de anexos internos pelo painel. — **🔵 Leandro** — [DEP: 1.6-BE](./bloco-1-setup-salao.md#16-be-anexos) · [DEP: 3.1](./bloco-3-painel-operacao.md#31-agenda-do-dia-e-detalhe-do-agendamento) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
+- [x] Backend completo de `anexo_agendamento` + upload e visualização de anexos internos pelo painel. — **🔵 Leandro** — [DEP: 1.6-BE](./bloco-1-setup-salao.md#16-be-anexos) · [DEP: 3.1](./bloco-3-painel-operacao.md#31-agenda-do-dia-e-detalhe-do-agendamento) · [DEP: 3.2](./bloco-3-painel-operacao.md#32-conclusão-de-atendimento-e-pagamento-manual)
 
 **O que deve existir**
 
@@ -69,6 +69,8 @@ nem configura storage novo.
 **Decisões que precisam estar fechadas antes**
 
 - Limpeza de órfãos: depois de quanto tempo de retenção o arquivo físico é removido?
+
+**Decisão:** arquivos órfãos são removidos após 24 horas.
 
 **Critério de conclusão**
 
@@ -110,6 +112,11 @@ e **confirmar pela API pública da cliente que os anexos internos não aparecem*
 - Existe limite de imagens de referência por agendamento? Os docs cravam 3 para anexo interno e 1 para imagem de procedimento, mas não falam de teto para referência.
 - O salão pode anexar imagem de referência em agendamento manual (a foto que a cliente mandou por WhatsApp)? Não está nos fluxos — decidir se entra.
 - LGPD: excluir a cliente apaga os anexos dela? Liga com a decisão da [5.1](./bloco-5-ficha-cliente.md#51-lista-e-ficha-da-cliente).
+
+**Decisões:** o MVP aceita até 3 imagens de referência por agendamento; o
+salão não envia referência em nome da cliente; a inativação preserva os
+anexos e a política de exclusão definitiva fica para a implementação de
+expurgo LGPD.
 
 **Critério de conclusão**
 

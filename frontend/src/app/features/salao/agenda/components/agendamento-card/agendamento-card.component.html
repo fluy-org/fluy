@@ -43,13 +43,20 @@
         }
       </div>
 
-      @if (dados.tem_imagens_referencia || dados.tem_observacoes) {
+      @if (
+        dados.tem_imagens_referencia ||
+        dados.quantidade_anexos > 0 ||
+        dados.tem_observacoes
+      ) {
         <div class="indicadores">
-          @if (dados.tem_imagens_referencia) {
+          @if (dados.tem_imagens_referencia || dados.quantidade_anexos > 0) {
             <ion-icon
               name="images-outline"
-              aria-label="Tem imagens de referência"
+              aria-label="Tem imagens no agendamento"
             ></ion-icon>
+            @if (dados.quantidade_anexos > 0) {
+              <ion-text>{{ dados.quantidade_anexos }}</ion-text>
+            }
           }
           @if (dados.tem_observacoes) {
             <ion-icon

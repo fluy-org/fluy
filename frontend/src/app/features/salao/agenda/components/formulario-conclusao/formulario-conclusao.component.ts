@@ -12,7 +12,10 @@ import type {
   ConcluirAgendamentoDto,
   MetodoPagamentoManual,
 } from '@fluy/schema';
-import { METODO_PAGAMENTO_MANUAL, concluirAgendamentoSchema } from '@fluy/schema';
+import {
+  METODO_PAGAMENTO_MANUAL,
+  concluirAgendamentoSchema,
+} from '@fluy/schema';
 import {
   IonButton,
   IonContent,
@@ -29,6 +32,7 @@ import {
   ROTULO_METODO_PAGAMENTO_MANUAL,
 } from '../../agenda-data';
 import { formatarValor } from '../../../../../shared/utils/formatacao';
+import { SecaoAnexosComponent } from '@app/features/salao/anexos/components/secao-anexos/secao-anexos.component';
 
 @Component({
   selector: 'app-formulario-conclusao',
@@ -46,6 +50,7 @@ import { formatarValor } from '../../../../../shared/utils/formatacao';
     IonToggle,
     IonToolbar,
     ReactiveFormsModule,
+    SecaoAnexosComponent,
   ],
 })
 export class FormularioConclusaoComponent {
@@ -55,6 +60,7 @@ export class FormularioConclusaoComponent {
 
   readonly confirmar = output<ConcluirAgendamentoDto>();
   readonly cancelar = output<void>();
+  readonly quantidadeAnexosAlterada = output<number>();
 
   readonly valorNaoRecebido = signal(false);
   readonly erroValidacao = signal<string | null>(null);
@@ -64,7 +70,9 @@ export class FormularioConclusaoComponent {
     rotulo: ROTULO_METODO_PAGAMENTO_MANUAL[valor],
   }));
 
-  readonly metodoExigido = computed(() => this.agendamento().valor_pendente > 0);
+  readonly metodoExigido = computed(
+    () => this.agendamento().valor_pendente > 0,
+  );
 
   readonly avisoConclusaoAntecipada = computed(() =>
     this.agendamento().avisos.includes('conclusao_antecipada')
@@ -74,7 +82,9 @@ export class FormularioConclusaoComponent {
 
   readonly formulario = new FormGroup({
     metodo_pagamento: new FormControl<MetodoPagamentoManual | null>(null, {
-      validators: zodValidator(concluirAgendamentoSchema.shape.metodo_pagamento),
+      validators: zodValidator(
+        concluirAgendamentoSchema.shape.metodo_pagamento,
+      ),
     }),
   });
 

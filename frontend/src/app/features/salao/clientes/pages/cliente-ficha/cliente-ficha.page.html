@@ -123,15 +123,22 @@
             }
           </section>
 
-          <!-- Galerias: preenchidas pela fatia 8.2 -->
           <section class="bloco">
-            <h2 class="bloco__titulo">Imagens de referência</h2>
-            <p class="vazio">Nenhuma imagem de referência.</p>
+            <app-galeria-cliente
+              [clienteId]="dados.id"
+              titulo="Imagens de referência"
+              mensagemVazia="Nenhuma imagem de referência."
+              visibilidade="publica_para_cliente"
+            ></app-galeria-cliente>
           </section>
 
           <section class="bloco">
-            <h2 class="bloco__titulo">Anexos internos</h2>
-            <p class="vazio">Nenhum anexo interno.</p>
+            <app-galeria-cliente
+              [clienteId]="dados.id"
+              titulo="Anexos internos"
+              mensagemVazia="Nenhum anexo interno."
+              visibilidade="interna_do_salao"
+            ></app-galeria-cliente>
           </section>
         </div>
       }

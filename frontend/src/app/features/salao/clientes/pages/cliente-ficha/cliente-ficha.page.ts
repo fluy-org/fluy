@@ -26,6 +26,7 @@ import { ClientesService } from '@app/features/salao/clientes/services/clientes.
 import { SecaoLembretesComponent } from '@app/features/salao/lembretes/components/secao-lembretes/secao-lembretes.component';
 import { SecaoNotasComponent } from '@app/features/salao/notas/components/secao-notas/secao-notas.component';
 import { formatarWhatsapp } from '@app/shared/utils/formatacao';
+import { GaleriaClienteComponent } from '@app/features/salao/anexos/components/galeria-cliente/galeria-cliente.component';
 
 @Component({
   selector: 'app-cliente-ficha',
@@ -34,6 +35,7 @@ import { formatarWhatsapp } from '@app/shared/utils/formatacao';
   standalone: true,
   imports: [
     FormularioClienteComponent,
+    GaleriaClienteComponent,
     HistoricoAgendamentosComponent,
     IonBackButton,
     IonBadge,

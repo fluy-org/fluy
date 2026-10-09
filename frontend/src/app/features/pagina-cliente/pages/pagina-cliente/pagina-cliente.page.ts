@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
   OnInit,
   inject,
   signal,
@@ -27,7 +28,10 @@ import {
   IonSpinner,
   IonText,
 } from '@ionic/angular/standalone';
-import type { EstadoPaginaCliente } from '@app/features/pagina-cliente/contracts';
+import type {
+  EstadoPaginaCliente,
+  ReferenciaAgendamentoVisual,
+} from '@app/features/pagina-cliente/contracts';
 import { formatarWhatsappInternacional } from '@fluy/schema';
 import { CabecalhoPublicoComponent } from '@app/features/pagina-cliente/components/cabecalho-publico/cabecalho-publico.component';
 import { CatalogoProcedimentosComponent } from '@app/features/pagina-cliente/components/catalogo-procedimentos/catalogo-procedimentos.component';
@@ -65,7 +69,7 @@ import { CalendarioAgendamentoService } from '@app/features/avisos/services/cale
   styleUrls: ['./pagina-cliente.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaginaClientePage implements OnInit {
+export class PaginaClientePage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly paginaClienteService = inject(PaginaClienteService);
   private readonly calendarioService = inject(CalendarioAgendamentoService);
@@ -105,6 +109,9 @@ export class PaginaClientePage implements OnInit {
   readonly detalheAgendamento =
     signal<AgendamentoPublicoDetalheResponseDto | null>(null);
   readonly carregandoDetalheAgendamento = signal(false);
+  readonly referenciasDetalhe = signal<ReferenciaAgendamentoVisual[]>([]);
+  readonly carregandoReferenciasDetalhe = signal(false);
+  readonly erroReferenciasDetalhe = signal<string | null>(null);
   readonly confirmandoCancelamento = signal(false);
   readonly cancelandoAgendamento = signal(false);
   readonly erroCancelamento = signal<string | null>(null);
@@ -123,6 +130,10 @@ export class PaginaClientePage implements OnInit {
 
   ngOnInit(): void {
     void this.carregarSalao();
+  }
+
+  ngOnDestroy(): void {
+    this.limparReferenciasDetalhe();
   }
 
   recarregar(): void {
@@ -250,6 +261,7 @@ export class PaginaClientePage implements OnInit {
         credencial,
       );
       this.detalheAgendamento.set(detalhe);
+      await this.carregarReferenciasDetalhe(id, credencial);
     } catch {
       this.erroAgendamentos.set('Não foi possível abrir este agendamento.');
     } finally {
@@ -258,9 +270,54 @@ export class PaginaClientePage implements OnInit {
   }
 
   fecharDetalheAgendamento(): void {
+    this.limparReferenciasDetalhe();
     this.detalheAgendamento.set(null);
     this.confirmandoCancelamento.set(false);
     this.erroCancelamento.set(null);
+  }
+
+  private async carregarReferenciasDetalhe(
+    agendamentoId: string,
+    credencial: string,
+  ): Promise<void> {
+    this.carregandoReferenciasDetalhe.set(true);
+    this.erroReferenciasDetalhe.set(null);
+
+    try {
+      const resposta = await this.paginaClienteService.listarReferencias({
+        agendamentoId,
+        credencial,
+        subdominio: this.obterSubdominio(),
+      });
+      const referencias = await Promise.all(
+        resposta.anexos.map(async ({ id }) => {
+          const conteudo =
+            await this.paginaClienteService.obterConteudoReferencia({
+              agendamentoId,
+              credencial,
+              id,
+              subdominio: this.obterSubdominio(),
+            });
+
+          return { id, url: URL.createObjectURL(conteudo) };
+        }),
+      );
+
+      this.limparReferenciasDetalhe();
+      this.referenciasDetalhe.set(referencias);
+    } catch {
+      this.erroReferenciasDetalhe.set(
+        'Não foi possível carregar as imagens de referência.',
+      );
+    } finally {
+      this.carregandoReferenciasDetalhe.set(false);
+    }
+  }
+
+  private limparReferenciasDetalhe(): void {
+    this.referenciasDetalhe().forEach(({ url }) => URL.revokeObjectURL(url));
+    this.referenciasDetalhe.set([]);
+    this.erroReferenciasDetalhe.set(null);
   }
 
   solicitarCancelamento(): void {
@@ -382,7 +439,7 @@ export class PaginaClientePage implements OnInit {
     this.erroAgendamento.set(null);
   }
 
-  async confirmarAgendamento(): Promise<void> {
+  async confirmarAgendamento(referencias: File[]): Promise<void> {
     const procedimento = this.procedimentoSelecionado();
     const hora = this.horaSelecionada();
     const credencial = this.paginaClienteService.obterCredencial(
@@ -406,6 +463,26 @@ export class PaginaClientePage implements OnInit {
         },
       );
       this.agendamentoCriadoId.set(agendamento.id);
+
+      if (referencias.length > 0) {
+        const resultados = await Promise.allSettled(
+          referencias.map((arquivo) =>
+            this.paginaClienteService.enviarReferencia({
+              agendamentoId: agendamento.id,
+              arquivo,
+              credencial,
+              subdominio: this.obterSubdominio(),
+            }),
+          ),
+        );
+
+        if (resultados.some((resultado) => resultado.status === 'rejected')) {
+          this.erroAgendamento.set(
+            'O agendamento foi criado, mas uma ou mais imagens não puderam ser enviadas.',
+          );
+        }
+      }
+
       this.agendamentoCriado.set(true);
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {

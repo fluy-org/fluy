@@ -52,6 +52,10 @@ jest.mock(
     nota: {
       agendamento_id: 'nota.agendamento_id',
     },
+    anexoAgendamento: {
+      agendamento_id: 'anexo_agendamento.agendamento_id',
+      visibilidade: 'anexo_agendamento.visibilidade',
+    },
   }),
   { virtual: true },
 );
@@ -172,9 +176,7 @@ describe('AgendamentoRepository', () => {
   });
 
   it('não cria o mesmo procedimento duas vezes para a cliente no dia', async () => {
-    limitarConflitos.mockResolvedValueOnce([
-      { id: 'agendamento-duplicado' },
-    ]);
+    limitarConflitos.mockResolvedValueOnce([{ id: 'agendamento-duplicado' }]);
 
     await expect(repository.criar(input)).resolves.toBeUndefined();
 

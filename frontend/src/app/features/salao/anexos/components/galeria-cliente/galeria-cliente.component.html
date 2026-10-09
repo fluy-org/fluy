@@ -1,0 +1,32 @@
+<section class="galeria-cliente" [attr.aria-label]="titulo()">
+  <h2>{{ titulo() }}</h2>
+
+  @if (carregando()) {
+    <ion-spinner [attr.aria-label]="'Carregando ' + titulo()"></ion-spinner>
+  } @else if (erro()) {
+    <ion-text color="danger" role="alert">{{ erro() }}</ion-text>
+    <ion-button type="button" fill="outline" size="small" (click)="recarregar()">
+      Tentar novamente
+    </ion-button>
+  } @else if (itens().length > 0) {
+    <div class="imagens">
+      @for (item of itens(); track item.id; let indice = $index) {
+        <ion-img [src]="item.url" [alt]="titulo() + ' ' + (indice + 1)"></ion-img>
+      }
+    </div>
+
+    @if (proximoCursor()) {
+      <ion-button
+        type="button"
+        fill="outline"
+        size="small"
+        [disabled]="carregandoMais()"
+        (click)="carregarMais()"
+      >
+        {{ carregandoMais() ? 'Carregando...' : 'Carregar mais' }}
+      </ion-button>
+    }
+  } @else {
+    <ion-text color="medium">{{ mensagemVazia() }}</ion-text>
+  }
+</section>

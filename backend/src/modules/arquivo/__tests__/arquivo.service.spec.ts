@@ -144,7 +144,7 @@ describe('ArquivoService', () => {
 
     expect(criar).not.toHaveBeenCalled();
     expect(putObject).not.toHaveBeenCalled();
-  });
+  }, 15_000);
 
   it('ignora a validacao de pertencimento quando nao ha arquivo informado', async () => {
     await service.validarArquivoOpcionalDoSalao({

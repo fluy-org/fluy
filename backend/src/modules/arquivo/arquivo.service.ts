@@ -36,23 +36,44 @@ export class ArquivoService {
   async enviar({ arquivo, salaoId }: EnviarArquivoInput) {
     const arquivoValidado = await this.arquivoValidator.validar(arquivo);
     const arquivoProcessado = await this.comprimirImagem(arquivoValidado);
-    const chaveStorage = randomUUID();
-    const arquivoPersistido = await this.arquivoRepository.criar({
-      mimeType: arquivoProcessado.mimeType,
+    const arquivoPersistido = await this.persistir({
+      arquivo: arquivoProcessado,
       salaoId,
-      tamanhoBytes: arquivoProcessado.tamanhoBytes,
-      urlStorage: chaveStorage,
-    });
-
-    await this.storage.putObject({
-      body: arquivoProcessado.buffer,
-      contentType: arquivoProcessado.mimeType,
-      key: chaveStorage,
     });
 
     return {
       arquivo_id: arquivoPersistido.id,
     };
+  }
+
+  async enviarAnexo({ arquivo, salaoId }: EnviarArquivoInput) {
+    const arquivoValidado = await this.arquivoValidator.validarAnexo(arquivo);
+
+    return this.persistir({ arquivo: arquivoValidado, salaoId });
+  }
+
+  private async persistir({
+    arquivo,
+    salaoId,
+  }: {
+    arquivo: ArquivoValidado;
+    salaoId: string;
+  }) {
+    const chaveStorage = randomUUID();
+    const arquivoPersistido = await this.arquivoRepository.criar({
+      mimeType: arquivo.mimeType,
+      salaoId,
+      tamanhoBytes: arquivo.tamanhoBytes,
+      urlStorage: chaveStorage,
+    });
+
+    await this.storage.putObject({
+      body: arquivo.buffer,
+      contentType: arquivo.mimeType,
+      key: chaveStorage,
+    });
+
+    return arquivoPersistido;
   }
 
   async garantirPertenceAoSalao(

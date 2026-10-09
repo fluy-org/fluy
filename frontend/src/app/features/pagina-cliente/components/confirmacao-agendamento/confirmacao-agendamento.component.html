@@ -60,6 +60,62 @@
     </aside>
   }
 
+
+  <section class="referencias" aria-labelledby="titulo-referencias">
+    <div>
+      <h2 id="titulo-referencias">Imagens de referência</h2>
+      <ion-text>
+        Opcional. Envie até {{ limiteReferencias }} fotos para mostrar o
+        resultado que você deseja.
+      </ion-text>
+    </div>
+
+    <input
+      #seletorReferencia
+      class="seletor-arquivo"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      multiple
+      (change)="selecionarReferencias($event)"
+    />
+
+    @if (referencias().length > 0) {
+      <div class="galeria-referencias">
+        @for (referencia of referencias(); track referencia.url; let indice = $index) {
+          <article>
+            <ion-img
+              [src]="referencia.url"
+              [alt]="'Referência ' + (indice + 1)"
+            ></ion-img>
+            <ion-button
+              type="button"
+              size="small"
+              color="danger"
+              fill="solid"
+              [attr.aria-label]="'Remover referência ' + (indice + 1)"
+              (click)="removerReferencia(indice)"
+            >
+              Remover
+            </ion-button>
+          </article>
+        }
+      </div>
+    }
+
+    <ion-button
+      type="button"
+      fill="outline"
+      [disabled]="salvando() || referencias().length >= limiteReferencias"
+      (click)="abrirSeletor()"
+    >
+      Adicionar imagens
+    </ion-button>
+
+    @if (erroReferencia()) {
+      <ion-text class="erro" role="alert">{{ erroReferencia() }}</ion-text>
+    }
+  </section>
+
   @if (erro()) {
     <ion-text class="erro" role="alert">{{ erro() }}</ion-text>
   }
@@ -68,7 +124,7 @@
     <ion-button type="button" fill="outline" [disabled]="salvando()" (click)="voltar.emit()">
       Voltar
     </ion-button>
-    <ion-button type="button" [disabled]="salvando()" (click)="confirmar.emit()">
+    <ion-button type="button" [disabled]="salvando()" (click)="confirmarAgendamento()">
       {{ salvando() ? 'Agendando...' : 'Confirmar agendamento' }}
     </ion-button>
   </div>
