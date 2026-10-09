@@ -1,0 +1,87 @@
+<ion-card class="filtros-periodo">
+  <ion-card-content>
+    <section class="seletor" aria-label="Selecionar período de faturamento">
+      <ion-select
+        label="Período"
+        label-placement="stacked"
+        fill="outline"
+        interface="popover"
+        [value]="selecao()"
+        [disabled]="carregando()"
+        (ionChange)="selecionarPeriodo($event.detail.value)"
+      >
+        @for (preset of presets; track preset) {
+          <ion-select-option [value]="preset">{{
+            rotulos[preset]
+          }}</ion-select-option>
+        }
+        <ion-select-option value="customizado"
+          >Intervalo customizado</ion-select-option
+        >
+      </ion-select>
+    </section>
+
+    @if (periodoAtual(); as periodo) {
+      @let inicio = descreverDataCivil(periodo.data_inicio);
+      @let fim = descreverDataCivil(periodo.data_fim);
+
+      <section class="periodo-exibido" aria-label="Período exibido">
+        <dl class="datas-periodo">
+          <div>
+            <dt>De</dt>
+            <dd>
+              <time [attr.datetime]="periodo.data_inicio">
+                <ion-text class="data">{{ inicio.data }}</ion-text>
+                <ion-text class="dia-semana">{{ inicio.diaSemana }}</ion-text>
+              </time>
+            </dd>
+          </div>
+          <div>
+            <dt>Até</dt>
+            <dd>
+              <time [attr.datetime]="periodo.data_fim">
+                <ion-text class="data">{{ fim.data }}</ion-text>
+                <ion-text class="dia-semana">{{ fim.diaSemana }}</ion-text>
+              </time>
+            </dd>
+          </div>
+        </dl>
+      </section>
+      <div class="fuso">
+        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+        <div>
+          <ion-text class="fuso-rotulo">Fuso do salão</ion-text>
+          <ion-text class="fuso-valor">{{ fusoHorario() }}</ion-text>
+        </div>
+      </div>
+    }
+
+    @if (selecao() === 'customizado') {
+      <form [formGroup]="formulario" (ngSubmit)="aplicarIntervalo()">
+        <div class="intervalo">
+          <ion-input
+            type="date"
+            label="Data inicial"
+            label-placement="stacked"
+            fill="outline"
+            formControlName="data_inicio"
+          ></ion-input>
+          <ion-input
+            type="date"
+            label="Data final"
+            label-placement="stacked"
+            fill="outline"
+            formControlName="data_fim"
+          ></ion-input>
+          <ion-button type="submit" [disabled]="carregando()"
+            >Aplicar</ion-button
+          >
+        </div>
+        <app-field-error [control]="formulario"></app-field-error>
+        <ion-text class="orientacao"
+          >O relatório muda após aplicar o intervalo.</ion-text
+        >
+      </form>
+    }
+  </ion-card-content>
+</ion-card>

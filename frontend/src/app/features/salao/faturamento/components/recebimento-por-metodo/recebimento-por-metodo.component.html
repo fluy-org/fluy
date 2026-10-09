@@ -1,0 +1,32 @@
+<ion-card>
+  <ion-card-header>
+    <h2>Recebimento por método</h2>
+    <ion-text class="descricao"
+      >Como a receita entrou, incluindo os sinais retidos.</ion-text
+    >
+  </ion-card-header>
+  <ion-card-content>
+    <ion-list>
+      @for (
+        recebimento of recebimentos();
+        track recebimento.origem + ':' + recebimento.metodo
+      ) {
+        <ion-item class="recebimento">
+          <div class="metodo">
+            <ion-text class="nome-metodo">{{
+              rotuloMetodo[recebimento.metodo]
+            }}</ion-text>
+            <ion-text class="origem">{{
+              rotuloOrigem[recebimento.origem]
+            }}</ion-text>
+          </div>
+          <ion-text slot="end" class="valor">{{
+            formatarValor(recebimento.valor)
+          }}</ion-text>
+        </ion-item>
+      } @empty {
+        <ion-text class="vazio">Nenhum recebimento neste período.</ion-text>
+      }
+    </ion-list>
+  </ion-card-content>
+</ion-card>

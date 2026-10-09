@@ -1,0 +1,17 @@
+:host {
+  display: grid;
+  gap: var(--fluy-space-1);
+}
+
+.valor {
+  color: var(--fluy-color-title);
+  font-weight: var(--fluy-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.metodo {
+  color: var(--fluy-color-muted);
+  font-size: var(--fluy-font-size-small);
+  line-height: var(--fluy-line-height-body);
+}

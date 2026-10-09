@@ -39,7 +39,7 @@ Ao final, o salão consegue:
 
 **O que deve existir**
 
-*Backend*
+_Backend_
 
 - Resolução do período a partir de preset (semana atual, semana anterior, mês atual, mês anterior, quinzena) ou intervalo customizado.
 - **Período resolvido no fuso de `salao.fuso_horario`** — é o fuso do salão que decide em qual período um evento na virada do dia ou do mês cai.
@@ -88,11 +88,11 @@ registrado. Faturamento é uma das quatro áreas com teste obrigatório no
 
 ### 7.2 Dashboard de faturamento
 
-- [ ] Tela de fechamento de período consumindo a agregação. — **🟣 Rudney** — [DEP: 7.1](#71-agregação-de-período) `[DECIDIR: período padrão ao abrir a tela]`
+- [x] Tela de fechamento de período consumindo a agregação. — **🟣 Rudney** — [DEP: 7.1](#71-agregação-de-período)
 
 **O que deve existir**
 
-*Frontend*
+_Frontend_
 
 - Seletor de período com os presets e o intervalo customizado.
 - **Seção 1 — Resumo:** total faturado, número de atendimentos concluídos, ticket médio.
@@ -105,13 +105,32 @@ registrado. Faturamento é uma das quatro áreas com teste obrigatório no
 
 **Decisões que precisam estar fechadas antes**
 
-- Qual período abre por padrão? O fluxo 13 não crava; recomendação: semana atual.
+- Nenhuma pendência de decisão. O período padrão foi fechado no planejamento.
+
+**Decisões fechadas no planejamento**
+
+- **Abertura e retorno** — o filtro válido da URL é restaurado, com nova consulta a cada entrada. O menu e URLs sem filtro válido abrem a semana atual, resolvida no fuso do salão.
+- **Seleção** — presets aplicam imediatamente e usam `periodo` na URL; intervalo customizado usa `data_inicio` e `data_fim` após Aplicar. O rascunho não altera a URL. Atualização, compartilhamento e histórico restauram o filtro; filtros inválidos são normalizados para a semana atual substituindo a entrada de histórico.
+- **Carregamento** — consultar primeiro o resumo e usar suas datas resolvidas na lista; exibir as quatro seções após ambas as consultas funcionarem. Falha inicial oferece nova tentativa do período inteiro.
+- **Paginação** — infinite scroll ao final do conteúdo, deduplicação por `agendamento_id`; falha preserva os itens e permite repetir a próxima página.
+- **Apresentação** — tabela acima de 900 px e cards até 900 px, com os mesmos campos; eventos com data e hora no fuso do salão; ticket médio nulo e pagamentos ausentes como “—”.
+- **Pendência** — alerta informativo e destaque textual e visual do restante pendente, sem ação de correção financeira nesta tela.
+- **Navegação de consulta** — nomes das clientes abrem a ficha existente; atendimentos e sinais retidos oferecem acesso ao detalhe do agendamento. Procedimentos permanecem como texto até existir uma página individual de consulta.
 
 **Critério de conclusão**
 
 `flows/salao/13-faturamento.md` ponta a ponta: semear um período com concluídos
 (sinal + restante em métodos diferentes), um no-show e um cancelamento, e
 conferir as quatro seções. Mais o período vazio e o alerta de dado incompleto.
+
+**Estado da validação**
+
+- Tela e navegação implementadas; typecheck, build e lint dos arquivos da feature aprovados.
+- Regressão existente: 46 testes de faturamento, autenticação e contexto do salão aprovados.
+- Interface conferida no Chrome com respostas simuladas: quatro seções, fuso distinto do dispositivo, tabela/cards (900/901 px), intervalo customizado, períodos vazio/só sinais/receita zero, falhas iniciais e de paginação, infinite scroll, deduplicação, respostas atrasadas e saída/retorno à tela.
+- Nova apresentação conferida entre 320 e 1440 px, com indicadores em cards, valores alinhados, foco por teclado e links abrindo as rotas existentes de cliente e agendamento com os IDs do relatório. A conferência de navegação usou respostas simuladas nas páginas de destino.
+- Filtro por URL conferido com respostas simuladas: cinco presets, intervalo customizado, rascunho/Aplicar, atualização da página, voltar/avançar, retorno de ficha, parâmetros inválidos/repetidos, preservação de parâmetros externos e troca de URL durante consulta. Cada alteração válida dispara uma única consulta inicial, inclusive no ciclo de navegação do Ionic.
+- O aceite ponta a ponta com backend autenticado e dados semeados permanece pendente; a checkbox só deve ser marcada após essa conferência.
 
 **Tamanho estimado:** ~50-60 arquivos.
 

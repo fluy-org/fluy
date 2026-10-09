@@ -1,0 +1,10 @@
+@if (pagamento(); as dados) {
+  <ion-text class="valor">{{ formatarValor(dados.valor) }}</ion-text>
+  <ion-text class="metodo"
+    >{{ rotuloMetodo[dados.metodo] }} ({{
+      rotuloOrigem[dados.origem]
+    }})</ion-text
+  >
+} @else {
+  <ion-text class="valor">—</ion-text>
+}

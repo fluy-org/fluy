@@ -26,6 +26,13 @@ export const AUTHENTICATED_ROUTES: Routes = [
       ),
   },
   {
+    path: 'faturamento',
+    loadChildren: () =>
+      import('@app/features/salao/faturamento/faturamento.routes').then(
+        (m) => m.FATURAMENTO_ROUTES,
+      ),
+  },
+  {
     // Separada da agenda: o fluxo 12 não mistura atendimento com to-do interno.
     path: 'lembretes',
     loadChildren: () =>

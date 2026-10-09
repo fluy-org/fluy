@@ -1,0 +1,209 @@
+:host {
+  display: block;
+}
+
+.secao-atendimentos {
+  margin: var(--fluy-space-4) 0;
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: var(--fluy-radius-lg);
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+h2 {
+  margin: 0;
+  color: var(--fluy-color-title);
+  font-size: var(--fluy-font-size-subtitle);
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.secao-atendimentos > ion-card-content {
+  padding: 0 var(--fluy-space-4) var(--fluy-space-4);
+}
+
+.link-cliente,
+.link-detalhe {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fluy-space-1);
+  min-height: var(--fluy-space-6);
+  max-width: 100%;
+  color: var(--fluy-color-body);
+  text-decoration: none;
+  text-underline-offset: var(--fluy-space-1);
+  border-radius: var(--fluy-radius-sm);
+}
+
+.link-cliente:hover,
+.link-detalhe:hover {
+  color: var(--fluy-color-title);
+  text-decoration: underline;
+  text-decoration-color: var(--fluy-color-primary);
+}
+
+.link-cliente {
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+.link-cliente ion-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.link-cliente ion-icon,
+.link-detalhe ion-icon {
+  flex-shrink: 0;
+  color: var(--fluy-color-primary-hover);
+  font-size: var(--fluy-font-size-body);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--fluy-color-focus);
+  outline-offset: var(--fluy-space-1);
+  background: var(--fluy-color-background);
+}
+
+.link-detalhe {
+  margin-top: var(--fluy-space-2);
+  font-size: var(--fluy-font-size-small);
+  font-weight: var(--fluy-font-weight-medium);
+}
+
+.data-conclusao {
+  display: block;
+  white-space: nowrap;
+}
+
+.erro-paginacao {
+  display: grid;
+  justify-items: start;
+  gap: var(--fluy-space-2);
+  margin-top: var(--fluy-space-3);
+}
+
+.tabela-desktop {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fluy-font-size-body);
+}
+
+caption {
+  padding-bottom: var(--fluy-space-3);
+  color: var(--fluy-color-muted);
+  text-align: left;
+  font-size: var(--fluy-font-size-small);
+}
+
+th,
+td {
+  padding: var(--fluy-space-4) var(--fluy-space-3);
+  border-bottom: 1px solid var(--fluy-color-border-soft);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+thead th {
+  background: var(--fluy-color-background);
+  color: var(--fluy-color-body);
+  font-size: var(--fluy-font-size-small);
+  white-space: nowrap;
+}
+
+tbody tr:hover {
+  background: var(--fluy-color-background);
+}
+
+.coluna-valor {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.valor-total > ion-text {
+  display: block;
+  font-weight: var(--fluy-font-weight-semibold);
+  white-space: nowrap;
+}
+
+.pendente {
+  background: var(--fluy-color-warning-bg);
+}
+
+.aviso-pendente {
+  --background: var(--fluy-color-warning-bg);
+  --color: var(--fluy-color-body);
+  display: inline-block;
+  margin-top: var(--fluy-space-2);
+  padding: var(--fluy-space-1) var(--fluy-space-2);
+  border: 1px solid var(--fluy-color-warning-border);
+  border-radius: var(--fluy-radius-sm);
+  font-size: var(--fluy-font-size-small);
+  font-weight: var(--fluy-font-weight-medium);
+  white-space: normal;
+}
+
+.cards-mobile {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .tabela-desktop {
+    display: none;
+  }
+
+  .cards-mobile {
+    display: grid;
+    gap: var(--fluy-space-3);
+  }
+
+  .cards-mobile ion-card {
+    margin: 0;
+    border: 1px solid var(--fluy-color-border-soft);
+    border-radius: var(--fluy-radius-lg);
+    box-shadow: none;
+  }
+
+  ion-card.pendente {
+    --background: var(--fluy-color-warning-bg);
+  }
+
+  h3 {
+    margin: 0 0 var(--fluy-space-3);
+    color: var(--fluy-color-title);
+    font-size: var(--fluy-font-size-subtitle);
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--fluy-space-3);
+    margin: 0;
+  }
+
+  .contexto-mobile {
+    grid-column: 1 / -1;
+  }
+
+  dt {
+    color: var(--fluy-color-muted);
+    font-size: var(--fluy-font-size-small);
+  }
+
+  dd {
+    margin: var(--fluy-space-1) 0 0;
+    overflow-wrap: anywhere;
+    color: var(--fluy-color-title);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--fluy-font-weight-medium);
+  }
+
+  .cards-mobile .link-detalhe {
+    margin-top: var(--fluy-space-4);
+  }
+}
