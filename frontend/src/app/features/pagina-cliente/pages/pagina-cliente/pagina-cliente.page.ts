@@ -581,6 +581,7 @@ export class PaginaClientePage implements OnInit, OnDestroy {
     }
 
     this.subdominio.set(subdominio);
+    this.paginaClienteService.salvarRotaPwa(subdominio);
 
     this.estado.set('carregando');
 

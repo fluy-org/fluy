@@ -220,6 +220,13 @@ export class PaginaClienteService {
     this._proximoCursorAgendamentos.set(null);
   }
 
+  salvarRotaPwa(subdominio: string): void {
+    localStorage.setItem(
+      'fluy:pwa:rota-cliente',
+      `/s/${encodeURIComponent(subdominio)}`,
+    );
+  }
+
   obterCredencial(subdominio: string): string | null {
     return localStorage.getItem(this.chaveCredencial(subdominio));
   }

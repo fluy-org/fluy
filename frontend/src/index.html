@@ -16,28 +16,7 @@
 
   <link rel="icon" type="image/png" href="assets/icon/fluy-icon-192.png" />
   <link rel="apple-touch-icon" href="assets/icon/fluy-icon-180.png" />
-
-  <script>
-    (() => {
-      const caminho = window.location.pathname;
-      const rotaSalaoPublico = /^\/s\/[^/]+(?:\/.*)?$/.test(caminho);
-      const entradaPwaCliente = caminho === '/cliente' || caminho === '/cliente/';
-      const manifesto = document.createElement('link');
-
-      manifesto.id = 'fluy-manifest';
-      manifesto.rel = 'manifest';
-      manifesto.href = rotaSalaoPublico || entradaPwaCliente
-        ? '/manifest-cliente.webmanifest'
-        : '/manifest.webmanifest';
-      document.head.appendChild(manifesto);
-
-      if (rotaSalaoPublico) {
-        try {
-          window.localStorage.setItem('fluy:pwa:rota-cliente', caminho);
-        } catch {}
-      }
-    })();
-  </script>
+  <link rel="manifest" href="/manifest.webmanifest" />
 
   <!-- add to homescreen for ios -->
   <meta name="mobile-web-app-capable" content="yes" />

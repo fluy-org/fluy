@@ -1,4 +1,16 @@
 [[redirects]]
+  from = "/s/*"
+  to = "/index-cliente.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/cliente"
+  to = "/index-cliente.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
@@ -24,3 +36,8 @@
   [headers.values]
     Cache-Control = "no-cache"
     Content-Type = "application/manifest+json"
+
+[[headers]]
+  for = "/index-cliente.html"
+  [headers.values]
+    Cache-Control = "no-cache"
