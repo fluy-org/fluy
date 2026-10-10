@@ -30,6 +30,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/manifest.webmanifest",
+              "src/manifest-cliente.webmanifest",
               {
                 "glob": "**/*",
                 "input": "src/assets",

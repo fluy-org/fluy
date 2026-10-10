@@ -10,6 +10,7 @@
           "/fluy-logo.png",
           "/index.html",
           "/manifest.webmanifest",
+          "/manifest-cliente.webmanifest",
           "/*.css",
           "/*.js"
         ]

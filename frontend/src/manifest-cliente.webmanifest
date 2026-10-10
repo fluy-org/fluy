@@ -1,0 +1,33 @@
+{
+  "id": "/cliente",
+  "name": "Fluy - Agendamento",
+  "short_name": "Fluy",
+  "description": "Agende seus procedimentos pelo Fluy.",
+  "lang": "pt-BR",
+  "start_url": "/cliente",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fff8f9",
+  "theme_color": "#e57d90",
+  "icons": [
+    {
+      "src": "/assets/icon/fluy-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon/fluy-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon/fluy-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

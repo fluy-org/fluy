@@ -1,8 +1,25 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { RedirectFunction, Router, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { AUTH_ROUTES } from './features/auth/auth.routes';
 import { AuthenticatedLayoutComponent } from './layouts/authenticated/authenticated-layout.component';
 import { PublicLayoutComponent } from './layouts/public/public-layout.component';
+
+const redirecionarPwaCliente: RedirectFunction = () => {
+  const router = inject(Router);
+
+  try {
+    const rota = localStorage.getItem('fluy:pwa:rota-cliente');
+
+    if (rota && /^\/s\/[^/?#]+(?:\/.*)?$/.test(rota)) {
+      return router.parseUrl(rota);
+    }
+  } catch {
+    return router.parseUrl('/login');
+  }
+
+  return router.parseUrl('/login');
+};
 
 export const routes: Routes = [
   {
@@ -32,6 +49,11 @@ export const routes: Routes = [
         path: '',
         loadChildren: () =>
           import('./features/demo/demo.routes').then((m) => m.routes),
+      },
+      {
+        path: 'cliente',
+        pathMatch: 'full',
+        redirectTo: redirecionarPwaCliente,
       },
       {
         path: 's/:subdominio',
