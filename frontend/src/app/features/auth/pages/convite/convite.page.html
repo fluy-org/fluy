@@ -1,0 +1,123 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Convite Fluy</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding fluy-page-safe">
+  <main>
+    <div
+      id="clerk-captcha"
+      class="clerk-captcha"
+      data-cl-theme="light"
+      data-cl-size="flexible"
+      data-cl-language="pt-BR"
+    ></div>
+
+    @if (estado() === 'carregando') {
+    <section class="estado-convite" aria-live="polite">
+      <ion-spinner aria-label="Validando convite"></ion-spinner>
+      <ion-text class="descricao">Validando seu convite...</ion-text>
+    </section>
+    } @else if (estado() === 'cadastro') {
+    <section class="cartao-cadastro">
+      <ion-text class="introducao">
+        <h1>Crie sua conta</h1>
+      </ion-text>
+      <ion-text class="descricao">
+        Complete seus dados para entrar no Fluy. O e-mail do convite não pode
+        ser alterado.
+      </ion-text>
+
+      <form [formGroup]="formulario" (ngSubmit)="concluirCadastro()">
+        <ion-list lines="none">
+          <ion-item>
+            <ion-input
+              label="E-mail convidado"
+              labelPlacement="stacked"
+              type="email"
+              [value]="emailConvite()"
+              readonly
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              label="Nome"
+              labelPlacement="stacked"
+              autocomplete="given-name"
+              formControlName="nome"
+              placeholder="Seu nome"
+              required
+            ></ion-input>
+          </ion-item>
+          @if (formulario.controls.nome.touched &&
+          formulario.controls.nome.invalid) {
+          <ion-note color="danger">Informe um nome válido.</ion-note>
+          }
+
+          <ion-item>
+            <ion-input
+              label="Sobrenome"
+              labelPlacement="stacked"
+              autocomplete="family-name"
+              formControlName="sobrenome"
+              placeholder="Seu sobrenome"
+              required
+            ></ion-input>
+          </ion-item>
+          @if ( formulario.controls.sobrenome.touched &&
+          formulario.controls.sobrenome.invalid ) {
+          <ion-note color="danger">Informe um sobrenome válido.</ion-note>
+          }
+
+          <ion-item>
+            <ion-input
+              label="Senha"
+              labelPlacement="stacked"
+              autocomplete="new-password"
+              formControlName="senha"
+              placeholder="Crie uma senha segura"
+              type="password"
+              required
+            ></ion-input>
+          </ion-item>
+          @if (formulario.controls.senha.touched &&
+          formulario.controls.senha.invalid) {
+          <ion-note color="danger">
+            Use pelo menos 15 caracteres. Outras regras de segurança podem ser
+            exigidas pelo Clerk.
+          </ion-note>
+          }
+        </ion-list>
+
+        @if (erroCadastro()) {
+        <ion-text class="erro-cadastro" color="danger" aria-live="polite">
+          {{ erroCadastro() }}
+        </ion-text>
+        }
+
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="formulario.invalid || enviando()"
+        >
+          @if (enviando()) {
+          <ion-spinner name="crescent" aria-label="Criando conta"></ion-spinner>
+          } @else { Criar conta }
+        </ion-button>
+      </form>
+    </section>
+    } @else if (mensagemAtual(); as mensagem) {
+    <section class="estado-convite" aria-live="polite">
+      <ion-text class="titulo-estado">
+        <h1>{{ mensagem.titulo }}</h1>
+      </ion-text>
+      <ion-text class="descricao">{{ mensagem.descricao }}</ion-text>
+      <ion-button expand="block" (click)="irParaLogin()">
+        Ir para o login
+      </ion-button>
+    </section>
+    }
+  </main>
+</ion-content>

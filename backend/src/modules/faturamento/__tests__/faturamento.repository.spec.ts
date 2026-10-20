@@ -31,10 +31,10 @@ jest.mock(
       metodo: 'cobranca_gateway.metodo',
     },
   }),
-  { virtual: true },
 );
 
 jest.mock('drizzle-orm', () => ({
+  ...jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm'),
   and: jest.fn(),
   desc: jest.fn(),
   eq: jest.fn(),

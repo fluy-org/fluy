@@ -73,6 +73,16 @@
           >
             <ion-label>Configura&ccedil;&atilde;o</ion-label>
           </ion-item>
+
+          <ion-item
+            class="logout-item"
+            button="true"
+            lines="none"
+            [disabled]="saindo()"
+            (click)="sair()"
+          >
+            <ion-label>{{ saindo() ? 'Saindo...' : 'Sair da conta' }}</ion-label>
+          </ion-item>
         </ion-menu-toggle>
       </ion-list>
     </ion-content>

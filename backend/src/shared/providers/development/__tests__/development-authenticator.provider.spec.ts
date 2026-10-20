@@ -34,9 +34,9 @@ describe('DevelopmentAuthenticator', () => {
   });
 
   it('rejeita token diferente do configurado', async () => {
-    await expect(authenticator.authenticate('token-incorreto')).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
+    await expect(
+      authenticator.authenticate('token-incorreto'),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
   it('delega a consulta de perfil ao Clerk', async () => {
@@ -45,6 +45,7 @@ describe('DevelopmentAuthenticator', () => {
       sobrenome: null,
       email: 'ana@fluy.local',
       emailVerified: true,
+      conviteProprietario: { status: 'ausente' as const },
     };
     jest.spyOn(clerkAuthenticator, 'getProfile').mockResolvedValue(perfil);
 

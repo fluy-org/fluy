@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 
-jest.mock('@fluy/schema', () => ({}), { virtual: true });
+jest.mock('@fluy/schema', () => ({}));
 
 import type { SalaoConfiguracaoPersistida } from '@/modules/salao-configuracao/contracts';
 import { SalaoConfiguracaoValidator } from '@/modules/salao-configuracao/salao-configuracao.validator';

@@ -57,10 +57,10 @@ jest.mock(
       visibilidade: 'anexo_agendamento.visibilidade',
     },
   }),
-  { virtual: true },
 );
 
 jest.mock('drizzle-orm', () => ({
+  ...jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm'),
   and: jest.fn(),
   asc: jest.fn(),
   eq: jest.fn(),

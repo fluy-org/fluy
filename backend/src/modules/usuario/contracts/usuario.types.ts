@@ -8,11 +8,19 @@ export type CriarOuObterUsuarioInput = {
   nome: string;
   sobrenome: string;
   email: string;
+  exigirConvite: boolean;
+  referenciaConviteClerk: string | null;
 };
 
 export type ResultadoCriarOuObterUsuario =
   | { status: 'criado' | 'existente'; usuario: UsuarioPersistido }
-  | { status: 'email_em_uso' };
+  | {
+      status:
+        | 'email_em_uso'
+        | 'convite_necessario'
+        | 'convite_invalido'
+        | 'convite_consumido';
+    };
 
 export type ResultadoCriarOuObterUsuarioAtual = {
   usuario: UsuarioPersistido;

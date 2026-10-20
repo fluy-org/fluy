@@ -78,6 +78,27 @@
       "when": 1791384391593,
       "tag": "0010_adicionar_autor_cancelamento_e_tipo_pagamento",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792020896900,
+      "tag": "0011_adicionar_convites_e_autorizacoes_proprietario",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792022086544,
+      "tag": "0012_impedir_convites_pendentes_duplicados",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792110548577,
+      "tag": "0013_autorizacao_por_convite_clerk",
+      "breakpoints": true
     }
   ]
 }

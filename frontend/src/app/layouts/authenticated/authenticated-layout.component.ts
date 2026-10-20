@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonContent,
@@ -14,6 +14,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { AuthService } from '@app/core/services/auth/auth.service';
 import { CentralAvisosComponent } from '@app/features/avisos/components/central-avisos/central-avisos.component';
 
 @Component({
@@ -38,4 +39,22 @@ import { CentralAvisosComponent } from '@app/features/avisos/components/central-
     CentralAvisosComponent,
   ],
 })
-export class AuthenticatedLayoutComponent {}
+export class AuthenticatedLayoutComponent {
+  private readonly authService = inject(AuthService);
+
+  readonly saindo = signal(false);
+
+  async sair(): Promise<void> {
+    if (this.saindo()) {
+      return;
+    }
+
+    this.saindo.set(true);
+
+    try {
+      await this.authService.logout();
+    } finally {
+      this.saindo.set(false);
+    }
+  }
+}

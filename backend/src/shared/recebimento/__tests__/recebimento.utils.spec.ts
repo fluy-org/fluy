@@ -8,10 +8,10 @@ jest.mock(
       status: 'cobranca_gateway.status',
     },
   }),
-  { virtual: true },
 );
 
 jest.mock('drizzle-orm', () => ({
+  ...jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm'),
   inArray: jest.fn(() => 'filtro-estados'),
   sql: jest.fn(() => 'valor-recebido'),
 }));

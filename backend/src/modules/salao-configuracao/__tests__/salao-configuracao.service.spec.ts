@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 
-jest.mock('@fluy/schema', () => ({}), { virtual: true });
+jest.mock('@fluy/schema', () => ({}));
 
 import type {
   AtualizarSalaoConfiguracaoInput,

@@ -3,6 +3,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -41,6 +42,9 @@ export class SalaoController {
   })
   @ApiNotFoundResponse({
     description: 'A conta global ainda não foi criada.',
+  })
+  @ApiForbiddenResponse({
+    description: 'A conta não possui autorização para criar um salão.',
   })
   @ApiConflictResponse({
     description: 'Subdomínio indisponível.',

@@ -19,16 +19,15 @@ jest.mock(
       data: 'override_disponibilidade.data',
     },
   }),
-  { virtual: true },
 );
 
 jest.mock('drizzle-orm', () => ({
+  ...jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm'),
   and: jest.fn(),
   asc: jest.fn(),
   eq: jest.fn(),
   gte: jest.fn(),
   lte: jest.fn(),
-  relations: jest.fn(),
 }));
 
 jest.mock('@/database/database.provider', () => ({

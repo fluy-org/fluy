@@ -1,4 +1,4 @@
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, ForbiddenException } from '@nestjs/common';
 
 jest.mock('@fluy/schema', () => ({ LIMITE_SUBDOMINIO: 63 }));
 jest.mock('@/modules/usuario/usuario.service', () => ({
@@ -17,8 +17,10 @@ import { SalaoService } from '@/modules/salao-onboarding/salao-onboarding.servic
 
 describe('SalaoService', () => {
   const buscarUsuarioAtual = jest.fn();
+  const verificarAutorizacaoParaCriarSalao = jest.fn();
   const usuarioService = {
     buscarUsuarioAtual,
+    verificarAutorizacaoParaCriarSalao,
   } as unknown as UsuarioService;
   const buscarSalaoDoDono = jest.fn();
   const buscarPorSubdominio = jest.fn();
@@ -50,6 +52,7 @@ describe('SalaoService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     buscarUsuarioAtual.mockResolvedValue(usuario);
+    verificarAutorizacaoParaCriarSalao.mockResolvedValue(undefined);
   });
 
   it('retorna o salao existente do dono sem tentar cria-lo novamente', async () => {
@@ -77,6 +80,19 @@ describe('SalaoService', () => {
       usuarioId: usuario.id,
       nomeProfissional: 'Ana Silva',
     });
+    expect(verificarAutorizacaoParaCriarSalao).toHaveBeenCalledWith(usuario.id);
+  });
+
+  it('rejeita chamada direta sem autorização antes de criar o salão', async () => {
+    buscarSalaoDoDono.mockResolvedValue(undefined);
+    verificarAutorizacaoParaCriarSalao.mockRejectedValue(
+      new ForbiddenException('sem autorização'),
+    );
+
+    await expect(service.criarOuObter({ identity, dados })).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(criar).not.toHaveBeenCalled();
   });
 
   it('recupera o salao quando outra requisicao o cria em paralelo', async () => {

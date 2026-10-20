@@ -9,6 +9,8 @@ import * as salaoSchema from './salao/index.js';
 import * as usuarioSchema from './usuario/index.js';
 import * as usuarioSalaoSchema from './usuario_salao/index.js';
 import * as identidadeAutenticacaoSchema from './identidade_autenticacao/index.js';
+import * as conviteProprietarioSchema from './convite_proprietario/index.js';
+import * as autorizacaoProprietarioSchema from './autorizacao_proprietario/index.js';
 import * as profissionalSchema from './profissional/index.js';
 import * as configuracaoSalaoSchema from './configuracao_salao/index.js';
 import * as janelaSemanalSchema from './janela_semanal/index.js';
@@ -35,6 +37,8 @@ export * from './salao/index.js';
 export * from './usuario/index.js';
 export * from './usuario_salao/index.js';
 export * from './identidade_autenticacao/index.js';
+export * from './convite_proprietario/index.js';
+export * from './autorizacao_proprietario/index.js';
 export * from './profissional/index.js';
 export * from './configuracao_salao/index.js';
 export * from './janela_semanal/index.js';
@@ -64,6 +68,8 @@ export const schema = {
   ...usuarioSchema,
   ...usuarioSalaoSchema,
   ...identidadeAutenticacaoSchema,
+  ...conviteProprietarioSchema,
+  ...autorizacaoProprietarioSchema,
   ...profissionalSchema,
   ...configuracaoSalaoSchema,
   ...janelaSemanalSchema,
