@@ -13,6 +13,7 @@ import {
 import type { TipoErroConclusaoCadastro } from '../../contracts';
 import { ContaService } from '../../services/conta.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
+import { ApiError } from '../../../../core/errors/api-error';
 
 type AcaoErroConclusaoCadastro = 'sair_e_entrar' | 'tentar_novamente';
 
@@ -108,7 +109,7 @@ export class ConcluirCadastroPage implements OnInit {
   }
 
   private identificarTipoErro(error: unknown): TipoErroConclusaoCadastro {
-    if (!(error instanceof HttpErrorResponse)) {
+    if (!(error instanceof ApiError) && !(error instanceof HttpErrorResponse)) {
       return 'temporario';
     }
 
