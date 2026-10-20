@@ -28,6 +28,13 @@ const ERROS_EXIBIVEIS_CONCLUSAO_CADASTRO: Record<
   TipoErroConclusaoCadastro,
   ErroExibivelConclusaoCadastro
 > = {
+  convite_recusado: {
+    titulo: 'Cadastro de proprietário não autorizado',
+    descricao:
+      'Não foi possível validar seu convite. Entre em contato com quem enviou o convite para verificar sua autorização.',
+    textoBotao: 'Sair e entrar novamente',
+    acao: 'sair_e_entrar',
+  },
   conflito_email: {
     titulo: 'Este e-mail ja pertence a outra conta',
     descricao: 'Entre com a identidade usada originalmente para acessar essa conta.',
@@ -115,6 +122,10 @@ export class ConcluirCadastroPage implements OnInit {
 
     if (error.status === 409) {
       return 'conflito_email';
+    }
+
+    if (error.status === 403) {
+      return 'convite_recusado';
     }
 
     if (error.status === 422) {

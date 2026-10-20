@@ -1,6 +1,7 @@
 export const TIPO_ERRO_CONCLUSAO_CADASTRO = [
   'conflito_email',
   'perfil_incompleto',
+  'convite_recusado',
   'temporario',
 ] as const;
 
