@@ -19,6 +19,7 @@ jest.mock(
       data: 'override_disponibilidade.data',
     },
   }),
+  {},
 );
 
 jest.mock('drizzle-orm', () => ({

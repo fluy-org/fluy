@@ -22,12 +22,14 @@ import { FaturamentoModule } from '@/modules/faturamento/faturamento.module';
 import { LembreteModule } from '@/modules/lembrete/lembrete.module';
 import { NotaModule } from '@/modules/nota/nota.module';
 import { ProcedimentoModule } from '@/modules/procedimento/procedimento.module';
+import { PagamentoModule } from '@/modules/pagamento/pagamento.module';
 import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-configuracao.module';
 import { SalaoModule } from '@/modules/salao/salao.module';
 import { SalaoOnboardingModule } from '@/modules/salao-onboarding/salao-onboarding.module';
 import { UsuarioModule } from '@/modules/usuario/usuario.module';
 import { ClerkModule } from '@/shared/providers/clerk/clerk.module';
 import { R2StorageModule } from '@/shared/providers/r2/r2-storage.module';
+import { PaymentProvidersModule } from '@/shared/providers/payment/payment-providers.module';
 import { AllExceptionsFilter } from '@/shared/filters/all-exceptions.filter';
 import { TenantContextModule } from '@/shared/tenant-context/tenant-context.module';
 import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-context.guard';
@@ -101,6 +103,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
     DatabaseModule,
     ClerkModule,
     R2StorageModule,
+    PaymentProvidersModule,
     AuthModule,
     AnexoAgendamentoModule,
     AvisoModule,
@@ -117,6 +120,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
     SalaoConfiguracaoModule,
     SalaoModule,
     ProcedimentoModule,
+    PagamentoModule,
   ],
   controllers: [AppController],
   providers: [

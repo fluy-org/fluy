@@ -3,6 +3,18 @@
 Adiciona pagamento online ao produto. **Todo este bloco está `[BLOQ:gateway]`
 até a escolha ser feita** (Woovi vs. Asaas vs. outro).
 
+Pesquisa de candidato: [viabilidade do Mercado Pago](./mercado-pago-viabilidade.md).
+Há pendências sobre KYC, PIX em marketplace e reembolso sem saldo; a pesquisa
+não fecha a escolha do gateway.
+
+Comparação adicional: [gateways alternativos](./gateways-alternativos-viabilidade.md),
+incluindo InfinitePay, Efí, Woovi, Safe2Pay e outros. InfinitePay Checkout Integrado
+e Efí Open Finance ficaram como prioridades de validação, sem decisão de integração.
+
+Investigação específica: [Efí Open Finance](./efi-open-finance-viabilidade.md).
+Recebimento em banco externo, tarifas e origem dos fundos para devolução
+continuam pendentes; o cadastro de uma chave PIX não garante o fluxo completo.
+
 Diferente dos blocos 3 a 8, este **não tem dono único**: pagamento entra nas
 duas superfícies ao mesmo tempo. A divisão segue a regra de **quem é dono da
 superfície**, com uma única fatia compartilhada na frente.

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TIPO_CHAVE_PIX } from './configuracao_salao.enums.js';
 
 const numeroPositivoSchema = z
   .number()
@@ -38,3 +39,16 @@ export const configuracaoSalaoResponseSchema = z
     politica_atraso: z.string().nullable(),
   })
   .meta({ id: 'ConfiguracaoSalaoResponse' });
+
+export const atualizarRecebimentoPixSchema = z
+  .object({
+    tipo_chave: z.enum(TIPO_CHAVE_PIX),
+    chave: z.string().trim().min(1).max(200),
+    nome_recebedor: z.string().trim().min(1).max(200),
+  })
+  .strict()
+  .meta({ id: 'AtualizarRecebimentoPix' });
+
+export const recebimentoPixResponseSchema = atualizarRecebimentoPixSchema
+  .extend({ atualizado_em: z.iso.datetime() })
+  .meta({ id: 'RecebimentoPixResponse' });

@@ -104,8 +104,9 @@ autorizações de origem `legado`.
 
 ## Migração e compatibilidade
 
-A migration `0013_autorizacao_por_convite_clerk.sql` adiciona
-`autorizacao_proprietario.referencia_convite_clerk`, preservando:
+A migration `0012_reconciliar_autorizacoes_proprietario.sql` cria ou
+reconcilia a autorização por convite do Clerk, inclusive em bancos que já
+receberam a sequência anterior de migrations. Ela preserva:
 
 - autorizações legítimas de origem `legado`;
 - autorizações antigas ligadas por `convite_id`;
@@ -117,7 +118,8 @@ staging, valide o fluxo completo e confira as autorizações existentes.
 ## Ativação segura
 
 1. configure o mesmo `OWNER_INVITE_METADATA_SECRET` no comando e na API;
-2. aplique as migrations até `0013` em staging;
+2. aplique as migrations até `0012_reconciliar_autorizacoes_proprietario` em
+   staging;
 3. publique backend e frontend mantendo a flag desabilitada;
 4. revogue no Clerk e reemita convites ainda pendentes criados pelo fluxo antigo;
    a metadata antiga não concede autorização no fluxo novo;

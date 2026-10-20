@@ -170,6 +170,33 @@ export class AgendamentoPublicoService {
     return criado;
   }
 
+  async reservar({
+    salaoId,
+    dados,
+  }: {
+    salaoId: string;
+    dados: CriarAgendamentoPublicoDto;
+  }) {
+    const cliente = await this.resolverCliente({
+      salaoId,
+      credencial: dados.credencial,
+    });
+
+    return this.agendamentoService.criar({
+      salaoId,
+      bloquearProcedimentoDuplicadoNoDia: true,
+      notificarCliente: false,
+      reservar: true,
+      dados: {
+        cliente_id: cliente.id,
+        procedimento_id: dados.procedimento_id,
+        data: dados.data,
+        hora_inicio: dados.hora_inicio,
+        confirmar_excecoes: dados.confirmar_excecoes,
+      },
+    });
+  }
+
   private async resolverCliente({
     salaoId,
     credencial,

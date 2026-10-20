@@ -2,6 +2,7 @@ export const TIPO_EVENTO_GATEWAY = [
   'cobranca_confirmada',
   'reembolso_confirmado',
   'falhou',
+  'expirada',
 ] as const;
 export type TipoEventoGateway = (typeof TIPO_EVENTO_GATEWAY)[number];
 

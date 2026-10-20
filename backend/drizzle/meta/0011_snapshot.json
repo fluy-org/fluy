@@ -1,5 +1,5 @@
 {
-  "id": "af99b837-143f-405a-b16c-9210ba40cc93",
+  "id": "610b38ae-90d6-4287-a4f7-ff8d7b7bab1c",
   "prevId": "b61c4ba8-1047-4053-a7f0-e69834cd3589",
   "version": "7",
   "dialect": "postgresql",
@@ -313,252 +313,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.convite_proprietario": {
-      "name": "convite_proprietario",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "clerk_convite_id": {
-          "name": "clerk_convite_id",
-          "type": "varchar(500)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email_normalizado": {
-          "name": "email_normalizado",
-          "type": "varchar(320)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "estado": {
-          "name": "estado",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pendente'"
-        },
-        "expira_em": {
-          "name": "expira_em",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "consumido_por_usuario_id": {
-          "name": "consumido_por_usuario_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "consumido_em": {
-          "name": "consumido_em",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "revogado_em": {
-          "name": "revogado_em",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "criado_em": {
-          "name": "criado_em",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "convite_proprietario_clerk_convite_uq": {
-          "name": "convite_proprietario_clerk_convite_uq",
-          "columns": [
-            {
-              "expression": "clerk_convite_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "convite_proprietario_email_estado_idx": {
-          "name": "convite_proprietario_email_estado_idx",
-          "columns": [
-            {
-              "expression": "email_normalizado",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "estado",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "convite_proprietario_consumido_por_usuario_id_usuario_id_fk": {
-          "name": "convite_proprietario_consumido_por_usuario_id_usuario_id_fk",
-          "tableFrom": "convite_proprietario",
-          "tableTo": "usuario",
-          "columnsFrom": [
-            "consumido_por_usuario_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "convite_proprietario_email_normalizado_ck": {
-          "name": "convite_proprietario_email_normalizado_ck",
-          "value": "\"convite_proprietario\".\"email_normalizado\" = lower(btrim(\"convite_proprietario\".\"email_normalizado\"))"
-        },
-        "convite_proprietario_estado_ck": {
-          "name": "convite_proprietario_estado_ck",
-          "value": "\"convite_proprietario\".\"estado\" in ('pendente', 'consumido', 'revogado')"
-        },
-        "convite_proprietario_transicao_ck": {
-          "name": "convite_proprietario_transicao_ck",
-          "value": "(\n        (\"convite_proprietario\".\"estado\" = 'pendente' and \"convite_proprietario\".\"consumido_por_usuario_id\" is null and \"convite_proprietario\".\"consumido_em\" is null and \"convite_proprietario\".\"revogado_em\" is null)\n        or\n        (\"convite_proprietario\".\"estado\" = 'consumido' and \"convite_proprietario\".\"consumido_por_usuario_id\" is not null and \"convite_proprietario\".\"consumido_em\" is not null and \"convite_proprietario\".\"revogado_em\" is null)\n        or\n        (\"convite_proprietario\".\"estado\" = 'revogado' and \"convite_proprietario\".\"consumido_por_usuario_id\" is null and \"convite_proprietario\".\"consumido_em\" is null and \"convite_proprietario\".\"revogado_em\" is not null)\n      )"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.autorizacao_proprietario": {
-      "name": "autorizacao_proprietario",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "usuario_id": {
-          "name": "usuario_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "convite_id": {
-          "name": "convite_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "origem": {
-          "name": "origem",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "criado_em": {
-          "name": "criado_em",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "autorizacao_proprietario_usuario_uq": {
-          "name": "autorizacao_proprietario_usuario_uq",
-          "columns": [
-            {
-              "expression": "usuario_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "autorizacao_proprietario_convite_uq": {
-          "name": "autorizacao_proprietario_convite_uq",
-          "columns": [
-            {
-              "expression": "convite_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "autorizacao_proprietario_usuario_id_usuario_id_fk": {
-          "name": "autorizacao_proprietario_usuario_id_usuario_id_fk",
-          "tableFrom": "autorizacao_proprietario",
-          "tableTo": "usuario",
-          "columnsFrom": [
-            "usuario_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "autorizacao_proprietario_convite_id_convite_proprietario_id_fk": {
-          "name": "autorizacao_proprietario_convite_id_convite_proprietario_id_fk",
-          "tableFrom": "autorizacao_proprietario",
-          "tableTo": "convite_proprietario",
-          "columnsFrom": [
-            "convite_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "autorizacao_proprietario_origem_ck": {
-          "name": "autorizacao_proprietario_origem_ck",
-          "value": "\"autorizacao_proprietario\".\"origem\" in ('convite', 'legado')"
-        },
-        "autorizacao_proprietario_convite_origem_ck": {
-          "name": "autorizacao_proprietario_convite_origem_ck",
-          "value": "(\n        (\"autorizacao_proprietario\".\"origem\" = 'convite' and \"autorizacao_proprietario\".\"convite_id\" is not null)\n        or\n        (\"autorizacao_proprietario\".\"origem\" = 'legado' and \"autorizacao_proprietario\".\"convite_id\" is null)\n      )"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.profissional": {
       "name": "profissional",
       "schema": "",
@@ -680,6 +434,30 @@
         "politica_atraso": {
           "name": "politica_atraso",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_tipo_chave": {
+          "name": "pix_tipo_chave",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_chave": {
+          "name": "pix_chave",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_nome_recebedor": {
+          "name": "pix_nome_recebedor",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_atualizado_em": {
+          "name": "pix_atualizado_em",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -1506,6 +1284,18 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "salao_id": {
+          "name": "salao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cobranca_gateway_id": {
+          "name": "cobranca_gateway_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id_externo": {
           "name": "id_externo",
           "type": "varchar(200)",
@@ -1564,7 +1354,34 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "webhook_gateway_evento_salao_id_salao_id_fk": {
+          "name": "webhook_gateway_evento_salao_id_salao_id_fk",
+          "tableFrom": "webhook_gateway_evento",
+          "tableTo": "salao",
+          "columnsFrom": [
+            "salao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "webhook_gateway_evento_cobranca_gateway_id_cobranca_gateway_id_fk": {
+          "name": "webhook_gateway_evento_cobranca_gateway_id_cobranca_gateway_id_fk",
+          "tableFrom": "webhook_gateway_evento",
+          "tableTo": "cobranca_gateway",
+          "columnsFrom": [
+            "cobranca_gateway_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "webhook_gateway_evento_id_externo_unique": {
@@ -1590,11 +1407,29 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "salao_id": {
+          "name": "salao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "agendamento_id": {
+          "name": "agendamento_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "modalidade": {
+          "name": "modalidade",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id_externo": {
           "name": "id_externo",
           "type": "varchar(200)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "idempotency_key": {
           "name": "idempotency_key",
@@ -1608,6 +1443,42 @@
           "primaryKey": false,
           "notNull": true
         },
+        "taxa_cliente": {
+          "name": "taxa_cliente",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_cliente": {
+          "name": "total_cliente",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_tipo_chave": {
+          "name": "pix_tipo_chave",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_chave": {
+          "name": "pix_chave",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_nome_recebedor": {
+          "name": "pix_nome_recebedor",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "instrucao_cliente": {
+          "name": "instrucao_cliente",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "metodo": {
           "name": "metodo",
           "type": "varchar(20)",
@@ -1619,6 +1490,13 @@
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
+        },
+        "divergencia": {
+          "name": "divergencia",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "criada_em": {
           "name": "criada_em",
@@ -1642,7 +1520,34 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "cobranca_gateway_salao_id_salao_id_fk": {
+          "name": "cobranca_gateway_salao_id_salao_id_fk",
+          "tableFrom": "cobranca_gateway",
+          "tableTo": "salao",
+          "columnsFrom": [
+            "salao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "cobranca_gateway_agendamento_id_agendamento_id_fk": {
+          "name": "cobranca_gateway_agendamento_id_agendamento_id_fk",
+          "tableFrom": "cobranca_gateway",
+          "tableTo": "agendamento",
+          "columnsFrom": [
+            "agendamento_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "cobranca_gateway_id_externo_unique": {
@@ -1757,6 +1662,12 @@
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

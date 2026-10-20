@@ -3,11 +3,13 @@ jest.mock(
   () => ({
     agendamento: { estado: 'agendamento.estado' },
     cobrancaManual: { valor: 'cobranca_manual.valor' },
+    pagamentoAgendamento: { valor: 'pagamento_agendamento.valor' },
     cobrancaGateway: {
       valor: 'cobranca_gateway.valor',
       status: 'cobranca_gateway.status',
     },
   }),
+  {},
 );
 
 jest.mock('drizzle-orm', () => ({
@@ -48,6 +50,7 @@ describe('recebimento.utils', () => {
     expect(valores).toEqual([
       'cobranca_manual.valor',
       'cobranca_gateway.status',
+      'pagamento_agendamento.valor',
       'cobranca_gateway.valor',
     ]);
     expect(partes.join('?')).toContain("= 'confirmada'");

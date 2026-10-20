@@ -1,6 +1,6 @@
 {
-  "id": "fc30a234-5921-4c8f-b816-1ea364097828",
-  "prevId": "af99b837-143f-405a-b16c-9210ba40cc93",
+  "id": "c18bf46f-0e7f-47a4-aa70-ecc0b92390c0",
+  "prevId": "610b38ae-90d6-4287-a4f7-ff8d7b7bab1c",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -486,6 +486,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "referencia_convite_clerk": {
+          "name": "referencia_convite_clerk",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "origem": {
           "name": "origem",
           "type": "varchar(20)",
@@ -521,6 +527,21 @@
           "columns": [
             {
               "expression": "convite_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "autorizacao_proprietario_referencia_clerk_uq": {
+          "name": "autorizacao_proprietario_referencia_clerk_uq",
+          "columns": [
+            {
+              "expression": "referencia_convite_clerk",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -570,7 +591,7 @@
         },
         "autorizacao_proprietario_convite_origem_ck": {
           "name": "autorizacao_proprietario_convite_origem_ck",
-          "value": "(\n        (\"autorizacao_proprietario\".\"origem\" = 'convite' and \"autorizacao_proprietario\".\"convite_id\" is not null)\n        or\n        (\"autorizacao_proprietario\".\"origem\" = 'legado' and \"autorizacao_proprietario\".\"convite_id\" is null)\n      )"
+          "value": "(\n        (\"autorizacao_proprietario\".\"origem\" = 'convite' and num_nonnulls(\"autorizacao_proprietario\".\"convite_id\", \"autorizacao_proprietario\".\"referencia_convite_clerk\") = 1)\n        or\n        (\"autorizacao_proprietario\".\"origem\" = 'legado' and \"autorizacao_proprietario\".\"convite_id\" is null and \"autorizacao_proprietario\".\"referencia_convite_clerk\" is null)\n      )"
         }
       },
       "isRLSEnabled": false
@@ -696,6 +717,30 @@
         "politica_atraso": {
           "name": "politica_atraso",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_tipo_chave": {
+          "name": "pix_tipo_chave",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_chave": {
+          "name": "pix_chave",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_nome_recebedor": {
+          "name": "pix_nome_recebedor",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_atualizado_em": {
+          "name": "pix_atualizado_em",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -1522,6 +1567,18 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "salao_id": {
+          "name": "salao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cobranca_gateway_id": {
+          "name": "cobranca_gateway_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id_externo": {
           "name": "id_externo",
           "type": "varchar(200)",
@@ -1580,7 +1637,34 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "webhook_gateway_evento_salao_id_salao_id_fk": {
+          "name": "webhook_gateway_evento_salao_id_salao_id_fk",
+          "tableFrom": "webhook_gateway_evento",
+          "tableTo": "salao",
+          "columnsFrom": [
+            "salao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "webhook_gateway_evento_cobranca_gateway_id_cobranca_gateway_id_fk": {
+          "name": "webhook_gateway_evento_cobranca_gateway_id_cobranca_gateway_id_fk",
+          "tableFrom": "webhook_gateway_evento",
+          "tableTo": "cobranca_gateway",
+          "columnsFrom": [
+            "cobranca_gateway_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "webhook_gateway_evento_id_externo_unique": {
@@ -1606,11 +1690,29 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "salao_id": {
+          "name": "salao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "agendamento_id": {
+          "name": "agendamento_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "modalidade": {
+          "name": "modalidade",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id_externo": {
           "name": "id_externo",
           "type": "varchar(200)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "idempotency_key": {
           "name": "idempotency_key",
@@ -1624,6 +1726,42 @@
           "primaryKey": false,
           "notNull": true
         },
+        "taxa_cliente": {
+          "name": "taxa_cliente",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_cliente": {
+          "name": "total_cliente",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_tipo_chave": {
+          "name": "pix_tipo_chave",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_chave": {
+          "name": "pix_chave",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pix_nome_recebedor": {
+          "name": "pix_nome_recebedor",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "instrucao_cliente": {
+          "name": "instrucao_cliente",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "metodo": {
           "name": "metodo",
           "type": "varchar(20)",
@@ -1635,6 +1773,13 @@
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
+        },
+        "divergencia": {
+          "name": "divergencia",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "criada_em": {
           "name": "criada_em",
@@ -1658,7 +1803,34 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "cobranca_gateway_salao_id_salao_id_fk": {
+          "name": "cobranca_gateway_salao_id_salao_id_fk",
+          "tableFrom": "cobranca_gateway",
+          "tableTo": "salao",
+          "columnsFrom": [
+            "salao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "cobranca_gateway_agendamento_id_agendamento_id_fk": {
+          "name": "cobranca_gateway_agendamento_id_agendamento_id_fk",
+          "tableFrom": "cobranca_gateway",
+          "tableTo": "agendamento",
+          "columnsFrom": [
+            "agendamento_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "cobranca_gateway_id_externo_unique": {
@@ -1773,6 +1945,12 @@
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

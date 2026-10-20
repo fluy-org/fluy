@@ -28,6 +28,7 @@ jest.mock(
       agendamento_id: 'pagamento_agendamento.agendamento_id',
       cobranca_manual_id: 'pagamento_agendamento.cobranca_manual_id',
       cobranca_gateway_id: 'pagamento_agendamento.cobranca_gateway_id',
+      valor: 'pagamento_agendamento.valor',
     },
     cobrancaManual: {
       id: 'cobranca_manual.id',
@@ -57,6 +58,7 @@ jest.mock(
       visibilidade: 'anexo_agendamento.visibilidade',
     },
   }),
+  {},
 );
 
 jest.mock('drizzle-orm', () => ({
@@ -76,7 +78,7 @@ jest.mock('@/database/database.provider', () => ({
   DATABASE: Symbol('DATABASE'),
 }));
 
-import { eq, gte, inArray, lt, ne } from 'drizzle-orm';
+import { eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
 import {
   agendamento,
   cobrancaManual,
@@ -211,6 +213,21 @@ describe('AgendamentoRepository', () => {
       valor_sinal: input.valorSinal,
       estado: 'agendado',
     });
+  });
+
+  it('persiste a reserva com prazo sem confirmar o agendamento', async () => {
+    retornarAgendamentos.mockResolvedValue([{ id: 'reserva-1' }]);
+    const expiraEm = new Date('2030-01-01T00:15:00.000Z');
+
+    await repository.criar({
+      ...input,
+      estado: 'reservado',
+      expiraEm,
+    });
+
+    expect(definirAgendamentos).toHaveBeenCalledWith(
+      expect.objectContaining({ estado: 'reservado', expira_em: expiraEm }),
+    );
   });
 
   describe('concluir', () => {
@@ -510,6 +527,16 @@ describe('AgendamentoRepository', () => {
         { valor: '50.00', status: null },
         { valor: '30.00', status: 'confirmada' },
       ]);
+    });
+
+    it('consulta o valor alocado à cobrança para não duplicar pagamento total', async () => {
+      await repository.listarDoDia(entrada);
+
+      expect(
+        jest.mocked(sql).mock.calls.some((chamada) =>
+          chamada.includes(pagamentoAgendamento.valor),
+        ),
+      ).toBe(true);
     });
 
     it('devolve lista de pagamentos vazia quando não há cobrança vinculada', async () => {

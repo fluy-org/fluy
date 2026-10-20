@@ -2,6 +2,7 @@ import { verifyToken, type ClerkClient } from '@clerk/backend';
 import {
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -21,6 +22,8 @@ import { CLERK_CLIENT } from '@/shared/providers/clerk/clerk-client.provider';
 
 @Injectable()
 export class ClerkAuthenticator implements AuthenticationProvider {
+  private readonly logger = new Logger(ClerkAuthenticator.name);
+
   constructor(
     @Inject(CLERK_CLIENT) private readonly clerkClient: ClerkClient,
     private readonly config: ConfigService<Env, true>,
@@ -33,6 +36,11 @@ export class ClerkAuthenticator implements AuthenticationProvider {
         authorizedParties: this.config.get('CLERK_AUTHORIZED_PARTIES', {
           infer: true,
         }),
+        // Relogios locais podem divergir; producao mantem o limite do Clerk.
+        clockSkewInMs:
+          this.config.get('NODE_ENV', { infer: true }) === 'development'
+            ? 90_000
+            : 5_000,
       });
 
       if (
@@ -48,6 +56,12 @@ export class ClerkAuthenticator implements AuthenticationProvider {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
+
+      const reason =
+        error && typeof error === 'object' && 'reason' in error
+          ? String(error.reason)
+          : 'unknown';
+      this.logger.warn({ message: 'Clerk token verification failed', reason });
 
       throw new UnauthorizedException('Token Clerk inválido.');
     }
