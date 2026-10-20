@@ -124,6 +124,29 @@ describe('AgendamentoPublicoService', () => {
     );
   });
 
+  it('reserva com a cliente da sessão sem enviar aviso de agendamento confirmado', async () => {
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    criar.mockResolvedValue({ id: 'reserva-1', estado: 'reservado' });
+
+    await service.reservar({
+      salaoId: 'salao-do-path',
+      dados: {
+        ...dados,
+        hora_inicio: '10:00',
+        confirmar_excecoes: false,
+      },
+    });
+
+    expect(criar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        salaoId: 'salao-do-path',
+        reservar: true,
+        bloquearProcedimentoDuplicadoNoDia: true,
+      }),
+    );
+    expect(notificarCriacaoPublica).not.toHaveBeenCalled();
+  });
+
   it('lista somente os agendamentos da cliente resolvida pela sessao', async () => {
     resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
     listarAgendamentos.mockResolvedValue({ itens: [] });

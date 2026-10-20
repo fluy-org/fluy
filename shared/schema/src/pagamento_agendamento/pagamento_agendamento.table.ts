@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import { pgTable, uuid, varchar, check } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, numeric, check } from 'drizzle-orm/pg-core';
 import { agendamento } from '@schema/agendamento/agendamento.table.js';
 import { cobrancaGateway } from '@schema/cobranca_gateway/cobranca_gateway.table.js';
 import { cobrancaManual } from '@schema/cobranca_manual/cobranca_manual.table.js';
@@ -19,6 +19,7 @@ export const pagamentoAgendamento = pgTable(
       onDelete: 'restrict',
     }),
     tipo: varchar('tipo', { length: 20 }).notNull().$type<TipoPagamentoAgendamento>(),
+    valor: numeric('valor', { precision: 10, scale: 2 }),
   },
   (t) => [
     check(

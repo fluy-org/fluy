@@ -40,6 +40,6 @@ import { AvisoModule } from '@/modules/aviso/aviso.module';
   ],
   // O cancelamento é reusado pelo Bloco 4 na versão da cliente, com política de
   // autorização diferente.
-  exports: [AgendamentoCancelamentoService],
+  exports: [AgendamentoCancelamentoService, AgendamentoPublicoService],
 })
 export class AgendamentoModule {}

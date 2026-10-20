@@ -34,12 +34,21 @@ export const envSchema = z.object({
   DEV_AUTH_ENABLED: booleanEnvSchema.default(false),
   DEV_AUTH_TOKEN: z.string().min(32).optional(),
   DEV_AUTH_SUBJECT: z.string().trim().min(1).optional(),
+  PAYMENT_PROVIDER: z.enum(['disabled', 'fake']).default('disabled'),
   CORS_ORIGINS: originsSchema,
   TENANT_BASE_DOMAIN: z.string().trim().min(1).toLowerCase(),
 
   THROTTLE_TTL_MS: z.coerce.number().int().positive().default(60_000),
   THROTTLE_LIMIT: z.coerce.number().int().positive().default(100),
 }).superRefine((env, context) => {
+  if (env.PAYMENT_PROVIDER === 'fake' && env.NODE_ENV !== 'development') {
+    context.addIssue({
+      code: 'custom',
+      path: ['PAYMENT_PROVIDER'],
+      message: 'O provedor fake só pode ser usado em desenvolvimento.',
+    });
+  }
+
   if (!env.DEV_AUTH_ENABLED) {
     return;
   }

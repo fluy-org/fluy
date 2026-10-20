@@ -247,7 +247,8 @@ export class AgendamentoRepository {
           duracao_min: input.duracaoMin,
           preco_total: input.precoTotal,
           valor_sinal: input.valorSinal,
-          estado: 'agendado',
+          estado: input.estado ?? 'agendado',
+          ...(input.expiraEm ? { expira_em: input.expiraEm } : {}),
         })
         .returning();
 
@@ -480,7 +481,7 @@ export class AgendamentoRepository {
           periodo_manutencao_dias: procedimento.periodo_manutencao_dias,
         },
         valor_manual: cobrancaManual.valor,
-        valor_gateway: cobrancaGateway.valor,
+        valor_gateway: sql<string | null>`coalesce(${pagamentoAgendamento.valor}, ${cobrancaGateway.valor})`,
         status_gateway: cobrancaGateway.status,
         quantidade_anexos: sql<number>`(
           select count(*)::int

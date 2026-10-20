@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, uuid, integer, text } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, integer, text, varchar, timestamp } from 'drizzle-orm/pg-core';
 import { salao } from '@schema/salao/salao.table.js';
 
 export const configuracaoSalao = pgTable('configuracao_salao', {
@@ -15,6 +15,10 @@ export const configuracaoSalao = pgTable('configuracao_salao', {
   antecedencia_max_dias: integer('antecedencia_max_dias').notNull().default(60),
   mensagem_confirmacao: text('mensagem_confirmacao'),
   politica_atraso: text('politica_atraso'),
+  pix_tipo_chave: varchar('pix_tipo_chave', { length: 20 }),
+  pix_chave: varchar('pix_chave', { length: 200 }),
+  pix_nome_recebedor: varchar('pix_nome_recebedor', { length: 200 }),
+  pix_atualizado_em: timestamp('pix_atualizado_em', { withTimezone: true }),
 });
 
 export const configuracaoSalaoRelations = relations(configuracaoSalao, ({ one }) => ({

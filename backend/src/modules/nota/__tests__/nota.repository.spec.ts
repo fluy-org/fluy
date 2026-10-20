@@ -18,7 +18,7 @@ jest.mock(
       criada_em: 'nota.criada_em',
     },
   }),
-  { virtual: true },
+  {},
 );
 
 jest.mock('drizzle-orm', () => ({

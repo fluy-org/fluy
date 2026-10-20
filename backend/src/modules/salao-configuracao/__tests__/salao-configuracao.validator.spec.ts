@@ -57,6 +57,10 @@ function criarConfiguracaoPersistida(
     antecedencia_max_dias: 60,
     mensagem_confirmacao: null,
     politica_atraso: null,
+    pix_tipo_chave: null,
+    pix_chave: null,
+    pix_nome_recebedor: null,
+    pix_atualizado_em: null,
     ...input,
   };
 }

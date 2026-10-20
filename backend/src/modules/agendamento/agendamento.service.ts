@@ -186,11 +186,13 @@ export class AgendamentoService {
     dados,
     bloquearProcedimentoDuplicadoNoDia = false,
     notificarCliente = false,
+    reservar = false,
   }: {
     salaoId: string;
     dados: CriarAgendamentoDto;
     bloquearProcedimentoDuplicadoNoDia?: boolean;
     notificarCliente?: boolean;
+    reservar?: boolean;
   }) {
     await this.clienteService.buscarPorId({
       id: dados.cliente_id,
@@ -239,6 +241,14 @@ export class AgendamentoService {
       hora: dados.hora_inicio,
       fusoHorario: dadosParaAvaliacao.fusoHorario,
     });
+    const expiraEm = reservar
+      ? new Date(
+          Date.now() +
+            (await this.salaoConfiguracaoService.buscar(salaoId))
+              .prazo_reserva_min *
+              60_000,
+        )
+      : undefined;
     const agendamento = await this.agendamentoRepository.criar({
       dataAgendamento: dados.data,
       salaoId,
@@ -251,6 +261,7 @@ export class AgendamentoService {
       valorSinal: calcularValorSinalDoProcedimento(procedimento),
       fusoHorario: dadosParaAvaliacao.fusoHorario,
       bloquearProcedimentoDuplicadoNoDia,
+      ...(reservar ? { estado: 'reservado' as const, expiraEm } : {}),
     });
 
     if (!agendamento) {

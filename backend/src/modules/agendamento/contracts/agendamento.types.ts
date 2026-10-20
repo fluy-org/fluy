@@ -86,6 +86,8 @@ export type CriarAgendamentoPersistenciaInput = {
   valorSinal: string;
   fusoHorario: string;
   bloquearProcedimentoDuplicadoNoDia?: boolean;
+  estado?: 'agendado' | 'reservado';
+  expiraEm?: Date;
 };
 
 export type PossuiAgendamentoDoProcedimentoNoDiaInput = {

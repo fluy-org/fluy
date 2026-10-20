@@ -43,7 +43,7 @@ jest.mock(
       cobranca_gateway_id: 'reembolso.cobranca_gateway_id',
     },
   }),
-  { virtual: true },
+  {},
 );
 
 jest.mock('drizzle-orm', () => ({

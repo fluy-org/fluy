@@ -78,6 +78,13 @@
       "when": 1791384391593,
       "tag": "0010_adicionar_autor_cancelamento_e_tipo_pagamento",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792195800093,
+      "tag": "0011_adicionar_pagamentos_pix",
+      "breakpoints": true
     }
   ]
 }

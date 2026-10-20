@@ -1,5 +1,5 @@
 import { inArray, sql, type SQL } from 'drizzle-orm';
-import { agendamento, cobrancaGateway, cobrancaManual } from '@fluy/schema';
+import { agendamento, cobrancaGateway, cobrancaManual, pagamentoAgendamento } from '@fluy/schema';
 
 // "Quanto entrou" é uma regra só no produto: o faturamento do período e o
 // total gasto da ficha da cliente saem daqui para nunca divergirem.
@@ -11,7 +11,8 @@ const ESTADOS_COM_RECEBIMENTO = ['concluido', 'cancelado', 'falta'] as const;
 export function montarValorRecebido(): SQL<string> {
   return sql<string>`coalesce(
     ${cobrancaManual.valor},
-    case when ${cobrancaGateway.status} = 'confirmada' then ${cobrancaGateway.valor} end,
+    case when ${cobrancaGateway.status} = 'confirmada'
+      then coalesce(${pagamentoAgendamento.valor}, ${cobrancaGateway.valor}) end,
     0
   )`;
 }
