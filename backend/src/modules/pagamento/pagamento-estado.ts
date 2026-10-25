@@ -35,6 +35,11 @@ export type DecisaoNotificacao = {
 export function decidirNotificacao(
   input: DecidirNotificacaoInput,
 ): DecisaoNotificacao | { erro: 'valor_divergente' } {
+  if (
+    input.tipo === 'confirmado' &&
+    input.valorPagoCentavos !== input.totalClienteCentavos
+  )
+    return { erro: 'valor_divergente' };
   if (input.statusCobranca === 'confirmada') {
     return {
       novoStatus: 'confirmada' as const,
@@ -52,10 +57,6 @@ export function decidirNotificacao(
       divergencia: false,
       alocacoes: [],
     };
-  }
-
-  if (input.valorPagoCentavos !== input.totalClienteCentavos) {
-    return { erro: 'valor_divergente' };
   }
 
   const promoverReserva =

@@ -21,6 +21,7 @@ describe('PagamentoService', () => {
   };
   const recebimentoPix = { buscar: jest.fn() };
   const provider = {
+    name: 'fake',
     quotePix: jest.fn(),
     createPixPayment: jest.fn<Promise<unknown>, [{ idempotencyKey: string }]>(),
   };
@@ -61,6 +62,7 @@ describe('PagamentoService', () => {
     repository.criarOuBuscarTentativa.mockImplementation((input) =>
       Promise.resolve({
         id: 'cobranca-a',
+        provedor: 'fake',
         idempotency_key: input.idempotencyKey,
         status: 'iniciando',
         modalidade: input.modalidade,
@@ -126,6 +128,7 @@ describe('PagamentoService', () => {
   it('retorna a tentativa ativa sem nova cotação', async () => {
     repository.buscarTentativaAtiva.mockResolvedValue({
       id: 'cobranca-existente',
+      provedor: 'fake',
       status: 'pendente',
       modalidade: 'sinal',
     });
@@ -171,6 +174,7 @@ describe('PagamentoService', () => {
       provider.createPixPayment.mock.calls[0][0].idempotencyKey;
     repository.buscarTentativaAtiva.mockResolvedValueOnce({
       id: 'cobranca-a',
+      provedor: 'fake',
       idempotency_key: primeiraChave,
       status: 'iniciando',
       modalidade: 'sinal',
@@ -192,9 +196,13 @@ describe('PagamentoService', () => {
   });
 
   it('consulta somente pagamento da reserva pertencente à cliente', async () => {
-    repository.buscarPagamento.mockResolvedValueOnce({ id: 'cobranca-a' });
+    repository.buscarPagamento.mockResolvedValueOnce({
+      id: 'cobranca-a',
+      provedor: 'fake',
+    });
     await expect(service.consultar(entrada)).resolves.toEqual({
       id: 'cobranca-a',
+      provedor: 'fake',
     });
     expect(repository.buscarPagamento).toHaveBeenCalledWith({
       salaoId: entrada.salaoId,
@@ -209,6 +217,7 @@ describe('PagamentoService', () => {
 
   it('processa notificação normalizada dentro do salão indicado', async () => {
     const notificacao = {
+      provider: 'fake',
       eventId: 'evento-a',
       externalPaymentId: 'externo-a',
       tipo: 'confirmado' as const,
@@ -227,6 +236,7 @@ describe('PagamentoService', () => {
       service.processarNotificacao({
         salaoId: 'salao-a',
         notificacao: {
+          provider: 'fake',
           eventId: 'evento-a',
           externalPaymentId: 'externo-a',
           tipo: 'confirmado',
@@ -235,5 +245,39 @@ describe('PagamentoService', () => {
         },
       }),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+  it('recusa consulta e continuação de cobrança de outra origem', async () => {
+    repository.buscarPagamento.mockResolvedValueOnce({
+      id: 'old',
+      provedor: 'efi',
+    });
+    await expect(service.consultar(entrada)).rejects.toThrow('outro provedor');
+    repository.buscarTentativaAtiva.mockResolvedValueOnce({
+      id: 'old',
+      provedor: 'efi',
+      modalidade: 'sinal',
+    });
+    await expect(
+      service.iniciar({
+        ...entrada,
+        agora: new Date('2030-01-01T00:00:00.000Z'),
+      }),
+    ).rejects.toThrow('outro provedor');
+    expect(provider.createPixPayment).not.toHaveBeenCalled();
+  });
+
+  it('recusa notificação sem origem antes de aplicar alterações financeiras', async () => {
+    await expect(
+      service.processarNotificacao({
+        salaoId: 's1',
+        notificacao: {
+          eventId: 'e',
+          externalPaymentId: 'id',
+          tipo: 'confirmado',
+          ocorridoEm: new Date(),
+        } as never,
+      }),
+    ).rejects.toThrow('origem');
+    expect(repository.aplicarNotificacao).not.toHaveBeenCalled();
   });
 });

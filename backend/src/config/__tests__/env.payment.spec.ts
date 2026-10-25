@@ -43,3 +43,33 @@ describe('configuração do provedor de pagamentos', () => {
     expect(resultado.PAYMENT_PROVIDER).toBe('disabled');
   });
 });
+
+describe('configuração Efí', () => {
+  const efi = {
+    ...ambiente,
+    PAYMENT_PROVIDER: 'efi',
+    EFI_CLIENT_ID: 'client',
+    EFI_CLIENT_SECRET: 'secret',
+    EFI_CERTIFICATE_PATH: '/certificates/test.p12',
+    EFI_WEBHOOK_SECRET: 'a'.repeat(64),
+  };
+  it('exige credenciais e permite somente homologação fora de produção', () => {
+    expect(envSchema.safeParse(efi).success).toBe(true);
+    for (const key of [
+      'EFI_CLIENT_ID',
+      'EFI_CLIENT_SECRET',
+      'EFI_CERTIFICATE_PATH',
+      'EFI_WEBHOOK_SECRET',
+    ]) {
+      expect(envSchema.safeParse({ ...efi, [key]: undefined }).success).toBe(
+        false,
+      );
+    }
+    expect(
+      envSchema.safeParse({ ...efi, EFI_ENVIRONMENT: 'production' }).success,
+    ).toBe(false);
+    expect(
+      envSchema.safeParse({ ...efi, NODE_ENV: 'production' }).success,
+    ).toBe(false);
+  });
+});

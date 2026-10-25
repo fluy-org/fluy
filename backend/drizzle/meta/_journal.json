@@ -85,6 +85,20 @@
       "when": 1792195800093,
       "tag": "0011_adicionar_pagamentos_pix",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792957973811,
+      "tag": "0012_integrar_efi_homologacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792965898679,
+      "tag": "0013_isolar_identificadores_por_provedor",
+      "breakpoints": true
     }
   ]
 }

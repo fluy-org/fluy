@@ -6,6 +6,7 @@ import type {
 import type {
   NotificacaoPagamento,
   RecebedorPix,
+  PagadorPix,
 } from '@/modules/pagamento/contracts/payment-provider.types';
 
 export const PAYMENT_REPOSITORY = Symbol('PAYMENT_REPOSITORY');
@@ -23,6 +24,9 @@ export type ReservaParaPagamento = {
 export type CobrancaParaPagamento = {
   id: string;
   idempotency_key: string;
+  provedor: string;
+  pagador?: PagadorPix | null;
+  criada_em?: Date;
   status: StatusCobrancaGateway;
   modalidade: ModalidadePagamentoGateway;
   valor: string;
@@ -57,10 +61,12 @@ export interface PagamentoRepositoryPort {
     agendamentoId: string;
     modalidade: 'sinal' | 'total';
     idempotencyKey: string;
+    provedor: string;
     valorSalaoCentavos: number;
     taxaClienteCentavos: number;
     totalClienteCentavos: number;
     recebedor: RecebedorPix;
+    pagador?: PagadorPix;
     agora: Date;
   }): Promise<CobrancaParaPagamento | undefined>;
   marcarPendente(input: {
@@ -90,6 +96,7 @@ export type IniciarPagamentoInput = {
   clienteId: string;
   agendamentoId: string;
   modalidade: 'sinal' | 'total';
+  pagador?: PagadorPix;
 };
 
 export type CotacaoPersistida = CotacaoPagamento;

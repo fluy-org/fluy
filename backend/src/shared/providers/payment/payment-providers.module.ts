@@ -8,7 +8,13 @@ import {
 import { PAYMENT_SIMULATOR } from '@/modules/pagamento/contracts/payment-simulator.types';
 import { FakePaymentProvider } from '@/shared/providers/payment/fake-payment.provider';
 
+import { EfiClient, EfiTransport } from './efi/efi-client';
+import { EfiPaymentProvider } from './efi/efi-payment.provider';
+
+import { EfiWebhookAdapter } from './efi/efi-webhook.adapter';
+
 const disabledProvider: PaymentProvider = {
+  name: 'disabled',
   quotePix: () =>
     Promise.reject(
       new ServiceUnavailableException('Pagamento online indisponível.'),
@@ -23,17 +29,24 @@ const disabledProvider: PaymentProvider = {
 @Module({
   providers: [
     FakePaymentProvider,
+    EfiTransport,
+    EfiClient,
+    EfiPaymentProvider,
+    EfiWebhookAdapter,
     { provide: PAYMENT_SIMULATOR, useExisting: FakePaymentProvider },
     {
       provide: PAYMENT_PROVIDER,
-      inject: [ConfigService, FakePaymentProvider],
+      inject: [ConfigService, FakePaymentProvider, EfiPaymentProvider],
       useFactory: (
         config: ConfigService<Env, true>,
         fake: FakePaymentProvider,
+        efi: EfiPaymentProvider,
       ): PaymentProvider =>
         config.get('PAYMENT_PROVIDER', { infer: true }) === 'fake'
           ? fake
-          : disabledProvider,
+          : config.get('PAYMENT_PROVIDER', { infer: true }) === 'efi'
+            ? efi
+            : disabledProvider,
     },
   ],
   exports: [PAYMENT_PROVIDER, PAYMENT_SIMULATOR],

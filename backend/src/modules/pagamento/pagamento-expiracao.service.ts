@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { PagamentoWebhookService } from './pagamento-webhook.service';
 import { PagamentoRepository } from '@/modules/pagamento/pagamento.repository';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class PagamentoExpiracaoService {
   constructor(
     @Inject(PagamentoRepository)
     private readonly repository: PagamentoRepository,
+    private readonly webhook?: PagamentoWebhookService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE, {
@@ -24,6 +26,7 @@ export class PagamentoExpiracaoService {
   }
 
   async processar(agora = new Date()) {
+    await this.webhook?.reprocessar();
     for (const salao of await this.repository.listarSalaos()) {
       await this.repository.expirarReservasDoSalao({
         salaoId: salao.id,

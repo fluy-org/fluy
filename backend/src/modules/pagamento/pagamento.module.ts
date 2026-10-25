@@ -8,6 +8,8 @@ import {
 import { PAYMENT_REPOSITORY } from '@/modules/pagamento/contracts/pagamento-repository.types';
 import { PagamentoExpiracaoService } from '@/modules/pagamento/pagamento-expiracao.service';
 import { PagamentoRepository } from '@/modules/pagamento/pagamento.repository';
+import { PagamentoWebhookController } from './pagamento-webhook.controller';
+import { PagamentoWebhookService } from './pagamento-webhook.service';
 import { PagamentoService } from '@/modules/pagamento/pagamento.service';
 import { PagamentoPublicoService } from '@/modules/pagamento/pagamento-publico.service';
 import { PagamentoSimulacaoService } from '@/modules/pagamento/pagamento-simulacao.service';
@@ -15,10 +17,15 @@ import { SalaoConfiguracaoModule } from '@/modules/salao-configuracao/salao-conf
 
 @Module({
   imports: [AgendamentoModule, ClienteModule, SalaoConfiguracaoModule],
-  controllers: [PagamentoPublicoController, PagamentoFakeController],
+  controllers: [
+    PagamentoPublicoController,
+    PagamentoFakeController,
+    PagamentoWebhookController,
+  ],
   providers: [
     PagamentoRepository,
     PagamentoService,
+    PagamentoWebhookService,
     PagamentoPublicoService,
     PagamentoSimulacaoService,
     PagamentoExpiracaoService,

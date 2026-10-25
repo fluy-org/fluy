@@ -15,6 +15,7 @@ type PagamentoFake = {
 
 @Injectable()
 export class FakePaymentProvider implements PaymentProvider {
+  readonly name = 'fake';
   private readonly pagamentos = new Map<string, PagamentoFake>();
 
   quotePix({
@@ -87,6 +88,7 @@ export class FakePaymentProvider implements PaymentProvider {
     }
 
     pagamento.notificacao = {
+      provider: this.name,
       eventId: randomUUID(),
       externalPaymentId: pagamento.externalId,
       tipo: input.resultado,

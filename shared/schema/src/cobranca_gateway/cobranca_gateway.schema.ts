@@ -6,10 +6,19 @@ export const reservaPixResponseSchema = agendamentoResponseSchema
   .extend({ expira_em: z.iso.datetime() })
   .meta({ id: 'ReservaPixResponse' });
 
+export const pagadorPixSchema = z.object({
+  cpf: z.string().regex(/^\d{11}$/, 'Informe o CPF com 11 dígitos.'),
+  instituicao_id: z.string().trim().min(1).max(200),
+  cnpj: z.string().regex(/^\d{14}$/).optional(),
+}).strict();
+export const instituicoesPixResponseSchema = z.array(z.object({ id: z.string().trim().min(1).max(200), nome: z.string() })).meta({ id: 'InstituicoesPixResponse' });
+export const recebimentoPixPublicoResponseSchema = z.object({ nome_recebedor: z.string() }).meta({ id: 'RecebimentoPixPublicoResponse' });
+
 export const iniciarPagamentoPixSchema = z
   .object({
     credencial: z.uuid('Informe uma credencial de dispositivo válida.'),
     modalidade: z.enum(MODALIDADE_PAGAMENTO_GATEWAY),
+    pagador: pagadorPixSchema.optional(),
   })
   .strict()
   .meta({ id: 'IniciarPagamentoPix' });

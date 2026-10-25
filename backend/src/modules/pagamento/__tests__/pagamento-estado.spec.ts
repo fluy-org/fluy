@@ -88,4 +88,14 @@ describe('decidirNotificacao', () => {
       alocacoes: [],
     });
   });
+  it('rejeita valor divergente também em confirmação já registrada', () => {
+    expect(
+      decidirNotificacao({
+        ...base,
+        statusCobranca: 'confirmada',
+        tipo: 'confirmado',
+        valorPagoCentavos: 1,
+      }),
+    ).toEqual({ erro: 'valor_divergente' });
+  });
 });

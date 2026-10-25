@@ -24,6 +24,18 @@ export class PagamentoPublicoService {
     private readonly recebimentoPix: RecebimentoPixService,
   ) {}
 
+  async consultarCheckout(salaoId: string) {
+    this.exigirProvedor();
+    const recebimento = await this.recebimentoPix.buscar(salaoId);
+    return { nome_recebedor: recebimento.pix_nome_recebedor! };
+  }
+
+  async listarInstituicoes(salaoId: string) {
+    this.exigirProvedor();
+    await this.recebimentoPix.buscar(salaoId);
+    return this.pagamento.listarInstituicoes();
+  }
+
   async reservar(input: {
     salaoId: string;
     dados: CriarAgendamentoPublicoDto;
@@ -51,8 +63,9 @@ export class PagamentoPublicoService {
     await this.pagamento.iniciar({
       ...escopo,
       modalidade: input.dados.modalidade,
+      ...(input.dados.pagador ? { pagador: input.dados.pagador } : {}),
     });
-    return this.pagamento.consultar(escopo);
+    return this.pagamento.consultar({ ...escopo, sincronizar: false });
   }
 
   async consultar(input: {

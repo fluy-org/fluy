@@ -1,0 +1,2 @@
+ALTER TABLE "cobranca_gateway" DROP CONSTRAINT "cobranca_gateway_id_externo_unique";--> statement-breakpoint
+ALTER TABLE "cobranca_gateway" ADD CONSTRAINT "cobranca_gateway_provedor_id_externo_unique" UNIQUE("provedor","id_externo");
