@@ -8,17 +8,17 @@ Modela todo movimento financeiro do domínio. Separa **infra de pagamento** (web
 
 ### Responsabilidade
 
-Registra cada evento recebido do gateway de pagamento — confirmação de cobrança, reembolso confirmado, falha, etc. Serve como fonte única de verdade para eventos externos, com dedupe garantido por `id_externo` e status de processamento próprio (recebido → processando → processado / ignorado / falhou / morto).
+Registra cada evento recebido do gateway de pagamento — confirmação de cobrança, reembolso confirmado, falha, etc. Serve como fonte única de verdade para eventos externos, com dedupe garantido por `id_externo` (hash da origem e do evento) e status de processamento próprio (recebido → processando → processado / ignorado / falhou / morto).
 
 ### Atributos principais
 
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `id` | UUID | Sim | Identificador único. |
-| `id_externo` | string | Sim | ID do evento no gateway (**único**). Garante dedupe em retries. |
+| `id_externo` | string | Sim | Hash da origem e do ID do evento (**único**). Garante dedupe em retries. |
 | `tipo_bruto` | string | Sim | Tipo informado pelo gateway (ex.: `charge.confirmed`). |
 | `tipo_normalizado` | tipo_evento_gateway | Sim | Tipo normalizado pelo sistema. |
-| `payload` | json | Sim | Corpo completo recebido. |
+| `payload` | json | Sim | Notificação normalizada autenticada, com origem; não contém corpo bruto nem credenciais. |
 | `status` | status_webhook_gateway | Sim | Estado do processamento do evento pelo Fluy. |
 | `erro_mensagem` | string | Não | Preenchido em falhas. |
 | `recebido_em` | timestamp | Sim | Data do recebimento. |
@@ -35,7 +35,7 @@ Registra cada evento recebido do gateway de pagamento — confirmação de cobra
 
 ### Observações
 
-- **Único provider** no MVP — sem coluna `provedor`. Adição futura de multi-provider exigiria coluna.
+- **Um provider ativo por configuração.** A origem fica em `payload.provider`; o inbox autenticado é reprocessado independentemente da configuração ativa.
 - **Dedupe** é garantido pelo `UNIQUE(id_externo)`.
 
 ---
@@ -51,7 +51,7 @@ Representa **uma cobrança criada no gateway de pagamento** — o objeto que cor
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `id` | UUID | Sim | Identificador único interno. |
-| `id_externo` | string | Sim | ID da cobrança no gateway (**único**). |
+| `id_externo` | string | Não | ID da cobrança no gateway; pode estar ausente na iniciação e é único por `provedor`. |
 | `idempotency_key` | string | Sim | Chave gerada pelo Fluy antes de criar a cobrança (**única**); permite retry seguro em caso de timeout na criação. |
 | `valor` | decimal | Sim | Valor da cobrança. |
 | `metodo` | metodo_pagamento_gateway | Sim | Método usado na cobrança (depende do gateway escolhido). |
@@ -71,9 +71,11 @@ Representa **uma cobrança criada no gateway de pagamento** — o objeto que cor
 
 ### Observações
 
+- **Origem:** `cobranca_gateway.provedor` identifica obrigatoriamente a integração. Toda correlação externa exige a origem; unicidade por `(provedor, id_externo)` conforme migração 0013.
+- **Snapshots:** recebedor, pagador e cotação são congelados antes da chamada externa para manter retries consistentes.
 - **`idempotency_key`** é padrão de mercado para retentativas seguras — evita cobrança duplicada quando o Fluy chama o gateway e não recebe resposta.
 - **Reembolso** aparece em entidade própria (`reembolso`), não como status intermediário aqui.
-- Ver **Decisões em aberto** no [README](./README.md): a escolha do gateway (Woovi vs. Asaas) trava os métodos disponíveis.
+- Ver **Decisões em aberto** no [README](./README.md): a implementação atual usa Pix via Open Finance da Efí somente em homologação.
 
 ---
 
@@ -212,7 +214,7 @@ Novos valores são adicionados conforme surgirem eventos relevantes do gateway.
 | `pix` | Cobrança PIX via gateway. |
 | `cartao` | Cobrança de cartão via gateway. |
 
-Valores efetivos dependem do gateway escolhido (Woovi = só `pix`; Asaas = `pix` + `cartao`).
+O fluxo externo atual é Pix via Open Finance; outros métodos enumerados não implicam integração entregue.
 
 ### `status_cobranca_gateway`
 
@@ -238,3 +240,9 @@ Valores efetivos dependem do gateway escolhido (Woovi = só `pix`; Asaas = `pix`
 | `pix_pessoal` | PIX direto entre a cliente e o salão (fora do gateway). |
 | `cartao_maquina` | Máquina de cartão física do salão. |
 | `outro` | Qualquer outro método fora do gateway. |
+
+## Estado implementado da integração externa
+
+O detalhamento atualizado está em [Efí Open Finance](../process/efi-open-finance-integracao.md). O fluxo inclui estado local `iniciando`, tentativa idempotente, inbox normalizado, confirmação transacional e reprocessamento por job. Nem todos os estados operacionais descritos acima estão implementados: não há backoff, limite de tentativas ou envio automático para `morto`.
+
+Reembolsos e tarifas de produção permanecem sujeitos às definições de produto e viabilidade. Cotação zero na homologação não comprova tarifa zero nem recebimento líquido em produção.

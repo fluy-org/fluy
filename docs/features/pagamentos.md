@@ -9,7 +9,9 @@ Processar e registrar todo movimento financeiro relacionado a agendamentos: sina
 - Cliente final (paga sinal ou total via gateway)
 - Salão (registra pagamentos manuais; opera reembolsos)
 
-## Capacidades entregues
+## Capacidades de produto
+
+O fluxo externo entregue está em [Efí Open Finance](../process/efi-open-finance-integracao.md): Pix em homologação, confirmação e retry. As capacidades de reembolso abaixo não representam integração automática implementada.
 
 ### Sinal online (gateway)
 
@@ -51,7 +53,7 @@ Processar e registrar todo movimento financeiro relacionado a agendamentos: sina
 Depende de:
 - [[gestao-procedimentos]] (configuração de sinal por procedimento)
 - [[configuracao-do-salao]] (prazo de reserva sem pagamento)
-- Integração com gateway de pagamento externo (Woovi ou Asaas — ainda não escolhido)
+- Integração Pix via Open Finance da Efí, restrita à homologação
 
 Usado por:
 - [[gestao-agendamentos]] (bloqueia transição `Reservado` → `Agendado`; registra pagamento na conclusão)
@@ -59,8 +61,8 @@ Usado por:
 
 ## Observações
 
-- **Gateway de pagamento não está escolhido.** Woovi (só PIX) vs. Asaas (PIX + cartão). Ver PENDENCIAS.md item 1.
-- **Titular da conta de recebimento** (salão direto ou split via Fluy) também está adiado; impacta regulação, chargeback e onboarding do salão.
+- **Gateway atual:** Efí Open Finance em homologação, selecionado por configuração; sem suporte simultâneo de providers.
+- **Recebimento atual:** chave Pix do salão congelada na tentativa. A habilitação multi-salão e o modelo de produção continuam pendentes de validação.
 - **Métodos aceitos** para sinal online dependem do gateway.
 - **Reembolso automático vs. manual** trava com a escolha do gateway.
 - **Comprovante/recibo digital para a cliente** fora do MVP — provável responsabilidade do gateway ou do salão manualmente.
@@ -68,3 +70,4 @@ Usado por:
 - **Múltiplos pagamentos parciais** do valor restante fora do MVP.
 - **Descontos concedidos** (registro explícito) — fluxo não desenhado ainda.
 - Webhooks do gateway devem ser sempre idempotentes.
+- Ao trocar o provider configurado, cobranças antigas não são encaminhadas ao novo adapter. Eventos autenticados continuam em reprocessamento local; novos callbacks antigos não são aceitos automaticamente.

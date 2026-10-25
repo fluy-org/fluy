@@ -161,3 +161,7 @@ que torna cada bloco candidato natural a um teste e2e (Cypress) do fluxo.
 - **IDE:** Visual Studio 2022 ou 2026 tem atrito real com mono-repo Node + Angular + NestJS (sem template NestJS, sem multi-root workspace nativo, Solution Explorer não entende npm workspaces). Se optarem por manter, provavelmente vão usar terminal integrado a maior parte do tempo. Alternativa recomendada para esse projeto: **VS Code** (mesmo Windows, grátis, ecossistema Nest/Angular nativo).
 - **Banco local:** Postgres via Docker. ORM = Drizzle. Alterações persistentes de schema exigem migration versionada gerada por `drizzle-kit`; `npm run db:migrate` a aplica. `drizzle-kit push` fica restrito a banco local descartável e não substitui a migration.
 - **Contrato back↔front:** schema Drizzle vive em `shared/schema/` (pacote `@fluy/schema`). Renomeou coluna? TypeScript grita nos dois lados. Regra: `@fluy/schema` só pode ter deps de `drizzle-orm`, `drizzle-zod`, `zod` — nada de `pg`, `@nestjs/*`, senão vaza pro front.
+
+## Integração em homologação
+
+- [Efí Open Finance — backend e contratos para a fase 2](./efi-open-finance-integracao.md).
