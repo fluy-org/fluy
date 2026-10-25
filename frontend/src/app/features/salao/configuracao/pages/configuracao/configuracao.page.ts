@@ -1,12 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import type { ConfiguracaoSalaoResponseDto } from '@fluy/schema';
+import type {
+  ConfiguracaoSalaoResponseDto,
+  SalaoResponseDto,
+} from '@fluy/schema';
 import { atualizarConfiguracaoSalaoSchema } from '@fluy/schema';
 import {
   IonButton,
@@ -16,14 +20,17 @@ import {
   IonCardTitle,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
   IonSpinner,
   IonText,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { ApiError } from '../../../../../core/errors/api-error';
-import { HeaderComponent } from '../../../../../shared/components/header/header.component';
-import { ConfiguracaoService } from '../../services/configuracao.service';
+import { addIcons } from 'ionicons';
+import { copyOutline } from 'ionicons/icons';
+import { ApiError } from '@app/core/errors/api-error';
+import { ConfiguracaoService } from '@app/features/salao/configuracao/services/configuracao.service';
+import { HeaderComponent } from '@app/shared/components/header/header.component';
 
 @Component({
   selector: 'app-configuracao',
@@ -40,6 +47,7 @@ import { ConfiguracaoService } from '../../services/configuracao.service';
     IonCardTitle,
     IonContent,
     IonHeader,
+    IonIcon,
     IonInput,
     IonSpinner,
     IonText,
@@ -55,6 +63,23 @@ export class ConfiguracaoPage implements OnInit {
   readonly erroCarregamento = signal<string | null>(null);
   readonly erroFormulario = signal<string | null>(null);
   readonly mensagemSucesso = signal<string | null>(null);
+  readonly salao = signal<SalaoResponseDto | null>(null);
+  readonly carregandoLinkPublico = signal(true);
+  readonly copiandoLinkPublico = signal(false);
+  readonly mensagemLinkPublico = signal<string | null>(null);
+  readonly erroLinkPublico = signal<string | null>(null);
+  readonly linkPublico = computed(() => {
+    const subdominio = this.salao()?.subdominio;
+
+    if (!subdominio) {
+      return '';
+    }
+
+    return new URL(
+      `/s/${encodeURIComponent(subdominio)}`,
+      window.location.origin,
+    ).toString();
+  });
 
   readonly formulario = new FormGroup(
     {
@@ -70,8 +95,42 @@ export class ConfiguracaoPage implements OnInit {
     { updateOn: 'blur' },
   );
 
+  constructor() {
+    addIcons({ copyOutline });
+  }
+
   ngOnInit(): void {
     void this.carregarConfiguracao();
+    void this.carregarLinkPublico();
+  }
+
+  async copiarLinkPublico(): Promise<void> {
+    const link = this.linkPublico();
+
+    if (!link || this.copiandoLinkPublico()) {
+      return;
+    }
+
+    this.copiandoLinkPublico.set(true);
+    this.mensagemLinkPublico.set(null);
+    this.erroLinkPublico.set(null);
+
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error('Clipboard API indisponível.');
+      }
+
+      await navigator.clipboard.writeText(link);
+      this.mensagemLinkPublico.set(
+        'Link copiado! Agora é só enviar para suas clientes.',
+      );
+    } catch {
+      this.erroLinkPublico.set(
+        'Não foi possível copiar automaticamente. Selecione o link acima e copie manualmente.',
+      );
+    } finally {
+      this.copiandoLinkPublico.set(false);
+    }
   }
 
   async salvarConfiguracao(): Promise<void> {
@@ -140,6 +199,23 @@ export class ConfiguracaoPage implements OnInit {
       this.erroCarregamento.set(error.message);
     } finally {
       this.carregando.set(false);
+    }
+  }
+
+  private async carregarLinkPublico(): Promise<void> {
+    this.carregandoLinkPublico.set(true);
+    this.erroLinkPublico.set(null);
+
+    try {
+      this.salao.set(await this.configuracaoService.getSalaoAtual());
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        throw error;
+      }
+
+      this.erroLinkPublico.set(error.message);
+    } finally {
+      this.carregandoLinkPublico.set(false);
     }
   }
 

@@ -65,7 +65,7 @@ describe('identificarMensagemErroCadastroConvite', () => {
           },
         ],
       }),
-    ).toContain('15 caracteres');
+    ).toContain('8 caracteres');
   });
 
   it('explica quando a senha foi comprometida', () => {

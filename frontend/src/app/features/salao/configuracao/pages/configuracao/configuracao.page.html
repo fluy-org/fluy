@@ -14,6 +14,74 @@
         <ion-text color="danger"><p>{{ erro }}</p></ion-text>
       </div>
     } @else {
+      <section aria-labelledby="titulo-link-publico">
+        <ion-card class="configuration-card public-link-card">
+          <ion-card-header>
+            <ion-card-title id="titulo-link-publico">
+              Página de agendamento
+            </ion-card-title>
+          </ion-card-header>
+
+          <ion-card-content>
+            <ion-text class="public-link-description">
+              Compartilhe este link para suas clientes agendarem diretamente
+              com o seu salão.
+            </ion-text>
+
+            @if (carregandoLinkPublico()) {
+              <div class="public-link-loading" role="status">
+                <ion-spinner
+                  name="crescent"
+                  aria-label="Carregando link de agendamento"
+                ></ion-spinner>
+                <ion-text>Carregando link...</ion-text>
+              </div>
+            } @else if (linkPublico()) {
+              <div class="public-link-actions">
+                <div
+                  class="public-link-value"
+                  tabindex="0"
+                  aria-label="Link público do salão"
+                >
+                  <ion-text>{{ linkPublico() }}</ion-text>
+                </div>
+
+                <ion-button
+                  type="button"
+                  class="copy-link-button"
+                  [disabled]="copiandoLinkPublico()"
+                  (click)="copiarLinkPublico()"
+                >
+                  @if (copiandoLinkPublico()) {
+                    <ion-spinner
+                      name="crescent"
+                      aria-label="Copiando link"
+                    ></ion-spinner>
+                  } @else {
+                    <ion-icon name="copy-outline" slot="start"></ion-icon>
+                    Copiar link
+                  }
+                </ion-button>
+              </div>
+            }
+
+            <div
+              class="public-link-feedback"
+              role="status"
+              aria-live="polite"
+            >
+              @if (mensagemLinkPublico(); as mensagem) {
+                <ion-text class="success-message">{{ mensagem }}</ion-text>
+              }
+
+              @if (erroLinkPublico(); as erro) {
+                <ion-text color="danger">{{ erro }}</ion-text>
+              }
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </section>
+
       <div class="page-introduction">
         <h1>Regras de funcionamento</h1>
         <p>

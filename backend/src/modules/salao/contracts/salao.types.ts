@@ -8,4 +8,5 @@ export type SalaoConsultado = Pick<
   | 'contato_whatsapp'
   | 'endereco'
   | 'fuso_horario'
+  | 'criado_em'
 >;

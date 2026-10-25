@@ -73,6 +73,7 @@
 
           <ion-item>
             <ion-input
+              aria-describedby="senha-ajuda"
               label="Senha"
               labelPlacement="stacked"
               autocomplete="new-password"
@@ -82,13 +83,18 @@
               required
             ></ion-input>
           </ion-item>
-          @if (formulario.controls.senha.touched &&
-          formulario.controls.senha.invalid) {
-          <ion-note color="danger">
-            Use pelo menos 15 caracteres. Outras regras de segurança podem ser
-            exigidas pelo Clerk.
+          <ion-note
+            id="senha-ajuda"
+            class="ajuda-senha"
+            [color]="
+              formulario.controls.senha.touched &&
+              formulario.controls.senha.invalid
+                ? 'danger'
+                : 'medium'
+            "
+          >
+            A senha precisa ter pelo menos {{ tamanhoMinimoSenha }} caracteres.
           </ion-note>
-          }
         </ion-list>
 
         @if (erroCadastro()) {

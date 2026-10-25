@@ -1,3 +1,5 @@
+import { TAMANHO_MINIMO_SENHA } from '@app/features/auth/auth.data';
+
 export type EstadoErroConvite =
   'expirado' | 'invalido' | 'revogado' | 'utilizado' | 'indisponivel';
 
@@ -62,7 +64,7 @@ export function identificarMensagemErroCadastroConvite(error: unknown): string {
   }
 
   if (codigos.includes('form_password_length_too_short')) {
-    return 'A senha precisa ter pelo menos 15 caracteres.';
+    return `A senha precisa ter pelo menos ${TAMANHO_MINIMO_SENHA} caracteres.`;
   }
 
   if (possuiErroSenha) {

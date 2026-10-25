@@ -20,6 +20,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { AuthService } from '@app/core/services/auth/auth.service';
+import { TAMANHO_MINIMO_SENHA } from '@app/features/auth/auth.data';
 import {
   EstadoErroConvite,
   identificarEstadoErroConvite,
@@ -106,6 +107,7 @@ export class ConvitePage implements AfterViewInit {
   readonly emailConvite = signal('');
   readonly enviando = signal(false);
   readonly erroCadastro = signal<string | null>(null);
+  readonly tamanhoMinimoSenha = TAMANHO_MINIMO_SENHA;
   readonly formulario = new FormGroup({
     nome: new FormControl('', {
       nonNullable: true,
@@ -117,7 +119,10 @@ export class ConvitePage implements AfterViewInit {
     }),
     senha: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(15)],
+      validators: [
+        Validators.required,
+        Validators.minLength(TAMANHO_MINIMO_SENHA),
+      ],
     }),
   });
 

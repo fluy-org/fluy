@@ -88,6 +88,25 @@ describe('ConvitePage', () => {
     expect(fixture.componentInstance.estado()).toBe('sem_convite');
   });
 
+  it('informa e valida o tamanho minimo da senha antes do cadastro', async () => {
+    fixture = TestBed.createComponent(ConvitePage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const ajudaSenha = fixture.nativeElement.querySelector('.ajuda-senha');
+
+    expect(ajudaSenha?.textContent).toContain(
+      'A senha precisa ter pelo menos 8 caracteres.',
+    );
+
+    const senha = fixture.componentInstance.formulario.controls.senha;
+    senha.setValue('1234567');
+    expect(senha.invalid).toBeTrue();
+    senha.setValue('12345678');
+    expect(senha.valid).toBeTrue();
+  });
+
   it('nao abre cadastro quando o Clerk rejeita um convite expirado', async () => {
     authService.prepararCadastroPorConvite.and.rejectWith({
       errors: [{ code: 'ticket_expired_code' }],
