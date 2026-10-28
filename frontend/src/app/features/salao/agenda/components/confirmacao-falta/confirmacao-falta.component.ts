@@ -16,13 +16,15 @@ import {
 import { ROTULO_AVISO_ACAO_AGENDAMENTO } from '../../agenda-data';
 import { formatarValor } from '../../../../../shared/utils/formatacao';
 
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+
 @Component({
   selector: 'app-confirmacao-falta',
   templateUrl: './confirmacao-falta.component.html',
   styleUrls: ['./confirmacao-falta.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonButton, IonContent, IonHeader, IonTitle, IonToolbar],
+  imports: [HeaderComponent, IonButton, IonContent, IonHeader, IonTitle, IonToolbar],
 })
 export class ConfirmacaoFaltaComponent {
   readonly agendamento = input.required<AgendamentoDetalheResponseDto>();

@@ -1,5 +1,8 @@
 <ion-header>
-  <app-header titulo="Disponibilidade de horarios"></app-header>
+  <app-header
+    titulo="Disponibilidade de horários"
+    voltarPara="/painel/agenda"
+  ></app-header>
 </ion-header>
 
 <ion-content class="availability-page fluy-page-safe">
@@ -46,22 +49,13 @@
       </ion-card-content>
     </ion-card>
     } @else {
-    <section class="professional-card">
-      <div class="professional-avatar" aria-hidden="true">
-        {{ profissionalSelecionado()?.nome?.charAt(0) }}
-      </div>
-      <div class="professional-info">
-        <strong>{{ profissionalSelecionado()?.nome }}</strong>
-        <span>Disponibilidade semanal</span>
-      </div>
-      <ion-badge color="success">Ativo</ion-badge>
-    </section>
-
     <section class="days-list" aria-label="Disponibilidade semanal">
       @for (dia of diasSemana(); track dia.valor) {
       <ion-card class="day-card" [class.closed-day]="dia.janelas.length === 0">
         <ion-card-header class="day-card-header">
           <ion-toggle
+            mode="ios"
+            [disabled]="salvando()"
             [checked]="dia.janelas.length > 0"
             (ionChange)="alterarDiaAtivo(dia.valor, $event.detail.checked)"
             aria-label="Atendimento em {{ dia.nome }}"
@@ -71,15 +65,30 @@
             <ion-card-title>{{ dia.nome }}</ion-card-title>
             @if (dia.janelas.length === 0) {
             <span>Sem atendimento neste dia</span>
-            } @else {
-            <span>Adicione varios periodos para horarios flexiveis.</span>
-            }
+            } @else { @for (janela of dia.janelas; track $index) {
+            <ion-text class="resumo-horario"
+              >{{ janela.controls.hora_inicio.value }} – {{
+              janela.controls.hora_fim.value }}</ion-text
+            >
+            } }
           </div>
+          @if (dia.janelas.length > 0) {
+          <ion-button
+            fill="clear"
+            size="small"
+            class="editar-dia"
+            [attr.aria-expanded]="diaEmEdicao() === dia.valor"
+            [attr.aria-label]="'Editar horários de ' + dia.nome"
+            (click)="diaEmEdicao.set(diaEmEdicao() === dia.valor ? null : dia.valor)"
+          >
+            {{ diaEmEdicao() === dia.valor ? 'Fechar' : 'Editar' }}
+          </ion-button>
+          }
         </ion-card-header>
 
-        @if (dia.janelas.length > 0) {
+        @if (dia.janelas.length > 0 && diaEmEdicao() === dia.valor) {
         <ion-card-content class="day-card-content">
-          <strong class="period-label">Periodos do dia</strong>
+          <strong class="period-label">Períodos do dia</strong>
 
           <div class="periods-list">
             @for (janela of dia.janelas; track $index) {
@@ -91,7 +100,7 @@
                 [formControl]="janela.controls.hora_inicio"
               ></ion-input>
 
-              <span class="period-separator">as</span>
+              <span class="period-separator">às</span>
 
               <ion-input
                 type="time"

@@ -25,6 +25,164 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+:root,
+body,
+ion-app {
+  min-height: 100%;
+  background: var(--fluy-color-background);
+  color: var(--fluy-color-body);
+  font-family: var(--fluy-font-family);
+}
+
+h1,
+h2,
+h3,
+ion-title,
+ion-card-title {
+  color: var(--fluy-color-title);
+  font-family: var(--fluy-font-family);
+}
+
+.page-heading,
+.cabecalho-pagina {
+  margin-bottom: var(--fluy-space-5);
+}
+
+.page-kicker {
+  display: inline-block;
+  margin-bottom: var(--fluy-space-1);
+  color: var(--fluy-color-primary);
+  font-size: 0.7rem;
+  font-weight: var(--fluy-font-weight-bold);
+  letter-spacing: 0.1em;
+}
+
+.page-heading h1 {
+  margin: 0;
+  color: var(--fluy-color-title);
+  font-size: calc(var(--fluy-font-size-title) * 1.5);
+  font-weight: var(--fluy-font-weight-bold);
+  line-height: var(--fluy-line-height-title);
+}
+
+ion-content {
+  --background: var(--fluy-color-background);
+  --color: var(--fluy-color-body);
+}
+
+ion-header,
+ion-toolbar {
+  --background: var(--fluy-color-surface);
+  --color: var(--fluy-color-title);
+  --border-color: var(--fluy-color-border-soft);
+}
+
+ion-item {
+  --background: var(--fluy-color-surface);
+  --color: var(--fluy-color-body);
+  --border-color: var(--fluy-color-border-soft);
+}
+
+ion-card {
+  --background: var(--fluy-color-surface);
+  --color: var(--fluy-color-body);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: 18px;
+  box-shadow: var(--fluy-shadow-sm);
+}
+
+ion-button {
+  --border-radius: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: var(--fluy-font-weight-semibold);
+}
+
+ion-button:not([fill='outline']):not([fill='clear']):not([color]) {
+  --background: var(--fluy-gradient-brand);
+  --background-activated: var(--fluy-color-primary-hover);
+  --background-hover: var(--fluy-color-primary-hover);
+  --color: var(--fluy-color-on-primary);
+}
+
+ion-button:focus-visible,
+ion-card[button]:focus-visible {
+  outline: 2px solid var(--fluy-color-focus);
+  outline-offset: 3px;
+}
+
+ion-badge {
+  border-radius: var(--fluy-radius-sm);
+  padding: 5px 8px;
+  font-weight: var(--fluy-font-weight-medium);
+}
+
+ion-badge[color='success'] {
+  --background: var(--fluy-color-success-bg);
+  --color: var(--fluy-color-success);
+  border: 1px solid var(--fluy-color-success-border);
+}
+
+ion-badge[color='danger'] {
+  --background: var(--fluy-color-danger-bg);
+  --color: var(--fluy-color-danger);
+  border: 1px solid var(--fluy-color-danger-border);
+}
+
+ion-badge[color='medium'] {
+  --background: var(--fluy-color-neutral-bg);
+  --color: var(--fluy-color-neutral);
+  border: 1px solid var(--fluy-color-border);
+}
+
+ion-button[fill='outline'] {
+  --border-color: var(--fluy-color-primary);
+  --color: var(--fluy-color-primary);
+}
+
+ion-searchbar {
+  --background: var(--fluy-color-input);
+  --color: var(--fluy-color-body);
+  --placeholder-color: var(--fluy-color-placeholder);
+  --icon-color: var(--fluy-color-muted);
+  --clear-button-color: var(--fluy-color-muted);
+  --box-shadow: none;
+  --border-radius: 14px;
+}
+
+ion-input,
+ion-textarea,
+ion-select {
+  --color: var(--fluy-color-body);
+  --placeholder-color: var(--fluy-color-placeholder);
+  --highlight-color-focused: var(--fluy-color-focus);
+}
+
+ion-modal {
+  --background: var(--fluy-color-surface);
+  --ion-background-color: var(--fluy-color-surface);
+  --border-radius: 20px;
+  --box-shadow: var(--fluy-shadow-lg);
+}
+
+ion-popover,
+ion-alert,
+ion-action-sheet {
+  --background: var(--fluy-color-surface);
+  --ion-background-color: var(--fluy-color-surface);
+  --color: var(--fluy-color-body);
+}
+
+ion-menu {
+  --background: var(--fluy-color-surface);
+  --color: var(--fluy-color-body);
+}
+
+ion-menu ion-toolbar {
+  --background: var(--fluy-color-surface);
+  --color: var(--fluy-color-title);
+}
+
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
@@ -49,4 +207,8 @@
   --padding-bottom: calc(
     var(--fluy-space-8) + env(safe-area-inset-bottom, 0px)
   ) !important;
+}
+
+.fluy-page-safe.fluy-page-with-bottom-navigation {
+  --padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
 }

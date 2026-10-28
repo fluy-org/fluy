@@ -1,6 +1,9 @@
 :host {
   display: block;
 }
+.periodo-curto {
+  display: none;
+}
 
 .seletor,
 .intervalo {
@@ -25,16 +28,17 @@ ion-button {
 }
 
 .filtros-periodo {
+  --background: transparent;
   margin: 0;
-  border: 1px solid var(--fluy-color-border-soft);
+  border: 0;
   border-radius: var(--fluy-radius-lg);
-  box-shadow: var(--fluy-shadow-sm);
+  box-shadow: none;
 }
 
 .filtros-periodo ion-card-content {
   display: grid;
   gap: var(--fluy-space-4);
-  padding: var(--fluy-space-4);
+  padding: 0;
 }
 
 .periodo-exibido {
@@ -72,9 +76,62 @@ ion-button {
 
 .data {
   color: var(--fluy-color-title);
-  font-size: var(--fluy-font-size-subtitle);
+  font-size: 13px;
   font-weight: var(--fluy-font-weight-semibold);
   line-height: var(--fluy-line-height-title);
+}
+
+@media (max-width: 767px) {
+  .filtros-periodo ion-card-content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    align-items: center;
+    gap: 12px;
+  }
+  .seletor ion-select {
+    font-size: 12px;
+    min-height: 44px;
+  }
+  .datas-periodo {
+    display: none;
+  }
+  .periodo-curto {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border: 1px solid var(--fluy-color-border-soft);
+    border-radius: 10px;
+    background: var(--fluy-color-input);
+    color: var(--fluy-color-title);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  .datas-periodo > div + div {
+    padding-left: 8px;
+  }
+  .dia-semana {
+    display: none;
+  }
+  .fuso {
+    grid-column: 1 / -1;
+    padding-top: 0;
+    border: 0;
+  }
+  .fuso > div {
+    display: flex;
+    gap: 6px;
+  }
+  .fuso ion-icon {
+    font-size: 14px;
+  }
+  .fuso-rotulo,
+  .fuso-valor {
+    font-size: 10px;
+  }
+  form {
+    grid-column: 1 / -1;
+  }
 }
 
 .fuso {

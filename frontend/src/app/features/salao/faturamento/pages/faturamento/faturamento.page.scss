@@ -10,9 +10,10 @@
 }
 
 .page-content {
+  box-sizing: border-box;
   width: min(100%, 1280px);
   margin: 0 auto;
-  padding: var(--fluy-space-4);
+  padding: 4px var(--fluy-space-4) var(--fluy-space-4);
 }
 
 .cabecalho-pagina {

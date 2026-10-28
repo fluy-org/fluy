@@ -24,6 +24,8 @@ import {
 } from '@ionic/angular/standalone';
 import { zodValidator } from '../../../../../shared/utils/zod-validator';
 
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+
 @Component({
   selector: 'app-formulario-cliente',
   templateUrl: './formulario-cliente.component.html',
@@ -31,6 +33,7 @@ import { zodValidator } from '../../../../../shared/utils/zod-validator';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HeaderComponent,
     IonButton,
     IonContent,
     IonHeader,

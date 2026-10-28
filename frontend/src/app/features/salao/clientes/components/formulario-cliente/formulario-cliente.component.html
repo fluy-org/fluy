@@ -1,10 +1,8 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>{{ titulo() }}</ion-title>
-  </ion-toolbar>
+  <app-header [titulo]="titulo()" [fechavel]="true" (fechar)="cancelarFormulario()"></app-header>
 </ion-header>
 
-<ion-content class="fluy-page-safe" style="max-height: 90%;">
+<ion-content class="fluy-page-safe fluy-formulario ion-padding">
   <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
     <ion-input
       formControlName="nome"

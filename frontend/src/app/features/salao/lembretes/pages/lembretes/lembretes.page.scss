@@ -11,14 +11,17 @@
 
 .page-content {
   width: min(100%, 960px);
+  box-sizing: border-box;
   margin: 0 auto;
-  padding: var(--fluy-space-4);
+  padding: 0 var(--fluy-space-4) var(--fluy-space-4);
 }
 
 ion-searchbar {
   --background: var(--fluy-color-input);
   --border-radius: var(--fluy-radius-lg);
-  --box-shadow: var(--fluy-shadow-sm);
+  --box-shadow: none;
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: 10px;
   margin-bottom: var(--fluy-space-3);
   padding-inline: 0;
 }
@@ -27,9 +30,12 @@ ion-searchbar {
   display: grid;
   gap: var(--fluy-space-3);
   margin-bottom: var(--fluy-space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .lembretes-filtros ion-select {
+  min-width: 0;
+  font-size: 13px;
   padding-inline: var(--fluy-space-3);
   border: 1px solid var(--fluy-color-border-soft);
   border-radius: var(--fluy-radius-lg);

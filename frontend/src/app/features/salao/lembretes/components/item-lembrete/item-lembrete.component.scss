@@ -57,3 +57,61 @@
 .lembrete__acoes ion-button {
   margin: 0;
 }
+
+.lembrete__detalhes summary {
+  cursor: pointer;
+  color: var(--fluy-color-primary);
+  font-size: 12px;
+  padding-block: 8px;
+}
+.lembrete:not(.lembrete--compacto) summary {
+  display: none;
+}
+.lembrete--compacto {
+  grid-template-columns: 46px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 5px;
+  background: var(--fluy-color-surface);
+  border-radius: 14px;
+  padding: 14px 12px;
+}
+.lembrete--compacto > :not(.lembrete__icone) {
+  grid-column: 2;
+}
+.lembrete__icone {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--fluy-color-booking-bg);
+  color: var(--fluy-color-accent);
+  font-size: 24px;
+}
+.lembrete--compacto .lembrete__data {
+  font-size: 11px;
+  color: var(--fluy-color-muted);
+  font-weight: 500;
+}
+.lembrete--compacto .lembrete__cliente {
+  color: var(--fluy-color-title);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+}
+.lembrete--compacto .lembrete__texto {
+  font-size: 12px;
+  color: var(--fluy-color-muted);
+  overflow-wrap: anywhere;
+}
+.lembrete--compacto ion-badge {
+  font-size: 10px;
+}
+.lembrete__cliente:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--fluy-color-focus);
+  outline-offset: 3px;
+}

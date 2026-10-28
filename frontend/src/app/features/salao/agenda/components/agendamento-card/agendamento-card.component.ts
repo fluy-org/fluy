@@ -32,6 +32,7 @@ export class AgendamentoCardComponent {
   readonly agendamento = input.required<AgendamentoAgendaResponseDto>();
   readonly fusoHorario = input.required<string>();
   readonly abrir = output<string>();
+  readonly compacto = input(false);
 
   readonly estilo = computed(
     () => ESTILO_ESTADO_AGENDAMENTO[this.agendamento().estado],

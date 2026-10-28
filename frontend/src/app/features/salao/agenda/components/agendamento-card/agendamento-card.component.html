@@ -3,6 +3,11 @@
 <ion-card
   button
   class="cartao"
+  [class.cartao--compacto]="compacto()"
+  [class.cartao--reservado]="dados.estado === 'reservado'"
+  [class.cartao--ativo]="
+    dados.estado === 'reservado' || dados.estado === 'agendado'
+  "
   [style.--cor-estado]="estilo().corCss"
   (click)="abrir.emit(dados.id)"
 >
@@ -25,7 +30,7 @@
       <div class="valores">
         @if (dados.valor_pendente > 0) {
           <div class="valores__linha">
-            <span class="valores__rotulo">Pendente</span>
+            <span class="valores__rotulo">A receber</span>
             <strong class="valores__destaque">{{ valorPendente() }}</strong>
           </div>
           <p class="valores__apoio">
@@ -33,9 +38,7 @@
           </p>
         } @else {
           <div class="valores__linha">
-            <span class="valores__rotulo valores__rotulo--quitado">
-              Pago integralmente
-            </span>
+            <span class="valores__rotulo valores__rotulo--quitado"> Pago </span>
             <strong class="valores__destaque valores__destaque--quitado">
               {{ precoTotal() }}
             </strong>

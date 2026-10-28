@@ -1,10 +1,7 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { NavegacaoPainelComponent } from '@app/shared/components/navegacao-painel/navegacao-painel.component';
+import { addIcons } from 'ionicons';
+import { cutOutline, ellipsisVertical, addOutline } from 'ionicons/icons';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import type {
   CriarProcedimentoDto,
   ProcedimentoResponseDto,
@@ -18,6 +15,8 @@ import {
   IonCardTitle,
   IonContent,
   IonHeader,
+  IonIcon,
+  IonPopover,
   IonModal,
   IonSearchbar,
   IonSelect,
@@ -36,6 +35,7 @@ import { ProcedimentosService } from '../../services/procedimentos.service';
   styleUrls: ['./procedimentos.page.scss'],
   standalone: true,
   imports: [
+    NavegacaoPainelComponent,
     HeaderComponent,
     FormularioProcedimentoComponent,
     IonBadge,
@@ -46,6 +46,8 @@ import { ProcedimentosService } from '../../services/procedimentos.service';
     IonCardTitle,
     IonContent,
     IonHeader,
+    IonIcon,
+    IonPopover,
     IonModal,
     IonSearchbar,
     IonSelect,
@@ -55,6 +57,9 @@ import { ProcedimentosService } from '../../services/procedimentos.service';
   ],
 })
 export class ProcedimentosPage implements OnInit {
+  constructor() {
+    addIcons({ cutOutline, ellipsisVertical, addOutline });
+  }
   private procedimentosService = inject(ProcedimentosService);
 
   readonly procedimentos = this.procedimentosService.procedimentos;

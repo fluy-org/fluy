@@ -9,6 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+import { addIcons } from 'ionicons';
+import { imageOutline } from 'ionicons/icons';
 import type {
   CriarProcedimentoDto,
   ProcedimentoResponseDto,
@@ -20,12 +23,11 @@ import {
   IonContent,
   IonHeader,
   IonInput,
+  IonIcon,
   IonList,
   IonSelect,
   IonSelectOption,
   IonTextarea,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 
 const TAMANHO_MAXIMO_IMAGEM_BYTES = 5 * 1024 * 1024;
@@ -38,6 +40,8 @@ const TIPOS_IMAGEM_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HeaderComponent,
+    IonIcon,
     IonButton,
     IonContent,
     IonHeader,
@@ -46,8 +50,6 @@ const TIPOS_IMAGEM_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
     IonSelect,
     IonSelectOption,
     IonTextarea,
-    IonTitle,
-    IonToolbar,
     ReactiveFormsModule,
   ],
 })
@@ -87,6 +89,7 @@ export class FormularioProcedimentoComponent implements OnDestroy {
   );
 
   constructor() {
+    addIcons({ imageOutline });
     // Mantem o mesmo formulario preparado tanto para criacao quanto para edicao.
     effect(() => {
       const procedimento = this.procedimento();

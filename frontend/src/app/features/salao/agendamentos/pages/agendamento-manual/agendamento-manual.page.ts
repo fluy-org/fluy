@@ -143,9 +143,7 @@ export class AgendamentoManualPage implements OnInit {
   }
 
   readonly procedimentosDisponiveis = computed(() =>
-    [...this.procedimentos()].sort(
-      (a, b) => Number(b.ativo) - Number(a.ativo),
-    ),
+    [...this.procedimentos()].sort((a, b) => Number(b.ativo) - Number(a.ativo)),
   );
 
   readonly formulario = new FormGroup(
@@ -182,6 +180,11 @@ export class AgendamentoManualPage implements OnInit {
       this.termoPesquisaCliente.set('');
       void this.carregarClientes();
     }
+  }
+
+  limparCliente(): void {
+    this.formulario.controls.cliente_id.setValue('');
+    this.clienteSelecionada.set(null);
   }
 
   alternarEtapa(etapa: 1 | 2 | 3): void {

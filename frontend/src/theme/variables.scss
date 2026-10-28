@@ -5,43 +5,53 @@
  * Componentes devem consumir estes tokens, nunca repetir valores visuais.
  */
 :root {
+  color-scheme: light;
+
   /* Marca */
-  --fluy-color-primary: #e57d90;
-  --fluy-color-primary-rgb: 229, 125, 144;
-  --fluy-color-primary-hover: #cc6478;
-  --fluy-color-primary-shade: #ca6e7f;
-  --fluy-color-primary-tint: #e88a9b;
-  --fluy-color-on-primary: #3f3037;
+  --fluy-color-primary: #803cf5;
+  --fluy-color-primary-rgb: 128, 60, 245;
+  --fluy-color-primary-hover: #6e2de0;
+  --fluy-color-primary-shade: #6a2ed0;
+  --fluy-color-primary-tint: #a06dff;
+  --fluy-color-on-primary: #ffffff;
+  --fluy-gradient-brand: linear-gradient(105deg, #ff68ae 0%, #c52eff 100%);
+  --fluy-gradient-summary: linear-gradient(135deg, #fff0f7 0%, #f2e8ff 100%);
+  --fluy-shadow-brand: 0 8px 20px rgba(128, 60, 245, 0.2);
 
   /* Tons complementares da identidade Fluy */
-  --fluy-color-accent: #f1889b;
-  --fluy-color-accent-rgb: 241, 136, 155;
-  --fluy-color-accent-hover: #db7185;
-  --fluy-color-accent-tint: #f9aaaa;
-  --fluy-color-on-accent: #3f3037;
-  --fluy-color-decorative: #f9aaaa;
-  --fluy-color-decorative-soft: #fdb4bf;
-  --fluy-color-decorative-light: #ffccd4;
+  --fluy-color-accent: #f34cc6;
+  --fluy-color-accent-rgb: 243, 76, 198;
+  --fluy-color-accent-hover: #d732ad;
+  --fluy-color-accent-tint: #ff83d7;
+  --fluy-color-on-accent: #ffffff;
+  --fluy-color-decorative: #a879ff;
+  --fluy-color-decorative-soft: #ddc9ff;
+  --fluy-color-decorative-light: #f1eaff;
+  --fluy-color-booking-bg: #fff0f7;
+  --fluy-color-booking-border: #ffd4e6;
 
   /* Superficies */
-  --fluy-color-background: #fff8f9;
+  --fluy-color-background: #fcfbff;
   --fluy-color-surface: #ffffff;
-  --fluy-color-surface-muted: #ffccd4;
-  --fluy-color-input: #ffffff;
-  --fluy-color-overlay: rgba(63, 48, 55, 0.52);
+  --fluy-color-surface-muted: #f1edff;
+  --fluy-color-input: #fbfaff;
+  --fluy-color-overlay: rgba(18, 12, 42, 0.58);
 
   /* Textos */
-  --fluy-color-title: #3f3037;
-  --fluy-color-body: #594a50;
-  --fluy-color-label: #594a50;
-  --fluy-color-muted: #85737a;
-  --fluy-color-placeholder: #aa969d;
+  --fluy-color-title: #100c38;
+  --fluy-color-body: #494568;
+  --fluy-color-label: #373258;
+  --fluy-color-muted: #797694;
+  --fluy-color-placeholder: #a09db8;
   --fluy-color-on-dark: #ffffff;
 
   /* Bordas */
-  --fluy-color-border: #fdb4bf;
-  --fluy-color-border-soft: #ffccd4;
-  --fluy-color-focus: #e57d90;
+  --fluy-color-border: #e1def8;
+  --fluy-color-border-soft: #eeecfb;
+  --fluy-color-focus: #803cf5;
+  --fluy-logo-filter: none;
+  --fluy-color-neutral-bg: #f3f0ff;
+  --fluy-color-neutral: #62538d;
 
   /* Estados semanticos */
   --fluy-color-success: #16836d;
@@ -109,14 +119,14 @@
   --ion-color-primary: var(--fluy-color-primary);
   --ion-color-primary-rgb: var(--fluy-color-primary-rgb);
   --ion-color-primary-contrast: var(--fluy-color-on-primary);
-  --ion-color-primary-contrast-rgb: 63, 48, 55;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
   --ion-color-primary-shade: var(--fluy-color-primary-shade);
   --ion-color-primary-tint: var(--fluy-color-primary-tint);
 
   --ion-color-secondary: var(--fluy-color-accent);
   --ion-color-secondary-rgb: var(--fluy-color-accent-rgb);
   --ion-color-secondary-contrast: var(--fluy-color-on-accent);
-  --ion-color-secondary-contrast-rgb: 63, 48, 55;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
   --ion-color-secondary-shade: var(--fluy-color-accent-hover);
   --ion-color-secondary-tint: var(--fluy-color-accent-tint);
 
@@ -126,6 +136,11 @@
   --ion-color-danger-rgb: var(--fluy-color-danger-rgb);
   --ion-color-warning: var(--fluy-color-warning);
   --ion-color-warning-rgb: var(--fluy-color-warning-rgb);
+  --ion-color-medium: var(--fluy-color-muted);
+  --ion-color-light: var(--fluy-color-surface-muted);
+  --ion-color-light-contrast: var(--fluy-color-title);
+  --ion-toolbar-background: var(--fluy-color-background);
+  --ion-toolbar-color: var(--fluy-color-title);
 
   /* Aliases temporarios para telas criadas antes da padronizacao. */
   --fluy-primary: var(--fluy-color-primary);
@@ -143,4 +158,71 @@
   --fluy-danger-bg: var(--fluy-color-danger-bg);
   --fluy-danger-border: var(--fluy-color-danger-border);
   --fluy-shadow: var(--fluy-shadow-md);
+  --fluy-color-primary-contrast: var(--fluy-color-on-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --fluy-color-background: #100c27;
+    --fluy-color-surface: #1b1436;
+    --fluy-color-surface-muted: #251c43;
+    --fluy-color-input: #201a39;
+    --fluy-color-overlay: rgba(4, 3, 15, 0.8);
+    --fluy-gradient-summary: linear-gradient(135deg, #32163e 0%, #251949 100%);
+    --fluy-shadow-brand: 0 8px 20px rgba(183, 70, 255, 0.22);
+
+    --fluy-color-title: #fbfaff;
+    --fluy-color-body: #d8d3ef;
+    --fluy-color-label: #e8e4f7;
+    --fluy-color-muted: #aaa4c8;
+    --fluy-color-placeholder: #817b9d;
+
+    --fluy-color-decorative: #b991ff;
+    --fluy-color-decorative-soft: #553a7c;
+    --fluy-color-decorative-light: #302449;
+    --fluy-color-booking-bg: #2a183e;
+    --fluy-color-booking-border: #4a2b60;
+    --fluy-color-primary-hover: #ad82ff;
+    --fluy-color-border: #3b3158;
+    --fluy-color-border-soft: #2b2441;
+    --fluy-color-focus: #bd9aff;
+    --fluy-logo-filter: grayscale(1) brightness(0) invert(1);
+    --fluy-color-neutral-bg: #2a2048;
+    --fluy-color-neutral: #d5c8fb;
+    --fluy-color-primary: #ab63ff;
+    --fluy-color-primary-rgb: 171, 99, 255;
+    --fluy-gradient-brand: linear-gradient(105deg, #fa6cbf 0%, #ad32ff 100%);
+
+    --fluy-color-success: #58d9b5;
+    --fluy-color-success-rgb: 88, 217, 181;
+    --fluy-color-success-bg: #142e2b;
+    --fluy-color-success-border: #286655;
+
+    --fluy-color-warning: #f4ca6e;
+    --fluy-color-warning-rgb: 244, 202, 110;
+    --fluy-color-warning-bg: #352b1b;
+    --fluy-color-warning-border: #6b552c;
+
+    --fluy-color-danger: #ff8295;
+    --fluy-color-danger-rgb: 255, 130, 149;
+    --fluy-color-danger-bg: #351d2a;
+    --fluy-color-danger-border: #71364a;
+
+    --fluy-color-info: #91a9ff;
+    --fluy-color-info-rgb: 145, 169, 255;
+    --fluy-color-info-bg: #1b2544;
+    --fluy-color-info-border: #344b80;
+
+    --fluy-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --fluy-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.27);
+    --fluy-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.42);
+
+    --ion-background-color: var(--fluy-color-background);
+    --ion-text-color: var(--fluy-color-body);
+    --ion-border-color: var(--fluy-color-border);
+    --ion-item-background: var(--fluy-color-surface);
+    --ion-card-background: var(--fluy-color-surface);
+  }
 }

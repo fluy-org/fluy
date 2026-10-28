@@ -33,24 +33,30 @@
     </ion-button>
   </div>
   } @case ('vazio') {
-  <div class="estado">
+  <div class="estado estado-vazio">
+    <div class="ilustracao-vazia">
+      <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+    </div>
+    <h2>Seu dia está livre por aqui</h2>
     <ion-text color="medium">
-      <p>Sem agendamentos neste dia.</p>
+      <p>Sem agendamentos neste dia. Adicione um atendimento para começar.</p>
     </ion-text>
   </div>
-  } @case ('lista') { @if (agenda) { @let agrupados = grupos(); @for
-  (agendamento of agrupados.ativos; track agendamento.id) {
+  } @case ('lista') { @if (agenda) { @let agrupados = grupos();
+  <h2 class="titulo-grupo">Ativos · {{ agrupados.ativos.length }}</h2>
+  @for (agendamento of agrupados.ativos; track agendamento.id) {
   <app-agendamento-card
     [agendamento]="agendamento"
     [fusoHorario]="agenda.fuso_horario"
     (abrir)="abrirDetalhe($event)"
   ></app-agendamento-card>
   } @if (agrupados.encerrados.length > 0) {
-  <h2 class="titulo-grupo">Encerrados</h2>
+  <h2 class="titulo-grupo">Encerrados · {{ agrupados.encerrados.length }}</h2>
 
   <div class="encerrados">
     @for (agendamento of agrupados.encerrados; track agendamento.id) {
     <app-agendamento-card
+      [compacto]="true"
       [agendamento]="agendamento"
       [fusoHorario]="agenda.fuso_horario"
       (abrir)="abrirDetalhe($event)"
@@ -58,7 +64,16 @@
     }
   </div>
   } } } }
+  <ion-button
+    class="novo-agendamento"
+    expand="block"
+    routerLink="/painel/agenda/novo"
+  >
+    <ion-icon slot="start" name="add-outline" aria-hidden="true"></ion-icon>
+    Novo agendamento
+  </ion-button>
 </ion-content>
+<app-navegacao-painel></app-navegacao-painel>
 
 <ion-modal [isOpen]="calendarioAberto()" (didDismiss)="fecharCalendario()">
   <ng-template>

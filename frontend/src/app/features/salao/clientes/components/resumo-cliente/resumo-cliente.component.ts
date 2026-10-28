@@ -6,11 +6,7 @@ import {
   output,
 } from '@angular/core';
 import type { ClienteListaItemResponseDto } from '@fluy/schema';
-import {
-  IonBadge,
-  IonCard,
-  IonCardContent,
-} from '@ionic/angular/standalone';
+import { IonBadge, IonCard, IonCardContent } from '@ionic/angular/standalone';
 import { HoraSalaoPipe } from '@app/shared/pipes/hora-salao.pipe';
 import { formatarWhatsapp } from '@app/shared/utils/formatacao';
 
@@ -28,4 +24,14 @@ export class ResumoClienteComponent {
   readonly abrir = output<string>();
 
   readonly whatsapp = computed(() => formatarWhatsapp(this.cliente().whatsapp));
+  readonly iniciais = computed(() =>
+    this.cliente()
+      .nome.trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte[0])
+      .join('')
+      .toUpperCase(),
+  );
 }

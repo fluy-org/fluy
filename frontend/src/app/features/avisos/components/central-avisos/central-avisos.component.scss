@@ -143,13 +143,14 @@
 
 :host(.central-flutuante) {
   position: fixed;
-  top: calc(env(safe-area-inset-top) + 4px);
+  top: calc(env(safe-area-inset-top) + 10px);
   right: 56px;
   z-index: 1001;
 }
 
 :host(.central-flutuante) .acionador {
-  color: var(--fluy-color-on-primary);
+  color: var(--fluy-color-title);
+  --color: var(--fluy-color-title);
 }
 
 :host(.central-flutuante) .painel-avisos {

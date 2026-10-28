@@ -1,5 +1,5 @@
 <ion-header>
-  <app-header titulo="Gestão de procedimentos"></app-header>
+  <app-header titulo="Procedimentos"></app-header>
 </ion-header>
 
 <ion-content class="procedures-page fluy-page-safe">
@@ -23,6 +23,7 @@
         ></ion-select
       >
       <ion-button class="new-procedure-button" (click)="abrirFormulario()">
+        <ion-icon slot="start" name="add-outline" aria-hidden="true"></ion-icon>
         Novo procedimento
       </ion-button>
     </div>
@@ -52,10 +53,12 @@
     } @case ('sem-resultados') {
     <ion-card class="empty-card"
       ><ion-card-header
-        ><ion-card-title>Nenhum resultado encontrado</ion-card-title
+        ><ion-card-title
+          >Nenhum resultado encontrado</ion-card-title
         ></ion-card-header
       ><ion-card-content
-        >Tente alterar o texto pesquisado ou o filtro de status.</ion-card-content
+        >Tente alterar o texto pesquisado ou o filtro de
+        status.</ion-card-content
       ></ion-card
     >
     } @case ('lista') {
@@ -131,7 +134,9 @@
               [alt]="'Imagem de ' + procedimento.nome"
             />
             } @else {
-            <span class="procedure-icon" aria-hidden="true"></span>
+            <div class="procedure-icon" aria-hidden="true">
+              <ion-icon name="cut-outline"></ion-icon>
+            </div>
             }
             <div class="mobile-card-info">
               <h2>{{ procedimento.nome }}</h2>
@@ -144,25 +149,42 @@
               >{{ procedimento.ativo ? 'Ativo' : 'Inativo' }}</ion-badge
             >
           </div>
+          <ion-button
+            class="procedure-menu"
+            fill="clear"
+            size="small"
+            [id]="'acoes-procedimento-' + procedimento.id"
+            [attr.aria-label]="'Ações de ' + procedimento.nome"
+          >
+            <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+          </ion-button>
           <div class="mobile-meta">
             <span>{{ procedimento.duracao_min }} min</span
-            ><span>R$ {{ procedimento.preco }}</span><span>Sem categoria</span>
+            ><span>R$ {{ procedimento.preco }}</span>
           </div>
-          <div class="mobile-card-actions">
-            <ion-button
-              fill="outline"
-              size="small"
-              (click)="abrirFormulario(procedimento)"
-              >Editar</ion-button
-            ><ion-button
-              fill="clear"
-              size="small"
-              color="medium"
-              [disabled]="procedimentoAlterandoStatusId() === procedimento.id"
-              (click)="alterarStatus(procedimento)"
-              >{{ procedimento.ativo ? 'Desativar' : 'Reativar' }}</ion-button
-            >
-          </div>
+          <ion-popover
+            [trigger]="'acoes-procedimento-' + procedimento.id"
+            [dismissOnSelect]="true"
+          >
+            <ng-template
+              ><div class="mobile-card-actions">
+                <ion-button
+                  fill="outline"
+                  size="small"
+                  (click)="abrirFormulario(procedimento)"
+                  >Editar</ion-button
+                ><ion-button
+                  fill="clear"
+                  size="small"
+                  color="medium"
+                  [disabled]="procedimentoAlterandoStatusId() === procedimento.id"
+                  (click)="alterarStatus(procedimento)"
+                  >{{ procedimento.ativo ? 'Desativar' : 'Reativar'
+                  }}</ion-button
+                >
+              </div></ng-template
+            ></ion-popover
+          >
         </ion-card-content></ion-card
       >
       }
@@ -188,3 +210,4 @@
     </ng-template>
   </ion-modal>
 </ion-content>
+<app-navegacao-painel></app-navegacao-painel>

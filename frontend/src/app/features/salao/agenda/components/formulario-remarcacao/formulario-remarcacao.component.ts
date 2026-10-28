@@ -32,6 +32,8 @@ import {
   formatarDataPorExtenso,
 } from '../../../../../shared/utils/data-civil';
 
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+
 @Component({
   selector: 'app-formulario-remarcacao',
   templateUrl: './formulario-remarcacao.component.html',
@@ -39,6 +41,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HeaderComponent,
     ConfirmacaoEncaixeComponent,
     HoraSalaoPipe,
     IonButton,

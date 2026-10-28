@@ -3,9 +3,64 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.25rem;
+  margin-bottom: var(--fluy-space-4);
+}
+
+.navegacao ion-button {
+  --color: var(--fluy-color-title);
+  margin: 0;
+  font-size: 13px;
+}
+.faixa-dias {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.faixa-dias ion-button {
+  height: 70px;
+  margin: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --border-radius: 12px;
+  --color: var(--fluy-color-muted);
+  border: 1px solid var(--fluy-color-border-soft);
+  border-radius: 12px;
+  background: var(--fluy-color-input);
+}
+.dia-conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.dia-conteudo ion-text {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 400;
+}
+.dia-conteudo strong {
+  font-size: 20px;
+  color: var(--fluy-color-title);
+}
+.faixa-dias .selecionado {
+  --background: linear-gradient(145deg, #b25aff, #7024ff);
+  --color: white;
+  border-color: transparent;
+  box-shadow: var(--fluy-shadow-brand);
+}
+.selecionado strong {
+  color: white;
+}
+.data-selecionada {
+  margin: 20px 0 14px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.data-selecionada::first-letter {
+  text-transform: uppercase;
 }
 
 .dia {
-  text-transform: capitalize;
+  text-transform: none;
   font-weight: 600;
 }

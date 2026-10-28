@@ -1,0 +1,18 @@
+<nav aria-label="Navegação principal">
+  @for (destino of destinos; track destino.rota) {
+    <ion-button
+      fill="clear"
+      [routerLink]="destino.rota"
+      routerLinkActive="ativo"
+      ariaCurrentWhenActive="page"
+      [attr.aria-label]="destino.nome"
+    >
+      <div class="destino">
+        <div class="icone">
+          <ion-icon [name]="destino.icone" aria-hidden="true"></ion-icon>
+        </div>
+        <ion-text>{{ destino.nome }}</ion-text>
+      </div>
+    </ion-button>
+  }
+</nav>

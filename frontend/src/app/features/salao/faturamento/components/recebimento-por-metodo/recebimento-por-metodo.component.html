@@ -1,6 +1,6 @@
 <ion-card>
   <ion-card-header>
-    <h2>Recebimento por método</h2>
+    <h2>Recebimentos por método</h2>
     <ion-text class="descricao"
       >Como a receita entrou, incluindo os sinais retidos.</ion-text
     >
@@ -12,6 +12,11 @@
         track recebimento.origem + ':' + recebimento.metodo
       ) {
         <ion-item class="recebimento">
+          <ion-icon
+            slot="start"
+            [name]="iconeMetodo(recebimento.metodo)"
+            aria-hidden="true"
+          ></ion-icon>
           <div class="metodo">
             <ion-text class="nome-metodo">{{
               rotuloMetodo[recebimento.metodo]

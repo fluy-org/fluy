@@ -1,7 +1,9 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>{{ titulo() }}</ion-title>
-  </ion-toolbar>
+  <app-header
+    [titulo]="titulo()"
+    [fechavel]="true"
+    (fechar)="cancelarFormulario()"
+  ></app-header>
 </ion-header>
 
 <ion-content class="fluy-page-safe">
@@ -10,19 +12,22 @@
     [formGroup]="formulario"
     (ngSubmit)="enviarFormulario()"
   >
-    <!-- Base visual: os controles reativos e validacoes entram depois. -->
-    <ion-list lines="full">
-      <section class="campo-imagem" aria-labelledby="titulo-imagem-procedimento">
+    <ion-list lines="none">
+      <section
+        class="campo-imagem"
+        aria-labelledby="titulo-imagem-procedimento"
+      >
         <div class="campo-imagem-cabecalho">
           <div>
             <strong id="titulo-imagem-procedimento">
               Imagem do procedimento
             </strong>
-            <p>JPEG, PNG ou WebP de ate 5 MiB.</p>
+            <p>JPEG, PNG ou WebP de até 5 MiB.</p>
           </div>
 
           <label class="seletor-imagem">
-            {{ arquivoImagem() ? "Trocar imagem" : "Selecionar imagem" }}
+            <ion-icon name="image-outline" aria-hidden="true"></ion-icon>
+            {{ arquivoImagem() ? 'Trocar imagem' : 'Selecionar imagem' }}
             <input
               #inputImagem
               type="file"
@@ -38,7 +43,14 @@
             <img [src]="urlImagem" alt="Previa da imagem do procedimento" />
 
             @if (arquivoImagem()) {
-              <ion-button type="button" fill="clear" color="medium" size="small" [disabled]="salvando()" (click)="removerSelecaoImagem(inputImagem)">
+              <ion-button
+                type="button"
+                fill="clear"
+                color="medium"
+                size="small"
+                [disabled]="salvando()"
+                (click)="removerSelecaoImagem(inputImagem)"
+              >
                 Remover seleção
               </ion-button>
             } @else if (procedimento()?.imagem_url) {
@@ -87,6 +99,7 @@
       <ion-input
         type="number"
         label="Duração em minutos"
+        class="campo-metade"
         labelPlacement="stacked"
         placeholder="60"
         formControlName="duracao_min"
@@ -95,6 +108,7 @@
       <ion-input
         type="number"
         label="Preço"
+        class="campo-metade"
         labelPlacement="stacked"
         placeholder="0,00"
         formControlName="preco"
@@ -102,6 +116,7 @@
 
       <ion-select
         label="Tipo do sinal"
+        class="campo-metade"
         labelPlacement="stacked"
         formControlName="tipo_sinal"
       >
@@ -112,6 +127,7 @@
       <ion-input
         type="number"
         label="Valor do sinal"
+        class="campo-metade"
         labelPlacement="stacked"
         placeholder="0,00"
         formControlName="valor_sinal"
@@ -133,20 +149,23 @@
     @if (erroExterno(); as erro) {
       <p class="validation-error">{{ erro }}</p>
     }
-
-    <div class="formulario-actions">
-      <ion-button
-        type="button"
-        fill="outline"
-        color="medium"
-        [disabled]="salvando()"
-        (click)="cancelarFormulario()"
-      >
-        Cancelar
-      </ion-button>
-      <ion-button type="submit" [disabled]="salvando()">
-        {{ salvando() ? "Salvando..." : "Salvar procedimento" }}
-      </ion-button>
-    </div>
   </form>
 </ion-content>
+<div class="formulario-actions">
+  <ion-button
+    type="button"
+    fill="outline"
+    color="medium"
+    [disabled]="salvando()"
+    (click)="cancelarFormulario()"
+  >
+    Cancelar
+  </ion-button>
+  <ion-button
+    type="button"
+    [disabled]="salvando()"
+    (click)="enviarFormulario()"
+  >
+    {{ salvando() ? 'Salvando...' : 'Salvar procedimento' }}
+  </ion-button>
+</div>

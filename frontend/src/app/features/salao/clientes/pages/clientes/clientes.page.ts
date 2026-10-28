@@ -1,3 +1,4 @@
+import { NavegacaoPainelComponent } from '@app/shared/components/navegacao-painel/navegacao-painel.component';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -44,6 +45,7 @@ import { HeaderComponent } from '@app/shared/components/header/header.component'
   styleUrls: ['./clientes.page.scss'],
   standalone: true,
   imports: [
+    NavegacaoPainelComponent,
     FormularioClienteComponent,
     HeaderComponent,
     IonButton,
@@ -78,7 +80,9 @@ export class ClientesPage implements OnInit {
   readonly fusoHorario = this.clientesService.fusoHorario;
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
-  readonly filtros = signal<FiltrosListaClientes>(FILTROS_PADRAO_LISTA_CLIENTES);
+  readonly filtros = signal<FiltrosListaClientes>(
+    FILTROS_PADRAO_LISTA_CLIENTES,
+  );
   readonly formularioAberto = signal(false);
   readonly salvandoCliente = signal(false);
   readonly erroFormulario = signal<string | null>(null);
