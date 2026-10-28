@@ -4,14 +4,15 @@ import type { Env } from '@/config/env.schema';
 import {
   PAYMENT_PROVIDER,
   type PaymentProvider,
-} from '@/modules/pagamento/contracts/payment-provider.types';
-import { PAYMENT_SIMULATOR } from '@/modules/pagamento/contracts/payment-simulator.types';
+} from '@/modules/pagamento/contracts';
+import { PAYMENT_SIMULATOR } from '@/modules/pagamento/contracts';
 import { FakePaymentProvider } from '@/shared/providers/payment/fake-payment.provider';
 
-import { EfiClient, EfiTransport } from './efi/efi-client';
-import { EfiPaymentProvider } from './efi/efi-payment.provider';
+import { EfiClient } from '@/shared/providers/payment/efi/efi-client';
+import { EfiTransport } from '@/shared/providers/payment/efi/efi-transport';
+import { EfiPaymentProvider } from '@/shared/providers/payment/efi/efi-payment.provider';
 
-import { EfiWebhookAdapter } from './efi/efi-webhook.adapter';
+import { EfiWebhookAdapter } from '@/shared/providers/payment/efi/efi-webhook.adapter';
 
 const disabledProvider: PaymentProvider = {
   name: 'disabled',

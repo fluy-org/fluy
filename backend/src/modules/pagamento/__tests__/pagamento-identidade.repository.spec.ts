@@ -1,7 +1,8 @@
+import { decidirNotificacao } from '@/modules/pagamento/pagamento-estado-utils';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { getTableConfig } from 'drizzle-orm/pg-core';
 import { cobrancaGateway } from '@fluy/schema';
-import { PagamentoRepository } from '../pagamento.repository';
+import { PagamentoRepository } from '@/modules/pagamento/pagamento.repository';
 
 // Compila as queries reais; o cliente controlado não abre conexão.
 describe('identidade externa de pagamentos', () => {
@@ -34,6 +35,7 @@ describe('identidade externa de pagamentos', () => {
 
   it('aplica o filtro de origem também na entrada financeira direta', async () => {
     await repository.aplicarNotificacao({
+      decidir: decidirNotificacao,
       salaoId: 's1',
       notificacao: notification,
       agora: new Date(),

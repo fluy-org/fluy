@@ -19,6 +19,8 @@ Diferente dos blocos 3 a 8, este **não tem dono único**: pagamento entra nas
 duas superfícies ao mesmo tempo. A divisão segue a regra de **quem é dono da
 superfície**, com uma única fatia compartilhada na frente.
 
+> Estado atual: o backend Pix em homologação foi autorizado e implementado conforme [Efí Open Finance](./efi-open-finance-integracao.md). Esse documento específico prevalece sobre as hipóteses iniciais de gateway e expiração deste planejamento. As checkboxes abaixo representam o aceite do bloco completo; não significam ausência do backend. Produção, reembolso e telas futuras continuam fora dessa autorização.
+
 ## Entregável do bloco
 
 Ao final:

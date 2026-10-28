@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
@@ -35,7 +36,7 @@ import {
 import {
   InstituicoesPixResponseDto,
   RecebimentoPixPublicoResponseDto,
-} from './contracts/checkout-pix-response.dto';
+} from '@/modules/pagamento/contracts';
 import { PagamentoPublicoService } from '@/modules/pagamento/pagamento-publico.service';
 import { PagamentoSimulacaoService } from '@/modules/pagamento/pagamento-simulacao.service';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
@@ -47,6 +48,9 @@ import { TenantFromPath } from '@/shared/tenant-context/decorators/tenant-from-p
 export class PagamentoPublicoController {
   constructor(private readonly service: PagamentoPublicoService) {}
 
+  @ApiBadGatewayResponse({
+    description: 'Resposta inválida do provedor de pagamento.',
+  })
   @Get('instituicoes')
   @ApiOperation({
     summary: 'Lista instituições disponíveis para pagamento Pix',
@@ -94,6 +98,9 @@ export class PagamentoPublicoController {
     );
   }
 
+  @ApiBadGatewayResponse({
+    description: 'Resposta inválida do provedor de pagamento.',
+  })
   @Post(':id/pagamentos')
   @ApiOperation({ summary: 'Inicia uma cobrança Pix para a reserva' })
   @ApiCreatedResponse({ type: PagamentoPixResponseDto.Output })
@@ -121,6 +128,12 @@ export class PagamentoPublicoController {
     );
   }
 
+  @ApiBadGatewayResponse({
+    description: 'Resposta inválida do provedor de pagamento.',
+  })
+  @ApiConflictResponse({
+    description: 'Origem ou valor da cobrança incompatível.',
+  })
   @Get(':id/pagamento')
   @ApiOperation({ summary: 'Consulta o pagamento de uma reserva' })
   @ApiOkResponse({ type: PagamentoPixResponseDto.Output })
@@ -158,7 +171,7 @@ export class PagamentoFakeController {
   @ApiOperation({
     summary: 'Simula uma notificação de pagamento no desenvolvimento',
   })
-  @ApiOkResponse({ type: SimularPagamentoPixResponseDto.Output })
+  @ApiCreatedResponse({ type: SimularPagamentoPixResponseDto.Output })
   @ApiBadRequestResponse({
     description: 'Cobrança fake já encerrada ou expirada.',
   })

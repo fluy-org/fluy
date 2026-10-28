@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PagamentoWebhookService } from './pagamento-webhook.service';
+import { PagamentoWebhookService } from '@/modules/pagamento/pagamento-webhook.service';
 import { PagamentoRepository } from '@/modules/pagamento/pagamento.repository';
 
 @Injectable()

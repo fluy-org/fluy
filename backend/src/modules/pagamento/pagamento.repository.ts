@@ -10,20 +10,20 @@ import {
 import { Injectable } from '@nestjs/common';
 import { InjectDatabase } from '@/database/inject-database.decorator';
 import type { Database } from '@/database/database.provider';
-import type { PagamentoRepositoryPort } from '@/modules/pagamento/contracts/pagamento-repository.types';
+import type {
+  PagamentoRepositoryPort,
+  AplicarNotificacaoPagamentoPersistenciaInput,
+} from '@/modules/pagamento/contracts';
 import {
   emCentavos,
   formatarCentavos,
 } from '@/modules/agendamento/agendamento-utils';
-import {
-  decidirNotificacao,
-  normalizarTipoEvento,
-} from '@/modules/pagamento/pagamento-estado';
+import { normalizarTipoEvento } from '@/modules/pagamento/pagamento-estado-utils';
 import { chaveIdempotenciaEvento } from '@/modules/pagamento/pagamento-utils';
 
-import type { NotificacaoPagamento } from './contracts/payment-provider.types';
+import type { NotificacaoPagamento } from '@/modules/pagamento/contracts';
 
-const STATUS_ATIVOS = ['iniciando', 'pendente'] as const;
+import { STATUS_COBRANCA_ATIVOS } from '@/modules/pagamento/pagamento-data';
 
 @Injectable()
 export class PagamentoRepository implements PagamentoRepositoryPort {
@@ -59,7 +59,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
         and(
           eq(cobrancaGateway.salao_id, input.salaoId),
           eq(cobrancaGateway.agendamento_id, input.agendamentoId),
-          inArray(cobrancaGateway.status, [...STATUS_ATIVOS]),
+          inArray(cobrancaGateway.status, [...STATUS_COBRANCA_ATIVOS]),
         ),
       )
       .orderBy(desc(cobrancaGateway.criada_em))
@@ -121,24 +121,9 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
     >;
   }
 
-  async criarOuBuscarTentativa(input: {
-    salaoId: string;
-    clienteId: string;
-    agendamentoId: string;
-    modalidade: 'sinal' | 'total';
-    idempotencyKey: string;
-    provedor: string;
-    valorSalaoCentavos: number;
-    taxaClienteCentavos: number;
-    totalClienteCentavos: number;
-    recebedor: {
-      tipoChave: 'cpf' | 'cnpj' | 'email' | 'telefone' | 'aleatoria';
-      chave: string;
-      nomeRecebedor: string;
-    };
-    pagador?: { cpf: string; instituicao_id: string; cnpj?: string };
-    agora: Date;
-  }) {
+  async criarOuBuscarTentativa(
+    input: Parameters<PagamentoRepositoryPort['criarOuBuscarTentativa']>[0],
+  ) {
     return this.database.transaction(async (tx) => {
       const reservas = await tx
         .select()
@@ -170,7 +155,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
           and(
             eq(cobrancaGateway.salao_id, input.salaoId),
             eq(cobrancaGateway.agendamento_id, input.agendamentoId),
-            inArray(cobrancaGateway.status, [...STATUS_ATIVOS]),
+            inArray(cobrancaGateway.status, [...STATUS_COBRANCA_ATIVOS]),
           ),
         )
         .limit(1);
@@ -209,12 +194,9 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
     });
   }
 
-  async marcarPendente(input: {
-    salaoId: string;
-    cobrancaId: string;
-    externalId: string;
-    instrucaoCliente: { tipo: 'url'; valor: string } | null;
-  }) {
+  async marcarPendente(
+    input: Parameters<PagamentoRepositoryPort['marcarPendente']>[0],
+  ) {
     const linhas = await this.database
       .update(cobrancaGateway)
       .set({
@@ -238,11 +220,9 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
     >;
   }
 
-  async aplicarNotificacao(input: {
-    salaoId: string;
-    notificacao: NotificacaoPagamento;
-    agora: Date;
-  }): Promise<'valor_divergente' | undefined> {
+  async aplicarNotificacao(
+    input: AplicarNotificacaoPagamentoPersistenciaInput,
+  ): Promise<'valor_divergente' | undefined> {
     return this.database.transaction(async (tx) => {
       const cobrancas = await tx
         .select()
@@ -315,7 +295,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
       )
         return;
 
-      const decisao = decidirNotificacao({
+      const decisao = input.decidir({
         tipo: input.notificacao.tipo,
         valorPagoCentavos: input.notificacao.valorPagoCentavos,
         statusCobranca: cobranca.status,
@@ -359,9 +339,14 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
         .select()
         .from(webhookGatewayEvento)
         .where(
-          registroId
-            ? eq(webhookGatewayEvento.id, registroId)
-            : eq(webhookGatewayEvento.id_externo, eventoExternoId),
+          and(
+            registroId ? eq(webhookGatewayEvento.id, registroId) : undefined,
+            eq(webhookGatewayEvento.id_externo, eventoExternoId),
+            or(
+              isNull(webhookGatewayEvento.salao_id),
+              eq(webhookGatewayEvento.salao_id, input.salaoId),
+            ),
+          ),
         )
         .for('update')
         .limit(1);
@@ -376,7 +361,16 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
           processado_em: input.agora,
           erro_mensagem: null,
         })
-        .where(eq(webhookGatewayEvento.id, registro.id));
+        .where(
+          and(
+            eq(webhookGatewayEvento.id, registro.id),
+            eq(webhookGatewayEvento.id_externo, eventoExternoId),
+            or(
+              isNull(webhookGatewayEvento.salao_id),
+              eq(webhookGatewayEvento.salao_id, input.salaoId),
+            ),
+          ),
+        );
       await tx
         .update(cobrancaGateway)
         .set({
@@ -455,7 +449,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
               cobrancaGateway.agendamento_id,
               expiradas.map((reserva) => reserva.id),
             ),
-            inArray(cobrancaGateway.status, [...STATUS_ATIVOS]),
+            inArray(cobrancaGateway.status, [...STATUS_COBRANCA_ATIVOS]),
           ),
         );
       return expiradas.length;

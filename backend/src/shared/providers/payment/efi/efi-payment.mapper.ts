@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import type { NotificacaoPagamento } from '@/modules/pagamento/contracts/payment-provider.types';
+import type { NotificacaoPagamento } from '@/modules/pagamento/contracts';
 const money = z.string().regex(/^\d{1,8}\.\d{2}$/);
 export const efiPaymentSchema = z.object({
   identificadorPagamento: z.string().min(1).max(200),

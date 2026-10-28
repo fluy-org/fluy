@@ -1,7 +1,7 @@
-import { PagamentoWebhookService } from '../pagamento-webhook.service';
+import { PagamentoWebhookService } from '@/modules/pagamento/pagamento-webhook.service';
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { PaymentProvider } from '../contracts/payment-provider.types';
+import type { PaymentProvider } from '@/modules/pagamento/contracts';
 
 describe('PagamentoWebhookService', () => {
   const provider = {

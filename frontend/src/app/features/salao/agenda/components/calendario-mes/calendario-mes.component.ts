@@ -13,9 +13,12 @@ import {
   IonSpinner,
   IonText,
 } from '@ionic/angular/standalone';
-import { ROTULOS_DIAS_DA_SEMANA } from '../../agenda-data';
-import { adicionarMesesNoMes, formatarMesPorExtenso } from '../../agenda-utils';
-import type { GradeDoMes } from '../../contracts';
+import { ROTULOS_DIAS_DA_SEMANA } from '@app/features/salao/agenda/agenda-data';
+import {
+  adicionarMesesNoMes,
+  formatarMesPorExtenso,
+} from '@app/features/salao/agenda/agenda-utils';
+import type { GradeDoMes } from '@app/features/salao/agenda/contracts';
 
 @Component({
   selector: 'app-calendario-mes',

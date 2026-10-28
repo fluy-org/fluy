@@ -22,15 +22,15 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { ConfirmacaoEncaixeComponent } from '../../../../../shared/components/confirmacao-encaixe/confirmacao-encaixe.component';
-import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
-import { RotuloAvaliacaoPipe } from '../../../../../shared/pipes/rotulo-avaliacao.pipe';
-import { SeletorHorarioComponent } from '../../../../../shared/components/seletor-horario/seletor-horario.component';
-import { zodValidator } from '../../../../../shared/utils/zod-validator';
+import { ConfirmacaoEncaixeComponent } from '@app/shared/components/confirmacao-encaixe/confirmacao-encaixe.component';
+import { HoraSalaoPipe } from '@app/shared/pipes/hora-salao.pipe';
+import { RotuloAvaliacaoPipe } from '@app/shared/pipes/rotulo-avaliacao.pipe';
+import { SeletorHorarioComponent } from '@app/shared/components/seletor-horario/seletor-horario.component';
+import { zodValidator } from '@app/shared/utils/zod-validator';
 import {
   extrairDataCivil,
   formatarDataPorExtenso,
-} from '../../../../../shared/utils/data-civil';
+} from '@app/shared/utils/data-civil';
 
 @Component({
   selector: 'app-formulario-remarcacao',
@@ -132,7 +132,8 @@ export class FormularioRemarcacaoComponent {
 
     if (!resultado.success) {
       this.erroValidacao.set(
-        resultado.error.issues[0]?.message ?? 'Escolha a nova data e o horário.',
+        resultado.error.issues[0]?.message ??
+          'Escolha a nova data e o horário.',
       );
       return;
     }

@@ -8,3 +8,6 @@ export * from '@/modules/pagamento/contracts/simular-pagamento-pix-response.dto'
 export * from '@/modules/pagamento/contracts/pagamento-repository.types';
 export * from '@/modules/pagamento/contracts/payment-provider.types';
 export * from '@/modules/pagamento/contracts/payment-simulator.types';
+export * from '@/modules/pagamento/contracts/checkout-pix-response.dto';
+export * from '@/modules/pagamento/contracts/pagamento.types';
+export * from '@/modules/pagamento/contracts/webhook-pagamento-response.dto';

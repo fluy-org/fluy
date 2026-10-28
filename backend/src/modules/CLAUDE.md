@@ -112,6 +112,13 @@ tabelas, substituições de coleção ou operações atômicas usam
 
 Services retornam tipos internos para o mapper.
 
+Quando uma decisão de negócio precisa dos dados sob lock, o service fornece
+uma função pura tipada em `contracts/`. O repository bloqueia as linhas,
+monta o estado atual e executa essa função antes das escritas, dentro da mesma
+transação. O callback não recebe Drizzle/transação nem executa I/O; a regra e
+a escolha da função pertencem ao service. Não decida sobre uma leitura anterior
+ao lock. Referência: `pagamento/`, processamento de notificações.
+
 ## Erros
 
 **Só service e validator lançam exceção.** Controller e repository não lançam

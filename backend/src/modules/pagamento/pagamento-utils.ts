@@ -1,3 +1,8 @@
+import type {
+  ModalidadePagamentoGateway,
+  TipoPagamentoAgendamento,
+} from '@fluy/schema';
+import type { CotacaoPagamento } from '@/modules/pagamento/contracts';
 import { createHash } from 'node:crypto';
 
 export function chaveIdempotenciaEvento(input: {
@@ -10,12 +15,6 @@ export function chaveIdempotenciaEvento(input: {
     .update(input.eventoId)
     .digest('hex');
 }
-
-export type CotacaoPagamento = {
-  valorSalaoCentavos: number;
-  taxaClienteCentavos: number;
-  totalClienteCentavos: number;
-};
 
 export function validarCotacao(cotacao: CotacaoPagamento): boolean {
   const valores = Object.values(cotacao);
@@ -32,10 +31,10 @@ export function alocarPagamento({
   valorSalaoCentavos,
   valorSinalCentavos,
 }: {
-  modalidade: 'sinal' | 'total';
+  modalidade: ModalidadePagamentoGateway;
   valorSalaoCentavos: number;
   valorSinalCentavos: number;
-}): Array<{ tipo: 'sinal' | 'restante'; valorCentavos: number }> {
+}): Array<{ tipo: TipoPagamentoAgendamento; valorCentavos: number }> {
   if (modalidade === 'sinal') {
     return valorSalaoCentavos > 0
       ? [{ tipo: 'sinal', valorCentavos: valorSalaoCentavos }]
@@ -43,7 +42,7 @@ export function alocarPagamento({
   }
 
   const alocacoes: Array<{
-    tipo: 'sinal' | 'restante';
+    tipo: TipoPagamentoAgendamento;
     valorCentavos: number;
   }> = [];
 

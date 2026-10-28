@@ -314,3 +314,15 @@ export type CalcularAcoesAgendamentoInput = {
   toleranciaAtrasoMin: number;
   agora: Date;
 };
+
+export type LinhaDaAgenda = {
+  agendamento: AgendamentoPersistido;
+  cliente: AgendamentoDaAgendaPersistido['cliente'];
+  procedimento: AgendamentoDaAgendaPersistido['procedimento'];
+  valor_manual: string | null;
+  valor_gateway: string | null;
+  status_gateway: PagamentoDoAgendamentoPersistido['status'];
+  tem_observacoes: boolean;
+  quantidade_anexos: number;
+  tem_imagens_referencia: boolean;
+};

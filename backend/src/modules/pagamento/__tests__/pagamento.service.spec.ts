@@ -1,6 +1,6 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { PagamentoService } from '@/modules/pagamento/pagamento.service';
-import type { IniciarPagamentoInput } from '@/modules/pagamento/contracts/pagamento-repository.types';
+import type { IniciarPagamentoInput } from '@/modules/pagamento/contracts';
 
 describe('PagamentoService', () => {
   const repository = {
@@ -226,7 +226,11 @@ describe('PagamentoService', () => {
     };
     await service.processarNotificacao({ salaoId: 'salao-a', notificacao });
     expect(repository.aplicarNotificacao).toHaveBeenCalledWith(
-      expect.objectContaining({ salaoId: 'salao-a', notificacao }),
+      expect.objectContaining({
+        salaoId: 'salao-a',
+        notificacao,
+        decidir: expect.any(Function) as unknown,
+      }),
     );
   });
 

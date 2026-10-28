@@ -1,5 +1,10 @@
-import type { CotacaoPagamento } from '@/modules/pagamento/pagamento-utils';
 import type {
+  CotacaoPagamento,
+  DecidirNotificacaoInput,
+  DecisaoNotificacao,
+} from '@/modules/pagamento/contracts';
+import type {
+  InstrucaoPagamentoPixDto,
   StatusCobrancaGateway,
   ModalidadePagamentoGateway,
 } from '@fluy/schema';
@@ -37,7 +42,7 @@ export type CobrancaParaPagamento = {
   pix_nome_recebedor: string;
   id_externo?: string | null;
   divergencia: boolean;
-  instrucao_cliente: { tipo: 'url'; valor: string } | null;
+  instrucao_cliente: InstrucaoPagamentoPixDto;
 };
 
 export type PagamentoConsultado = CobrancaParaPagamento & {
@@ -59,7 +64,7 @@ export interface PagamentoRepositoryPort {
     salaoId: string;
     clienteId: string;
     agendamentoId: string;
-    modalidade: 'sinal' | 'total';
+    modalidade: ModalidadePagamentoGateway;
     idempotencyKey: string;
     provedor: string;
     valorSalaoCentavos: number;
@@ -73,13 +78,11 @@ export interface PagamentoRepositoryPort {
     salaoId: string;
     cobrancaId: string;
     externalId: string;
-    instrucaoCliente: { tipo: 'url'; valor: string } | null;
+    instrucaoCliente: InstrucaoPagamentoPixDto;
   }): Promise<CobrancaParaPagamento | undefined>;
-  aplicarNotificacao(input: {
-    salaoId: string;
-    notificacao: NotificacaoPagamento;
-    agora: Date;
-  }): Promise<'valor_divergente' | undefined>;
+  aplicarNotificacao(
+    input: AplicarNotificacaoPagamentoPersistenciaInput,
+  ): Promise<'valor_divergente' | undefined>;
   buscarPagamento(input: {
     salaoId: string;
     clienteId: string;
@@ -95,8 +98,17 @@ export type IniciarPagamentoInput = {
   salaoId: string;
   clienteId: string;
   agendamentoId: string;
-  modalidade: 'sinal' | 'total';
+  modalidade: ModalidadePagamentoGateway;
   pagador?: PagadorPix;
 };
 
 export type CotacaoPersistida = CotacaoPagamento;
+
+export type AplicarNotificacaoPagamentoPersistenciaInput = {
+  salaoId: string;
+  notificacao: NotificacaoPagamento;
+  agora: Date;
+  decidir: (
+    input: Readonly<DecidirNotificacaoInput>,
+  ) => DecisaoNotificacao | { erro: 'valor_divergente' };
+};

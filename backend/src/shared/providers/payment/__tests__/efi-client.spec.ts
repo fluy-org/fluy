@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
-import { EfiClient, type RequestInput } from '../efi/efi-client';
+import type { RequestInput } from '@/shared/providers/payment/efi/contracts';
+import { EfiClient } from '@/shared/providers/payment/efi/efi-client';
 
 describe('EfiClient', () => {
   const config = new ConfigService({

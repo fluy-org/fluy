@@ -9,8 +9,11 @@ import type { Env } from '@/config/env.schema';
 import type {
   NotificacaoPagamento,
   WebhookPagamentoInput,
-} from '@/modules/pagamento/contracts/payment-provider.types';
-import { efiPaymentSchema, normalizarPagamentoEfi } from './efi-payment.mapper';
+} from '@/modules/pagamento/contracts';
+import {
+  efiPaymentSchema,
+  normalizarPagamentoEfi,
+} from '@/shared/providers/payment/efi/efi-payment.mapper';
 
 @Injectable()
 export class EfiWebhookAdapter {

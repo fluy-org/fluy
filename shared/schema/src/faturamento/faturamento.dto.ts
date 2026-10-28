@@ -1,5 +1,7 @@
 import type { z } from 'zod';
 import type {
+  listarSinaisRetidosFaturamentoQuerySchema,
+  listaSinaisRetidosFaturamentoResponseSchema,
   atendimentoFaturamentoResponseSchema,
   faturamentoResponseSchema,
   listaAtendimentosFaturamentoResponseSchema,
@@ -30,3 +32,6 @@ export type AtendimentoFaturamentoResponseDto = z.infer<
 export type ListaAtendimentosFaturamentoResponseDto = z.infer<
   typeof listaAtendimentosFaturamentoResponseSchema
 >;
+
+export type ListarSinaisRetidosFaturamentoQueryDto = z.infer<typeof listarSinaisRetidosFaturamentoQuerySchema>;
+export type ListaSinaisRetidosFaturamentoResponseDto = z.infer<typeof listaSinaisRetidosFaturamentoResponseSchema>;

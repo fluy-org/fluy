@@ -21,13 +21,13 @@
     ></app-seletor-periodo>
 
     @switch (estadoPagina()) {
-      @case ('carregando') {
+      @case ("carregando") {
         <section class="feedback" role="status" aria-live="polite">
           <ion-spinner aria-label="Carregando faturamento"></ion-spinner>
           <ion-text>Carregando faturamento...</ion-text>
         </section>
       }
-      @case ('erro') {
+      @case ("erro") {
         <section class="feedback" role="alert">
           <ion-text color="danger">{{ erro() }}</ion-text>
           <ion-button fill="outline" (click)="tentarNovamente()"
@@ -37,7 +37,7 @@
       }
       @default {
         @if (faturamento(); as relatorio) {
-          @if (estadoPagina() === 'vazio') {
+          @if (estadoPagina() === "vazio") {
             <ion-text class="aviso-vazio" role="status"
               >Nenhum movimento neste período.</ion-text
             >
@@ -51,24 +51,30 @@
             [fusoHorario]="relatorio.fuso_horario"
             [erroPaginacao]="erroPaginacao()"
             [carregandoMais]="carregandoMais()"
-            (tentarNovamente)="carregarMais()"
+            (tentarNovamente)="carregarMaisAtendimentos()"
           ></app-atendimentos-realizados>
           <div class="detalhamento-receita">
             <app-recebimento-por-metodo
               [recebimentos]="relatorio.recebimento_por_metodo"
             ></app-recebimento-por-metodo>
             <app-sinais-retidos
-              [sinaisRetidos]="relatorio.sinais_retidos"
+              [sinaisRetidos]="sinaisRetidos()"
+              [erroPaginacao]="erroPaginacaoSinaisRetidos()"
+              [carregandoMais]="carregandoMaisSinaisRetidos()"
+              (tentarNovamente)="carregarMaisSinaisRetidos()"
               [fusoHorario]="relatorio.fuso_horario"
             ></app-sinais-retidos>
           </div>
 
           <ion-infinite-scroll
-            [disabled]="!proximoCursor() || !!erroPaginacao()"
+            [disabled]="
+              (!proximoCursor() || !!erroPaginacao()) &&
+              (!proximoCursorSinaisRetidos() || !!erroPaginacaoSinaisRetidos())
+            "
             (ionInfinite)="carregarMais($event)"
           >
             <ion-infinite-scroll-content
-              loadingText="Carregando mais atendimentos..."
+              loadingText="Carregando mais registros..."
             ></ion-infinite-scroll-content>
           </ion-infinite-scroll>
         }

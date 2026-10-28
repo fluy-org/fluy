@@ -1,6 +1,7 @@
 jest.mock(
   '@fluy/schema',
   () => ({
+    ACAO_AGENDAMENTO: [],
     agendamento: {
       id: 'agendamento.id',
       salao_id: 'agendamento.salao_id',
@@ -532,9 +533,11 @@ describe('AgendamentoRepository', () => {
       await repository.listarDoDia(entrada);
 
       expect(
-        jest.mocked(sql).mock.calls.some((chamada) =>
-          chamada.includes(pagamentoAgendamento.valor),
-        ),
+        jest
+          .mocked(sql)
+          .mock.calls.some((chamada) =>
+            chamada.includes(pagamentoAgendamento.valor),
+          ),
       ).toBe(true);
     });
 

@@ -34,7 +34,7 @@ Consolidar a receita do salão em um período selecionado (semana, quinzena, mê
 
 ### Sinais retidos por cancelamento e no-show
 
-- Seção separada listando: data, cliente, procedimento (que não aconteceu), valor do sinal, motivo (cancelamento pela cliente / no-show / cancelamento pelo salão sem reembolso).
+- Seção separada, paginada, listando: data, cliente, procedimento (que não aconteceu), valor do sinal, motivo (cancelamento pela cliente / no-show / cancelamento pelo salão sem reembolso).
 - Base de cálculo: data do cancelamento/no-show.
 
 ### Estados de dado incompleto

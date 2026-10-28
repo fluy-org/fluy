@@ -23,15 +23,16 @@ import {
   IonSelect,
   IonSelectOption,
   IonTitle,
+  IonText,
   IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { zodValidator } from '../../../../../shared/utils/zod-validator';
+import { zodValidator } from '@app/shared/utils/zod-validator';
 import {
   ROTULO_AVISO_ACAO_AGENDAMENTO,
   ROTULO_METODO_PAGAMENTO_MANUAL,
-} from '../../agenda-data';
-import { formatarValor } from '../../../../../shared/utils/formatacao';
+} from '@app/features/salao/agenda/agenda-data';
+import { formatarValor } from '@app/shared/utils/formatacao';
 import { SecaoAnexosComponent } from '@app/features/salao/anexos/components/secao-anexos/secao-anexos.component';
 
 @Component({
@@ -47,6 +48,7 @@ import { SecaoAnexosComponent } from '@app/features/salao/anexos/components/seca
     IonSelect,
     IonSelectOption,
     IonTitle,
+    IonText,
     IonToggle,
     IonToolbar,
     ReactiveFormsModule,
@@ -80,13 +82,16 @@ export class FormularioConclusaoComponent {
       : null,
   );
 
-  readonly formulario = new FormGroup({
-    metodo_pagamento: new FormControl<MetodoPagamentoManual | null>(null, {
-      validators: zodValidator(
-        concluirAgendamentoSchema.shape.metodo_pagamento,
-      ),
-    }),
-  });
+  readonly formulario = new FormGroup(
+    {
+      metodo_pagamento: new FormControl<MetodoPagamentoManual | null>(null, {
+        validators: zodValidator(
+          concluirAgendamentoSchema.shape.metodo_pagamento,
+        ),
+      }),
+    },
+    { validators: zodValidator(concluirAgendamentoSchema) },
+  );
 
   alternarValorNaoRecebido(naoRecebido: boolean): void {
     this.erroValidacao.set(null);

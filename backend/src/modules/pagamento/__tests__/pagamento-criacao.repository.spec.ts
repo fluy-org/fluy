@@ -1,6 +1,6 @@
 import { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
-import { PagamentoRepository } from '../pagamento.repository';
+import { PagamentoRepository } from '@/modules/pagamento/pagamento.repository';
 
 describe('resposta de criação concorrente com webhook', () => {
   it('salva identificador sem rebaixar estado terminal nem exigir estado iniciando', async () => {

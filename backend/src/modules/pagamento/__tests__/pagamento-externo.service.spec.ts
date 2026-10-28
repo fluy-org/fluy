@@ -1,4 +1,4 @@
-import { PagamentoService } from '../pagamento.service';
+import { PagamentoService } from '@/modules/pagamento/pagamento.service';
 
 describe('PagamentoService com provider externo', () => {
   const pagador = {

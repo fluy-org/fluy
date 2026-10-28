@@ -1,3 +1,4 @@
+import { decidirNotificacao } from '@/modules/pagamento/pagamento-estado-utils';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -11,13 +12,13 @@ import {
   type PaymentProvider,
   type RecebedorPix,
   type NotificacaoPagamento,
-} from '@/modules/pagamento/contracts/payment-provider.types';
+} from '@/modules/pagamento/contracts';
 import {
   PAYMENT_REPOSITORY,
   type CobrancaParaPagamento,
   type IniciarPagamentoInput,
   type PagamentoRepositoryPort,
-} from '@/modules/pagamento/contracts/pagamento-repository.types';
+} from '@/modules/pagamento/contracts';
 import { RecebimentoPixService } from '@/modules/salao-configuracao/recebimento-pix.service';
 import { emCentavos } from '@/modules/agendamento/agendamento-utils';
 import {
@@ -87,6 +88,7 @@ export class PagamentoService {
       salaoId: input.salaoId,
       notificacao: input.notificacao,
       agora: input.agora ?? new Date(),
+      decidir: decidirNotificacao,
     });
     if (resultado === 'valor_divergente') {
       throw new ConflictException(

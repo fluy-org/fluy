@@ -3,6 +3,7 @@ import type {
   FusoHorarioBrasil,
   ListarAtendimentosFaturamentoQueryDto,
   ListarFaturamentoQueryDto,
+  ListarSinaisRetidosFaturamentoQueryDto,
   MetodoPagamentoGateway,
   MetodoPagamentoManual,
   MotivoSinalRetido,
@@ -91,7 +92,7 @@ export type CalculoFaturamento = {
   sinaisRetidos: SinalRetido[];
 };
 
-export type FaturamentoResultado = CalculoFaturamento & {
+export type FaturamentoResultado = Omit<CalculoFaturamento, 'sinaisRetidos'> & {
   fusoHorario: FusoHorarioBrasil;
   periodo: PeriodoFaturamento;
 };
@@ -111,3 +112,12 @@ export type ListaAtendimentosFaturamentoResultado =
   PaginaResultado<AtendimentoFaturamento> & {
     fusoHorario: FusoHorarioBrasil;
   };
+
+export type ListarSinaisRetidosFaturamentoInput = {
+  salaoId: string;
+  dados: ListarSinaisRetidosFaturamentoQueryDto;
+};
+export type ListarSinaisRetidosFaturamentoPersistenciaInput =
+  ListarEncerramentosPersistenciaInput & { offset: number; limite: number };
+export type ListaSinaisRetidosFaturamentoResultado =
+  PaginaResultado<SinalRetido> & { fusoHorario: FusoHorarioBrasil };

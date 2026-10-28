@@ -14,8 +14,9 @@ import {
   ApiServiceUnavailableResponse,
 } from '@nestjs/swagger';
 import type { Request } from 'express';
+import { WebhookPagamentoResponseDto } from '@/modules/pagamento/contracts';
 import { Public } from '@/modules/auth/decorators/public.decorator';
-import { PagamentoWebhookService } from './pagamento-webhook.service';
+import { PagamentoWebhookService } from '@/modules/pagamento/pagamento-webhook.service';
 @ApiTags('Notificações de pagamento')
 @Controller('webhooks/pagamentos')
 export class PagamentoWebhookController {
@@ -27,6 +28,7 @@ export class PagamentoWebhookController {
   @ApiOperation({ summary: 'Recebe notificações autenticadas do provider' })
   @ApiOkResponse({
     description: 'Notificação persistida ou estado pendente recebido.',
+    type: WebhookPagamentoResponseDto.Output,
   })
   @ApiUnauthorizedResponse({
     description: 'Credencial da notificação inválida.',

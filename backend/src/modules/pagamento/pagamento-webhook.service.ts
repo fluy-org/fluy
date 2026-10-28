@@ -11,9 +11,9 @@ import {
   type PaymentProvider,
   type WebhookPagamentoInput,
   type NotificacaoPagamento,
-} from './contracts/payment-provider.types';
-import { PagamentoRepository } from './pagamento.repository';
-import { PagamentoService } from './pagamento.service';
+} from '@/modules/pagamento/contracts';
+import { PagamentoRepository } from '@/modules/pagamento/pagamento.repository';
+import { PagamentoService } from '@/modules/pagamento/pagamento.service';
 
 @Injectable()
 export class PagamentoWebhookService {

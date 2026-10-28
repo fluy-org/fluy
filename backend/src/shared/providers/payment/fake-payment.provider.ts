@@ -4,7 +4,7 @@ import type {
   NotificacaoPagamento,
   PaymentProvider,
   RecebedorPix,
-} from '@/modules/pagamento/contracts/payment-provider.types';
+} from '@/modules/pagamento/contracts';
 
 type PagamentoFake = {
   externalId: string;

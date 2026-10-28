@@ -7,17 +7,14 @@ import {
 import { RouterLink } from '@angular/router';
 import type { AgendamentoDetalheResponseDto } from '@fluy/schema';
 import { IonBadge } from '@ionic/angular/standalone';
-import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
-import { ESTILO_ESTADO_AGENDAMENTO } from '../../../../../shared/utils/estado-agendamento';
-import {
-  formatarValor,
-  formatarWhatsapp,
-} from '../../../../../shared/utils/formatacao';
+import { HoraSalaoPipe } from '@app/shared/pipes/hora-salao.pipe';
+import { ESTILO_ESTADO_AGENDAMENTO } from '@app/shared/utils/estado-agendamento';
+import { formatarValor, formatarWhatsapp } from '@app/shared/utils/formatacao';
 import {
   extrairDataCivil,
   formatarDataPorExtenso,
-} from '../../../../../shared/utils/data-civil';
-import { formatarDuracao } from '../../agenda-utils';
+} from '@app/shared/utils/data-civil';
+import { formatarDuracao } from '@app/features/salao/agenda/agenda-utils';
 
 @Component({
   selector: 'app-detalhe-agendamento',

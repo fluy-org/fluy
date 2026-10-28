@@ -4,7 +4,7 @@ import type {
 } from '@fluy/schema';
 import type { AgendamentoPersistido } from '@/modules/agendamento/contracts';
 import { toAgendamentoResponse } from '@/modules/agendamento/agendamento.mapper';
-import type { PagamentoConsultado } from '@/modules/pagamento/contracts/pagamento-repository.types';
+import type { PagamentoConsultado } from '@/modules/pagamento/contracts';
 
 export function toReservaPixResponse(
   reserva: AgendamentoPersistido,

@@ -3,8 +3,8 @@ import { UnauthorizedException } from '@nestjs/common';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { Socket } from 'node:net';
 import { PassThrough } from 'node:stream';
-import { PagamentoWebhookController } from '../pagamento-webhook.controller';
-import { PagamentoWebhookService } from '../pagamento-webhook.service';
+import { PagamentoWebhookController } from '@/modules/pagamento/pagamento-webhook.controller';
+import { PagamentoWebhookService } from '@/modules/pagamento/pagamento-webhook.service';
 
 describe('webhook HTTP controlado', () => {
   it('retorna 200 após persistência e 401 para credencial recusada', async () => {

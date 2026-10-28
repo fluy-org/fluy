@@ -50,7 +50,7 @@ _Backend_
 - Agregação de recebimento por método de pagamento.
 - Sinais retidos por cancelamento e no-show, em conjunto separado, com o motivo distinguindo cancelamento pela cliente, no-show e cancelamento pelo salão sem reembolso.
 - Sinalização de dado incompleto: concluídos sem método do restante registrado, e concluídos com valor restante ainda pendente.
-- Paginação da lista de atendimentos, para salão com volume grande.
+- Paginação das listas de atendimentos e sinais retidos, para salão com volume grande.
 - Filtro por `salao_id` em toda query.
 
 **Fora desta fatia**
@@ -71,7 +71,7 @@ _Backend_
 - **Quem cancelou e o que é sinal** — não eram gravados. Entraram `evento_agendamento.cancelado_por` e `pagamento_agendamento.tipo`, por migração aditiva com preenchimento dos registros existentes.
 - **Presets** — semana de segunda a domingo; quinzena é a atual do mês (1–15 ou 16–fim).
 - **Resumo** — total faturado inclui sinais retidos; ticket médio é o recebido dos concluídos ÷ concluídos; "sem método registrado" e "restante pendente" são um alerta só.
-- **API** — `GET /faturamento` (período resolvido, resumo, recebimento por método e sinais retidos) e `GET /faturamento/atendimentos` (lista paginada). Datas trafegam como instante + `fuso_horario`.
+- **API** — `GET /faturamento` (período resolvido, resumo e recebimento por método), `GET /faturamento/atendimentos` e `GET /faturamento/sinais-retidos` (listas paginadas independentes). O resumo não devolve mais `sinais_retidos`; ambas as listas usam `{ itens, proximo_cursor, fuso_horario }`, página de 20 e cursor opaco. Datas trafegam como instante + `fuso_horario`.
 - **Reembolso** — não é descontado no faturamento por período até a [9.3](./bloco-9-pagamento-online.md#93-reembolso-no-cancelamento).
 
 **Critério de conclusão**
@@ -111,8 +111,8 @@ _Frontend_
 
 - **Abertura e retorno** — o filtro válido da URL é restaurado, com nova consulta a cada entrada. O menu e URLs sem filtro válido abrem a semana atual, resolvida no fuso do salão.
 - **Seleção** — presets aplicam imediatamente e usam `periodo` na URL; intervalo customizado usa `data_inicio` e `data_fim` após Aplicar. O rascunho não altera a URL. Atualização, compartilhamento e histórico restauram o filtro; filtros inválidos são normalizados para a semana atual substituindo a entrada de histórico.
-- **Carregamento** — consultar primeiro o resumo e usar suas datas resolvidas na lista; exibir as quatro seções após ambas as consultas funcionarem. Falha inicial oferece nova tentativa do período inteiro.
-- **Paginação** — infinite scroll ao final do conteúdo, deduplicação por `agendamento_id`; falha preserva os itens e permite repetir a próxima página.
+- **Carregamento** — consultar primeiro o resumo e usar suas datas resolvidas nas duas listas; exibir as quatro seções após as três consultas funcionarem. Falha inicial oferece nova tentativa do período inteiro.
+- **Paginação** — infinite scroll ao final do conteúdo carrega as duas listas com cursores e estados de erro próprios, deduplicando por `agendamento_id`; falha preserva itens e cursor da coleção afetada e permite nova tentativa na seção correspondente. Totais e recebimento por método sempre consideram o período inteiro.
 - **Apresentação** — tabela acima de 900 px e cards até 900 px, com os mesmos campos; eventos com data e hora no fuso do salão; ticket médio nulo e pagamentos ausentes como “—”.
 - **Pendência** — alerta informativo e destaque textual e visual do restante pendente, sem ação de correção financeira nesta tela.
 - **Navegação de consulta** — nomes das clientes abrem a ficha existente; atendimentos e sinais retidos oferecem acesso ao detalhe do agendamento. Procedimentos permanecem como texto até existir uma página individual de consulta.

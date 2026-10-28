@@ -9,10 +9,13 @@ import type {
   NotificacaoPagamento,
   WebhookPagamentoInput,
   PaymentProvider,
-} from '@/modules/pagamento/contracts/payment-provider.types';
-import { EfiClient } from './efi-client';
-import { EfiWebhookAdapter } from './efi-webhook.adapter';
-import { efiPaymentSchema, normalizarPagamentoEfi } from './efi-payment.mapper';
+} from '@/modules/pagamento/contracts';
+import { EfiClient } from '@/shared/providers/payment/efi/efi-client';
+import { EfiWebhookAdapter } from '@/shared/providers/payment/efi/efi-webhook.adapter';
+import {
+  efiPaymentSchema,
+  normalizarPagamentoEfi,
+} from '@/shared/providers/payment/efi/efi-payment.mapper';
 
 @Injectable()
 export class EfiPaymentProvider implements PaymentProvider {

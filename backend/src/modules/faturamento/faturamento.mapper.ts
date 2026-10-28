@@ -1,10 +1,12 @@
 import type {
   FaturamentoResponseDto,
+  ListaSinaisRetidosFaturamentoResponseDto,
   ListaAtendimentosFaturamentoResponseDto,
   PagamentoFaturamentoDto,
 } from '@fluy/schema';
 import type {
   FaturamentoResultado,
+  ListaSinaisRetidosFaturamentoResultado,
   ListaAtendimentosFaturamentoResultado,
   PagamentoFaturamento,
 } from '@/modules/faturamento/contracts';
@@ -14,7 +16,6 @@ export function toFaturamentoResponse({
   periodo,
   resumo,
   recebimentoPorMetodo,
-  sinaisRetidos,
 }: FaturamentoResultado): FaturamentoResponseDto {
   return {
     fuso_horario: fusoHorario,
@@ -32,14 +33,6 @@ export function toFaturamentoResponse({
       total_pendentes: resumo.total_pendentes,
     },
     recebimento_por_metodo: recebimentoPorMetodo.map(toPagamentoFaturamento),
-    sinais_retidos: sinaisRetidos.map((sinal) => ({
-      agendamento_id: sinal.agendamento_id,
-      ocorreu_em: sinal.ocorreu_em.toISOString(),
-      cliente: sinal.cliente,
-      procedimento: sinal.procedimento,
-      valor: emReais(sinal.valor_centavos),
-      motivo: sinal.motivo,
-    })),
   };
 }
 
@@ -80,4 +73,23 @@ function toPagamentoFaturamento(
 
 function emReais(centavos: number): number {
   return centavos / 100;
+}
+
+export function toListaSinaisRetidosFaturamentoResponse({
+  fusoHorario,
+  itens,
+  proximoCursor,
+}: ListaSinaisRetidosFaturamentoResultado): ListaSinaisRetidosFaturamentoResponseDto {
+  return {
+    fuso_horario: fusoHorario,
+    itens: itens.map((sinal) => ({
+      agendamento_id: sinal.agendamento_id,
+      ocorreu_em: sinal.ocorreu_em.toISOString(),
+      cliente: sinal.cliente,
+      procedimento: sinal.procedimento,
+      valor: emReais(sinal.valor_centavos),
+      motivo: sinal.motivo,
+    })),
+    proximo_cursor: proximoCursor,
+  };
 }

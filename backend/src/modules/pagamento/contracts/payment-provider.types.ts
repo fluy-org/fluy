@@ -1,5 +1,11 @@
-import type { CotacaoPagamento } from '@/modules/pagamento/pagamento-utils';
-import type { ResultadoSimulacaoPagamento, TipoChavePix } from '@fluy/schema';
+import type { CotacaoPagamento } from '@/modules/pagamento/contracts';
+import type {
+  ResultadoSimulacaoPagamento,
+  TipoChavePix,
+  PagadorPixDto,
+  InstituicoesPixResponseDto,
+  InstrucaoPagamentoPixDto,
+} from '@fluy/schema';
 
 export const PAYMENT_PROVIDER = Symbol('PAYMENT_PROVIDER');
 
@@ -9,8 +15,8 @@ export type RecebedorPix = {
   nomeRecebedor: string;
 };
 
-export type PagadorPix = { cpf: string; instituicao_id: string; cnpj?: string };
-export type InstituicaoPix = { id: string; nome: string };
+export type PagadorPix = PagadorPixDto;
+export type InstituicaoPix = InstituicoesPixResponseDto[number];
 export type WebhookPagamentoInput = {
   body: unknown;
   rawBody?: Uint8Array;
@@ -42,7 +48,7 @@ export interface PaymentProvider {
   }): Promise<{
     externalId: string;
     status: 'pendente';
-    instrucaoCliente: { tipo: 'url'; valor: string } | null;
+    instrucaoCliente: InstrucaoPagamentoPixDto;
   }>;
 }
 

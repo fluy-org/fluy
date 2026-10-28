@@ -1,7 +1,7 @@
 import {
   decidirNotificacao,
   normalizarTipoEvento,
-} from '@/modules/pagamento/pagamento-estado';
+} from '@/modules/pagamento/pagamento-estado-utils';
 
 describe('decidirNotificacao', () => {
   it('distingue expiração de falha no evento persistido', () => {

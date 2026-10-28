@@ -1,7 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { SinalRetidoResponseDto } from '@fluy/schema';
 import {
+  IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -23,6 +29,7 @@ import { formatarValor } from '@app/shared/utils/formatacao';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    IonButton,
     RouterLink,
     HoraSalaoPipe,
     IonCard,
@@ -36,6 +43,9 @@ import { formatarValor } from '@app/shared/utils/formatacao';
 })
 export class SinaisRetidosComponent {
   readonly sinaisRetidos = input.required<SinalRetidoResponseDto[]>();
+  readonly erroPaginacao = input<string | null>(null);
+  readonly carregandoMais = input(false);
+  readonly tentarNovamente = output<void>();
   readonly fusoHorario = input.required<string>();
   readonly rotuloMotivo = ROTULO_MOTIVO_SINAL_RETIDO;
   readonly formatarValor = formatarValor;

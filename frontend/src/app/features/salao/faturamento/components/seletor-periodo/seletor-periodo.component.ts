@@ -65,8 +65,16 @@ export class SeletorPeriodoComponent {
 
   readonly formulario: FormularioPeriodoCustomizado = new FormGroup(
     {
-      data_inicio: new FormControl('', { nonNullable: true }),
-      data_fim: new FormControl('', { nonNullable: true }),
+      data_inicio: new FormControl('', {
+        nonNullable: true,
+        validators: zodValidator(
+          listarFaturamentoQuerySchema.shape.data_inicio,
+        ),
+      }),
+      data_fim: new FormControl('', {
+        nonNullable: true,
+        validators: zodValidator(listarFaturamentoQuerySchema.shape.data_fim),
+      }),
     },
     {
       updateOn: 'change',

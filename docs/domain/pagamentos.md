@@ -115,7 +115,7 @@ Registra dinheiro que entrou **fora do gateway** — pagamento presencial (dinhe
 
 ### Responsabilidade
 
-**Vínculo puro entre um agendamento e a cobrança que o cobre** — de gateway OU manual. Um agendamento pode ter vários (sinal + restante, por exemplo). Não carrega valor nem data próprios: essas informações vivem na cobrança referenciada.
+**Vínculo entre um agendamento e a cobrança que o cobre** — de gateway OU manual. Um agendamento pode ter vários. No Pix total, a mesma cobrança tem alocações separadas de sinal e restante; o campo opcional `valor` guarda o valor de cada alocação, sem a taxa do cliente. Vínculos antigos sem alocação usam o valor da cobrança. A data financeira permanece na cobrança referenciada.
 
 ### Atributos principais
 
@@ -126,6 +126,7 @@ Registra dinheiro que entrou **fora do gateway** — pagamento presencial (dinhe
 | `cobranca_gateway_id` | UUID | Não | Cobrança de gateway referenciada. |
 | `cobranca_manual_id` | UUID | Não | Cobrança manual referenciada. |
 | `tipo` | tipo_pagamento_agendamento | Sim | Se a cobrança pagou o sinal ou o restante. A conclusão grava `restante`; o pagamento online do sinal grava `sinal`. |
+| `valor` | decimal | Não | Valor alocado do principal, usado para separar sinal e restante de uma cobrança Pix total. |
 
 **Regra:** exatamente um entre `cobranca_gateway_id` e `cobranca_manual_id` é preenchido (XOR).
 
@@ -142,7 +143,7 @@ Registra dinheiro que entrou **fora do gateway** — pagamento presencial (dinhe
 
 ### Observações
 
-- **Quitação** de um agendamento é derivada: soma dos valores confirmados das cobranças vinculadas ≥ `agendamento.preco_total`.
+- **Quitação** de um agendamento é derivada: soma dos valores confirmados alocados (ou da cobrança quando não há alocação) ≥ `agendamento.preco_total`.
 - **Escolha de duas FKs (XOR) em vez de FK polimórfica** preserva integridade referencial no Postgres — ver [README — Convenções](./README.md).
 
 ---

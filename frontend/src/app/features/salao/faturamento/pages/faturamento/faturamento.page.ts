@@ -54,6 +54,13 @@ export class FaturamentoPage implements OnDestroy {
   private consultaUrl?: Subscription;
   readonly faturamento = this.faturamentoService.faturamento;
   readonly atendimentos = this.faturamentoService.atendimentos;
+  readonly sinaisRetidos = this.faturamentoService.sinaisRetidos;
+  readonly proximoCursorSinaisRetidos =
+    this.faturamentoService.proximoCursorSinaisRetidos;
+  readonly carregandoMaisSinaisRetidos =
+    this.faturamentoService.carregandoMaisSinaisRetidos;
+  readonly erroPaginacaoSinaisRetidos =
+    this.faturamentoService.erroPaginacaoSinaisRetidos;
   readonly estadoPagina = this.faturamentoService.estadoPagina;
   readonly proximoCursor = this.faturamentoService.proximoCursor;
   readonly carregando = this.faturamentoService.carregando;
@@ -110,10 +117,23 @@ export class FaturamentoPage implements OnDestroy {
 
   async carregarMais(evento?: InfiniteScrollCustomEvent): Promise<void> {
     try {
-      await this.faturamentoService.carregarMaisAtendimentos();
+      await Promise.all([
+        this.erroPaginacao() ? undefined : this.carregarMaisAtendimentos(),
+        this.erroPaginacaoSinaisRetidos()
+          ? undefined
+          : this.carregarMaisSinaisRetidos(),
+      ]);
     } finally {
       if (evento) await evento.target.complete();
     }
+  }
+
+  carregarMaisAtendimentos(): Promise<void> {
+    return this.faturamentoService.carregarMaisAtendimentos();
+  }
+
+  carregarMaisSinaisRetidos(): Promise<void> {
+    return this.faturamentoService.carregarMaisSinaisRetidos();
   }
 
   private async consultarPeriodoDaUrl(parametros: ParamMap): Promise<void> {

@@ -1,6 +1,10 @@
+import { and, inArray, lt, sql } from 'drizzle-orm';
+import { agendamento } from '@fluy/schema';
 import { ACAO_AGENDAMENTO } from '@fluy/schema';
 import { utcParaDataHoraCivil } from '@/shared/horario-salao/horario-salao.utils';
 import type {
+  AgendamentoDaAgendaPersistido,
+  LinhaDaAgenda,
   AcoesDoAgendamento,
   CalcularAcoesAgendamentoInput,
   ContagemPorDia,
@@ -131,4 +135,67 @@ function ehPagamentoConfirmado(
   pagamento: PagamentoDoAgendamentoPersistido,
 ): boolean {
   return pagamento.status === null || pagamento.status === 'confirmada';
+}
+
+// O fim do agendamento candidato só existe somando `duracao_min` à coluna, e
+// não há operador Drizzle para intervalo entre colunas.
+export function condicaoDeSobreposicao({
+  inicioEm,
+  duracaoMin,
+}: {
+  inicioEm: Date;
+  duracaoMin: number;
+}) {
+  const fimEm = new Date(inicioEm.getTime() + duracaoMin * 60_000);
+
+  return and(
+    inArray(agendamento.estado, ['reservado', 'agendado']),
+    lt(agendamento.inicio_em, fimEm),
+    sql`${agendamento.inicio_em} + ${agendamento.duracao_min} * interval '1 minute' > ${inicioEm}::timestamptz`,
+  );
+}
+
+export function agruparAgendamentos(
+  linhas: LinhaDaAgenda[],
+): AgendamentoDaAgendaPersistido[] {
+  const agendamentosPorId = new Map<string, AgendamentoDaAgendaPersistido>();
+
+  for (const linha of linhas) {
+    const pagamento = extrairPagamento(linha);
+    const existente = agendamentosPorId.get(linha.agendamento.id);
+
+    if (existente) {
+      if (pagamento) {
+        existente.pagamentos.push(pagamento);
+      }
+
+      continue;
+    }
+
+    agendamentosPorId.set(linha.agendamento.id, {
+      ...linha.agendamento,
+      cliente: linha.cliente,
+      procedimento: linha.procedimento,
+      pagamentos: pagamento ? [pagamento] : [],
+      quantidade_anexos: linha.quantidade_anexos,
+      tem_imagens_referencia: linha.tem_imagens_referencia,
+      tem_observacoes: linha.tem_observacoes,
+    });
+  }
+
+  return Array.from(agendamentosPorId.values());
+}
+
+function extrairPagamento(
+  linha: LinhaDaAgenda,
+): PagamentoDoAgendamentoPersistido | undefined {
+  if (linha.valor_manual !== null) {
+    return { valor: linha.valor_manual, status: null };
+  }
+
+  if (linha.valor_gateway !== null) {
+    return { valor: linha.valor_gateway, status: linha.status_gateway };
+  }
+
+  return undefined;
 }

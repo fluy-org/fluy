@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import { ConfigService } from '@nestjs/config';
 import { request, Agent } from 'node:https';
 import type { IncomingMessage } from 'node:http';
-import { EfiTransport } from '../efi/efi-client';
+import { EfiTransport } from '@/shared/providers/payment/efi/efi-transport';
 jest.mock('node:fs', () => ({
   ...jest.requireActual<typeof import('node:fs')>('node:fs'),
   readFileSync: jest.fn(() => Buffer.from('certificate')),

@@ -3,16 +3,22 @@ import type {
   FusoHorarioBrasil,
   ListarFaturamentoQueryDto,
 } from '@fluy/schema';
-import { TAMANHO_PAGINA_ATENDIMENTOS_FATURAMENTO } from '@/modules/faturamento/faturamento-data';
+import {
+  TAMANHO_PAGINA_ATENDIMENTOS_FATURAMENTO,
+  TAMANHO_PAGINA_SINAIS_RETIDOS_FATURAMENTO,
+} from '@/modules/faturamento/faturamento-data';
 import {
   calcularFaturamento,
   converterPeriodoEmIntervalo,
   montarAtendimentoFaturamento,
+  montarSinalRetido,
   resolverPeriodo,
 } from '@/modules/faturamento/faturamento-utils';
 import { FaturamentoRepository } from '@/modules/faturamento/faturamento.repository';
 import type {
   BuscarFaturamentoInput,
+  ListarSinaisRetidosFaturamentoInput,
+  ListaSinaisRetidosFaturamentoResultado,
   FaturamentoResultado,
   IntervaloFaturamento,
   ListaAtendimentosFaturamentoResultado,
@@ -49,10 +55,12 @@ export class FaturamentoService {
         ...intervalo,
       });
 
+    const calculo = calcularFaturamento({ encerramentos });
     return {
       fusoHorario,
       periodo,
-      ...calcularFaturamento({ encerramentos }),
+      resumo: calculo.resumo,
+      recebimentoPorMetodo: calculo.recebimentoPorMetodo,
     };
   }
 
@@ -81,6 +89,33 @@ export class FaturamentoService {
     return {
       fusoHorario,
       itens: pagina.itens.map(montarAtendimentoFaturamento),
+      proximoCursor: pagina.proximoCursor,
+    };
+  }
+
+  async listarSinaisRetidos({
+    salaoId,
+    dados: { cursor, ...dados },
+  }: ListarSinaisRetidosFaturamentoInput): Promise<ListaSinaisRetidosFaturamentoResultado> {
+    const offset = this.resolverOffset(cursor);
+    const fusoHorario =
+      await this.salaoConsultaService.obterFusoHorario(salaoId);
+    const { intervalo } = this.resolverPeriodoDoSalao({ dados, fusoHorario });
+    const linhas =
+      await this.faturamentoRepository.listarSinaisRetidosDoPeriodo({
+        salaoId,
+        ...intervalo,
+        offset,
+        limite: TAMANHO_PAGINA_SINAIS_RETIDOS_FATURAMENTO + 1,
+      });
+    const pagina = montarPagina({
+      linhas,
+      offset,
+      tamanho: TAMANHO_PAGINA_SINAIS_RETIDOS_FATURAMENTO,
+    });
+    return {
+      fusoHorario,
+      itens: pagina.itens.map(montarSinalRetido),
       proximoCursor: pagina.proximoCursor,
     };
   }

@@ -8,7 +8,7 @@
   @let detalhe = agendamento();
 
   @if (avisoConclusaoAntecipada(); as aviso) {
-    <p class="aviso">{{ aviso }}</p>
+    <ion-text class="aviso">{{ aviso }}</ion-text>
   }
 
   <dl class="recibo">
@@ -61,23 +61,23 @@
       </ion-toggle>
 
       @if (valorNaoRecebido()) {
-        <p class="aviso">
+        <ion-text class="aviso">
           O valor segue em aberto no agendamento e não será cobrado
           automaticamente.
-        </p>
+        </ion-text>
       }
     } @else {
-      <p class="quitado">
+      <ion-text class="quitado">
         Este agendamento já está quitado. Nenhum pagamento será registrado.
-      </p>
+      </ion-text>
     }
 
     @if (erroValidacao()) {
-      <p class="mensagem-erro">{{ erroValidacao() }}</p>
+      <ion-text class="mensagem-erro">{{ erroValidacao() }}</ion-text>
     }
 
     @if (erroExterno()) {
-      <p class="mensagem-erro">{{ erroExterno() }}</p>
+      <ion-text class="mensagem-erro">{{ erroExterno() }}</ion-text>
     }
 
     <div class="acoes-formulario">

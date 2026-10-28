@@ -1,3 +1,7 @@
+import type {
+  DecidirNotificacaoInput,
+  DecisaoNotificacao,
+} from '@/modules/pagamento/contracts';
 import { alocarPagamento } from '@/modules/pagamento/pagamento-utils';
 
 export function normalizarTipoEvento(tipo: DecidirNotificacaoInput['tipo']) {
@@ -10,27 +14,6 @@ export function normalizarTipoEvento(tipo: DecidirNotificacaoInput['tipo']) {
       return 'falhou' as const;
   }
 }
-
-export type DecidirNotificacaoInput = {
-  tipo: 'confirmado' | 'falhou' | 'expirado';
-  valorPagoCentavos?: number;
-  statusCobranca:
-    'iniciando' | 'pendente' | 'confirmada' | 'falhou' | 'expirada';
-  estadoReserva: string;
-  expiraEm: Date | null;
-  agora: Date;
-  modalidade: 'sinal' | 'total';
-  valorSalaoCentavos: number;
-  valorSinalCentavos: number;
-  totalClienteCentavos: number;
-};
-
-export type DecisaoNotificacao = {
-  novoStatus: 'iniciando' | 'pendente' | 'confirmada' | 'falhou' | 'expirada';
-  promoverReserva: boolean;
-  divergencia: boolean;
-  alocacoes: Array<{ tipo: 'sinal' | 'restante'; valorCentavos: number }>;
-};
 
 export function decidirNotificacao(
   input: DecidirNotificacaoInput,

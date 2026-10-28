@@ -7,15 +7,15 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '@/config/env.schema';
-import type { NotificacaoPagamento } from '@/modules/pagamento/contracts/payment-provider.types';
+import type { NotificacaoPagamento } from '@/modules/pagamento/contracts';
 import {
   PAYMENT_REPOSITORY,
   type PagamentoRepositoryPort,
-} from '@/modules/pagamento/contracts/pagamento-repository.types';
+} from '@/modules/pagamento/contracts';
 import {
   PAYMENT_SIMULATOR,
   type PaymentSimulator,
-} from '@/modules/pagamento/contracts/payment-simulator.types';
+} from '@/modules/pagamento/contracts';
 import { PagamentoService } from '@/modules/pagamento/pagamento.service';
 
 @Injectable()

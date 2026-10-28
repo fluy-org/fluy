@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EfiWebhookAdapter } from '../efi/efi-webhook.adapter';
-import { EfiPaymentProvider } from '../efi/efi-payment.provider';
+import { EfiWebhookAdapter } from '@/shared/providers/payment/efi/efi-webhook.adapter';
+import { EfiPaymentProvider } from '@/shared/providers/payment/efi/efi-payment.provider';
 
 describe('EfiPaymentProvider', () => {
   const client = { request: jest.fn() };

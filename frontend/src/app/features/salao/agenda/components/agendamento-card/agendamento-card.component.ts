@@ -15,10 +15,10 @@ import {
   IonIcon,
   IonText,
 } from '@ionic/angular/standalone';
-import { HoraSalaoPipe } from '../../../../../shared/pipes/hora-salao.pipe';
-import { ESTILO_ESTADO_AGENDAMENTO } from '../../../../../shared/utils/estado-agendamento';
-import { formatarValor } from '../../../../../shared/utils/formatacao';
-import { formatarDuracao } from '../../agenda-utils';
+import { HoraSalaoPipe } from '@app/shared/pipes/hora-salao.pipe';
+import { ESTILO_ESTADO_AGENDAMENTO } from '@app/shared/utils/estado-agendamento';
+import { formatarValor } from '@app/shared/utils/formatacao';
+import { formatarDuracao } from '@app/features/salao/agenda/agenda-utils';
 
 @Component({
   selector: 'app-agendamento-card',

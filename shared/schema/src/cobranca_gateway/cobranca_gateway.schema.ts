@@ -54,3 +54,7 @@ export const pagamentoPixResponseSchema = z
     instrucao_cliente: z.object({ tipo: z.literal('url'), valor: z.url() }).nullable(),
   })
   .meta({ id: 'PagamentoPixResponse' });
+
+export const webhookPagamentoResponseSchema = z
+  .object({ recebido: z.literal(true) })
+  .meta({ id: 'WebhookPagamentoResponse' });

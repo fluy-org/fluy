@@ -1,12 +1,12 @@
 import { Test } from '@nestjs/testing';
 import { ConfigService, ConfigModule } from '@nestjs/config';
-import { PaymentProvidersModule } from '../payment-providers.module';
+import { PaymentProvidersModule } from '@/shared/providers/payment/payment-providers.module';
 import {
   PAYMENT_PROVIDER,
   type PaymentProvider,
-} from '@/modules/pagamento/contracts/payment-provider.types';
-import { EfiPaymentProvider } from '../efi/efi-payment.provider';
-import { FakePaymentProvider } from '../fake-payment.provider';
+} from '@/modules/pagamento/contracts';
+import { EfiPaymentProvider } from '@/shared/providers/payment/efi/efi-payment.provider';
+import { FakePaymentProvider } from '@/shared/providers/payment/fake-payment.provider';
 
 describe('registro dos providers de pagamento', () => {
   it.each(['efi', 'fake', 'disabled'])(
