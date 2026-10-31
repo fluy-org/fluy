@@ -8,6 +8,7 @@ import type {
   ConsultarAgendamentoPublicoQueryDto,
   CriarAgendamentoPublicoDto,
   ListarAgendamentosPublicosQueryDto,
+  ListarDiasDisponiveisPublicosQueryDto,
   ListarHorariosLivresPublicosQueryDto,
 } from '@fluy/schema';
 import { AgendamentoCancelamentoService } from '@/modules/agendamento/agendamento-cancelamento.service';
@@ -121,16 +122,43 @@ export class AgendamentoPublicoService {
     salaoId: string;
     dados: ListarHorariosLivresPublicosQueryDto;
   }) {
-    await this.resolverCliente({
-      salaoId,
-      credencial: dados.credencial,
-    });
+    if (dados.credencial) {
+      await this.resolverCliente({
+        salaoId,
+        credencial: dados.credencial,
+      });
+    }
 
     return this.agendamentoService.listarHorariosLivres({
       salaoId,
       dados: {
         procedimento_id: dados.procedimento_id,
         data: dados.data,
+      },
+      apenasDisponiveis: true,
+      bloquearInicioPassado: true,
+    });
+  }
+
+  async listarDiasDisponiveis({
+    salaoId,
+    dados,
+  }: {
+    salaoId: string;
+    dados: ListarDiasDisponiveisPublicosQueryDto;
+  }) {
+    if (dados.credencial) {
+      await this.resolverCliente({
+        salaoId,
+        credencial: dados.credencial,
+      });
+    }
+
+    return this.agendamentoService.listarDiasDisponiveis({
+      salaoId,
+      dados: {
+        procedimento_id: dados.procedimento_id,
+        mes: dados.mes,
       },
     });
   }
@@ -148,9 +176,11 @@ export class AgendamentoPublicoService {
     });
 
     const criado = await this.agendamentoService.criar({
+      exigirSemSinal: true,
       salaoId,
       bloquearProcedimentoDuplicadoNoDia: true,
       notificarCliente: false,
+      publico: true,
       dados: {
         cliente_id: cliente.id,
         procedimento_id: dados.procedimento_id,
@@ -187,6 +217,7 @@ export class AgendamentoPublicoService {
       bloquearProcedimentoDuplicadoNoDia: true,
       notificarCliente: false,
       reservar: true,
+      publico: true,
       dados: {
         cliente_id: cliente.id,
         procedimento_id: dados.procedimento_id,

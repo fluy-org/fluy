@@ -1,5 +1,10 @@
 # Pagamentos
 
+## Atualização do checkout — 28/10/2026
+
+O HTTP de checkout expõe o nome do recebedor congelado na cobrança para que mudança no cadastro não altere a identificação exibida em tentativa pendente. Valor, tarifa e total continuam canônicos no backend. Sem mudança de DDL. Confirmação tardia preserva divergência e orienta contato com o salão para remarcação/devolução; não há devolução automática nesta entrega. Sinal zero/procedimento gratuito não cria cobrança online.
+
+
 Modela todo movimento financeiro do domínio. Separa **infra de pagamento** (webhook e cobrança do gateway — reutilizáveis por qualquer feature que envolva dinheiro externo) de **domínio-específico** (a "cola" entre um agendamento e as cobranças que o cobrem). Reembolsos também têm entidade própria porque podem existir de forma independente das cobranças.
 
 ---

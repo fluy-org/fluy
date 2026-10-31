@@ -6,7 +6,10 @@ import type { Env } from '@/config/env.schema';
 import type { RequestInput } from '@/shared/providers/payment/efi/contracts';
 
 export class EfiHttpError extends Error {
-  constructor(readonly status?: number) {
+  constructor(
+    readonly status?: number,
+    readonly body?: string,
+  ) {
     super('Falha HTTP no provedor.');
   }
 }
@@ -55,12 +58,19 @@ export class EfiTransport {
           });
           res.on('error', reject);
           res.on('end', () => {
+            const rawBody = Buffer.concat(chunks).toString('utf8');
             if (
               !res.statusCode ||
               res.statusCode < 200 ||
               res.statusCode >= 300
-            )
-              return reject(new EfiHttpError(res.statusCode));
+            ) {
+              console.error(
+                '[EFI HTTP ERROR]',
+                res.statusCode,
+                rawBody,
+              );
+              return reject(new EfiHttpError(res.statusCode, rawBody));
+            }
             try {
               resolve(
                 JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown,

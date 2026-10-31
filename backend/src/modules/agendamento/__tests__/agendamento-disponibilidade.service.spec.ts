@@ -1,4 +1,7 @@
-import type { AvaliarHorarioAgendamentoInput } from '@/modules/agendamento/contracts';
+import type {
+  AvaliarHorarioAgendamentoInput,
+  ListarHorariosLivresInput,
+} from '@/modules/agendamento/contracts';
 import { AgendamentoDisponibilidadeService } from '@/modules/agendamento/agendamento-disponibilidade.service';
 
 describe('AgendamentoDisponibilidadeService', () => {
@@ -183,6 +186,30 @@ describe('AgendamentoDisponibilidadeService', () => {
     ]);
   });
 
+  it('exclui horários com avisos/exceções quando apenasDisponiveis é true', () => {
+    // agora: 12:00 BRT (15:00 UTC). antecedenciaMinHoras: 1 hora => horário mínimo: 13:00 BRT.
+    // 12:00 e 12:30 caem em 'antes_antecedencia_minima', portanto não devem vir com apenasDisponiveis: true.
+    expect(
+      service.listarHorariosLivres(
+        criarInput({
+          agora: new Date('2026-04-10T15:00:00.000Z'),
+          apenasDisponiveis: true,
+        }),
+      ),
+    ).toEqual([
+      '13:00',
+      '13:30',
+      '14:00',
+      '14:30',
+      '15:00',
+      '15:30',
+      '16:00',
+      '16:30',
+      '17:00',
+      '17:30',
+    ]);
+  });
+
   it('exige confirmação fora das antecedências mínima e máxima', () => {
     expect(
       service.avaliarHorario(
@@ -210,8 +237,10 @@ describe('AgendamentoDisponibilidadeService', () => {
 });
 
 function criarInput(
-  sobrescritas: Partial<AvaliarHorarioAgendamentoInput> = {},
-): AvaliarHorarioAgendamentoInput {
+  sobrescritas: Partial<
+    ListarHorariosLivresInput & AvaliarHorarioAgendamentoInput
+  > = {},
+): ListarHorariosLivresInput & AvaliarHorarioAgendamentoInput {
   return {
     data: '2026-04-10',
     horaInicio: '09:00',

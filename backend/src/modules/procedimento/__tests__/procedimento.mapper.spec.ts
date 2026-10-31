@@ -6,6 +6,26 @@ import {
 
 describe('ProcedimentoMapper', () => {
   const apiPublicUrl = 'https://api.fluy.test';
+  it('converte o sinal monetário calculado no domínio inclusive percentual e gratuito', () => {
+    const percentual = criarProcedimentoPersistido({
+      preco: '79.90',
+      tipo_sinal: 'percentual',
+      valor_sinal: '25.00',
+      valor_sinal_calculado: '19.98',
+    });
+    expect(
+      toProcedimentoPublicoResponse({ procedimento: percentual, apiPublicUrl }),
+    ).toHaveProperty('valor_sinal', 19.98);
+    expect(
+      toProcedimentoPublicoResponse({
+        procedimento: criarProcedimentoPersistido({
+          valor_sinal: '0.00',
+          valor_sinal_calculado: '0.00',
+        }),
+        apiPublicUrl,
+      }),
+    ).toHaveProperty('valor_sinal', 0);
+  });
 
   it('returns null image URLs when the procedure has no image', () => {
     const procedimento = criarProcedimentoPersistido();
@@ -56,8 +76,10 @@ describe('ProcedimentoMapper', () => {
 });
 
 function criarProcedimentoPersistido(
-  input: Partial<ProcedimentoPersistido> = {},
-): ProcedimentoPersistido {
+  input: Partial<ProcedimentoPersistido> & {
+    valor_sinal_calculado?: string;
+  } = {},
+): ProcedimentoPersistido & { valor_sinal_calculado: string } {
   return {
     id: 'c7d30e66-cf2a-4cdf-a6de-7a9a083e9a43',
     salao_id: '0f2dbab7-9b47-4e99-95c9-04558d73eb57',
@@ -68,6 +90,7 @@ function criarProcedimentoPersistido(
     preco: '100.00',
     tipo_sinal: 'fixo',
     valor_sinal: '20.00',
+    valor_sinal_calculado: '20.00',
     periodo_manutencao_dias: null,
     ativo: true,
     criado_em: new Date('2026-01-01T00:00:00.000Z'),

@@ -2,7 +2,6 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 
 /* eslint-disable @typescript-eslint/unbound-method -- Jest assertions inspect detached mock functions. */
 
-jest.mock('@fluy/schema', () => ({}));
 jest.mock('@/modules/arquivo/arquivo.service', () => ({
   ArquivoService: class ArquivoService {},
 }));
@@ -128,10 +127,34 @@ describe('ProcedimentoService', () => {
     expect(repository.listar).toHaveBeenCalledWith('salao-ana');
   });
 
+  it('calcula o sinal monetário público no domínio, preservando arredondamento e gratuito', async () => {
+    jest.spyOn(repository, 'listarAtivos').mockResolvedValue([
+      {
+        ...procedimento,
+        preco: '79.90',
+        tipo_sinal: 'percentual',
+        valor_sinal: '25.00',
+      },
+      {
+        ...procedimento,
+        preco: '0.00',
+        tipo_sinal: 'fixo',
+        valor_sinal: '25.00',
+      },
+    ]);
+    const resultados = await service.listarAtivos('salao-ana');
+    expect(resultados).toMatchObject([
+      { valor_sinal_calculado: '19.98' },
+      { valor_sinal_calculado: '0.00' },
+    ]);
+    expect(repository.listarAtivos).toHaveBeenCalledWith('salao-ana');
+  });
   it('lista apenas os procedimentos ativos no salão informado', async () => {
     jest.spyOn(repository, 'listarAtivos').mockResolvedValue([procedimento]);
 
-    expect(await service.listarAtivos('salao-ana')).toEqual([procedimento]);
+    expect(await service.listarAtivos('salao-ana')).toEqual([
+      { ...procedimento, valor_sinal_calculado: '20.00' },
+    ]);
     expect(repository.listarAtivos).toHaveBeenCalledWith('salao-ana');
   });
 

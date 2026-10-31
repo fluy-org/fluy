@@ -23,6 +23,8 @@ import { AgendamentoPublicoService } from '@/modules/agendamento/agendamento-pub
 import {
   HorariosLivresResponseDto,
   ListarHorariosLivresPublicosQueryDto,
+  DiasDisponiveisResponseDto,
+  ListarDiasDisponiveisPublicosQueryDto,
   CriarAgendamentoPublicoRequestDto,
   AgendamentoResponseDto,
   AgendamentoPublicoDetalheResponseDto,
@@ -83,6 +85,26 @@ export class AgendamentoPublicoController {
         dados,
       }),
     );
+  }
+
+  @Get('dias-disponiveis')
+  @ApiOperation({
+    summary:
+      'Lista os dias com horários disponíveis para a cliente identificada no mês',
+  })
+  @ApiOkResponse({ type: DiasDisponiveisResponseDto.Output })
+  @ApiBadRequestResponse({ description: 'Parâmetros de consulta inválidos.' })
+  @ApiNotFoundResponse({
+    description: 'Sessão, salão, configuração ou procedimento não encontrado.',
+  })
+  async listarDiasDisponiveis(
+    @TenantFromPath() tenant: TenantContext,
+    @Query() dados: ListarDiasDisponiveisPublicosQueryDto,
+  ) {
+    return this.agendamentoPublicoService.listarDiasDisponiveis({
+      salaoId: tenant.salaoId,
+      dados,
+    });
   }
 
   @Get(':id')
@@ -157,10 +179,16 @@ export class AgendamentoPublicoController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Cria o agendamento da cliente identificada' })
+  @ApiOperation({
+    summary:
+      'Confirma agendamento sem sinal antecipado da cliente identificada',
+  })
   @ApiCreatedResponse({ type: AgendamentoResponseDto.Output })
   @ApiBadRequestResponse({ description: 'Dados ou horário inválidos.' })
-  @ApiConflictResponse({ description: 'O horário deixou de estar disponível.' })
+  @ApiConflictResponse({
+    description:
+      'O horário deixou de estar disponível ou o procedimento exige reserva e pagamento.',
+  })
   @ApiNotFoundResponse({
     description: 'Sessão, salão, configuração ou procedimento não encontrado.',
   })

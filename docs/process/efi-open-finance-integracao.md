@@ -1,5 +1,10 @@
 # Efí Open Finance — backend para homologação
 
+## Atualização do checkout — 28/10/2026
+
+As telas de recebimento e checkout passaram a integrar o backend, conforme [registro de execução](./fluxo-pagamento-execucao.md). O catálogo público informa valor_sinal monetário; dados públicos do salão incluem fuso_horario; pagamento inclui nome_recebedor do snapshot da tentativa. Swagger deriva dos schemas canônicos. Sem DDL novo. Sinal zero/gratuito confirma sem antecipação; a rota direta recusa sinal positivo. Retorno é /retorno-pagamento no mesmo origin do checkout e só oferece retomada local, sem confirmar pela query. Confirmação tardia exige contato do salão para remarcação/devolução, sem reocupar slot. Produção, contratação/tarifas, PostgreSQL real, interface no Chrome e homologação externa continuam pendentes.
+
+
 Implementado em 25/10/2026, após aprovação do plano da fase 1. Sem alterações de telas e sem commits.
 
 ## Limite desta entrega

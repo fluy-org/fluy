@@ -1,5 +1,10 @@
 # Salão — Onboarding e setup inicial
 
+## Atualização de 28/10/2026
+
+A dona configura recebimento Pix em Configurações com a conta bancária atual, sem recriar salão nem abrir conta Efí. Cadastro não prova titularidade/habilitação de produção.
+
+
 ## Objetivo
 
 Permitir que um novo salão se cadastre no Fluy de forma self-service, configure o mínimo necessário para começar a receber agendamentos e obtenha a URL pública para compartilhar com suas clientes.

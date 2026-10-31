@@ -1,5 +1,10 @@
 # Pagamentos
 
+## Atualização de 28/10/2026
+
+Decisões de 28/10/2026: recebimento direto na conta atual do salão por chave Pix, sem abertura de conta bancária ou repasse pelo Fluy. A cliente paga tarifa adicional discriminada antes da autorização. Contratação, valor e mecanismo da tarifa de produção dependem da Efí. Sinal zero confirma sem antecipação, inclusive gratuito; eventual total fica para o atendimento. Confirmação tardia exige contato com o salão para combinar remarcação/devolução, sem garantir horário e sem devolução automática.
+
+
 ## Objetivo
 
 Processar e registrar todo movimento financeiro relacionado a agendamentos: sinal pago pela cliente via gateway online e valor restante ou sinal antecipado pago presencialmente/manualmente, garantindo rastreio para o [[faturamento]].
@@ -71,3 +76,8 @@ Usado por:
 - **Descontos concedidos** (registro explícito) — fluxo não desenhado ainda.
 - Webhooks do gateway devem ser sempre idempotentes.
 - Ao trocar o provider configurado, cobranças antigas não são encaminhadas ao novo adapter. Eventos autenticados continuam em reprocessamento local; novos callbacks antigos não são aceitos automaticamente.
+
+O catálogo público expõe valor_sinal monetário calculado pelo mesmo helper do
+agendamento. A reserva revalida e congela valores; catálogo não autoriza
+preço do browser. Iniciar prepara tentativa; a tela exibe principal/tarifa/total
+canônicos antes de oferecer o botão externo de autorização.

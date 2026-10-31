@@ -1,3 +1,4 @@
+import { zodValidator } from '@app/shared/utils/zod-validator';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,7 +8,11 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import type { ConfiguracaoSalaoResponseDto } from '@fluy/schema';
-import { atualizarConfiguracaoSalaoSchema } from '@fluy/schema';
+import {
+  atualizarRecebimentoPixSchema,
+  TIPO_CHAVE_PIX,
+  atualizarConfiguracaoSalaoSchema,
+} from '@fluy/schema';
 import {
   IonButton,
   IonCard,
@@ -17,13 +22,15 @@ import {
   IonContent,
   IonHeader,
   IonInput,
+  IonSelect,
+  IonSelectOption,
   IonSpinner,
   IonText,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { ApiError } from '../../../../../core/errors/api-error';
-import { HeaderComponent } from '../../../../../shared/components/header/header.component';
-import { ConfiguracaoService } from '../../services/configuracao.service';
+import { ApiError } from '@app/core/errors/api-error';
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+import { ConfiguracaoService } from '@app/features/salao/configuracao/services/configuracao.service';
 
 @Component({
   selector: 'app-configuracao',
@@ -41,6 +48,8 @@ import { ConfiguracaoService } from '../../services/configuracao.service';
     IonContent,
     IonHeader,
     IonInput,
+    IonSelect,
+    IonSelectOption,
     IonSpinner,
     IonText,
     IonTextarea,
@@ -70,7 +79,82 @@ export class ConfiguracaoPage implements OnInit {
     { updateOn: 'blur' },
   );
 
+  readonly tiposChave = TIPO_CHAVE_PIX;
+  readonly carregandoRecebimento = signal(true);
+  readonly salvandoRecebimento = signal(false);
+  readonly erroRecebimento = signal<string | null>(null);
+  readonly sucessoRecebimento = signal<string | null>(null);
+  readonly recebimentoCarregado = signal(false);
+  readonly formularioRecebimento = new FormGroup(
+    {
+      tipo_chave: new FormControl<(typeof TIPO_CHAVE_PIX)[number]>('email', {
+        nonNullable: true,
+        validators: zodValidator(
+          atualizarRecebimentoPixSchema.shape.tipo_chave,
+        ),
+      }),
+      chave: new FormControl('', {
+        nonNullable: true,
+        validators: zodValidator(atualizarRecebimentoPixSchema.shape.chave),
+      }),
+      nome_recebedor: new FormControl('', {
+        nonNullable: true,
+        validators: zodValidator(
+          atualizarRecebimentoPixSchema.shape.nome_recebedor,
+        ),
+      }),
+    },
+    { validators: zodValidator(atualizarRecebimentoPixSchema) },
+  );
+
+  async carregarRecebimento(): Promise<void> {
+    this.carregandoRecebimento.set(true);
+    this.erroRecebimento.set(null);
+    this.recebimentoCarregado.set(false);
+    try {
+      const dados = await this.configuracaoService.getRecebimento();
+      this.formularioRecebimento.reset(dados);
+      this.recebimentoCarregado.set(true);
+    } catch (erro) {
+      if (!(erro instanceof ApiError)) throw erro;
+      if (erro.status === 404) this.recebimentoCarregado.set(true);
+      else this.erroRecebimento.set(erro.message);
+    } finally {
+      this.carregandoRecebimento.set(false);
+    }
+  }
+
+  async salvarRecebimento(): Promise<void> {
+    if (this.salvandoRecebimento() || !this.recebimentoCarregado()) return;
+    this.sucessoRecebimento.set(null);
+    this.erroRecebimento.set(null);
+    this.formularioRecebimento.markAllAsTouched();
+    const resultado = atualizarRecebimentoPixSchema.safeParse(
+      this.formularioRecebimento.getRawValue(),
+    );
+    if (!resultado.success) {
+      this.erroRecebimento.set(
+        resultado.error.issues[0]?.message ?? 'Revise os dados.',
+      );
+      return;
+    }
+    this.salvandoRecebimento.set(true);
+    try {
+      const atualizado = await this.configuracaoService.updateRecebimento(
+        resultado.data,
+      );
+      this.formularioRecebimento.reset(atualizado);
+      this.sucessoRecebimento.set('Dados de recebimento salvos.');
+    } catch (erro) {
+      if (!(erro instanceof ApiError)) throw erro;
+      this.erroRecebimento.set(erro.message);
+    } finally {
+      this.salvandoRecebimento.set(false);
+    }
+  }
+
   ngOnInit(): void {
+    void this.carregarRecebimento();
     void this.carregarConfiguracao();
   }
 

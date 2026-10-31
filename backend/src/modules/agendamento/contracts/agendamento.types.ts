@@ -55,7 +55,9 @@ export type AvaliacaoHorarioAgendamento = {
 export type ListarHorariosLivresInput = Omit<
   AvaliarHorarioAgendamentoInput,
   'horaInicio'
->;
+> & {
+  apenasDisponiveis?: boolean;
+};
 
 export type DadosParaAvaliacaoHorario = {
   configuracao: {
@@ -108,6 +110,7 @@ export type CriarAgendamentoComValidacaoInput =
 export type ValidarCriacaoAgendamentoInput = {
   avaliacao: AvaliacaoHorarioAgendamento;
   confirmarExcecoes: boolean;
+  publico?: boolean;
 };
 
 export type ValidarConclusaoAgendamentoInput = {

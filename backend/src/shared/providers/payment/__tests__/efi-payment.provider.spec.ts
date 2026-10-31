@@ -59,6 +59,33 @@ describe('EfiPaymentProvider', () => {
       },
     });
   });
+  it('usa contaBanco em homologacao para contornar ausencia de DICT sandbox', async () => {
+    const configHomolog = new ConfigService({
+      EFI_WEBHOOK_SECRET: 'a'.repeat(64),
+      EFI_ENVIRONMENT: 'homologation',
+    });
+    const homologProvider = new EfiPaymentProvider(
+      client as never,
+      new EfiWebhookAdapter(configHomolog as never),
+      configHomolog as never,
+    );
+    client.request.mockResolvedValue({
+      identificadorPagamento: 'urn:efi:1',
+      redirectURI: 'https://bank.example/authorize',
+    });
+    await homologProvider.createPixPayment(input);
+    expect(client.request).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: expect.objectContaining({
+          favorecido: expect.objectContaining({
+            contaBanco: expect.objectContaining({
+              codigoBanco: '09089356',
+            }),
+          }),
+        }),
+      }),
+    );
+  });
   it('não inventa tarifa em homologação', async () => {
     expect(
       await provider.quotePix({

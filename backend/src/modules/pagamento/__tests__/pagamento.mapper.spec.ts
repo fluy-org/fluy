@@ -7,6 +7,7 @@ describe('mapeamento HTTP de pagamento', () => {
   it('converte valores e datas e usa a divergência persistida', () => {
     const resposta = toPagamentoPixResponse({
       id: 'cobranca-a',
+      pix_nome_recebedor: 'Recebedor congelado',
       status: 'confirmada',
       modalidade: 'sinal',
       valor: '25.00',
@@ -18,6 +19,7 @@ describe('mapeamento HTTP de pagamento', () => {
     } as never);
     expect(resposta).toMatchObject({
       valor_salao: 25,
+      nome_recebedor: 'Recebedor congelado',
       taxa_cliente: 1,
       total_cliente: 26,
       situacao: 'confirmado_apos_expiracao',

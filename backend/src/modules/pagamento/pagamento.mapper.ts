@@ -22,6 +22,7 @@ export function toPagamentoPixResponse(
     id: pagamento.id,
     status: pagamento.status,
     modalidade: pagamento.modalidade,
+    nome_recebedor: pagamento.pix_nome_recebedor,
     valor_salao: Number(pagamento.valor),
     taxa_cliente: Number(pagamento.taxa_cliente),
     total_cliente: Number(pagamento.total_cliente),

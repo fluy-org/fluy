@@ -22,9 +22,19 @@ export type ProcedimentoComImagem = Pick<
 
 export type ProcedimentoPublicoPersistido = Pick<
   typeof procedimento.$inferSelect,
-  'nome' | 'descricao' | 'info_pre_procedimento' | 'duracao_min' | 'preco'
+  | 'nome'
+  | 'descricao'
+  | 'info_pre_procedimento'
+  | 'duracao_min'
+  | 'preco'
+  | 'tipo_sinal'
+  | 'valor_sinal'
 > &
   ProcedimentoComImagem;
+
+export type ProcedimentoPublicoResultado = ProcedimentoPublicoPersistido & {
+  valor_sinal_calculado: string;
+};
 
 export type BuscarProcedimentoInput = {
   id: string;

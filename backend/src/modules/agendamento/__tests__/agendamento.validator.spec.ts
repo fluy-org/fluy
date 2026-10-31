@@ -60,6 +60,42 @@ describe('AgendamentoValidator', () => {
     ).not.toThrow();
   });
 
+  describe('quando o agendamento é público (cliente)', () => {
+    it('retorna mensagem amigável de antecedência mínima', () => {
+      expect(() =>
+        validator.validarCriacao({
+          avaliacao: criarAvaliacao({
+            status: 'requer_confirmacao',
+            avisos: ['antes_antecedencia_minima'],
+          }),
+          confirmarExcecoes: false,
+          publico: true,
+        }),
+      ).toThrow(
+        new BadRequestException(
+          'O horário selecionado não atende à antecedência mínima para agendamento.',
+        ),
+      );
+    });
+
+    it('retorna mensagem amigável para horário indisponível sem confirmação interna', () => {
+      expect(() =>
+        validator.validarCriacao({
+          avaliacao: criarAvaliacao({
+            status: 'requer_confirmacao',
+            avisos: ['fora_janela'],
+          }),
+          confirmarExcecoes: false,
+          publico: true,
+        }),
+      ).toThrow(
+        new BadRequestException(
+          'O horário informado não está disponível para agendamento.',
+        ),
+      );
+    });
+  });
+
   describe('validarConclusao', () => {
     it('recusa conclusão de agendamento ainda reservado', () => {
       expect(() =>

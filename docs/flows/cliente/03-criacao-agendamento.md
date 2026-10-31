@@ -1,5 +1,10 @@
 # Cliente — Criação de agendamento
 
+## Atualização de 28/10/2026
+
+Efí Open Finance em homologação prevalece sobre hipóteses históricas de gateway. Sinal zero confirma sem antecipação (inclusive gratuito); restante presencial. Sinal positivo exige reserva e confirmação financeira. Falha de provider não dispensa pagamento. Tarifa canônica discriminada antes da autorização externa; retorno do banco não confirma pagamento. Confirmação tardia orienta contato do salão para combinar remarcação/devolução. Histórico financeiro de reservas expiradas é preservado.
+
+
 ## Objetivo
 
 Permitir que a cliente reserve e pague por um horário para realizar um procedimento no salão, com feedback claro sobre disponibilidade, valores, informações pré-procedimento e política do estabelecimento.

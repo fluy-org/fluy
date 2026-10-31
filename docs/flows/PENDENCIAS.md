@@ -1,5 +1,10 @@
 # Pendências e decisões adiadas
 
+## Atualização de 28/10/2026
+
+Decisões de gateway e recebimento: Efí autorizada em homologação, recebimento direto na conta atual, tarifa discriminada paga pela cliente. Sinal zero confirma sem antecipação (decisão obtida nesta execução). Confirmação tardia orienta contato do salão. Permanecem pendentes contratação multi-salão/bancos externos, mecanismo e preço da tarifa e reembolsos fora desta entrega. Estas decisões prevalecem sobre as hipóteses históricas abaixo.
+
+
 Este documento consolida as decisões que foram **explicitamente adiadas** durante o desenho dos fluxos, bem como as principais dúvidas em aberto que aparecem espalhadas pelos MDs de cada fluxo. Serve como checklist antes de partir para modelagem/implementação de cada área.
 
 Última atualização: 2026-09-14

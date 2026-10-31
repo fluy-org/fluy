@@ -46,11 +46,13 @@
           class="dia"
           [class.dia-vazio]="dia.total === 0"
           [class.dia-selecionado]="dia.data === diaSelecionado()"
+          [class.dia-desabilitado]="dia.desabilitado"
+          [disabled]="dia.desabilitado"
           [attr.aria-current]="dia.data === diaSelecionado() ? 'date' : null"
           (click)="selecionarDia.emit(dia.data)"
         >
           <span class="numero">{{ dia.dia }}</span>
-          @if (dia.total > 0) {
+          @if (dia.total && dia.total > 0) {
             <span class="total">{{ dia.total }}</span>
           }
         </button>

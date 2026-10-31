@@ -1,12 +1,14 @@
+import { CheckoutService } from '@app/features/pagina-cliente/services/checkout.service';
 import {
   ChangeDetectionStrategy,
+  computed,
   Component,
   OnDestroy,
   OnInit,
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   type AgendamentoPublicoDetalheResponseDto,
@@ -42,6 +44,10 @@ import { PaginaClienteService } from '@app/features/pagina-cliente/services/pagi
 import { ApiError } from '@app/core/errors/api-error';
 import { CentralAvisosComponent } from '@app/features/avisos/components/central-avisos/central-avisos.component';
 import { CalendarioAgendamentoService } from '@app/features/avisos/services/calendario-agendamento.service';
+import {
+  extrairMesDaData,
+  gerarGradeDoMes,
+} from '@app/features/salao/agenda/agenda-utils';
 
 @Component({
   selector: 'app-pagina-cliente-page',
@@ -70,9 +76,24 @@ import { CalendarioAgendamentoService } from '@app/features/avisos/services/cale
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginaClientePage implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
+  private readonly checkout = inject(CheckoutService);
   private readonly route = inject(ActivatedRoute);
   private readonly paginaClienteService = inject(PaginaClienteService);
   private readonly calendarioService = inject(CalendarioAgendamentoService);
+
+  private versaoPagina = 0;
+  ionViewWillLeave(): void {
+    this.versaoPagina++;
+  }
+
+  readonly contextosCheckout = computed(() => {
+    this.checkout.contexto();
+    return this.checkout.listarContextos();
+  });
+  retomarCheckout(id: string): void {
+    void this.router.navigate(['/s', this.obterSubdominio(), 'checkout', id]);
+  }
 
   readonly salao = this.paginaClienteService.salao;
   readonly subdominio = signal('');
@@ -88,11 +109,21 @@ export class PaginaClientePage implements OnInit, OnDestroy {
   readonly catalogoAberto = signal(false);
   readonly carregandoCatalogo = signal(false);
   readonly erroCatalogo = signal<string | null>(null);
-  readonly procedimentoSelecionado = signal<ProcedimentoPublicoResponseDto | null>(null);
+  readonly procedimentoSelecionado =
+    signal<ProcedimentoPublicoResponseDto | null>(null);
   readonly procedimentos = this.paginaClienteService.procedimentos;
   readonly escolhendoHorario = signal(false);
+  readonly mesDoCalendario = signal('');
+  readonly diasDisponiveis = signal<string[] | null>(null);
+  readonly carregandoDias = signal(false);
   readonly dataSelecionada = signal('');
   readonly horaSelecionada = signal<string | null>(null);
+  readonly gradeDoCalendario = computed(() => {
+    const mes = this.mesDoCalendario();
+    return mes
+      ? gerarGradeDoMes({ mes, diasDisponiveis: this.diasDisponiveis() })
+      : [];
+  });
   readonly horarios = signal<HorariosLivresResponseDto['horarios']>([]);
   readonly carregandoHorarios = signal(false);
   readonly erroHorarios = signal<string | null>(null);
@@ -133,6 +164,7 @@ export class PaginaClientePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.versaoPagina++;
     this.limparReferenciasDetalhe();
   }
 
@@ -172,7 +204,9 @@ export class PaginaClientePage implements OnInit, OnDestroy {
     } catch {
       this.paginaClienteService.removerCredencial(subdominio);
       this.credencialCliente.set(null);
-      this.erroIdentificacao.set('Não foi possível continuar. Tente novamente.');
+      this.erroIdentificacao.set(
+        'Não foi possível continuar. Tente novamente.',
+      );
     } finally {
       this.identificando.set(false);
     }
@@ -386,6 +420,56 @@ export class PaginaClientePage implements OnInit, OnDestroy {
   abrirEscolhaHorario(): void {
     if (!this.procedimentoSelecionado()) return;
     this.escolhendoHorario.set(true);
+    if (!this.mesDoCalendario()) {
+      this.mesDoCalendario.set(extrairMesDaData(this.dataMinima));
+    }
+    void this.carregarDiasDisponiveis();
+  }
+
+  async carregarDiasDisponiveis(): Promise<void> {
+    const procedimento = this.procedimentoSelecionado();
+    const subdominio = this.subdominio() || this.obterSubdominio();
+    const credencial = this.paginaClienteService.obterCredencial(subdominio);
+    const mes = this.mesDoCalendario();
+
+    if (!procedimento || !mes || !subdominio) return;
+
+    this.carregandoDias.set(true);
+    this.erroHorarios.set(null);
+
+    try {
+      const resposta = await this.paginaClienteService.listarDiasDisponiveis(
+        subdominio,
+        {
+          procedimento_id: procedimento.id,
+          mes,
+          ...(credencial ? { credencial } : {}),
+        },
+      );
+      this.diasDisponiveis.set(resposta.dias);
+
+      if (resposta.dias.length > 0) {
+        const dataAtual = this.dataSelecionada();
+        if (!dataAtual || !resposta.dias.includes(dataAtual)) {
+          void this.alterarData(resposta.dias[0]);
+        }
+      } else {
+        this.dataSelecionada.set('');
+        this.horaSelecionada.set(null);
+        this.horarios.set([]);
+      }
+    } catch {
+      this.erroHorarios.set(
+        'Não foi possível carregar os dias disponíveis deste mês.',
+      );
+    } finally {
+      this.carregandoDias.set(false);
+    }
+  }
+
+  mudarMesDoCalendario(mes: string): void {
+    this.mesDoCalendario.set(mes);
+    void this.carregarDiasDisponiveis();
   }
 
   voltarAoCatalogo(): void {
@@ -395,11 +479,10 @@ export class PaginaClientePage implements OnInit, OnDestroy {
 
   async alterarData(data: string): Promise<void> {
     const procedimento = this.procedimentoSelecionado();
-    const credencial = this.paginaClienteService.obterCredencial(
-      this.obterSubdominio(),
-    );
+    const subdominio = this.subdominio() || this.obterSubdominio();
+    const credencial = this.paginaClienteService.obterCredencial(subdominio);
 
-    if (!procedimento || !credencial) return;
+    if (!procedimento || !subdominio) return;
 
     this.dataSelecionada.set(data);
     this.horaSelecionada.set(null);
@@ -409,16 +492,18 @@ export class PaginaClientePage implements OnInit, OnDestroy {
 
     try {
       const resposta = await this.paginaClienteService.listarHorariosLivres(
-        this.obterSubdominio(),
+        subdominio,
         {
           procedimento_id: procedimento.id,
           data,
-          credencial,
+          ...(credencial ? { credencial } : {}),
         },
       );
       this.horarios.set(resposta.horarios);
     } catch {
-      this.erroHorarios.set('Não foi possível carregar os horários desta data.');
+      this.erroHorarios.set(
+        'Não foi possível carregar os horários desta data.',
+      );
     } finally {
       this.carregandoHorarios.set(false);
     }
@@ -440,28 +525,37 @@ export class PaginaClientePage implements OnInit, OnDestroy {
   }
 
   async confirmarAgendamento(referencias: File[]): Promise<void> {
+    if (this.salvandoAgendamento() || this.agendamentoCriado()) return;
+    const versao = this.versaoPagina;
+    const subdominio = this.obterSubdominio();
     const procedimento = this.procedimentoSelecionado();
     const hora = this.horaSelecionada();
-    const credencial = this.paginaClienteService.obterCredencial(
-      this.obterSubdominio(),
-    );
+    const credencial = this.paginaClienteService.obterCredencial(subdominio);
 
-    if (!procedimento || !hora || !credencial || !this.dataSelecionada()) return;
+    if (!procedimento || !hora || !credencial || !this.dataSelecionada())
+      return;
 
     this.salvandoAgendamento.set(true);
     this.erroAgendamento.set(null);
 
     try {
-      const agendamento = await this.paginaClienteService.criarAgendamento(
-        this.obterSubdominio(),
-        {
-          credencial,
-          procedimento_id: procedimento.id,
-          data: this.dataSelecionada(),
-          hora_inicio: hora,
-          confirmar_excecoes: false,
-        },
-      );
+      const dados = {
+        credencial,
+        procedimento_id: procedimento.id,
+        data: this.dataSelecionada(),
+        hora_inicio: hora,
+        confirmar_excecoes: false,
+      };
+      const exigePagamento = procedimento.valor_sinal > 0;
+      const agendamento = exigePagamento
+        ? (
+            await this.checkout.reservar({
+              subdominio: subdominio,
+              nomeProcedimento: procedimento.nome,
+              dados,
+            })
+          ).reserva
+        : await this.paginaClienteService.criarAgendamento(subdominio, dados);
       this.agendamentoCriadoId.set(agendamento.id);
 
       if (referencias.length > 0) {
@@ -471,25 +565,43 @@ export class PaginaClientePage implements OnInit, OnDestroy {
               agendamentoId: agendamento.id,
               arquivo,
               credencial,
-              subdominio: this.obterSubdominio(),
+              subdominio: subdominio,
             }),
           ),
         );
 
         if (resultados.some((resultado) => resultado.status === 'rejected')) {
+          if (exigePagamento)
+            this.checkout.registrarReferenciasPendentes({
+              subdominio,
+              id: agendamento.id,
+              pendentes: true,
+            });
           this.erroAgendamento.set(
             'O agendamento foi criado, mas uma ou mais imagens não puderam ser enviadas.',
           );
         }
       }
 
+      if (versao !== this.versaoPagina) return;
+      if (exigePagamento) {
+        await this.router.navigate([
+          '/s',
+          subdominio,
+          'checkout',
+          agendamento.id,
+        ]);
+        this.fecharAgendamentoConfirmado();
+        return;
+      }
       this.agendamentoCriado.set(true);
     } catch (error) {
-      if (error instanceof ApiError && error.status === 409) {
-        const mensagem = this.obterMensagemApi(error);
+      const mensagemApi =
+        error instanceof ApiError ? this.obterMensagemApi(error) : '';
 
-        if (mensagem.includes('já possui este procedimento')) {
-          this.erroAgendamento.set(mensagem);
+      if (error instanceof ApiError && error.status === 409) {
+        if (mensagemApi.includes('já possui este procedimento')) {
+          this.erroAgendamento.set(mensagemApi);
           return;
         }
 
@@ -500,7 +612,8 @@ export class PaginaClientePage implements OnInit, OnDestroy {
         );
       } else {
         this.erroAgendamento.set(
-          'Não foi possível confirmar o agendamento. Tente novamente.',
+          mensagemApi ||
+            'Não foi possível confirmar o agendamento. Tente novamente.',
         );
       }
     } finally {
@@ -519,6 +632,8 @@ export class PaginaClientePage implements OnInit, OnDestroy {
     this.dataSelecionada.set('');
     this.horaSelecionada.set(null);
     this.horarios.set([]);
+    this.mesDoCalendario.set('');
+    this.diasDisponiveis.set([]);
   }
 
   async baixarCalendarioCriado(): Promise<void> {

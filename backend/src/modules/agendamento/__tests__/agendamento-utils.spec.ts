@@ -8,6 +8,7 @@ jest.mock(
 
 import {
   calcularAcoesDoAgendamento,
+  calcularValorSinalDoProcedimento,
   calcularValorPago,
   calcularValorPendente,
   contarAgendamentosPorDia,
@@ -287,3 +288,13 @@ function pagamentoGateway(
 ): PagamentoDoAgendamentoPersistido {
   return { valor, status };
 }
+
+it('procedimento gratuito não exige sinal mesmo com configuração antiga', () => {
+  expect(
+    calcularValorSinalDoProcedimento({
+      preco: '0.00',
+      tipo_sinal: 'fixo',
+      valor_sinal: '25.00',
+    }),
+  ).toBe('0.00');
+});

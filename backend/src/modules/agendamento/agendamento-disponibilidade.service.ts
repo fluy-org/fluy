@@ -113,11 +113,12 @@ export class AgendamentoDisponibilidadeService {
     );
 
     return Array.from(horariosCandidatos)
-      .filter(
-        (horaInicio) =>
-          this.avaliarHorario({ ...input, horaInicio }).status !==
-          'indisponivel',
-      )
+      .filter((horaInicio) => {
+        const avaliacao = this.avaliarHorario({ ...input, horaInicio });
+        return input.apenasDisponiveis
+          ? avaliacao.status === 'disponivel'
+          : avaliacao.status !== 'indisponivel';
+      })
       .sort((primeiro, segundo) => primeiro.localeCompare(segundo));
   }
 

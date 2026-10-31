@@ -70,10 +70,16 @@ export class EfiClient {
           }
           if (status === 404 && input.method === 'GET')
             throw new NotFoundException('Registro não encontrado no provedor.');
-          if (status === 400 || status === 409 || status === 422)
+          if (status === 400 || status === 409 || status === 422) {
+            console.error(
+              '[EFI CLIENT ERROR]',
+              status,
+              (error as { body?: string }).body,
+            );
             throw new BadRequestException(
               'O provedor recusou os dados do pagamento.',
             );
+          }
           throw error;
         }
       }

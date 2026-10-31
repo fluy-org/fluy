@@ -36,6 +36,13 @@ export const routes: Routes = [
     component: PublicLayoutComponent,
     children: [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
+      {
+        path: 'retorno-pagamento',
+        loadComponent: () =>
+          import('./features/pagina-cliente/pages/retorno-pagamento/retorno-pagamento.page').then(
+            (m) => m.RetornoPagamentoPage,
+          ),
+      },
       ...AUTH_ROUTES,
       {
         path: 'onboarding',
@@ -66,6 +73,9 @@ export const routes: Routes = [
   },
   {
     path: 'clientes',
-    loadComponent: () => import('./features/salao/clientes/pages/clientes/clientes.page').then( m => m.ClientesPage)
+    loadComponent: () =>
+      import('./features/salao/clientes/pages/clientes/clientes.page').then(
+        (m) => m.ClientesPage,
+      ),
   },
 ];

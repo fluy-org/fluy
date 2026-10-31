@@ -30,6 +30,13 @@ export class EfiWebhookAdapter {
     ) {
       throw new UnauthorizedException('Notificação não autenticada.');
     }
+    if (
+      !input.body ||
+      typeof input.body !== 'object' ||
+      Object.keys(input.body).length === 0
+    ) {
+      return null;
+    }
     const result = efiPaymentSchema.safeParse(input.body);
     if (!result.success)
       throw new BadRequestException('Notificação de pagamento inválida.');

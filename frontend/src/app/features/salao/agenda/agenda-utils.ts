@@ -60,14 +60,17 @@ export function formatarMesPorExtenso(mes: string): string {
 export function gerarGradeDoMes({
   mes,
   contagens,
+  diasDisponiveis,
 }: {
   mes: string;
-  contagens: ResumoAgendaResponseDto['dias'];
+  contagens?: ResumoAgendaResponseDto['dias'];
+  diasDisponiveis?: string[] | null;
 }): GradeDoMes {
   const diaDaSemanaInicial = calcularDiaDaSemanaInicial(mes);
   const totalPorData = new Map(
-    contagens.map(({ data, total }) => [data, total]),
+    contagens ? contagens.map(({ data, total }) => [data, total]) : [],
   );
+  const setDisponiveis = diasDisponiveis ? new Set(diasDisponiveis) : null;
 
   // As células nulas do início empurram o dia 1 para a coluna certa; a grade
   // do template quebra a linha a cada sete, então o mês termina onde acaba.
@@ -82,7 +85,12 @@ export function gerarGradeDoMes({
 
       const data = montarData({ mes, dia });
 
-      return { data, dia, total: totalPorData.get(data) ?? 0 };
+      return {
+        data,
+        dia,
+        total: totalPorData.get(data) ?? 0,
+        desabilitado: setDisponiveis ? !setDisponiveis.has(data) : false,
+      };
     },
   );
 }

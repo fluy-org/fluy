@@ -1,5 +1,10 @@
 # Agendamento
 
+## Atualização de 28/10/2026
+
+A integração Pix preserva reservas expiradas para conciliação financeira e libera o slot sem apagar cobranças. Prevalece sobre referências históricas a apagar a linha. Sinal positivo no fluxo público exige reserva e confirmação financeira; sinal zero confirma sem antecipação, inclusive gratuito.
+
+
 O motor central do domínio. Um agendamento nasce (reservado ou já agendado), pode se mover no tempo (remarcação), e sempre termina em um de três estados terminais (`concluido`, `cancelado`, `falta`). Cada transição relevante é registrada em `evento_agendamento` para reconstruir a timeline completa.
 
 ---

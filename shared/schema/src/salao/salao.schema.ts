@@ -53,6 +53,7 @@ export const salaoPublicoResponseSchema = salaoResponseSchema
     subdominio: true,
     contato_whatsapp: true,
     endereco: true,
+    fuso_horario: true,
   })
   .extend({
     mensagem_confirmacao: z.string().nullable(),

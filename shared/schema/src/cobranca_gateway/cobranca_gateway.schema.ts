@@ -8,7 +8,7 @@ export const reservaPixResponseSchema = agendamentoResponseSchema
 
 export const pagadorPixSchema = z.object({
   cpf: z.string().regex(/^\d{11}$/, 'Informe o CPF com 11 dígitos.'),
-  instituicao_id: z.string().trim().min(1).max(200),
+  instituicao_id: z.string().trim().min(1, 'Selecione o banco de quem vai pagar.').max(200),
   cnpj: z.string().regex(/^\d{14}$/).optional(),
 }).strict();
 export const instituicoesPixResponseSchema = z.array(z.object({ id: z.string().trim().min(1).max(200), nome: z.string() })).meta({ id: 'InstituicoesPixResponse' });
@@ -46,6 +46,7 @@ export const pagamentoPixResponseSchema = z
     id: z.uuid(),
     status: z.enum(STATUS_COBRANCA_GATEWAY),
     modalidade: z.enum(MODALIDADE_PAGAMENTO_GATEWAY),
+    nome_recebedor: z.string(),
     valor_salao: z.number().nonnegative(),
     taxa_cliente: z.number().nonnegative(),
     total_cliente: z.number().nonnegative(),

@@ -37,6 +37,7 @@ export function calcularValorSinalDoProcedimento(procedimento: {
   tipo_sinal: 'percentual' | 'fixo';
   valor_sinal: string;
 }): string {
+  if (emCentavos({ valor: procedimento.preco }) === 0n) return '0.00';
   if (procedimento.tipo_sinal === 'fixo') {
     return formatarCentavos({
       valor: emCentavos({ valor: procedimento.valor_sinal }),

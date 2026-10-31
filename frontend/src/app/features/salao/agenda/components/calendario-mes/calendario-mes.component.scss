@@ -71,7 +71,15 @@
 
 .dia-selecionado {
   border-color: var(--fluy-color-primary);
+  background: var(--fluy-color-primary-light, rgba(235, 75, 125, 0.1));
   font-weight: 700;
+}
+
+.dia-desabilitado {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: transparent;
 }
 
 .dia-fora {

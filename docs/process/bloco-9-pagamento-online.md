@@ -1,5 +1,10 @@
 # Bloco 9 — Pagamento online
 
+## Atualização do checkout — 28/10/2026
+
+O prompt docs/prompts/execucao-fluxo-pagamento-tdd.md autorizou implementar recebimento e checkout em fake/homologação. A implementação das telas está registrada em [fluxo-pagamento-execucao.md](./fluxo-pagamento-execucao.md); não marcar o aceite completo sem roteiro de navegador e homologação externa. Sinal zero/gratuito confirma sem antecipação. Reembolso automático, restante pelo painel e link de sinal manual continuam fora desta fatia. A decisão de conta é recebimento direto na conta atual do salão; tarifa discriminada é da cliente, com viabilidade comercial pendente.
+
+
 Adiciona pagamento online ao produto. **Todo este bloco está `[BLOQ:gateway]`
 até a escolha ser feita** (Woovi vs. Asaas vs. outro).
 

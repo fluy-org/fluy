@@ -57,22 +57,29 @@ export class AgendamentoService {
   async listarHorariosLivres({
     salaoId,
     dados,
+    apenasDisponiveis = false,
+    bloquearInicioPassado = false,
   }: {
     salaoId: string;
     dados: ListarHorariosLivresQueryDto;
+    apenasDisponiveis?: boolean;
+    bloquearInicioPassado?: boolean;
   }) {
     const dadosParaAvaliacao = await this.buscarDadosParaAvaliacaoHorario({
       salaoId,
       procedimentoId: dados.procedimento_id,
       data: dados.data,
     });
-    const dadosParaAvaliarDisponibilidade =
-      this.montarDadosParaAvaliarDisponibilidade({
+    const dadosParaAvaliarDisponibilidade = {
+      ...this.montarDadosParaAvaliarDisponibilidade({
         dadosParaAvaliacao,
         data: dados.data,
         horaInicio: '00:00',
         duracaoMin: dadosParaAvaliacao.procedimento.duracao_min,
-      });
+      }),
+      apenasDisponiveis,
+      bloquearInicioPassado,
+    };
 
     return {
       data: dados.data,
@@ -80,6 +87,59 @@ export class AgendamentoService {
         .listarHorariosLivres(dadosParaAvaliarDisponibilidade)
         .map((hora_inicio) => ({ hora_inicio })),
     };
+  }
+
+  async listarDiasDisponiveis({
+    salaoId,
+    dados,
+  }: {
+    salaoId: string;
+    dados: { procedimento_id: string; mes: string };
+  }): Promise<{ mes: string; dias: string[] }> {
+    const fusoHorario =
+      await this.salaoConsultaService.obterFusoHorario(salaoId);
+    const configuracao = await this.salaoConfiguracaoService.buscar(salaoId);
+    const agoraCivil = utcParaDataHoraCivil({
+      dataHora: new Date(),
+      fusoHorario,
+    });
+    const hojeStr = agoraCivil.data;
+    const [ano, numeroDoMes] = dados.mes.split('-').map(Number);
+    const totalDias = new Date(Date.UTC(ano, numeroDoMes, 0)).getUTCDate();
+
+    const dataMaximaObj = new Date();
+    dataMaximaObj.setUTCDate(
+      dataMaximaObj.getUTCDate() + configuracao.antecedencia_max_dias,
+    );
+    const dataMaximaStr = utcParaDataHoraCivil({
+      dataHora: dataMaximaObj,
+      fusoHorario,
+    }).data;
+
+    const dias: string[] = [];
+
+    for (let dia = 1; dia <= totalDias; dia++) {
+      const dataStr = `${dados.mes}-${String(dia).padStart(2, '0')}`;
+      if (dataStr < hojeStr || dataStr > dataMaximaStr) {
+        continue;
+      }
+
+      const resultado = await this.listarHorariosLivres({
+        salaoId,
+        dados: {
+          procedimento_id: dados.procedimento_id,
+          data: dataStr,
+        },
+        apenasDisponiveis: true,
+        bloquearInicioPassado: true,
+      });
+
+      if (resultado.horarios.length > 0) {
+        dias.push(dataStr);
+      }
+    }
+
+    return { mes: dados.mes, dias };
   }
 
   async listarAgendaDoDia({
@@ -187,12 +247,16 @@ export class AgendamentoService {
     bloquearProcedimentoDuplicadoNoDia = false,
     notificarCliente = false,
     reservar = false,
+    exigirSemSinal = false,
+    publico = false,
   }: {
     salaoId: string;
     dados: CriarAgendamentoDto;
     bloquearProcedimentoDuplicadoNoDia?: boolean;
     notificarCliente?: boolean;
     reservar?: boolean;
+    exigirSemSinal?: boolean;
+    publico?: boolean;
   }) {
     await this.clienteService.buscarPorId({
       id: dados.cliente_id,
@@ -234,8 +298,17 @@ export class AgendamentoService {
     this.agendamentoValidator.validarCriacao({
       avaliacao,
       confirmarExcecoes: dados.confirmar_excecoes,
+      publico,
     });
     const procedimento = dadosParaAvaliacao.procedimento;
+    if (
+      exigirSemSinal &&
+      Number(calcularValorSinalDoProcedimento(procedimento)) > 0
+    ) {
+      throw new ConflictException(
+        'Este procedimento exige reserva e pagamento do sinal.',
+      );
+    }
     const inicioEm = dataHoraCivilParaUtc({
       data: dados.data,
       hora: dados.hora_inicio,

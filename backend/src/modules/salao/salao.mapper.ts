@@ -11,6 +11,7 @@ export function toSalaoPublicoResponse(
     subdominio: salao.subdominio,
     contato_whatsapp: salao.contato_whatsapp,
     endereco: salao.endereco,
+    fuso_horario: salao.fuso_horario,
     mensagem_confirmacao: configuracao.mensagem_confirmacao,
     politica_atraso: configuracao.politica_atraso,
     tolerancia_atraso_min: configuracao.tolerancia_atraso_min,

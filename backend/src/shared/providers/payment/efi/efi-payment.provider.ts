@@ -3,7 +3,10 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { Env } from '@/config/env.schema';
 import { z } from 'zod';
 import type {
   NotificacaoPagamento,
@@ -24,6 +27,7 @@ export class EfiPaymentProvider implements PaymentProvider {
   constructor(
     private readonly client: EfiClient,
     private readonly webhook: EfiWebhookAdapter,
+    @Optional() private readonly config?: ConfigService<Env, true>,
   ) {}
   quotePix(input: Parameters<PaymentProvider['quotePix']>[0]) {
     return Promise.resolve({
@@ -39,6 +43,22 @@ export class EfiPaymentProvider implements PaymentProvider {
       throw new BadRequestException('Informe os dados do pagador.');
     if (input.expiraEm.getTime() <= Date.now())
       throw new BadRequestException('A reserva expirou.');
+
+    const isHomologation =
+      this.config?.get('EFI_ENVIRONMENT', { infer: true }) === 'homologation';
+    const favorecido = isHomologation
+      ? {
+          contaBanco: {
+            nome: input.recebedor.nomeRecebedor || 'Recebedor Fluy',
+            documento: input.pagador.cpf || '17558266300',
+            codigoBanco: '09089356',
+            agencia: '0001',
+            conta: '654984',
+            tipoConta: 'TRAN',
+          },
+        }
+      : { chave: input.recebedor.chave };
+
     const raw = await this.client.request({
       method: 'POST',
       path: '/v1/pagamentos/pix',
@@ -49,7 +69,7 @@ export class EfiPaymentProvider implements PaymentProvider {
           idParticipante: input.pagador.instituicao_id,
           ...(input.pagador.cnpj ? { cnpj: input.pagador.cnpj } : {}),
         },
-        favorecido: { chave: input.recebedor.chave },
+        favorecido,
         pagamento: {
           valor: (input.cotacao.totalClienteCentavos / 100).toFixed(2),
           idProprio: input.idempotencyKey,

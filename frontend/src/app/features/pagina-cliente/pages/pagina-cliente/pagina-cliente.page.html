@@ -1,4 +1,10 @@
 <ion-content class="tema-fluy fluy-page-safe">
+  @for (contexto of contextosCheckout(); track contexto.reserva.id) {
+    @if (contexto.subdominio === subdominio()) {
+      <ion-button fill="outline" (click)="retomarCheckout(contexto.reserva.id)">Retomar pagamento de {{ contexto.nomeProcedimento }}</ion-button>
+    }
+  }
+
   @if (estado() === 'carregando') {
   <div class="estado-pagina" role="status">
     <ion-spinner name="crescent"></ion-spinner>
@@ -129,13 +135,16 @@
       ></app-confirmacao-agendamento>
       } @else if (escolhendoHorario()) {
       <app-escolha-horario
+        [mes]="mesDoCalendario()"
+        [grade]="gradeDoCalendario()"
         [data]="dataSelecionada()"
-        [dataMinima]="dataMinima"
         [horarios]="horarios()"
         [horaSelecionada]="horaSelecionada()"
-        [carregando]="carregandoHorarios()"
+        [carregandoHorarios]="carregandoHorarios()"
+        [carregandoDias]="carregandoDias()"
         [erro]="erroHorarios()"
-        (alterarData)="alterarData($event)"
+        (mudarMes)="mudarMesDoCalendario($event)"
+        (selecionarData)="alterarData($event)"
         (selecionarHora)="selecionarHora($event)"
       ></app-escolha-horario>
 

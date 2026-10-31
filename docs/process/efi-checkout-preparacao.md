@@ -100,3 +100,72 @@ Fontes: [pagamentos imediatos](https://dev.efipay.com.br/docs/api-open-finance/p
 ## Estado de autorização
 
 Código e testes do fluxo podem avançar com fake e homologação. Produção permanece bloqueada no backend atual. Não remova esse bloqueio simplesmente por existir uma tela de checkout; liberação exige comprovar o modelo financeiro, tratar as pendências e validar o ambiente.
+
+## Telas implementadas e retorno — 28/10/2026
+
+- Dona: /painel/configuracao, seção Recebimento Pix. Consultar, cadastrar tipo,
+  chave e nome, salvar e reabrir. Não há criação de conta bancária.
+- Cliente: /s/:subdominio, catálogo → horário → revisão. Sinal positivo cria
+  reserva; referências são enviadas ao mesmo agendamento antes de avançar.
+- Checkout: /s/:subdominio/checkout/:id. Escolher sinal/total e preencher os
+  dados de pagador quando houver instituições. Preparar não abre o banco:
+  conferir principal, tarifa, total e recebedor congelados antes de clicar
+  Autorizar no banco. Nenhuma senha bancária é coletada no Fluy.
+- Retorno global: /retorno-pagamento. Configure redirectURL como
+  https://<mesmo-origin-do-checkout>/retorno-pagamento. O MVP usa caminhos
+  /s/:subdominio. Não se presume compartilhamento de localStorage entre hosts.
+  O retorno oferece reservas deste navegador e não interpreta a query bancária
+  como autorização ou confirmação. Em outro origin/navegador, a recuperação
+  orienta voltar ao salão e consultar antes de pagar novamente.
+- Contexto local é separado por salão/reserva, com vínculo SHA-256 da credencial
+  de dispositivo (a credencial não é duplicada no contexto). Não guarda CPF,
+  chave Pix, token do provider ou segredo de webhook. A sessão Fluy é consultada
+  novamente; preços e estados do armazenamento local nunca autorizam cobrança.
+- Polling: 5 segundos depois de cada consulta concluída, sem sobreposição,
+  máximo de 120 consultas por acompanhamento. Sair/cancelar sessão encerra;
+  retorno à tela consulta novamente. Limite atingido oferece consulta manual.
+  Prazo exibido é informativo, sem cancelar o consentimento externo.
+- Após timeout de iniciação: consultar ou continuar a mesma tentativa e
+  modalidade, usando a idempotência do backend; não iniciar cobrança às cegas.
+- Confirmado normalmente: confirmação, orientações do salão e calendário.
+  Confirmado após prazo: contato WhatsApp do salão para remarcação/devolução,
+  sem garantir horário nem prometer devolução automática.
+- Sinal zero/gratuito: confirmação sem antecipação; restante presencial.
+
+### Roteiro de aceite local com fake (ainda pendente no navegador)
+
+1. Em ambiente descartável de desenvolvimento com migrations versionadas
+   aplicadas, use PAYMENT_PROVIDER=fake e NODE_ENV=development. Mantenha os
+   demais requisitos de autenticação/tenant e storage do projeto.
+2. Acesse o salão existente ou conclua o onboarding normal do Fluy. Configure
+   disponibilidade e procedimentos de teste, um com sinal positivo e outro
+   com sinal zero. Cadastre o recebimento em /painel/configuracao.
+3. Identifique uma cliente de teste em /s/:subdominio. Selecione procedimento,
+   data/horário e referências. Clique duplo deve produzir uma única reserva;
+   horário conflitante deve impedir avançar sem confirmar indevidamente.
+4. Prepare sinal; confira valor do salão, tarifa e total retornados. O fake
+   usa a tarifa de teste de R$ 1 já existente, não tarifa comercial Efí. O fake
+   não tem instituições nem URL bancária: preparação sem pagador é aceita e
+   confirmação é simulada exclusivamente pela rota autenticada da dona.
+5. Com o id da cobrança recebido no POST de preparação, invoque no ambiente
+   local POST /salao/pagamentos/fake/:id/simular, Bearer da dona, body
+   {"resultado":"confirmado"}. Observe a tela atualizar pelo GET de consulta.
+   Não há botão público de simulação nem confirmação hardcoded no checkout.
+6. Em nova reserva repita para total; simule falhou e retente no prazo. Faça
+   refresh e retome pela página do salão. Feche a tela durante polling.
+7. Para retorno bancário, a validação externa real requer Efí em homologação;
+   abrir /retorno-pagamento com query de sucesso inventada não pode confirmar.
+   Consulte o mesmo pagamento para verificar confirmação recebida sem retorno.
+8. Valide expiração, confirmação tardia, ausência de contexto, identificação
+   trocada e duas reservas em abas diferentes. Após resultado incerto, retome
+   a tentativa anterior antes de iniciar outro pagamento.
+9. Confira referências e aviso de upload parcial; selecione somente imagens
+   faltantes para retry. Reabra o cadastro da dona e confirme dados salvos.
+10. Revalide pagamentos manuais, agenda e faturamento com as alocações de
+    sinal/restante existentes. Não foram implementados reembolso automático,
+    cobrança online de restante pelo painel ou link de sinal manual.
+
+Esse roteiro não foi executado ponta a ponta no navegador nesta entrega.
+Credenciais Efí não foram solicitadas, lidas ou usadas; homologação externa
+não foi executada e produção permanece bloqueada. Os testes de serviços em
+Jasmine/Node não substituem Karma/Chrome, PostgreSQL ou teste bancário real.

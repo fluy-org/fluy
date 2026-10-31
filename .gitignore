@@ -91,3 +91,5 @@ $RECYCLE.BIN/
 *.pfx
 *.pem
 *.key
+
+/backend/efi/
