@@ -8,5 +8,5 @@ export const conclusaoCadastroGuard: CanActivateFn = () => {
 
   return authService.isAuthenticated()
     ? true
-    : router.createUrlTree(['/cadastro']);
+    : router.createUrlTree(['/login']);
 };

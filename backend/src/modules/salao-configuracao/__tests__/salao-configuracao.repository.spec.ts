@@ -3,10 +3,10 @@ jest.mock(
   () => ({
     configuracaoSalao: { salao_id: 'salao_id' },
   }),
-  { virtual: true },
 );
 
 jest.mock('drizzle-orm', () => ({
+  ...jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm'),
   eq: jest.fn(),
 }));
 

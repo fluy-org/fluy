@@ -2,13 +2,21 @@
   --background: var(--fluy-color-surface);
   margin: 0 0 var(--fluy-space-3);
   border-radius: var(--fluy-radius-lg);
-  border-left: 4px solid var(--cor-estado, var(--fluy-color-border));
+  border: 1px solid var(--fluy-color-border-soft);
   box-shadow: var(--fluy-shadow-sm);
+}
+
+.cartao--ativo {
+  --background: var(--fluy-color-surface);
+}
+.cartao--reservado {
+  --background: var(--fluy-gradient-summary);
+  border-color: var(--fluy-color-booking-border);
 }
 
 .conteudo {
   display: grid;
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: var(--fluy-space-3);
   padding: var(--fluy-space-4);
 }
@@ -107,4 +115,94 @@
   margin-top: var(--fluy-space-2);
   font-size: 1rem;
   color: var(--fluy-color-muted);
+}
+
+.cartao--ativo {
+  position: relative;
+  border-radius: 16px;
+}
+.cartao--ativo .conteudo {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  padding: 14px;
+}
+.cartao--ativo .quando {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+  padding-right: 90px;
+}
+.cartao--ativo .quando__hora {
+  font-weight: 800;
+  font-size: 23px;
+  letter-spacing: -1px;
+}
+.cartao--ativo .cliente {
+  font-size: 15px;
+  padding-right: 78px;
+}
+.cartao--ativo .info__cabecalho ion-badge {
+  position: absolute;
+  top: 18px;
+  right: 14px;
+}
+.cartao--ativo .procedimento {
+  font-size: 13px;
+  margin-top: 4px;
+}
+.cartao--ativo .valores {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+.cartao--ativo .valores__rotulo {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+.cartao--ativo .valores__destaque {
+  font-size: 16px;
+  font-weight: 800;
+}
+.cartao--compacto {
+  --background: transparent;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+}
+.cartao--compacto .conteudo {
+  grid-template-columns: 56px minmax(0, 1fr);
+  padding: 8px 0;
+  gap: 16px;
+}
+.cartao--compacto .quando {
+  position: relative;
+  border-right: 1px solid var(--fluy-color-border);
+}
+.cartao--compacto .quando::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  right: -5px;
+  top: 7px;
+  border-radius: 50%;
+  background: var(--cor-estado);
+  box-shadow: 0 0 0 4px var(--fluy-color-surface-muted);
+}
+.cartao--compacto .quando__hora {
+  font-size: 14px;
+}
+.cartao--compacto .cliente {
+  font-size: 13px;
+}
+.cartao--compacto .procedimento {
+  font-size: 12px;
+}
+.cartao--compacto .valores,
+.cartao--compacto .quando__duracao {
+  display: none;
+}
+.cartao--compacto ion-badge {
+  font-size: 10px;
+  flex-shrink: 0;
 }

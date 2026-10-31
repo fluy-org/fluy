@@ -24,9 +24,7 @@
               inputmode="text"
             ></ion-input>
           </ion-item>
-          <app-field-error
-            [control]="formulario.controls.nome"
-          />
+          <app-field-error [control]="formulario.controls.nome" />
 
           <ion-item>
             <ion-label position="stacked">WhatsApp</ion-label>
@@ -35,15 +33,13 @@
               autocomplete="tel"
               inputmode="tel"
               maxlength="15"
-              placeholder="(11) 99999-9999"
+              placeholder="+55 (11) 99999-9999"
               type="tel"
               (ionBlur)="marcarWhatsappComoTocado()"
               (ionInput)="atualizarWhatsapp($event)"
             ></ion-input>
           </ion-item>
-          <app-field-error
-            [control]="formulario.controls.contato_whatsapp"
-          />
+          <app-field-error [control]="formulario.controls.contato_whatsapp" />
         </ion-list>
       </section>
 
@@ -59,9 +55,7 @@
               autocomplete="street-address"
             ></ion-textarea>
           </ion-item>
-          <app-field-error
-            [control]="formulario.controls.endereco"
-          />
+          <app-field-error [control]="formulario.controls.endereco" />
 
           <ion-item>
             <ion-label position="stacked">Fuso horário</ion-label>
@@ -73,9 +67,7 @@
               }
             </ion-select>
           </ion-item>
-          <app-field-error
-            [control]="formulario.controls.fuso_horario"
-          />
+          <app-field-error [control]="formulario.controls.fuso_horario" />
         </ion-list>
       </section>
 
@@ -98,9 +90,7 @@
             ></ion-input>
           </ion-item>
           <ion-note class="field-note">meu-salao.fluy.app</ion-note>
-          <app-field-error
-            [control]="formulario.controls.subdominio"
-          />
+          <app-field-error [control]="formulario.controls.subdominio" />
         </ion-list>
 
         @if (sugestoesSubdominio().length > 0) {

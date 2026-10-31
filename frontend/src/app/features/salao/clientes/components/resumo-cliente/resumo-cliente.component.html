@@ -2,9 +2,12 @@
 
 <ion-card button class="cliente-card" (click)="abrir.emit(dados.id)">
   <ion-card-content class="cliente-dados">
+    <div class="cliente-avatar" aria-hidden="true">{{ iniciais() }}</div>
     <div class="cliente-identificacao">
       <h2>{{ dados.nome }}</h2>
-      @if (!dados.ativo) {
+      @if (dados.ativo) {
+        <ion-badge color="success">Ativa</ion-badge>
+      } @else {
         <ion-badge color="medium">Inativa</ion-badge>
       }
     </div>
@@ -14,10 +17,13 @@
     <p class="cliente-ultimo-atendimento">
       @if (dados.ultimo_atendimento_em) {
         Último atendimento:
-        {{ dados.ultimo_atendimento_em | horaSalao: fusoHorario() : 'data-hora' }}
+        {{
+          dados.ultimo_atendimento_em | horaSalao: fusoHorario() : 'data-hora'
+        }}
       } @else {
         Nenhum atendimento concluído
       }
     </p>
+    <div class="cliente-seta" aria-hidden="true">›</div>
   </ion-card-content>
 </ion-card>

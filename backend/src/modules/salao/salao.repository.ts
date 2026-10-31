@@ -18,6 +18,7 @@ export class SalaoRepository {
         contato_whatsapp: salao.contato_whatsapp,
         endereco: salao.endereco,
         fuso_horario: salao.fuso_horario,
+        criado_em: salao.criado_em,
       })
       .from(salao)
       .where(eq(salao.id, salaoId))

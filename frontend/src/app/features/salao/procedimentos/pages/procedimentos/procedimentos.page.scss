@@ -1,5 +1,8 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
   color: var(--fluy-color-body);
 }
 
@@ -8,7 +11,7 @@
 }
 
 .procedures-page {
-  min-height: 100%;
+  min-height: 0;
   /* ion-content usa propriedades Ionic para estilizar sua area interna. */
   --background: var(--fluy-color-background);
 }
@@ -47,7 +50,7 @@ ion-select {
 }
 
 .new-procedure-button {
-  --background: var(--fluy-color-primary);
+  --background: var(--fluy-gradient-brand);
   --background-hover: var(--fluy-color-primary-hover);
   justify-self: end;
   min-height: 52px;
@@ -121,7 +124,11 @@ ion-select {
 }
 
 .procedure-icon {
-  background: var(--fluy-color-success-bg);
+  display: grid;
+  place-items: center;
+  background: var(--fluy-color-booking-bg);
+  color: var(--fluy-color-accent);
+  font-size: 26px;
 }
 
 .procedure-image {
@@ -150,9 +157,9 @@ ion-select {
 }
 
 .status-badge.inactive {
-  border: 1px solid var(--fluy-color-danger-border);
-  color: var(--fluy-color-danger);
-  background: var(--fluy-color-danger-bg);
+  border: 1px solid var(--fluy-color-border);
+  color: var(--fluy-color-neutral);
+  background: var(--fluy-color-neutral-bg);
 }
 
 .table-footer {
@@ -227,6 +234,7 @@ ion-select {
   }
 
   .mobile-card-top {
+    padding-right: 18px;
     display: grid;
     grid-template-columns: 44px minmax(0, 1fr) auto;
     align-items: start;
@@ -250,7 +258,7 @@ ion-select {
     display: flex;
     flex-wrap: wrap;
     gap: var(--fluy-space-4);
-    margin: var(--fluy-space-4) 0;
+    margin: 8px 0 8px 56px;
     color: var(--fluy-color-body);
     font-size: var(--fluy-font-size-body);
   }
@@ -259,7 +267,7 @@ ion-select {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 9px;
-    padding-top: var(--fluy-space-3);
+    padding-top: 4px;
     border-top: 1px solid var(--fluy-color-border-soft);
   }
 
@@ -272,9 +280,69 @@ ion-select {
   }
 }
 
+.procedure-menu {
+  position: absolute;
+  right: 3px;
+  top: 12px;
+  margin: 0;
+  height: 26px;
+  width: 24px;
+  --padding-start: 0;
+  --padding-end: 0;
+  --color: var(--fluy-color-muted);
+}
+.mobile-card-actions {
+  padding: 12px;
+}
+
+@media (max-width: 900px) {
+  .page-content {
+    padding: 4px 16px 24px;
+  }
+  .procedures-toolbar {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .new-procedure-button {
+    min-height: 44px;
+    margin: 0;
+  }
+  ion-select {
+    min-height: 42px;
+  }
+  .mobile-procedure-card ion-card-content {
+    padding: 14px;
+  }
+  .mobile-card-info h2 {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .mobile-card-info p {
+    font-size: 12px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .mobile-meta {
+    font-size: 12px;
+    gap: 14px;
+  }
+  .mobile-card-actions ion-button {
+    margin: 0;
+    height: 28px;
+    font-size: 11px;
+  }
+  .status-badge {
+    min-height: 24px;
+    padding: 5px 7px;
+    font-size: 10px;
+  }
+}
+
 @media (max-width: 430px) {
   .page-content {
-    padding: 15px;
+    padding: 4px 16px 24px;
   }
 
   .procedures-toolbar {

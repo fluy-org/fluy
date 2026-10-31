@@ -14,7 +14,7 @@
     (click)="abrirCalendario.emit()"
   >
     <ion-icon slot="start" name="calendar-outline"></ion-icon>
-    <span class="dia">{{ dataPorExtenso() }}</span>
+    <ion-text class="dia">{{ mes() }}</ion-text>
   </ion-button>
 
   <ion-button
@@ -26,3 +26,21 @@
     <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
   </ion-button>
 </div>
+<div class="faixa-dias" role="group" aria-label="Selecionar dia da agenda">
+  @for (dia of dias(); track dia.data) {
+    <ion-button
+      fill="clear"
+      [class.selecionado]="dia.data === data()"
+      [disabled]="desabilitado()"
+      [attr.aria-pressed]="dia.data === data()"
+      [attr.aria-label]="dia.descricao"
+      (click)="mudarDia.emit(dia.data)"
+    >
+      <div class="dia-conteudo">
+        <ion-text>{{ dia.semana }}</ion-text
+        ><strong>{{ dia.dia }}</strong>
+      </div>
+    </ion-button>
+  }
+</div>
+<h2 class="data-selecionada">{{ dataPorExtenso() }}</h2>

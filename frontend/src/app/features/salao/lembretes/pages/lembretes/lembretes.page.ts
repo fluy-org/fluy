@@ -35,6 +35,7 @@ import { LembretesService } from '@app/features/salao/lembretes/services/lembret
 import { FormularioLembreteComponent } from '@app/features/salao/lembretes/components/formulario-lembrete/formulario-lembrete.component';
 import { ItemLembreteComponent } from '@app/features/salao/lembretes/components/item-lembrete/item-lembrete.component';
 import { HeaderComponent } from '@app/shared/components/header/header.component';
+import { NavegacaoPainelComponent } from '@app/shared/components/navegacao-painel/navegacao-painel.component';
 import { extrairDataCivil } from '@app/shared/utils/data-civil';
 
 @Component({
@@ -45,6 +46,7 @@ import { extrairDataCivil } from '@app/shared/utils/data-civil';
   imports: [
     FormularioLembreteComponent,
     HeaderComponent,
+    NavegacaoPainelComponent,
     IonCard,
     IonCardContent,
     IonContent,
@@ -206,7 +208,10 @@ export class LembretesPage implements OnInit {
     this.erroFormulario.set(null);
   }
 
-  async salvarEdicao(dados: { texto: string; data_alvo: string }): Promise<void> {
+  async salvarEdicao(dados: {
+    texto: string;
+    data_alvo: string;
+  }): Promise<void> {
     const lembrete = this.lembreteEmEdicao();
 
     if (!lembrete) {

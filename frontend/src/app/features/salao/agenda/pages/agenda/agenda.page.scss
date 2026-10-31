@@ -1,3 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+ion-content {
+  --padding-top: 0;
+}
+
 .estado {
   display: flex;
   flex-direction: column;
@@ -15,9 +26,7 @@
   margin: var(--fluy-space-6) 0 var(--fluy-space-3);
   font-size: var(--fluy-font-size-small);
   font-weight: var(--fluy-font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--fluy-color-muted);
+  color: var(--fluy-color-title);
 }
 
 // A régua ocupa o espaço restante e separa os encerrados dos ativos sem
@@ -30,7 +39,8 @@
 }
 
 .encerrados {
-  opacity: 0.72;
+  display: grid;
+  gap: 8px;
 }
 
 // O calendário não preenche um modal de tela cheia; sem dimensionar, ele
@@ -46,4 +56,39 @@ ion-modal {
 app-calendario-mes {
   display: block;
   width: 320px;
+}
+
+.estado-vazio {
+  padding: 36px 24px;
+  min-height: 270px;
+  justify-content: center;
+  gap: 10px;
+}
+.estado-vazio h2 {
+  font-size: 16px;
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+.estado-vazio p {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 250px;
+}
+.ilustracao-vazia {
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  border-radius: 30px;
+  background: var(--fluy-color-decorative-light);
+  color: var(--fluy-color-primary);
+  transform: rotate(-6deg);
+}
+.ilustracao-vazia ion-icon {
+  font-size: 44px;
+}
+.novo-agendamento {
+  margin: 20px 0 0;
+  min-height: 44px;
 }

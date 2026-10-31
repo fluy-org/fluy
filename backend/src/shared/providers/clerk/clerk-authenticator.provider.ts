@@ -7,11 +7,16 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { z } from 'zod';
 import type { Env } from '@/config/env.schema';
 import type {
   AuthenticatedIdentity,
   AuthenticationProfile,
   AuthenticationProvider,
+} from '@/modules/auth/contracts';
+import {
+  OWNER_INVITATION_FLOW_VERSION,
+  OWNER_INVITATION_METADATA_KEY,
 } from '@/modules/auth/contracts';
 import { CLERK_CLIENT } from '@/shared/providers/clerk/clerk-client.provider';
 
@@ -75,12 +80,27 @@ export class ClerkAuthenticator implements AuthenticationProvider {
     const email = user.emailAddresses.find(
       (emailAddress) => emailAddress.id === user.primaryEmailAddressId,
     );
+    const metadataBruta = user.publicMetadata[OWNER_INVITATION_METADATA_KEY];
+    const convite = z
+      .object({
+        versao: z.literal(OWNER_INVITATION_FLOW_VERSION),
+        referencia: z.uuid(),
+        assinaturaEmail: z.string().regex(/^[a-f0-9]{64}$/),
+      })
+      .strict()
+      .safeParse(metadataBruta);
 
     return {
       nome: user.firstName,
       sobrenome: user.lastName,
       email: email?.emailAddress ?? null,
       emailVerified: email?.verification?.status === 'verified',
+      conviteProprietario:
+        metadataBruta === undefined
+          ? { status: 'ausente' }
+          : convite.success
+            ? { status: 'valida', evidencia: convite.data }
+            : { status: 'invalida' },
     };
   }
 }

@@ -23,7 +23,8 @@
     "db:generate": "cross-env TSX_TSCONFIG_PATH=../shared/schema/tsconfig.json drizzle-kit generate",
     "db:adopt-local": "node scripts/adopt-local-migrations.cjs",
     "db:migrate": "cross-env TSX_TSCONFIG_PATH=../shared/schema/tsconfig.json drizzle-kit migrate && echo Migrations verificadas e aplicadas com sucesso.",
-    "db:studio": "cross-env TSX_TSCONFIG_PATH=../shared/schema/tsconfig.json drizzle-kit studio"
+    "db:studio": "cross-env TSX_TSCONFIG_PATH=../shared/schema/tsconfig.json drizzle-kit studio",
+    "convite:proprietario": "node dist/src/commands/convite-proprietario.command.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1124.0",

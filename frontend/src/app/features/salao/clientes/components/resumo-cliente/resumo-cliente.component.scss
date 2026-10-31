@@ -5,14 +5,54 @@
 .cliente-card {
   height: 100%;
   margin: 0;
+  --background: var(--fluy-color-surface);
   border: 1px solid var(--fluy-color-border-soft);
-  border-radius: var(--fluy-radius-lg);
-  box-shadow: var(--fluy-shadow-sm);
+  border-radius: 12px;
+  box-shadow: none;
 }
 
 .cliente-dados {
   display: grid;
-  gap: var(--fluy-space-1);
+  grid-template-columns: 48px minmax(0, 1fr) 12px;
+  column-gap: 12px;
+  align-items: center;
+  padding: 12px 10px;
+  row-gap: var(--fluy-space-1);
+}
+
+.cliente-avatar {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--fluy-color-booking-bg);
+  color: var(--fluy-color-accent);
+  font-size: 16px;
+  font-weight: 700;
+}
+.cliente-identificacao,
+.cliente-dados > p {
+  grid-column: 2;
+}
+.cliente-identificacao h2 {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.cliente-identificacao ion-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+}
+.cliente-dados > p {
+  font-size: 12px;
+}
+.cliente-seta {
+  grid-column: 3;
+  grid-row: 1 / 4;
+  font-size: 24px;
+  color: var(--fluy-color-title);
 }
 
 .cliente-dados h2,
@@ -22,7 +62,7 @@
 
 .cliente-dados h2 {
   color: var(--fluy-color-title);
-  font-size: var(--fluy-font-size-subtitle);
+  font-size: 13px;
   font-weight: var(--fluy-font-weight-semibold);
 }
 

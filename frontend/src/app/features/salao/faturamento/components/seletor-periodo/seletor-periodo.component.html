@@ -26,6 +26,19 @@
       @let fim = descreverDataCivil(periodo.data_fim);
 
       <section class="periodo-exibido" aria-label="Período exibido">
+        <div class="periodo-curto">
+          <time [attr.datetime]="periodo.data_inicio"
+            >{{ periodo.data_inicio.slice(8, 10) }}/{{
+              periodo.data_inicio.slice(5, 7)
+            }}/{{ periodo.data_inicio.slice(0, 4) }}</time
+          >
+          <span aria-hidden="true">–</span>
+          <time [attr.datetime]="periodo.data_fim"
+            >{{ periodo.data_fim.slice(8, 10) }}/{{
+              periodo.data_fim.slice(5, 7)
+            }}/{{ periodo.data_fim.slice(0, 4) }}</time
+          >
+        </div>
         <dl class="datas-periodo">
           <div>
             <dt>De</dt>

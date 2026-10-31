@@ -10,10 +10,10 @@ jest.mock(
       papel: 'usuario_salao.papel',
     },
   }),
-  { virtual: true },
 );
 
 jest.mock('drizzle-orm', () => ({
+  ...jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm'),
   and: jest.fn(),
   eq: jest.fn(),
 }));

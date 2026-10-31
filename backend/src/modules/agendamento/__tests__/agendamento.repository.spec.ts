@@ -63,6 +63,7 @@ jest.mock(
 );
 
 jest.mock('drizzle-orm', () => ({
+  ...jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm'),
   and: jest.fn(),
   asc: jest.fn(),
   eq: jest.fn(),

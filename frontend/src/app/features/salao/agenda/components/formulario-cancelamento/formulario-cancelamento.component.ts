@@ -18,6 +18,8 @@ import {
 } from '@ionic/angular/standalone';
 import { zodValidator } from '@app/shared/utils/zod-validator';
 
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+
 @Component({
   selector: 'app-formulario-cancelamento',
   templateUrl: './formulario-cancelamento.component.html',
@@ -25,6 +27,7 @@ import { zodValidator } from '@app/shared/utils/zod-validator';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HeaderComponent,
     IonButton,
     IonContent,
     IonHeader,

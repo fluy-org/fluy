@@ -14,6 +14,67 @@ const envBase = {
 };
 
 describe('envSchema', () => {
+  it('mantém a exigência de convite desabilitada por padrão', () => {
+    const resultado = envSchema.safeParse(envBase);
+
+    expect(resultado.success).toBe(true);
+
+    if (resultado.success) {
+      expect(resultado.data.OWNER_INVITE_ENFORCEMENT_ENABLED).toBe(false);
+    }
+  });
+
+  it('aceita habilitar explicitamente a exigência de convite', () => {
+    const resultado = envSchema.safeParse({
+      ...envBase,
+      OWNER_INVITE_ENFORCEMENT_ENABLED: 'true',
+      OWNER_INVITE_METADATA_SECRET:
+        'segredo-de-metadata-com-mais-de-trinta-e-dois-caracteres',
+    });
+
+    expect(resultado.success).toBe(true);
+
+    if (resultado.success) {
+      expect(resultado.data.OWNER_INVITE_ENFORCEMENT_ENABLED).toBe(true);
+    }
+  });
+
+  it('rejeita ativação sem o segredo de metadata dos convites', () => {
+    const resultado = envSchema.safeParse({
+      ...envBase,
+      OWNER_INVITE_ENFORCEMENT_ENABLED: 'true',
+    });
+
+    expect(resultado.success).toBe(false);
+  });
+
+  it('valida a configuração operacional dos convites', () => {
+    const resultado = envSchema.safeParse({
+      ...envBase,
+      OWNER_INVITE_REDIRECT_URL: 'https://fluy.example/cadastro',
+      OWNER_INVITE_DEFAULT_EXPIRATION_DAYS: '10',
+    });
+
+    expect(resultado.success).toBe(true);
+
+    if (resultado.success) {
+      expect(resultado.data.OWNER_INVITE_REDIRECT_URL).toBe(
+        'https://fluy.example/cadastro',
+      );
+      expect(resultado.data.OWNER_INVITE_DEFAULT_EXPIRATION_DAYS).toBe(10);
+    }
+  });
+
+  it('mantém sete dias como validade padrão dos convites', () => {
+    const resultado = envSchema.safeParse(envBase);
+
+    expect(resultado.success).toBe(true);
+
+    if (resultado.success) {
+      expect(resultado.data.OWNER_INVITE_DEFAULT_EXPIRATION_DAYS).toBe(7);
+    }
+  });
+
   it('mantém o bypass desabilitado quando recebe false do ambiente', () => {
     const resultado = envSchema.safeParse({
       ...envBase,

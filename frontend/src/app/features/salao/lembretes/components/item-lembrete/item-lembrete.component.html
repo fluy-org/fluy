@@ -1,4 +1,19 @@
-<article class="lembrete" [class.lembrete--atrasado]="atrasado()">
+<article
+  class="lembrete"
+  [class.lembrete--atrasado]="atrasado()"
+  [class.lembrete--compacto]="compacto()"
+>
+  @if (compacto()) {
+    <div class="lembrete__icone" aria-hidden="true">
+      <ion-icon
+        [name]="
+          lembrete().origem === 'automatica'
+            ? 'notifications-outline'
+            : 'calendar-outline'
+        "
+      ></ion-icon>
+    </div>
+  }
   <div class="lembrete__cabecalho">
     <p class="lembrete__data">{{ dataPorExtenso() }}</p>
 
@@ -28,25 +43,28 @@
   <p class="lembrete__texto">{{ lembrete().texto }}</p>
 
   @if (!somenteLeitura()) {
-    <div class="lembrete__acoes">
-      <ion-button size="small" (click)="concluir.emit(lembrete().id)">
-        Concluir
-      </ion-button>
-      <ion-button
-        size="small"
-        fill="outline"
-        (click)="editar.emit(lembrete())"
-      >
-        Editar
-      </ion-button>
-      <ion-button
-        size="small"
-        fill="clear"
-        color="medium"
-        (click)="excluir.emit(lembrete())"
-      >
-        Excluir
-      </ion-button>
-    </div>
+    <details class="lembrete__detalhes" [open]="!compacto()">
+      <summary>Ações do lembrete</summary>
+      <div class="lembrete__acoes">
+        <ion-button size="small" (click)="concluir.emit(lembrete().id)">
+          Concluir
+        </ion-button>
+        <ion-button
+          size="small"
+          fill="outline"
+          (click)="editar.emit(lembrete())"
+        >
+          Editar
+        </ion-button>
+        <ion-button
+          size="small"
+          fill="clear"
+          color="medium"
+          (click)="excluir.emit(lembrete())"
+        >
+          Excluir
+        </ion-button>
+      </div>
+    </details>
   }
 </article>

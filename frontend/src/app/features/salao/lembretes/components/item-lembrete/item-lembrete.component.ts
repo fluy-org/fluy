@@ -6,7 +6,9 @@ import {
   output,
 } from '@angular/core';
 import type { LembreteResponseDto } from '@fluy/schema';
-import { IonBadge, IonButton } from '@ionic/angular/standalone';
+import { IonBadge, IonButton, IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { calendarOutline, notificationsOutline } from 'ionicons/icons';
 import { formatarDataPorExtenso } from '@app/shared/utils/data-civil';
 
 @Component({
@@ -15,7 +17,7 @@ import { formatarDataPorExtenso } from '@app/shared/utils/data-civil';
   styleUrls: ['./item-lembrete.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonBadge, IonButton],
+  imports: [IonBadge, IonButton, IonIcon],
 })
 export class ItemLembreteComponent {
   readonly lembrete = input.required<LembreteResponseDto>();
@@ -23,6 +25,11 @@ export class ItemLembreteComponent {
   readonly hoje = input.required<string>();
   readonly mostrarCliente = input(false);
   readonly somenteLeitura = input(false);
+  readonly compacto = input(false);
+
+  constructor() {
+    addIcons({ calendarOutline, notificationsOutline });
+  }
 
   readonly concluir = output<string>();
   readonly editar = output<LembreteResponseDto>();

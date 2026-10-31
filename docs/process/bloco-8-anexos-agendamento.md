@@ -84,7 +84,7 @@ e **confirmar pela API pública da cliente que os anexos internos não aparecem*
 
 ### 8.2 Imagens de referência da cliente e galerias na ficha
 
-- [ ] Upload de referências no fluxo da cliente + as duas galerias unificadas na ficha. — **🔵 Leandro** — [DEP: 8.1](#81-módulo-de-anexos-e-anexos-internos-do-salão) · [DEP: 4.2](./bloco-4-cliente-final.md#42-criação-de-agendamento-pela-cliente) · [DEP: 5.1](./bloco-5-ficha-cliente.md#51-lista-e-ficha-da-cliente)
+- [x] Upload de referências no fluxo da cliente + as duas galerias unificadas na ficha. — **🔵 Leandro** — [DEP: 8.1](#81-módulo-de-anexos-e-anexos-internos-do-salão) · [DEP: 4.2](./bloco-4-cliente-final.md#42-criação-de-agendamento-pela-cliente) · [DEP: 5.1](./bloco-5-ficha-cliente.md#51-lista-e-ficha-da-cliente)
 
 **O que deve existir**
 

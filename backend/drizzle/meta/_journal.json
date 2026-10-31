@@ -89,15 +89,22 @@
     {
       "idx": 12,
       "version": "7",
-      "when": 1792957973811,
-      "tag": "0012_integrar_efi_homologacao",
+      "when": 1792460218854,
+      "tag": "0012_reconciliar_autorizacoes_proprietario",
       "breakpoints": true
     },
     {
       "idx": 13,
       "version": "7",
+      "when": 1792957973811,
+      "tag": "0013_integrar_efi_homologacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
       "when": 1792965898679,
-      "tag": "0013_isolar_identificadores_por_provedor",
+      "tag": "0014_isolar_identificadores_por_provedor",
       "breakpoints": true
     }
   ]

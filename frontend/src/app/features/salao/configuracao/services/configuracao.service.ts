@@ -5,6 +5,7 @@ import type {
   AtualizarRecebimentoPixDto,
   RecebimentoPixResponseDto,
   ConfiguracaoSalaoResponseDto,
+  SalaoResponseDto,
 } from '@fluy/schema';
 import { firstValueFrom } from 'rxjs';
 
@@ -54,11 +55,18 @@ export class ConfiguracaoService {
     return configuracao;
   }
 
+  getSalaoAtual(): Promise<SalaoResponseDto> {
+    return firstValueFrom(this.http.get<SalaoResponseDto>('/saloes/eu'));
+  }
+
   async updateEntidade(
     dados: AtualizarConfiguracaoSalaoDto,
   ): Promise<ConfiguracaoSalaoResponseDto> {
     const configuracaoAtualizada = await firstValueFrom(
-      this.http.put<ConfiguracaoSalaoResponseDto>('/salao/configuracao', dados),
+      this.http.put<ConfiguracaoSalaoResponseDto>(
+        '/salao/configuracao',
+        dados,
+      ),
     );
 
     // Atualiza o estado com o retorno completo do backend, sem fazer outro GET.

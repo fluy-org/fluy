@@ -28,6 +28,8 @@ const dadosLembreteSchema = criarLembreteSchema.pick({
   data_alvo: true,
 });
 
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+
 @Component({
   selector: 'app-formulario-lembrete',
   templateUrl: './formulario-lembrete.component.html',
@@ -35,6 +37,7 @@ const dadosLembreteSchema = criarLembreteSchema.pick({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HeaderComponent,
     IonButton,
     IonContent,
     IonHeader,

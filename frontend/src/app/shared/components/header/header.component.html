@@ -1,22 +1,40 @@
 <ion-toolbar class="header-toolbar">
-  <ion-buttons slot="start">
-    <ion-menu-button color="light"></ion-menu-button>
-  </ion-buttons>
-
-  <ion-row class="header-row">
-    <ion-col>
-      <ion-item class="header-identification" lines="none">
-        <ion-label>{{ titulo() }}</ion-label>
-      </ion-item>
-    </ion-col>
-  </ion-row>
+  @if (voltarPara() || fechavel()) {
+    <ion-buttons slot="start">
+      @if (fechavel()) {
+        <ion-button fill="clear" aria-label="Voltar" (click)="fechar.emit()"
+          >‹</ion-button
+        >
+      } @else {
+        <ion-back-button
+          [defaultHref]="voltarPara()"
+          text=""
+          aria-label="Voltar"
+        ></ion-back-button>
+      }
+    </ion-buttons>
+    <ion-title class="marca-central"
+      ><img src="assets/image/fluy-logo.png" alt="Fluy"
+    /></ion-title>
+  } @else {
+    <div class="header-brand" slot="start">
+      <img
+        src="assets/image/fluy-logo.png"
+        alt="Fluy"
+        width="112"
+        height="56"
+      />
+    </div>
+  }
 
   <!-- Permite que cada tela acrescente botoes sem alterar este componente. -->
   <ion-buttons slot="end">
     <ng-content select="[header-actions]"></ng-content>
-    <!-- A navegacao sera ligada quando a rota de perfil for criada. -->
-    <ion-button class="profile-button" aria-label="Acessar perfil" title="Perfil">
-      <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
-    </ion-button>
+    @if (!fechavel()) {
+      <ion-menu-button aria-label="Abrir menu do salão"></ion-menu-button>
+    }
   </ion-buttons>
 </ion-toolbar>
+<div class="header-identification">
+  <h1>{{ titulo() }}</h1>
+</div>

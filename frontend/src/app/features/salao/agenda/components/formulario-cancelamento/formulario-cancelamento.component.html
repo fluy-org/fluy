@@ -1,10 +1,8 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Cancelar agendamento</ion-title>
-  </ion-toolbar>
+  <app-header titulo="Cancelar agendamento" [fechavel]="true" (fechar)="cancelarFormulario()"></app-header>
 </ion-header>
 
-<ion-content class="ion-padding fluy-page-safe">
+<ion-content class="ion-padding fluy-page-safe fluy-formulario">
   <p class="aviso">A cliente será notificada do cancelamento.</p>
 
   <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">

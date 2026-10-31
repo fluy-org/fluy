@@ -1,2 +1,6 @@
 export * from './auth.enums';
-export type { FormularioLogin } from './auth.types';
+export type {
+  CadastroPorConvitePreparado,
+  ConcluirCadastroPorConviteInput,
+  FormularioLogin,
+} from './auth.types';

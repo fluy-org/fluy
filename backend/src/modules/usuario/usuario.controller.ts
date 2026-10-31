@@ -3,6 +3,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -43,6 +44,9 @@ export class UsuarioController {
   })
   @ApiConflictResponse({
     description: 'O e-mail verificado j\u00e1 pertence a outra conta global.',
+  })
+  @ApiForbiddenResponse({
+    description: 'A conta nova não possui um convite de proprietário válido.',
   })
   @ApiUnprocessableEntityResponse({
     description:

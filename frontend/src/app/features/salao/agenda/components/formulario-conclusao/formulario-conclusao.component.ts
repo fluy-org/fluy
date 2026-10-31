@@ -35,6 +35,8 @@ import {
 import { formatarValor } from '@app/shared/utils/formatacao';
 import { SecaoAnexosComponent } from '@app/features/salao/anexos/components/secao-anexos/secao-anexos.component';
 
+import { HeaderComponent } from '@app/shared/components/header/header.component';
+
 @Component({
   selector: 'app-formulario-conclusao',
   templateUrl: './formulario-conclusao.component.html',
@@ -42,6 +44,7 @@ import { SecaoAnexosComponent } from '@app/features/salao/anexos/components/seca
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HeaderComponent,
     IonButton,
     IonContent,
     IonHeader,

@@ -1,3 +1,4 @@
+import { NavegacaoPainelComponent } from '@app/shared/components/navegacao-painel/navegacao-painel.component';
 import {
   Component,
   computed,
@@ -6,7 +7,9 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { calendarOutline, addOutline } from 'ionicons/icons';
 import {
   IonContent,
   IonHeader,
@@ -14,6 +17,7 @@ import {
   IonSpinner,
   IonText,
   IonButton,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { ApiError } from '@app/core/errors/api-error';
 import { HeaderComponent } from '@app/shared/components/header/header.component';
@@ -35,6 +39,9 @@ import type { EstadoPaginaAgenda } from '@app/features/salao/agenda/contracts';
   styleUrls: ['./agenda.page.scss'],
   standalone: true,
   imports: [
+    NavegacaoPainelComponent,
+    RouterLink,
+    IonIcon,
     AgendamentoCardComponent,
     CalendarioMesComponent,
     HeaderComponent,
@@ -48,6 +55,9 @@ import type { EstadoPaginaAgenda } from '@app/features/salao/agenda/contracts';
   ],
 })
 export class AgendaPage implements OnInit, OnDestroy {
+  constructor() {
+    addIcons({ calendarOutline, addOutline });
+  }
   private readonly agendaService = inject(AgendaService);
   private readonly router = inject(Router);
 

@@ -22,9 +22,9 @@
       >
         <ion-select-option value="">Todos</ion-select-option>
         @for (periodo of periodos; track periodo) {
-          <ion-select-option [value]="periodo">
-            {{ rotuloPeriodo[periodo] }}
-          </ion-select-option>
+        <ion-select-option [value]="periodo">
+          {{ rotuloPeriodo[periodo] }}
+        </ion-select-option>
         }
       </ion-select>
 
@@ -38,70 +38,64 @@
       >
         <ion-select-option value="">Todas</ion-select-option>
         @for (origem of origens; track origem) {
-          <ion-select-option [value]="origem">
-            {{ rotuloOrigem[origem] }}
-          </ion-select-option>
+        <ion-select-option [value]="origem">
+          {{ rotuloOrigem[origem] }}
+        </ion-select-option>
         }
       </ion-select>
     </div>
 
     @if (erroAcao()) {
-      <ion-text color="danger">
-        <p class="erro-acao">{{ erroAcao() }}</p>
-      </ion-text>
-    }
+    <ion-text color="danger">
+      <p class="erro-acao">{{ erroAcao() }}</p>
+    </ion-text>
+    } @switch (estadoPagina()) { @case ('carregando') {
+    <div class="feedback">
+      <ion-spinner aria-label="Carregando lembretes"></ion-spinner>
+      <ion-text><p>Carregando lembretes...</p></ion-text>
+    </div>
+    } @case ('erro') {
+    <div class="feedback">
+      <ion-text color="danger"><p>{{ erro() }}</p></ion-text>
+    </div>
+    } @case ('vazio') {
+    <ion-card class="feedback-card">
+      <ion-card-content>Nenhum lembrete ativo.</ion-card-content>
+    </ion-card>
+    } @case ('sem-resultados') {
+    <ion-card class="feedback-card">
+      <ion-card-content>
+        Nenhum lembrete encontrado para estes filtros.
+      </ion-card-content>
+    </ion-card>
+    } @case ('lista') {
+    <section class="lembretes-lista" aria-label="Lista de lembretes">
+      @for (lembrete of lembretes(); track lembrete.id) {
+      <app-item-lembrete
+        [lembrete]="lembrete"
+        [hoje]="hoje()"
+        [mostrarCliente]="true"
+        [compacto]="true"
+        (concluir)="concluir($event)"
+        (editar)="abrirEdicao($event)"
+        (excluir)="confirmarExclusao($event)"
+        (abrirCliente)="abrirFicha($event)"
+      ></app-item-lembrete>
+      }
+    </section>
 
-    @switch (estadoPagina()) {
-      @case ('carregando') {
-        <div class="feedback">
-          <ion-spinner aria-label="Carregando lembretes"></ion-spinner>
-          <ion-text><p>Carregando lembretes...</p></ion-text>
-        </div>
-      }
-      @case ('erro') {
-        <div class="feedback">
-          <ion-text color="danger"><p>{{ erro() }}</p></ion-text>
-        </div>
-      }
-      @case ('vazio') {
-        <ion-card class="feedback-card">
-          <ion-card-content>Nenhum lembrete ativo.</ion-card-content>
-        </ion-card>
-      }
-      @case ('sem-resultados') {
-        <ion-card class="feedback-card">
-          <ion-card-content>
-            Nenhum lembrete encontrado para estes filtros.
-          </ion-card-content>
-        </ion-card>
-      }
-      @case ('lista') {
-        <section class="lembretes-lista" aria-label="Lista de lembretes">
-          @for (lembrete of lembretes(); track lembrete.id) {
-            <app-item-lembrete
-              [lembrete]="lembrete"
-              [hoje]="hoje()"
-              [mostrarCliente]="true"
-              (concluir)="concluir($event)"
-              (editar)="abrirEdicao($event)"
-              (excluir)="confirmarExclusao($event)"
-              (abrirCliente)="abrirFicha($event)"
-            ></app-item-lembrete>
-          }
-        </section>
-
-        <ion-infinite-scroll
-          [disabled]="!proximoCursor()"
-          (ionInfinite)="carregarMais($event)"
-        >
-          <ion-infinite-scroll-content
-            loadingText="Carregando mais lembretes..."
-          ></ion-infinite-scroll-content>
-        </ion-infinite-scroll>
-      }
-    }
+    <ion-infinite-scroll
+      [disabled]="!proximoCursor()"
+      (ionInfinite)="carregarMais($event)"
+    >
+      <ion-infinite-scroll-content
+        loadingText="Carregando mais lembretes..."
+      ></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+    } }
   </section>
 </ion-content>
+<app-navegacao-painel></app-navegacao-painel>
 
 <ion-modal [isOpen]="lembreteEmEdicao() !== null" (didDismiss)="fecharEdicao()">
   <ng-template>

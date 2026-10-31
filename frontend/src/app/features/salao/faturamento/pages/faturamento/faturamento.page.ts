@@ -1,3 +1,4 @@
+import { NavegacaoPainelComponent } from '@app/shared/components/navegacao-painel/navegacao-painel.component';
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router, type ParamMap } from '@angular/router';
 import {
@@ -32,6 +33,7 @@ import { HeaderComponent } from '@app/shared/components/header/header.component'
   styleUrls: ['./faturamento.page.scss'],
   standalone: true,
   imports: [
+    NavegacaoPainelComponent,
     AtendimentosRealizadosComponent,
     SeletorPeriodoComponent,
     ResumoFaturamentoComponent,

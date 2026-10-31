@@ -3,7 +3,6 @@ jest.mock(
   () => ({
     ACAO_AGENDAMENTO: ['concluir', 'cancelar', 'remarcar', 'marcar_falta'],
   }),
-  { virtual: true },
 );
 
 import {

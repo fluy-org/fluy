@@ -1,10 +1,8 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Marcar no-show</ion-title>
-  </ion-toolbar>
+  <app-header titulo="Marcar no-show" [fechavel]="true" (fechar)="cancelarFalta()"></app-header>
 </ion-header>
 
-<ion-content class="ion-padding fluy-page-safe">
+<ion-content class="ion-padding fluy-page-safe fluy-formulario">
   @let detalhe = agendamento();
 
   @if (avisoAntesDaTolerancia(); as aviso) {

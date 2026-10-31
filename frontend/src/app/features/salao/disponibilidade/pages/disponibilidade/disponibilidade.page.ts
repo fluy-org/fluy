@@ -7,17 +7,12 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   atualizarDisponibilidadeSemanalSchema,
   type DisponibilidadeSemanalResponseDto,
 } from '@fluy/schema';
 import {
-  IonBadge,
   IonButton,
   IonCard,
   IonCardContent,
@@ -34,11 +29,7 @@ import {
   IonToggle,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import {
-  addOutline,
-  calendarOutline,
-  trashOutline,
-} from 'ionicons/icons';
+import { addOutline, calendarOutline, trashOutline } from 'ionicons/icons';
 import { ApiError } from '../../../../../core/errors/api-error';
 import { HeaderComponent } from '../../../../../shared/components/header/header.component';
 import type { JanelaSemanalFormulario } from '../../contracts';
@@ -53,7 +44,6 @@ import { DisponibilidadeService } from '../../services/disponibilidade.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
-    IonBadge,
     IonButton,
     IonCard,
     IonCardContent,
@@ -85,6 +75,7 @@ export class DisponibilidadePage implements OnInit {
   readonly erroFormulario = signal<string | null>(null);
   readonly mensagemSucesso = signal<string | null>(null);
   readonly janelasFormulario = signal<JanelaSemanalFormulario[]>([]);
+  readonly diaEmEdicao = signal<number | null>(null);
 
   readonly profissionalSelecionado = computed(() =>
     this.profissionais().find(
@@ -140,6 +131,7 @@ export class DisponibilidadePage implements OnInit {
 
     if (ativo && janelasDoDia.length === 0) {
       this.adicionarIntervalo(diaSemana);
+      this.diaEmEdicao.set(diaSemana);
       return;
     }
 
@@ -204,11 +196,10 @@ export class DisponibilidadePage implements OnInit {
     this.salvando.set(true);
 
     try {
-      const disponibilidade =
-        await this.disponibilidadeService.updateEntidade(
-          profissionalId,
-          resultado.data,
-        );
+      const disponibilidade = await this.disponibilidadeService.updateEntidade(
+        profissionalId,
+        resultado.data,
+      );
 
       this.preencherFormulario(disponibilidade);
       this.mensagemSucesso.set('Disponibilidade salva com sucesso.');
@@ -262,9 +253,7 @@ export class DisponibilidadePage implements OnInit {
     }
   }
 
-  private async carregarDisponibilidade(
-    profissionalId: string,
-  ): Promise<void> {
+  private async carregarDisponibilidade(profissionalId: string): Promise<void> {
     this.carregando.set(true);
     this.erro.set(null);
 
@@ -291,13 +280,12 @@ export class DisponibilidadePage implements OnInit {
     disponibilidade: DisponibilidadeSemanalResponseDto,
   ): void {
     this.janelasFormulario.set(
-      disponibilidade.janelas.map(
-        (janela): JanelaSemanalFormulario =>
-          this.criarJanelaFormulario(
-            janela.dia_semana,
-            janela.hora_inicio,
-            janela.hora_fim,
-          ),
+      disponibilidade.janelas.map((janela): JanelaSemanalFormulario =>
+        this.criarJanelaFormulario(
+          janela.dia_semana,
+          janela.hora_inicio,
+          janela.hora_fim,
+        ),
       ),
     );
   }

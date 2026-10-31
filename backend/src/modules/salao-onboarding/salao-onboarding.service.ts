@@ -33,6 +33,8 @@ export class SalaoService {
       return { salao: salaoExistente, criado: false };
     }
 
+    await this.usuarioService.verificarAutorizacaoParaCriarSalao(usuario.id);
+
     try {
       const salaoCriado = await this.salaoRepository.criar({
         ...input.dados,
