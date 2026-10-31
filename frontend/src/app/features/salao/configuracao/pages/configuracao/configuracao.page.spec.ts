@@ -34,6 +34,7 @@ describe('ConfiguracaoPage', () => {
     tipo_chave: 'email',
     chave: 'contato@salao.com',
     nome_recebedor: 'Salão da Ana',
+    atualizado_em: '2026-10-22T12:30:00.000Z',
   };
   const configuracaoService = {
     getEntidade: jasmine.createSpy('getEntidade'),
