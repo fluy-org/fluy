@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type {
   ConfiguracaoSalaoResponseDto,
   SalaoResponseDto,
+  RecebimentoPixResponseDto,
 } from '@fluy/schema';
 import { ConfiguracaoService } from '@app/features/salao/configuracao/services/configuracao.service';
 import { ConfiguracaoPage } from './configuracao.page';
@@ -29,10 +30,18 @@ describe('ConfiguracaoPage', () => {
     fuso_horario: 'America/Sao_Paulo',
     criado_em: '2026-10-22T12:30:00.000Z',
   };
+  const recebimento: RecebimentoPixResponseDto = {
+    tipo_chave: 'email',
+    chave: 'contato@salao.com',
+    nome_recebedor: 'Salão da Ana',
+    atualizado_em: '2026-10-22T12:30:00.000Z',
+  };
   const configuracaoService = {
     getEntidade: jasmine.createSpy('getEntidade'),
     getSalaoAtual: jasmine.createSpy('getSalaoAtual'),
     updateEntidade: jasmine.createSpy('updateEntidade'),
+    getRecebimento: jasmine.createSpy('getRecebimento'),
+    updateRecebimento: jasmine.createSpy('updateRecebimento'),
   };
 
   beforeEach(async () => {
@@ -43,6 +52,8 @@ describe('ConfiguracaoPage', () => {
     configuracaoService.getEntidade.and.resolveTo(configuracao);
     configuracaoService.getSalaoAtual.and.resolveTo(salao);
     configuracaoService.updateEntidade.and.resolveTo(configuracao);
+    configuracaoService.getRecebimento.and.resolveTo(recebimento);
+    configuracaoService.updateRecebimento.and.resolveTo(recebimento);
 
     await TestBed.configureTestingModule({
       imports: [ConfiguracaoPage],
@@ -100,6 +111,12 @@ describe('ConfiguracaoPage', () => {
 
     expect(component.erroLinkPublico()).toContain('copie manualmente');
     expect(component.mensagemLinkPublico()).toBeNull();
+  });
+
+  it('oferece cadastro de chave sem prometer conta verificada', () => {
+    expect(component.recebimentoCarregado()).toBeTrue();
+    expect(fixture.nativeElement.textContent).toContain('Recebimento Pix');
+    expect(fixture.nativeElement.textContent).not.toContain('Conta verificada');
   });
 
   function definirClipboard(writeText: jasmine.Spy): void {

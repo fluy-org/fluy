@@ -167,3 +167,10 @@ Pergunta preparada; nenhuma comunicação foi enviada ao provider.
 
 Até esses pontos serem resolvidos, o desenho "dona cadastra a chave e recebe
 no banco atual" permanece uma hipótese de integração, não capacidade garantida.
+
+## Atualização de implementação — 25/10/2026
+
+Foi aprovada a implementação do backend **exclusivamente para homologação**,
+com produção bloqueada até resolver recebimento externo e tarifas. Isso não
+encerra as pendências desta pesquisa nem comprova a capacidade comercial.
+Veja [integração e contratos da fase 1](./efi-open-finance-integracao.md).

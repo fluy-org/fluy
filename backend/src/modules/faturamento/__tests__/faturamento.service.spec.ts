@@ -21,6 +21,7 @@ describe('FaturamentoService', () => {
   const repository = {
     listarEncerramentosDoPeriodo: jest.fn(),
     listarAtendimentosDoPeriodo: jest.fn(),
+    listarSinaisRetidosDoPeriodo: jest.fn(),
   } as unknown as FaturamentoRepository;
   const salaoConsultaService = {
     obterFusoHorario: jest.fn(),
@@ -37,6 +38,9 @@ describe('FaturamentoService', () => {
       .spyOn(repository, 'listarEncerramentosDoPeriodo')
       .mockResolvedValue([]);
     jest.spyOn(repository, 'listarAtendimentosDoPeriodo').mockResolvedValue([]);
+    jest
+      .spyOn(repository, 'listarSinaisRetidosDoPeriodo')
+      .mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -75,6 +79,76 @@ describe('FaturamentoService', () => {
         expect.objectContaining({ salaoId: 'salao-ana' }),
       );
       expect(resultado.fusoHorario).toBe('America/Sao_Paulo');
+    });
+  });
+
+  describe('listarSinaisRetidos', () => {
+    const dados = { data_inicio: '2026-09-01', data_fim: '2026-09-30' };
+    it('pagina os sinais sem limitar os totais financeiros do período', async () => {
+      const encerramentos = Array.from({ length: 25 }, (_, i) => ({
+        ...criarEncerramento('sinal-' + i),
+        tipo: 'cancelado' as const,
+        cancelado_por: 'cliente' as const,
+        pagamentos: [
+          {
+            tipo: 'sinal' as const,
+            origem: 'manual' as const,
+            metodo: 'dinheiro' as const,
+            valor_centavos: 1000,
+          },
+        ],
+      }));
+      jest
+        .spyOn(repository, 'listarEncerramentosDoPeriodo')
+        .mockResolvedValue(encerramentos);
+      jest
+        .spyOn(repository, 'listarSinaisRetidosDoPeriodo')
+        .mockResolvedValue(encerramentos.slice(0, 21));
+      const resumo = await service.buscar({ salaoId: 'salao-ana', dados });
+      const pagina = await service.listarSinaisRetidos({
+        salaoId: 'salao-ana',
+        dados,
+      });
+      expect(resumo.resumo.total_faturado_centavos).toBe(25000);
+      expect(resumo.recebimentoPorMetodo[0].valor_centavos).toBe(25000);
+      expect(resumo).not.toHaveProperty('sinaisRetidos');
+      expect(pagina.itens).toHaveLength(20);
+      expect(pagina.proximoCursor).toBe(codificarCursorPagina({ offset: 20 }));
+      expect(pagina.itens[0].motivo).toBe('cancelamento_cliente');
+      expect(repository.listarSinaisRetidosDoPeriodo).toHaveBeenCalledWith({
+        salaoId: 'salao-ana',
+        inicio: new Date('2026-09-01T03:00:00.000Z'),
+        fim: new Date('2026-10-01T03:00:00.000Z'),
+        offset: 0,
+        limite: 21,
+      });
+    });
+    it('aplica o cursor e encerra a paginação na última página', async () => {
+      const resultado = await service.listarSinaisRetidos({
+        salaoId: 'salao-ana',
+        dados: { ...dados, cursor: codificarCursorPagina({ offset: 20 }) },
+      });
+      expect(repository.listarSinaisRetidosDoPeriodo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          salaoId: 'salao-ana',
+          offset: 20,
+          limite: 21,
+        }),
+      );
+      expect(resultado).toEqual({
+        fusoHorario: 'America/Sao_Paulo',
+        itens: [],
+        proximoCursor: null,
+      });
+    });
+    it('recusa cursor inválido antes de consultar o banco', async () => {
+      await expect(
+        service.listarSinaisRetidos({
+          salaoId: 'salao-ana',
+          dados: { ...dados, cursor: 'invalido' },
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(repository.listarSinaisRetidosDoPeriodo).not.toHaveBeenCalled();
     });
   });
 

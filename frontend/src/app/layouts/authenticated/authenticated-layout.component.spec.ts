@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AuthService } from '@app/core/services/auth/auth.service';
@@ -9,7 +11,12 @@ describe('AuthenticatedLayoutComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [AuthenticatedLayoutComponent],
-      providers: [provideRouter([]), { provide: AuthService, useValue: { logout } }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        { provide: AuthService, useValue: { logout } },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(AuthenticatedLayoutComponent);

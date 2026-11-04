@@ -3,3 +3,5 @@ export * from '@/modules/faturamento/contracts/faturamento.types';
 export * from '@/modules/faturamento/contracts/lista-atendimentos-faturamento-response.dto';
 export * from '@/modules/faturamento/contracts/listar-atendimentos-faturamento-query.dto';
 export * from '@/modules/faturamento/contracts/listar-faturamento-query.dto';
+export * from '@/modules/faturamento/contracts/listar-sinais-retidos-faturamento-query.dto';
+export * from '@/modules/faturamento/contracts/lista-sinais-retidos-faturamento-response.dto';

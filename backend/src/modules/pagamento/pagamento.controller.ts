@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
@@ -32,6 +33,10 @@ import {
   toPagamentoPixResponse,
   toReservaPixResponse,
 } from '@/modules/pagamento/pagamento.mapper';
+import {
+  InstituicoesPixResponseDto,
+  RecebimentoPixPublicoResponseDto,
+} from '@/modules/pagamento/contracts';
 import { PagamentoPublicoService } from '@/modules/pagamento/pagamento-publico.service';
 import { PagamentoSimulacaoService } from '@/modules/pagamento/pagamento-simulacao.service';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
@@ -42,6 +47,35 @@ import { TenantFromPath } from '@/shared/tenant-context/decorators/tenant-from-p
 @Controller('publico/s/:subdominio/reservas')
 export class PagamentoPublicoController {
   constructor(private readonly service: PagamentoPublicoService) {}
+
+  @ApiBadGatewayResponse({
+    description: 'Resposta inválida do provedor de pagamento.',
+  })
+  @Get('instituicoes')
+  @ApiOperation({
+    summary: 'Lista instituições disponíveis para pagamento Pix',
+  })
+  @ApiOkResponse({ type: InstituicoesPixResponseDto.Output })
+  @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
+  @ApiServiceUnavailableResponse({
+    description: 'Pagamento online indisponível.',
+  })
+  listarInstituicoes(@TenantFromPath() tenant: TenantContext) {
+    return this.service.listarInstituicoes(tenant.salaoId);
+  }
+
+  @Get('checkout')
+  @ApiOperation({
+    summary: 'Consulta os dados públicos de recebimento do salão',
+  })
+  @ApiOkResponse({ type: RecebimentoPixPublicoResponseDto.Output })
+  @ApiNotFoundResponse({ description: 'Recebimento Pix não cadastrado.' })
+  @ApiServiceUnavailableResponse({
+    description: 'Pagamento online indisponível.',
+  })
+  consultarCheckout(@TenantFromPath() tenant: TenantContext) {
+    return this.service.consultarCheckout(tenant.salaoId);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Reserva um horário para pagamento Pix' })
@@ -64,6 +98,9 @@ export class PagamentoPublicoController {
     );
   }
 
+  @ApiBadGatewayResponse({
+    description: 'Resposta inválida do provedor de pagamento.',
+  })
   @Post(':id/pagamentos')
   @ApiOperation({ summary: 'Inicia uma cobrança Pix para a reserva' })
   @ApiCreatedResponse({ type: PagamentoPixResponseDto.Output })
@@ -91,6 +128,12 @@ export class PagamentoPublicoController {
     );
   }
 
+  @ApiBadGatewayResponse({
+    description: 'Resposta inválida do provedor de pagamento.',
+  })
+  @ApiConflictResponse({
+    description: 'Origem ou valor da cobrança incompatível.',
+  })
   @Get(':id/pagamento')
   @ApiOperation({ summary: 'Consulta o pagamento de uma reserva' })
   @ApiOkResponse({ type: PagamentoPixResponseDto.Output })
@@ -128,7 +171,7 @@ export class PagamentoFakeController {
   @ApiOperation({
     summary: 'Simula uma notificação de pagamento no desenvolvimento',
   })
-  @ApiOkResponse({ type: SimularPagamentoPixResponseDto.Output })
+  @ApiCreatedResponse({ type: SimularPagamentoPixResponseDto.Output })
   @ApiBadRequestResponse({
     description: 'Cobrança fake já encerrada ou expirada.',
   })

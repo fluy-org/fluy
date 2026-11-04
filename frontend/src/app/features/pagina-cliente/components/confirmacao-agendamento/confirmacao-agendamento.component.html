@@ -125,7 +125,7 @@
       Voltar
     </ion-button>
     <ion-button type="button" [disabled]="salvando()" (click)="confirmarAgendamento()">
-      {{ salvando() ? 'Agendando...' : 'Confirmar agendamento' }}
+      {{ salvando() ? 'Preparando...' : procedimento().valor_sinal > 0 ? 'Reservar e ir ao pagamento' : 'Confirmar sem pagamento antecipado' }}
     </ion-button>
   </div>
 </section>

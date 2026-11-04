@@ -72,10 +72,13 @@ export class AgendaService {
     return agendamento;
   }
 
-  async concluir(
-    id: string,
-    dados: ConcluirAgendamentoDto,
-  ): Promise<AgendamentoDetalheResponseDto> {
+  async concluir({
+    id,
+    dados,
+  }: {
+    id: string;
+    dados: ConcluirAgendamentoDto;
+  }): Promise<AgendamentoDetalheResponseDto> {
     const agendamento = await firstValueFrom(
       this.http.patch<AgendamentoDetalheResponseDto>(
         `/agendamentos/${id}/concluir`,
@@ -103,10 +106,13 @@ export class AgendaService {
     return agendamento;
   }
 
-  async cancelar(
-    id: string,
-    dados: CancelarAgendamentoDto,
-  ): Promise<AgendamentoDetalheResponseDto> {
+  async cancelar({
+    id,
+    dados,
+  }: {
+    id: string;
+    dados: CancelarAgendamentoDto;
+  }): Promise<AgendamentoDetalheResponseDto> {
     const agendamento = await firstValueFrom(
       this.http.patch<AgendamentoDetalheResponseDto>(
         `/agendamentos/${id}/cancelar`,
@@ -120,10 +126,13 @@ export class AgendaService {
     return agendamento;
   }
 
-  getHorariosLivresParaRemarcacao(
-    id: string,
-    dados: ListarHorariosLivresRemarcacaoQueryDto,
-  ): Promise<HorariosLivresResponseDto> {
+  getHorariosLivresParaRemarcacao({
+    id,
+    dados,
+  }: {
+    id: string;
+    dados: ListarHorariosLivresRemarcacaoQueryDto;
+  }): Promise<HorariosLivresResponseDto> {
     return firstValueFrom(
       this.http.get<HorariosLivresResponseDto>(
         `/agendamentos/${id}/horarios-livres`,
@@ -132,10 +141,13 @@ export class AgendaService {
     );
   }
 
-  avaliarHorarioParaRemarcacao(
-    id: string,
-    dados: AvaliarHorarioRemarcacaoQueryDto,
-  ): Promise<AvaliacaoHorarioAgendamentoResponseDto> {
+  avaliarHorarioParaRemarcacao({
+    id,
+    dados,
+  }: {
+    id: string;
+    dados: AvaliarHorarioRemarcacaoQueryDto;
+  }): Promise<AvaliacaoHorarioAgendamentoResponseDto> {
     return firstValueFrom(
       this.http.get<AvaliacaoHorarioAgendamentoResponseDto>(
         `/agendamentos/${id}/avaliacao`,
@@ -144,10 +156,13 @@ export class AgendaService {
     );
   }
 
-  async remarcar(
-    id: string,
-    dados: RemarcarAgendamentoDto,
-  ): Promise<AgendamentoDetalheResponseDto> {
+  async remarcar({
+    id,
+    dados,
+  }: {
+    id: string;
+    dados: RemarcarAgendamentoDto;
+  }): Promise<AgendamentoDetalheResponseDto> {
     const agendamento = await firstValueFrom(
       this.http.patch<AgendamentoDetalheResponseDto>(
         `/agendamentos/${id}/remarcar`,

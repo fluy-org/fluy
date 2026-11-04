@@ -44,7 +44,18 @@ export const envSchema = z
     DEV_AUTH_ENABLED: booleanEnvSchema.default(false),
     DEV_AUTH_TOKEN: z.string().min(32).optional(),
     DEV_AUTH_SUBJECT: z.string().trim().min(1).optional(),
-    PAYMENT_PROVIDER: z.enum(['disabled', 'fake']).default('disabled'),
+    PAYMENT_PROVIDER: z.enum(['disabled', 'fake', 'efi']).default('disabled'),
+    EFI_ENVIRONMENT: z.literal('homologation').default('homologation'),
+    EFI_CLIENT_ID: z.string().min(1).optional(),
+    EFI_CLIENT_SECRET: z.string().min(1).optional(),
+    EFI_CERTIFICATE_PATH: z.string().min(1).optional(),
+    EFI_CERTIFICATE_PASSPHRASE: z.string().default(''),
+    EFI_WEBHOOK_SECRET: z
+      .string()
+      .min(32)
+      .max(128)
+      .regex(/^[a-zA-Z0-9]+$/)
+      .optional(),
     CORS_ORIGINS: originsSchema,
     TENANT_BASE_DOMAIN: z.string().trim().min(1).toLowerCase(),
 
@@ -72,6 +83,28 @@ export const envSchema = z
       });
     }
 
+    if (env.PAYMENT_PROVIDER === 'efi') {
+      if (env.NODE_ENV === 'production') {
+        context.addIssue({
+          code: 'custom',
+          path: ['PAYMENT_PROVIDER'],
+          message: 'Efí disponível somente para homologação.',
+        });
+      }
+      for (const key of [
+        'EFI_CLIENT_ID',
+        'EFI_CLIENT_SECRET',
+        'EFI_CERTIFICATE_PATH',
+        'EFI_WEBHOOK_SECRET',
+      ] as const) {
+        if (!env[key])
+          context.addIssue({
+            code: 'custom',
+            path: [key],
+            message: 'Configuração obrigatória para Efí.',
+          });
+      }
+    }
     if (!env.DEV_AUTH_ENABLED) {
       return;
     }
@@ -91,7 +124,6 @@ export const envSchema = z
         message: 'DEV_AUTH_TOKEN é obrigatório quando DEV_AUTH_ENABLED=true.',
       });
     }
-
     if (!env.DEV_AUTH_SUBJECT) {
       context.addIssue({
         code: 'custom',

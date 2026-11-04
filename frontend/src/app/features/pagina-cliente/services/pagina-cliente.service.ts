@@ -4,6 +4,8 @@ import type {
   IdentificarClientePublicaDto,
   HorariosLivresResponseDto,
   ListarHorariosLivresPublicosQueryDto,
+  DiasDisponiveisResponseDto,
+  ListarDiasDisponiveisPublicosQueryDto,
   CriarAgendamentoPublicoDto,
   AgendamentoResponseDto,
   AgendamentoClienteResponseDto,
@@ -76,6 +78,24 @@ export class PaginaClienteService {
     return procedimentos;
   }
 
+  listarDiasDisponiveis(
+    subdominio: string,
+    dados: ListarDiasDisponiveisPublicosQueryDto,
+  ): Promise<DiasDisponiveisResponseDto> {
+    return firstValueFrom(
+      this.http.get<DiasDisponiveisResponseDto>(
+        `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/dias-disponiveis`,
+        {
+          params: {
+            procedimento_id: dados.procedimento_id,
+            mes: dados.mes,
+            ...(dados.credencial ? { credencial: dados.credencial } : {}),
+          },
+        },
+      ),
+    );
+  }
+
   listarHorariosLivres(
     subdominio: string,
     dados: ListarHorariosLivresPublicosQueryDto,
@@ -83,7 +103,13 @@ export class PaginaClienteService {
     return firstValueFrom(
       this.http.get<HorariosLivresResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/horarios-livres`,
-        { params: dados },
+        {
+          params: {
+            procedimento_id: dados.procedimento_id,
+            data: dados.data,
+            ...(dados.credencial ? { credencial: dados.credencial } : {}),
+          },
+        },
       ),
     );
   }

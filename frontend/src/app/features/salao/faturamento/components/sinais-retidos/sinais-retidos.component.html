@@ -25,7 +25,7 @@
                 >{{ sinal.procedimento.nome }} · não realizado</ion-text
               >
               <ion-text class="data-encerramento">{{
-                sinal.ocorreu_em | horaSalao: fusoHorario() : 'data-hora'
+                sinal.ocorreu_em | horaSalao: fusoHorario() : "data-hora"
               }}</ion-text>
               <ion-text class="motivo">{{
                 rotuloMotivo[sinal.motivo]
@@ -54,5 +54,16 @@
         <ion-text class="vazio">Nenhum sinal retido neste período.</ion-text>
       }
     </ion-list>
+    @if (erroPaginacao()) {
+      <div role="alert">
+        <ion-text color="danger">{{ erroPaginacao() }}</ion-text>
+        <ion-button
+          fill="outline"
+          [disabled]="carregandoMais()"
+          (click)="tentarNovamente.emit()"
+          >Tentar carregar mais sinais retidos</ion-button
+        >
+      </div>
+    }
   </ion-card-content>
 </ion-card>

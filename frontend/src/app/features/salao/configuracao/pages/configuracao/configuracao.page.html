@@ -7,6 +7,61 @@
 
 <ion-content class="configuration-page fluy-page-safe">
   <main class="page-content">
+    <section aria-labelledby="titulo-recebimento-pix">
+      <ion-card class="configuration-card public-link-card">
+        <ion-card-header>
+          <ion-card-title id="titulo-recebimento-pix">
+            Recebimento Pix
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-text class="public-link-description">
+            Use a chave Pix da sua conta bancária atual. Este cadastro não abre uma conta nem verifica titularidade. Pagamentos online estão em homologação.
+          </ion-text>
+
+          @if (carregandoRecebimento()) {
+            <div class="public-link-loading" role="status">
+              <ion-spinner name="crescent" aria-label="Carregando recebimento"></ion-spinner>
+              <ion-text>Carregando dados de recebimento...</ion-text>
+            </div>
+          } @else if (recebimentoCarregado()) {
+            <form [formGroup]="formularioRecebimento" (ngSubmit)="salvarRecebimento()" class="field-stack">
+              <div class="field-grid">
+                <ion-select label="Tipo de chave" labelPlacement="stacked" fill="outline" formControlName="tipo_chave">
+                  @for (tipo of tiposChave; track tipo) {
+                    <ion-select-option [value]="tipo">{{ tipo }}</ion-select-option>
+                  }
+                </ion-select>
+                <ion-input label="Chave Pix" labelPlacement="stacked" fill="outline" formControlName="chave"></ion-input>
+              </div>
+              <ion-input label="Nome do recebedor" labelPlacement="stacked" fill="outline" formControlName="nome_recebedor"></ion-input>
+
+              <div class="form-feedback" aria-live="polite">
+                @if (erroRecebimento(); as erro) {
+                  <ion-text color="danger" role="alert"><p>{{ erro }}</p></ion-text>
+                }
+                @if (sucessoRecebimento(); as sucesso) {
+                  <ion-text class="success-message" role="status"><p>{{ sucesso }}</p></ion-text>
+                }
+              </div>
+
+              <div style="display: flex; justify-content: flex-end;">
+                <ion-button type="submit" [disabled]="salvandoRecebimento()" class="save-button" style="min-width: 180px;">
+                  @if (salvandoRecebimento()) {
+                    <ion-spinner name="crescent" aria-label="Salvando recebimento"></ion-spinner>
+                  } @else {
+                    Salvar recebimento
+                  }
+                </ion-button>
+              </div>
+            </form>
+          } @else {
+            <ion-button (click)="carregarRecebimento()">Tentar novamente</ion-button>
+          }
+        </ion-card-content>
+      </ion-card>
+    </section>
+
     @if (carregando()) {
     <div class="feedback" role="status">
       <ion-spinner aria-label="Carregando configurações"></ion-spinner>

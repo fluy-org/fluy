@@ -16,7 +16,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { zodValidator } from '../../../../../shared/utils/zod-validator';
+import { zodValidator } from '@app/shared/utils/zod-validator';
 
 import { HeaderComponent } from '@app/shared/components/header/header.component';
 

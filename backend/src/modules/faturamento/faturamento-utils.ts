@@ -134,7 +134,9 @@ export function montarAtendimentoFaturamento(
   };
 }
 
-function montarSinalRetido(encerramento: EncerramentoPersistido): SinalRetido {
+export function montarSinalRetido(
+  encerramento: EncerramentoPersistido,
+): SinalRetido {
   return {
     agendamento_id: encerramento.agendamento_id,
     ocorreu_em: encerramento.ocorreu_em,

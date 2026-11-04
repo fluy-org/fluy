@@ -1,7 +1,7 @@
 import {
   decidirNotificacao,
   normalizarTipoEvento,
-} from '@/modules/pagamento/pagamento-estado';
+} from '@/modules/pagamento/pagamento-estado-utils';
 
 describe('decidirNotificacao', () => {
   it('distingue expiração de falha no evento persistido', () => {
@@ -87,5 +87,15 @@ describe('decidirNotificacao', () => {
       divergencia: false,
       alocacoes: [],
     });
+  });
+  it('rejeita valor divergente também em confirmação já registrada', () => {
+    expect(
+      decidirNotificacao({
+        ...base,
+        statusCobranca: 'confirmada',
+        tipo: 'confirmado',
+        valorPagoCentavos: 1,
+      }),
+    ).toEqual({ erro: 'valor_divergente' });
   });
 });

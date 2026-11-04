@@ -1,3 +1,7 @@
+import {
+  agruparAgendamentos,
+  condicaoDeSobreposicao,
+} from '@/modules/agendamento/agendamento-utils';
 import { and, asc, eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
 import {
   agendamento,
@@ -32,22 +36,9 @@ import type {
   ListarOcupacoesDoDiaInput,
   MarcarFaltaAgendamentoPersistenciaInput,
   OcupacaoProfissional,
-  PagamentoDoAgendamentoPersistido,
   PossuiAgendamentoDoProcedimentoNoDiaInput,
   RemarcarAgendamentoPersistenciaInput,
 } from '@/modules/agendamento/contracts';
-
-type LinhaDaAgenda = {
-  agendamento: AgendamentoPersistido;
-  cliente: AgendamentoDaAgendaPersistido['cliente'];
-  procedimento: AgendamentoDaAgendaPersistido['procedimento'];
-  valor_manual: string | null;
-  valor_gateway: string | null;
-  status_gateway: PagamentoDoAgendamentoPersistido['status'];
-  tem_observacoes: boolean;
-  quantidade_anexos: number;
-  tem_imagens_referencia: boolean;
-};
 
 @Injectable()
 export class AgendamentoRepository {
@@ -481,7 +472,9 @@ export class AgendamentoRepository {
           periodo_manutencao_dias: procedimento.periodo_manutencao_dias,
         },
         valor_manual: cobrancaManual.valor,
-        valor_gateway: sql<string | null>`coalesce(${pagamentoAgendamento.valor}, ${cobrancaGateway.valor})`,
+        valor_gateway: sql<
+          string | null
+        >`coalesce(${pagamentoAgendamento.valor}, ${cobrancaGateway.valor})`,
         status_gateway: cobrancaGateway.status,
         quantidade_anexos: sql<number>`(
           select count(*)::int
@@ -541,67 +534,4 @@ export class AgendamentoRepository {
       lt(agendamento.inicio_em, fimDia),
     );
   }
-}
-
-// O fim do agendamento candidato só existe somando `duracao_min` à coluna, e
-// não há operador Drizzle para intervalo entre colunas.
-function condicaoDeSobreposicao({
-  inicioEm,
-  duracaoMin,
-}: {
-  inicioEm: Date;
-  duracaoMin: number;
-}) {
-  const fimEm = new Date(inicioEm.getTime() + duracaoMin * 60_000);
-
-  return and(
-    inArray(agendamento.estado, ['reservado', 'agendado']),
-    lt(agendamento.inicio_em, fimEm),
-    sql`${agendamento.inicio_em} + ${agendamento.duracao_min} * interval '1 minute' > ${inicioEm}::timestamptz`,
-  );
-}
-
-function agruparAgendamentos(
-  linhas: LinhaDaAgenda[],
-): AgendamentoDaAgendaPersistido[] {
-  const agendamentosPorId = new Map<string, AgendamentoDaAgendaPersistido>();
-
-  for (const linha of linhas) {
-    const pagamento = extrairPagamento(linha);
-    const existente = agendamentosPorId.get(linha.agendamento.id);
-
-    if (existente) {
-      if (pagamento) {
-        existente.pagamentos.push(pagamento);
-      }
-
-      continue;
-    }
-
-    agendamentosPorId.set(linha.agendamento.id, {
-      ...linha.agendamento,
-      cliente: linha.cliente,
-      procedimento: linha.procedimento,
-      pagamentos: pagamento ? [pagamento] : [],
-      quantidade_anexos: linha.quantidade_anexos,
-      tem_imagens_referencia: linha.tem_imagens_referencia,
-      tem_observacoes: linha.tem_observacoes,
-    });
-  }
-
-  return Array.from(agendamentosPorId.values());
-}
-
-function extrairPagamento(
-  linha: LinhaDaAgenda,
-): PagamentoDoAgendamentoPersistido | undefined {
-  if (linha.valor_manual !== null) {
-    return { valor: linha.valor_manual, status: null };
-  }
-
-  if (linha.valor_gateway !== null) {
-    return { valor: linha.valor_gateway, status: linha.status_gateway };
-  }
-
-  return undefined;
 }

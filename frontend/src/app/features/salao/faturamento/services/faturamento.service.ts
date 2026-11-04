@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import type {
   FaturamentoResponseDto,
+  ListaSinaisRetidosFaturamentoResponseDto,
+  ListarSinaisRetidosFaturamentoQueryDto,
   ListaAtendimentosFaturamentoResponseDto,
   ListarAtendimentosFaturamentoQueryDto,
   ListarFaturamentoQueryDto,
@@ -17,6 +19,10 @@ export class FaturamentoService {
   private readonly _faturamento = signal<FaturamentoResponseDto | null>(null);
   private readonly _paginaAtendimentos =
     signal<ListaAtendimentosFaturamentoResponseDto | null>(null);
+  private readonly _paginaSinaisRetidos =
+    signal<ListaSinaisRetidosFaturamentoResponseDto | null>(null);
+  private readonly _carregandoMaisSinaisRetidos = signal(false);
+  private readonly _erroPaginacaoSinaisRetidos = signal<string | null>(null);
   private readonly _carregando = signal(true);
   private readonly _erro = signal<string | null>(null);
   private readonly _carregandoMais = signal(false);
@@ -27,6 +33,16 @@ export class FaturamentoService {
   };
 
   readonly faturamento = this._faturamento.asReadonly();
+  readonly sinaisRetidos = computed(
+    () => this._paginaSinaisRetidos()?.itens ?? [],
+  );
+  readonly proximoCursorSinaisRetidos = computed(
+    () => this._paginaSinaisRetidos()?.proximo_cursor ?? null,
+  );
+  readonly carregandoMaisSinaisRetidos =
+    this._carregandoMaisSinaisRetidos.asReadonly();
+  readonly erroPaginacaoSinaisRetidos =
+    this._erroPaginacaoSinaisRetidos.asReadonly();
   readonly atendimentos = computed(
     () => this._paginaAtendimentos()?.itens ?? [],
   );
@@ -45,7 +61,7 @@ export class FaturamentoService {
     const faturamento = this._faturamento();
     return !faturamento ||
       (faturamento.resumo.total_concluidos === 0 &&
-        faturamento.sinais_retidos.length === 0)
+        this.sinaisRetidos().length === 0)
       ? 'vazio'
       : 'relatorio';
   });
@@ -66,11 +82,15 @@ export class FaturamentoService {
 
       // As datas resolvidas mantêm as duas consultas no mesmo período,
       // inclusive se um preset atravessar a virada de semana ou mês.
-      const pagina = await this.consultarAtendimentos(faturamento.periodo);
+      const [pagina, sinais] = await Promise.all([
+        this.consultarAtendimentos(faturamento.periodo),
+        this.consultarSinaisRetidos(faturamento.periodo),
+      ]);
 
       if (consulta !== this.consultaAtual) return;
 
       this._paginaAtendimentos.set(pagina);
+      this._paginaSinaisRetidos.set(sinais);
       this._faturamento.set(faturamento);
     } catch (error) {
       if (consulta !== this.consultaAtual) return;
@@ -122,6 +142,42 @@ export class FaturamentoService {
     }
   }
 
+  async carregarMaisSinaisRetidos(): Promise<void> {
+    const cursor = this.proximoCursorSinaisRetidos();
+    const periodo = this._faturamento()?.periodo;
+    if (
+      !cursor ||
+      !periodo ||
+      this._carregandoMaisSinaisRetidos() ||
+      this._carregando()
+    )
+      return;
+    const consulta = this.consultaAtual;
+    this._carregandoMaisSinaisRetidos.set(true);
+    this._erroPaginacaoSinaisRetidos.set(null);
+    try {
+      const pagina = await this.consultarSinaisRetidos({ ...periodo, cursor });
+      if (consulta !== this.consultaAtual) return;
+      this._paginaSinaisRetidos.update((anterior) => {
+        if (!anterior) return anterior;
+        const ids = new Set(anterior.itens.map((item) => item.agendamento_id));
+        const novos = pagina.itens.filter((item) => {
+          if (ids.has(item.agendamento_id)) return false;
+          ids.add(item.agendamento_id);
+          return true;
+        });
+        return { ...pagina, itens: [...anterior.itens, ...novos] };
+      });
+    } catch (error) {
+      if (consulta !== this.consultaAtual) return;
+      if (!(error instanceof ApiError)) throw error;
+      this._erroPaginacaoSinaisRetidos.set(error.message);
+    } finally {
+      if (consulta === this.consultaAtual)
+        this._carregandoMaisSinaisRetidos.set(false);
+    }
+  }
+
   encerrarConsulta(): void {
     ++this.consultaAtual;
     this.limparConsulta();
@@ -130,10 +186,24 @@ export class FaturamentoService {
   private limparConsulta(): void {
     this._faturamento.set(null);
     this._paginaAtendimentos.set(null);
+    this._paginaSinaisRetidos.set(null);
+    this._carregandoMaisSinaisRetidos.set(false);
+    this._erroPaginacaoSinaisRetidos.set(null);
     this._erro.set(null);
     this._erroPaginacao.set(null);
     this._carregandoMais.set(false);
     this._carregando.set(true);
+  }
+
+  private consultarSinaisRetidos(
+    dados: ListarSinaisRetidosFaturamentoQueryDto,
+  ): Promise<ListaSinaisRetidosFaturamentoResponseDto> {
+    return firstValueFrom(
+      this.http.get<ListaSinaisRetidosFaturamentoResponseDto>(
+        '/faturamento/sinais-retidos',
+        { params: this.montarParametros(dados) },
+      ),
+    );
   }
 
   private consultarAtendimentos(

@@ -14,6 +14,8 @@ import type {
   criarAgendamentoSchema,
   criarAgendamentoPublicoSchema,
   horariosLivresResponseSchema,
+  listarDiasDisponiveisPublicosQuerySchema,
+  diasDisponiveisResponseSchema,
   consultarAgendamentoPublicoQuerySchema,
   listarAgendaDiaQuerySchema,
   listarAgendamentosPublicosQuerySchema,
@@ -58,6 +60,12 @@ export type AvaliarHorarioRemarcacaoQueryDto = z.infer<
 >;
 export type HorariosLivresResponseDto = z.infer<
   typeof horariosLivresResponseSchema
+>;
+export type ListarDiasDisponiveisPublicosQueryDto = z.infer<
+  typeof listarDiasDisponiveisPublicosQuerySchema
+>;
+export type DiasDisponiveisResponseDto = z.infer<
+  typeof diasDisponiveisResponseSchema
 >;
 export type AvaliacaoHorarioAgendamentoResponseDto = z.infer<
   typeof avaliacaoHorarioAgendamentoResponseSchema

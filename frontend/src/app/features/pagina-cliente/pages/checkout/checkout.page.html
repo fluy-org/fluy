@@ -1,0 +1,341 @@
+<ion-content class="checkout-page fluy-page-safe ion-padding">
+  <main class="page-content">
+    <header class="cabecalho-pagina">
+      <a class="link-voltar" [routerLink]="['/s', subdominio()]">
+        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+        <span>Voltar ao salão</span>
+      </a>
+
+      <div class="cabecalho-titulo-container">
+        <h1>Pagamento da reserva</h1>
+        <ion-text class="subtitulo">
+          Confira os detalhes e complete a sua reserva com segurança.
+        </ion-text>
+      </div>
+    </header>
+
+    @if (carregando()) {
+      <div class="feedback-carregando" role="status" aria-live="polite">
+        <ion-spinner name="crescent" aria-label="Carregando pagamento"></ion-spinner>
+        <ion-text>Carregando informações da sua reserva...</ion-text>
+      </div>
+    }
+
+    @if (erro(); as mensagem) {
+      <div class="alerta alerta-erro" role="alert">
+        <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+        <div class="alerta-conteudo">
+          <strong>Atenção</strong>
+          <p>{{ mensagem }}</p>
+        </div>
+      </div>
+    }
+
+    @if (erroConsulta(); as mensagem) {
+      <div class="alerta alerta-aviso" role="alert">
+        <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
+        <div class="alerta-conteudo">
+          <p>{{ mensagem }}</p>
+        </div>
+      </div>
+    }
+
+    @if (!carregando()) {
+      @if (contexto(); as contextoAtual) {
+        <!-- Card 1: Resumo do Agendamento -->
+        <ion-card class="card-secao">
+          <ion-card-header>
+            <div class="card-topo">
+              <h2>{{ contextoAtual.nomeProcedimento }}</h2>
+            </div>
+            @if (salao(); as salaoAtual) {
+              <ion-text class="subtitulo-card">
+                {{ salaoAtual.nome }} — {{ salaoAtual.endereco }}
+              </ion-text>
+            }
+          </ion-card-header>
+
+          <ion-card-content>
+            @if (salao(); as salaoAtual) {
+              <div class="info-horario-container">
+                <div class="item-info-horario">
+                  <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+                  <ion-text>
+                    Horário: {{ contextoAtual.reserva.inicio_em | horaSalao:salaoAtual.fuso_horario:'data-hora' }}
+                  </ion-text>
+                </div>
+
+                <div class="tag-prazo">
+                  <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                  <span>
+                    Prazo da reserva: {{ contextoAtual.reserva.expira_em | horaSalao:salaoAtual.fuso_horario:'data-hora' }}. A validade é conferida pelo servidor.
+                  </span>
+                </div>
+              </div>
+            }
+
+            <div class="indicadores-resumo">
+              <div class="indicador-item">
+                <span class="rotulo">Procedimento</span>
+                <span class="valor">
+                  {{ contextoAtual.reserva.preco_total | currency:'BRL' }}
+                </span>
+              </div>
+              <div class="indicador-item indicador-destaque">
+                <span class="rotulo">Sinal</span>
+                <span class="valor">
+                  {{ contextoAtual.reserva.valor_sinal | currency:'BRL' }}
+                </span>
+              </div>
+              @if (!pagamento() && recebedor()) {
+                <div class="indicador-item indicador-largo">
+                  <span class="rotulo">Recebedor</span>
+                  <span class="valor" style="font-size: 1rem; font-weight: 500;">
+                    Recebedor: {{ recebedor() }}
+                  </span>
+                </div>
+              }
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Card 2: Pagamento e Ações -->
+        <ion-card class="card-secao">
+          <ion-card-header>
+            <h2>Detalhes do pagamento</h2>
+          </ion-card-header>
+
+          <ion-card-content>
+            @if (pagamento(); as pagamentoAtual) {
+              <dl class="detalhes-valores">
+                <dt>Recebedor</dt>
+                <dd>{{ pagamentoAtual.nome_recebedor }}</dd>
+                <dt>Modalidade</dt>
+                <dd>{{ pagamentoAtual.modalidade }}</dd>
+                <dt>Valor do salão</dt>
+                <dd>{{ pagamentoAtual.valor_salao | currency:'BRL' }}</dd>
+                <dt>Tarifa adicional</dt>
+                <dd>{{ pagamentoAtual.taxa_cliente | currency:'BRL' }}</dd>
+                <dt>Total a autorizar</dt>
+                <dd>{{ pagamentoAtual.total_cliente | currency:'BRL' }}</dd>
+              </dl>
+
+              @if (pagamentoAtual.situacao === 'confirmado_apos_expiracao') {
+                <div class="alerta alerta-aviso" role="alert">
+                  <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+                  <div class="alerta-conteudo">
+                    <h2>Pagamento identificado após o prazo</h2>
+                    <ion-text role="status">
+                      Seu horário não está garantido. Fale com o salão para combinar remarcação ou devolução. Não há devolução automática.
+                    </ion-text>
+                  </div>
+                </div>
+              } @else if (pagamentoAtual.status === 'confirmada') {
+                <div class="alerta alerta-sucesso confirmacao-bloco" role="status">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+                    <h2>Agendamento confirmado!</h2>
+                  </div>
+                  <ion-text role="status">O pagamento foi confirmado.</ion-text>
+                  @if (pagamentoAtual.modalidade === 'sinal') {
+                    <ion-text class="nota-confirmacao">O restante será pago no atendimento.</ion-text>
+                  }
+                  @if (salao(); as salaoAtual) {
+                    <ion-text class="nota-confirmacao">{{ salaoAtual.mensagem_confirmacao }}</ion-text>
+                    <ion-text class="nota-confirmacao">
+                      {{ salaoAtual.politica_atraso }} Tolerância: {{ salaoAtual.tolerancia_atraso_min }} minutos.
+                    </ion-text>
+                  }
+                  @if (procedimento(); as procedimentoAtual) {
+                    <ion-text class="nota-confirmacao">{{ procedimentoAtual.info_pre_procedimento }}</ion-text>
+                  }
+                  <ion-button class="botao-primario" (click)="baixarCalendario()">
+                    <ion-icon name="calendar-outline" slot="start" aria-hidden="true"></ion-icon>
+                    Adicionar ao calendário
+                  </ion-button>
+                </div>
+              } @else if (pagamentoAtual.status === 'falhou' || pagamentoAtual.status === 'expirada') {
+                <div class="alerta alerta-erro" role="alert">
+                  <ion-icon name="close-circle-outline" aria-hidden="true"></ion-icon>
+                  <div class="alerta-conteudo">
+                    <ion-text role="status">
+                      Esta tentativa foi recusada ou expirou. Uma nova tentativa depende da validade da reserva no servidor.
+                    </ion-text>
+                  </div>
+                </div>
+              } @else {
+                <div class="alerta alerta-info" role="status">
+                  <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
+                  <div class="alerta-conteudo">
+                    <ion-text role="status">
+                      Aguardando autorização ou confirmação. Não faça outro pagamento enquanto o resultado estiver pendente.
+                    </ion-text>
+                    @if (urlAutorizacao(); as url) {
+                      <p>Confira os valores acima antes de autorizar. A autorização acontece no ambiente do seu banco.</p>
+                      <ion-button class="botao-primario" style="margin-top: 8px;" [href]="url" target="_self">
+                        Autorizar no banco
+                      </ion-button>
+                    } @else {
+                      <p>Aguardando instrução de autorização. Consulte ou continue a mesma tentativa.</p>
+                    }
+                  </div>
+                </div>
+              }
+            }
+
+            @if (pagamento()?.status !== 'confirmada') {
+              @if (!pagamento() || pagamento()?.status === 'falhou' || pagamento()?.status === 'expirada' || pagamento()?.status === 'iniciando') {
+                <form [formGroup]="formulario" (ngSubmit)="iniciar()" class="form-pagamento">
+                  <div class="campo-grupo">
+                    <ion-select
+                      label="Quanto deseja pagar?"
+                      labelPlacement="stacked"
+                      formControlName="modalidade"
+                      [disabled]="!!contextoAtual.tentativa"
+                    >
+                      <ion-select-option value="sinal">
+                        Somente o sinal ({{ contextoAtual.reserva.valor_sinal | currency:'BRL' }})
+                      </ion-select-option>
+                      <ion-select-option value="total">
+                        Valor total ({{ contextoAtual.reserva.preco_total | currency:'BRL' }})
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+
+                  @if (instituicoes().length) {
+                    <div formGroupName="pagador" style="display: flex; flex-direction: column; gap: 12px;">
+                      <div class="campo-grupo">
+                        <ion-input
+                          label="CPF de quem vai pagar (somente números)"
+                          labelPlacement="stacked"
+                          placeholder="000.000.000-00"
+                          inputmode="numeric"
+                          maxlength="11"
+                          formControlName="cpf"
+                        ></ion-input>
+                        <app-field-error [control]="formulario.controls.pagador.controls.cpf"></app-field-error>
+                      </div>
+
+                      <div class="campo-grupo">
+                        <ion-select
+                          label="Banco de quem vai pagar"
+                          labelPlacement="stacked"
+                          placeholder="Selecione o seu banco"
+                          formControlName="instituicao_id"
+                        >
+                          @for (instituicao of instituicoes(); track instituicao.id) {
+                            <ion-select-option [value]="instituicao.id">
+                              {{ instituicao.nome }}
+                            </ion-select-option>
+                          }
+                        </ion-select>
+                        <app-field-error [control]="formulario.controls.pagador.controls.instituicao_id"></app-field-error>
+                      </div>
+                    </div>
+                  }
+
+                  <ion-button
+                    type="submit"
+                    class="botao-primario"
+                    [disabled]="enviando() || !instituicoesCarregadas()"
+                  >
+                    @if (enviando()) {
+                      <ion-spinner name="crescent" slot="start"></ion-spinner>
+                    }
+                    {{ contextoAtual.tentativa ? 'Continuar a mesma tentativa' : 'Preparar pagamento e conferir valores' }}
+                  </ion-button>
+                </form>
+              }
+
+              @if (erroInstituicoes(); as mensagem) {
+                <div class="alerta alerta-erro" role="alert">
+                  <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+                  <div class="alerta-conteudo">
+                    <ion-text color="danger" role="alert">{{ mensagem }}</ion-text>
+                    <ion-button fill="outline" size="small" (click)="carregarInstituicoes()">
+                      Recarregar instituições
+                    </ion-button>
+                  </div>
+                </div>
+              }
+
+              <div class="acoes-container">
+                <ion-button fill="outline" class="botao-secundario" [disabled]="enviando()" (click)="atualizar()">
+                  <ion-icon name="refresh-outline" slot="start" aria-hidden="true"></ion-icon>
+                  Consultar situação
+                </ion-button>
+
+                <ion-button fill="clear" class="botao-link" [routerLink]="['/s', subdominio()]">
+                  Escolher outro horário
+                </ion-button>
+
+                <ion-text class="texto-auxiliar">
+                  Se já autorizou no banco, esclareça a situação com o salão antes de iniciar outro pagamento.
+                </ion-text>
+              </div>
+            }
+
+            @if (contato(); as urlContato) {
+              <ion-button
+                fill="outline"
+                class="botao-whatsapp"
+                [href]="urlContato"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ion-icon name="logo-whatsapp" slot="start" aria-hidden="true"></ion-icon>
+                Falar com o salão
+              </ion-button>
+            }
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Card 3: Imagens de Referência -->
+        <ion-card class="card-secao">
+          <ion-card-header>
+            <h2>Imagens de referência</h2>
+            <ion-text class="subtitulo-card">
+              As imagens enviadas na reserva são preservadas. Se alguma falhou, selecione novamente apenas as que faltam (até 3 no total).
+            </ion-text>
+          </ion-card-header>
+
+          <ion-card-content>
+            <div class="upload-container">
+              <label class="upload-zona">
+                <ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon>
+                <span class="upload-texto">Escolher imagens de referência</span>
+                <span class="upload-dica">JPG, PNG ou WEBP (até 3 imagens)</span>
+                <input
+                  type="file"
+                  aria-label="Adicionar imagens de referência"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  [disabled]="enviando()"
+                  (change)="enviarReferencias($event)"
+                />
+              </label>
+
+              @if (avisoReferencias(); as aviso) {
+                <div class="aviso-referencias" role="status">
+                  <ion-text>{{ aviso }}</ion-text>
+                </div>
+              }
+            </div>
+          </ion-card-content>
+        </ion-card>
+      } @else {
+        <div class="alerta alerta-aviso" role="alert">
+          <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+          <div class="alerta-conteudo">
+            <ion-text>
+              Não foi possível recuperar o pagamento neste dispositivo. Volte ao salão ou entre em contato antes de pagar novamente.
+            </ion-text>
+            <ion-button fill="outline" style="margin-top: 12px;" (click)="carregar()">
+              Tentar recuperar novamente
+            </ion-button>
+          </div>
+        </div>
+      }
+    }
+  </main>
+</ion-content>

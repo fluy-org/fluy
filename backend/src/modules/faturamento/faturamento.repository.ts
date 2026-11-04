@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, exists, gte, inArray, lt, sql } from 'drizzle-orm';
 import {
   type OrigemPagamento,
   agendamento,
@@ -18,6 +18,7 @@ import {
 } from '@/shared/recebimento/recebimento.utils';
 import type {
   EncerramentoPersistido,
+  ListarSinaisRetidosFaturamentoPersistenciaInput,
   ListarAtendimentosFaturamentoPersistenciaInput,
   ListarEncerramentosPersistenciaInput,
   MetodoPagamentoFaturamento,
@@ -51,6 +52,39 @@ export class FaturamentoRepository {
       .limit(input.limite)
       .offset(input.offset);
 
+    return this.anexarPagamentos({ salaoId: input.salaoId, encerramentos });
+  }
+
+  async listarSinaisRetidosDoPeriodo(
+    input: ListarSinaisRetidosFaturamentoPersistenciaInput,
+  ): Promise<EncerramentoPersistido[]> {
+    const recebimentos = this.database
+      .select({ agendamento_id: pagamentoAgendamento.agendamento_id })
+      .from(pagamentoAgendamento)
+      .leftJoin(
+        cobrancaManual,
+        eq(cobrancaManual.id, pagamentoAgendamento.cobranca_manual_id),
+      )
+      .leftJoin(
+        cobrancaGateway,
+        eq(cobrancaGateway.id, pagamentoAgendamento.cobranca_gateway_id),
+      )
+      .where(eq(pagamentoAgendamento.agendamento_id, agendamento.id))
+      .groupBy(pagamentoAgendamento.agendamento_id)
+      .having(sql`sum(${montarValorRecebido()}) > 0`);
+    const encerramentos = await this.selecionarEncerramentos()
+      .where(
+        and(
+          this.filtrarEncerramentos({
+            ...input,
+            tipos: ['cancelado', 'falta'],
+          }),
+          exists(recebimentos),
+        ),
+      )
+      .orderBy(desc(eventoAgendamento.ocorreu_em), desc(agendamento.id))
+      .limit(input.limite)
+      .offset(input.offset);
     return this.anexarPagamentos({ salaoId: input.salaoId, encerramentos });
   }
 

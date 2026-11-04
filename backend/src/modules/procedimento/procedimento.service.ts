@@ -1,3 +1,4 @@
+import { calcularValorSinalDoProcedimento } from '@/modules/agendamento/agendamento-utils';
 import {
   ConflictException,
   Injectable,
@@ -8,6 +9,7 @@ import type {
   BuscarProcedimentoInput,
   CriarProcedimentoInput,
   ProcedimentoPersistido,
+  ProcedimentoPublicoResultado,
 } from '@/modules/procedimento/contracts';
 import { ProcedimentoRepository } from '@/modules/procedimento/procedimento.repository';
 import { ProcedimentoValidator } from '@/modules/procedimento/procedimento.validator';
@@ -40,8 +42,13 @@ export class ProcedimentoService {
     return this.procedimentoRepository.listar(salaoId);
   }
 
-  listarAtivos(salaoId: string) {
-    return this.procedimentoRepository.listarAtivos(salaoId);
+  async listarAtivos(salaoId: string): Promise<ProcedimentoPublicoResultado[]> {
+    const procedimentos =
+      await this.procedimentoRepository.listarAtivos(salaoId);
+    return procedimentos.map((procedimento) => ({
+      ...procedimento,
+      valor_sinal_calculado: calcularValorSinalDoProcedimento(procedimento),
+    }));
   }
 
   async buscarParaAgendamentoManual(input: BuscarProcedimentoInput) {

@@ -28,6 +28,7 @@ import type { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.
 
 describe('AgendamentoPublicoService', () => {
   const listarHorariosLivres = jest.fn();
+  const listarDiasDisponiveis = jest.fn();
   const criar = jest.fn();
   const buscarDetalhe = jest.fn();
   const cancelar = jest.fn();
@@ -39,6 +40,7 @@ describe('AgendamentoPublicoService', () => {
   const service = new AgendamentoPublicoService(
     {
       listarHorariosLivres,
+      listarDiasDisponiveis,
       criar,
       buscarDetalhe,
     } as unknown as AgendamentoService,
@@ -77,6 +79,8 @@ describe('AgendamentoPublicoService', () => {
         procedimento_id: dados.procedimento_id,
         data: dados.data,
       },
+      apenasDisponiveis: true,
+      bloquearInicioPassado: true,
     });
   });
 
@@ -89,6 +93,53 @@ describe('AgendamentoPublicoService', () => {
       new NotFoundException('Sessão da cliente não encontrada.'),
     );
     expect(listarHorariosLivres).not.toHaveBeenCalled();
+  });
+
+  it('permite consultar horários livres sem credencial', async () => {
+    listarHorariosLivres.mockResolvedValue({ data: dados.data, horarios: [] });
+
+    await service.listarHorariosLivres({
+      salaoId: 'salao-do-path',
+      dados: {
+        procedimento_id: dados.procedimento_id,
+        data: dados.data,
+      },
+    });
+
+    expect(resolverSessaoPublica).not.toHaveBeenCalled();
+    expect(listarHorariosLivres).toHaveBeenCalledWith({
+      salaoId: 'salao-do-path',
+      dados: {
+        procedimento_id: dados.procedimento_id,
+        data: dados.data,
+      },
+      apenasDisponiveis: true,
+      bloquearInicioPassado: true,
+    });
+  });
+
+  it('permite consultar dias disponíveis sem credencial', async () => {
+    listarDiasDisponiveis.mockResolvedValue({
+      mes: '2026-10',
+      dias: ['2026-10-31'],
+    });
+
+    await service.listarDiasDisponiveis({
+      salaoId: 'salao-do-path',
+      dados: {
+        procedimento_id: dados.procedimento_id,
+        mes: '2026-10',
+      },
+    });
+
+    expect(resolverSessaoPublica).not.toHaveBeenCalled();
+    expect(listarDiasDisponiveis).toHaveBeenCalledWith({
+      salaoId: 'salao-do-path',
+      dados: {
+        procedimento_id: dados.procedimento_id,
+        mes: '2026-10',
+      },
+    });
   });
   it('cria usando a cliente da sessao e revalida pelo motor', async () => {
     resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
@@ -108,9 +159,11 @@ describe('AgendamentoPublicoService', () => {
     });
 
     expect(criar).toHaveBeenCalledWith({
+      exigirSemSinal: true,
       salaoId: 'salao-do-path',
       bloquearProcedimentoDuplicadoNoDia: true,
       notificarCliente: false,
+      publico: true,
       dados: {
         cliente_id: 'cliente-da-sessao',
         procedimento_id: dados.procedimento_id,
@@ -142,6 +195,7 @@ describe('AgendamentoPublicoService', () => {
         salaoId: 'salao-do-path',
         reservar: true,
         bloquearProcedimentoDuplicadoNoDia: true,
+        publico: true,
       }),
     );
     expect(notificarCriacaoPublica).not.toHaveBeenCalled();

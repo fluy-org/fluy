@@ -16,7 +16,7 @@ Consolidar a receita do salão em um período selecionado (semana, quinzena, mê
    - Selecionar um preset consulta imediatamente e grava `periodo` na URL. Aplicar o intervalo customizado grava `data_inicio` e `data_fim`, removendo o preset. Apenas abrir ou editar os campos customizados não muda o filtro aplicado nem a URL.
    - Atualizar a página, compartilhar o link ou voltar/avançar pelo histórico mantém o filtro da URL. Datas continuam civis no fuso do salão, sem conversão UTC. Não há persistência adicional em armazenamento local.
    - Filtro ausente ou inválido (preset desconhecido, datas incompletas/inválidas/invertidas, parâmetros de filtro repetidos ou preset misturado com datas) é substituído pela semana atual na URL, sem criar uma entrada adicional no histórico nem enviar o filtro inválido à API. Parâmetros de URL que não pertencem ao filtro são preservados.
-   - O sistema consulta primeiro o resumo e usa o intervalo resolvido na consulta dos atendimentos. As quatro seções aparecem após as duas consultas funcionarem; falha inicial exibe erro e **Tentar novamente** para carregar o período inteiro.
+   - O sistema consulta primeiro o resumo e usa o intervalo resolvido nas consultas dos atendimentos e dos sinais retidos. As quatro seções aparecem após as três consultas funcionarem; falha inicial exibe erro e **Tentar novamente** para carregar o período inteiro.
 3. Sistema calcula e exibe:
 
 ### Seção 1 — Resumo
@@ -59,12 +59,14 @@ Inclui os sinais retidos da seção 4: a soma da seção 3 é igual ao total fat
 
 ### Seção 4 — Sinais retidos por cancelamento e no-show
 
-Lista separada, só com os encerramentos em que algum valor ficou retido (cancelamento ou no-show sem pagamento não aparece aqui):
+Lista separada e paginada, só com os encerramentos em que algum valor ficou retido (cancelamento ou no-show sem pagamento não aparece aqui):
 - Data (do cancelamento ou do no-show, no fuso do salão)
 - Cliente
 - Procedimento (que não aconteceu)
 - Valor do sinal
 - Motivo (cancelamento pela cliente / no-show / cancelamento pelo salão sem reembolso), a partir de quem cancelou (`evento_agendamento.cancelado_por`)
+
+As duas listas têm cursores independentes e acumulam páginas sem repetir agendamentos. O scroll no rodapé continua enquanto alguma lista tiver próxima página sem erro. Falha em uma lista preserva seus itens e cursor e oferece nova tentativa naquela seção; a outra pode continuar. Trocar período ou sair da tela descarta respostas antigas e reinicia as listas. O resumo e o recebimento por método consideram sempre o período inteiro, independentemente das páginas carregadas.
 
 4. Salão pode exportar? (fora do MVP; ver dúvidas)
 
@@ -110,7 +112,7 @@ Lista separada, só com os encerramentos em que algum valor ficou retido (cancel
 3. Conferir os presets e um intervalo de um único dia. Datas incompletas ou invertidas devem exibir validação sem substituir o relatório.
 4. Conferir um período vazio e outro só com sinais retidos: ambos sem ticket médio, mas apenas o primeiro com mensagem de período sem movimento. Conferir também um concluído sem recebimento, que continua listado e destacado.
 5. Usar eventos próximos à meia-noite e um dispositivo em outro fuso; o recorte e as datas exibidas devem seguir o salão.
-6. Com volume suficiente para mais de uma página, chegar ao final do conteúdo e conferir a acumulação sem duplicatas. Simular falha na próxima página e repetir sem perder os dados carregados.
+6. Com volume suficiente para mais de uma página, chegar ao final do conteúdo e conferir a acumulação sem duplicatas nas duas listas (atendimentos e sinais retidos). Simular falha na próxima página e repetir sem perder os dados carregados.
 7. Simular falha em cada consulta inicial e conferir a nova tentativa do período inteiro. Trocar período ou sair durante uma consulta e confirmar que respostas antigas não sobrescrevem a seleção atual.
 8. Conferir tabela acima de 900 px, cards até 900 px, acesso por teclado e retorno pelo menu à semana atual com dados novamente consultados.
 9. Abrir a ficha da cliente pelo nome e o detalhe pelo link do atendimento ou agendamento, tanto na tabela quanto nos cards. Conferir os destinos e o foco por teclado. Voltar pelo histórico restaura o filtro da URL; acessar pelo menu abre a semana atual.

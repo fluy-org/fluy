@@ -27,16 +27,16 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { ApiError } from '../../../../../core/errors/api-error';
-import { DetalheAgendamentoComponent } from '../../components/detalhe-agendamento/detalhe-agendamento.component';
-import { ConfirmacaoFaltaComponent } from '../../components/confirmacao-falta/confirmacao-falta.component';
-import { FormularioCancelamentoComponent } from '../../components/formulario-cancelamento/formulario-cancelamento.component';
-import { FormularioConclusaoComponent } from '../../components/formulario-conclusao/formulario-conclusao.component';
-import { FormularioRemarcacaoComponent } from '../../components/formulario-remarcacao/formulario-remarcacao.component';
-import { AgendaService } from '../../services/agenda.service';
-import { SecaoLembretesComponent } from '../../../lembretes/components/secao-lembretes/secao-lembretes.component';
-import { SecaoNotasComponent } from '../../../notas/components/secao-notas/secao-notas.component';
-import { LembretesService } from '../../../lembretes/services/lembretes.service';
+import { ApiError } from '@app/core/errors/api-error';
+import { DetalheAgendamentoComponent } from '@app/features/salao/agenda/components/detalhe-agendamento/detalhe-agendamento.component';
+import { ConfirmacaoFaltaComponent } from '@app/features/salao/agenda/components/confirmacao-falta/confirmacao-falta.component';
+import { FormularioCancelamentoComponent } from '@app/features/salao/agenda/components/formulario-cancelamento/formulario-cancelamento.component';
+import { FormularioConclusaoComponent } from '@app/features/salao/agenda/components/formulario-conclusao/formulario-conclusao.component';
+import { FormularioRemarcacaoComponent } from '@app/features/salao/agenda/components/formulario-remarcacao/formulario-remarcacao.component';
+import { AgendaService } from '@app/features/salao/agenda/services/agenda.service';
+import { SecaoLembretesComponent } from '@app/features/salao/lembretes/components/secao-lembretes/secao-lembretes.component';
+import { SecaoNotasComponent } from '@app/features/salao/notas/components/secao-notas/secao-notas.component';
+import { LembretesService } from '@app/features/salao/lembretes/services/lembretes.service';
 import { SecaoAnexosComponent } from '@app/features/salao/anexos/components/secao-anexos/secao-anexos.component';
 import { SecaoReferenciasComponent } from '@app/features/salao/anexos/components/secao-referencias/secao-referencias.component';
 import {
@@ -44,9 +44,9 @@ import {
   ACOES_SEM_ATENDIMENTO,
   ESTILO_ACAO_AGENDAMENTO,
   ROTULO_AVISO_ACAO_AGENDAMENTO,
-} from '../../agenda-data';
+} from '@app/features/salao/agenda/agenda-data';
 
-import type { EstadoPaginaDetalhe } from '../../contracts';
+import type { EstadoPaginaDetalhe } from '@app/features/salao/agenda/contracts';
 
 @Component({
   selector: 'app-agendamento-detalhe',
@@ -166,14 +166,17 @@ export class AgendamentoDetalhePage implements OnInit {
   // lembretes abertas são recarregadas para mostrá-lo, sem que uma falha nisso
   // pareça falha da conclusão.
   confirmarConclusao(dados: ConcluirAgendamentoDto): Promise<void> {
-    return this.executarAcao(async (id) => {
-      const agendamento = await this.agendaService.concluir(id, dados);
+    return this.executarAcao({
+      operacao: async (id) => {
+        const agendamento = await this.agendaService.concluir({ id, dados });
 
-      await this.lembretesService.recarregarListas({
-        clienteId: agendamento.cliente.id,
-        agendamentoId: id,
-      });
-    }, 'Sem conexão. A conclusão não foi registrada.');
+        await this.lembretesService.recarregarListas({
+          clienteId: agendamento.cliente.id,
+          agendamentoId: id,
+        });
+      },
+      mensagemOffline: 'Sem conexão. A conclusão não foi registrada.',
+    });
   }
 
   atualizarObservacao({
@@ -198,24 +201,24 @@ export class AgendamentoDetalhePage implements OnInit {
   }
 
   confirmarFalta(): Promise<void> {
-    return this.executarAcao(
-      (id) => this.agendaService.marcarFalta(id),
-      'Sem conexão. O no-show não foi registrado.',
-    );
+    return this.executarAcao({
+      operacao: (id) => this.agendaService.marcarFalta(id),
+      mensagemOffline: 'Sem conexão. O no-show não foi registrado.',
+    });
   }
 
   confirmarCancelamento(dados: CancelarAgendamentoDto): Promise<void> {
-    return this.executarAcao(
-      (id) => this.agendaService.cancelar(id, dados),
-      'Sem conexão. O cancelamento não foi registrado.',
-    );
+    return this.executarAcao({
+      operacao: (id) => this.agendaService.cancelar({ id, dados }),
+      mensagemOffline: 'Sem conexão. O cancelamento não foi registrado.',
+    });
   }
 
   confirmarRemarcacao(dados: RemarcarAgendamentoDto): Promise<void> {
-    return this.executarAcao(
-      (id) => this.agendaService.remarcar(id, dados),
-      'Sem conexão. A remarcação não foi registrada.',
-    );
+    return this.executarAcao({
+      operacao: (id) => this.agendaService.remarcar({ id, dados }),
+      mensagemOffline: 'Sem conexão. A remarcação não foi registrada.',
+    });
   }
 
   async carregarHorariosDaRemarcacao(data: string): Promise<void> {
@@ -234,16 +237,15 @@ export class AgendamentoDetalhePage implements OnInit {
 
     try {
       const resposta = await this.agendaService.getHorariosLivresParaRemarcacao(
-        id,
-        { data },
+        { id, dados: { data } },
       );
 
       this.horariosDaRemarcacao.set(resposta.horarios);
     } catch (error) {
-      this.tratarErroDaAcao(
+      this.tratarErroDaAcao({
         error,
-        'Sem conexão. Os horários não foram carregados.',
-      );
+        mensagemOffline: 'Sem conexão. Os horários não foram carregados.',
+      });
     } finally {
       this.carregandoHorarios.set(false);
     }
@@ -263,22 +265,31 @@ export class AgendamentoDetalhePage implements OnInit {
 
     try {
       this.avaliacaoDaRemarcacao.set(
-        await this.agendaService.avaliarHorarioParaRemarcacao(id, {
-          data,
-          hora_inicio: horaInicio,
+        await this.agendaService.avaliarHorarioParaRemarcacao({
+          id,
+          dados: {
+            data,
+            hora_inicio: horaInicio,
+          },
         }),
       );
     } catch (error) {
-      this.tratarErroDaAcao(error, 'Sem conexão. O horário não foi avaliado.');
+      this.tratarErroDaAcao({
+        error,
+        mensagemOffline: 'Sem conexão. O horário não foi avaliado.',
+      });
     }
   }
 
   private readonly dataDaRemarcacao = signal('');
 
-  private async executarAcao(
-    operacao: (id: string) => Promise<unknown>,
-    mensagemOffline: string,
-  ): Promise<void> {
+  private async executarAcao({
+    operacao,
+    mensagemOffline,
+  }: {
+    operacao: (id: string) => Promise<unknown>;
+    mensagemOffline: string;
+  }): Promise<void> {
     const id = this.agendamento()?.id;
 
     if (!id) {
@@ -292,13 +303,19 @@ export class AgendamentoDetalhePage implements OnInit {
       await operacao(id);
       this.acaoAberta.set(null);
     } catch (error) {
-      this.tratarErroDaAcao(error, mensagemOffline);
+      this.tratarErroDaAcao({ error, mensagemOffline });
     } finally {
       this.executando.set(false);
     }
   }
 
-  private tratarErroDaAcao(error: unknown, mensagemOffline: string): void {
+  private tratarErroDaAcao({
+    error,
+    mensagemOffline,
+  }: {
+    error: unknown;
+    mensagemOffline: string;
+  }): void {
     if (!(error instanceof ApiError)) {
       throw error;
     }

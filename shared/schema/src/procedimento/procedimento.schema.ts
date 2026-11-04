@@ -100,6 +100,7 @@ export const procedimentoPublicoResponseSchema = z
     info_pre_procedimento: z.string().nullable(),
     duracao_min: z.number().int().positive(),
     preco: z.number().nonnegative(),
+    valor_sinal: z.number().nonnegative(),
     imagem_url: z.url().nullable(),
   })
   .meta({ id: "ProcedimentoPublicoResponse" });

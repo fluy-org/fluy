@@ -38,6 +38,7 @@ jest.mock('drizzle-orm', () => ({
   and: jest.fn(),
   desc: jest.fn(),
   eq: jest.fn(),
+  exists: jest.fn(),
   gte: jest.fn(),
   inArray: jest.fn(),
   lt: jest.fn(),
@@ -53,7 +54,7 @@ jest.mock('@/database/database.provider', () => ({
   DATABASE: Symbol('DATABASE'),
 }));
 
-import { eq, gte, inArray, lt } from 'drizzle-orm';
+import { eq, exists, gte, inArray, lt } from 'drizzle-orm';
 import {
   agendamento,
   eventoAgendamento,
@@ -62,6 +63,8 @@ import {
 import type { Database } from '@/database/database.provider';
 import { montarFiltroEstadosComRecebimento } from '@/shared/recebimento/recebimento.utils';
 import { FaturamentoRepository } from '@/modules/faturamento/faturamento.repository';
+
+const etapas: Array<{ metodo: string; argumentos: unknown[] }> = [];
 
 type Consulta = PromiseLike<unknown[]> & Record<string, unknown>;
 
@@ -74,7 +77,10 @@ function criarConsulta(obterLinhas: () => unknown[]): Consulta {
         return resultado.then.bind(resultado) as Promise<unknown[]>['then'];
       }
 
-      return () => consulta;
+      return (...argumentos: unknown[]) => {
+        etapas.push({ metodo: String(propriedade), argumentos });
+        return consulta;
+      };
     },
   });
 
@@ -105,6 +111,39 @@ describe('FaturamentoRepository', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     respostas = [];
+    etapas.length = 0;
+  });
+
+  describe('listarSinaisRetidosDoPeriodo', () => {
+    it('filtra tenant, período e recebimento positivo antes do limite e offset', async () => {
+      await repository.listarSinaisRetidosDoPeriodo({
+        salaoId: 'salao-ana',
+        inicio: INICIO,
+        fim: FIM,
+        limite: 21,
+        offset: 20,
+      });
+      expect(eq).toHaveBeenCalledWith(agendamento.salao_id, 'salao-ana');
+      expect(inArray).toHaveBeenCalledWith(eventoAgendamento.tipo, [
+        'cancelado',
+        'falta',
+      ]);
+      expect(gte).toHaveBeenCalledWith(eventoAgendamento.ocorreu_em, INICIO);
+      expect(lt).toHaveBeenCalledWith(eventoAgendamento.ocorreu_em, FIM);
+      expect(exists).toHaveBeenCalled();
+      expect(etapas.find((e) => e.metodo === 'limit')?.argumentos).toEqual([
+        21,
+      ]);
+      expect(etapas.find((e) => e.metodo === 'offset')?.argumentos).toEqual([
+        20,
+      ]);
+      expect(etapas.findIndex((e) => e.metodo === 'having')).toBeLessThan(
+        etapas.findIndex((e) => e.metodo === 'limit'),
+      );
+      expect(etapas.findIndex((e) => e.metodo === 'orderBy')).toBeLessThan(
+        etapas.findIndex((e) => e.metodo === 'limit'),
+      );
+    });
   });
 
   describe('listarEncerramentosDoPeriodo', () => {

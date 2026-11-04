@@ -13,9 +13,11 @@ export * from '@/modules/agendamento/contracts/concluir-agendamento-request.dto'
 export * from '@/modules/agendamento/contracts/criar-agendamento-request.dto';
 export * from '@/modules/agendamento/contracts/criar-agendamento-publico-request.dto';
 export * from '@/modules/agendamento/contracts/horarios-livres-response.dto';
+export * from '@/modules/agendamento/contracts/dias-disponiveis-response.dto';
 export * from '@/modules/agendamento/contracts/listar-agenda-dia-query.dto';
 export * from '@/modules/agendamento/contracts/lista-agendamentos-publicos-response.dto';
 export * from '@/modules/agendamento/contracts/listar-agendamentos-publicos-query.dto';
+export * from '@/modules/agendamento/contracts/listar-dias-disponiveis-publicos-query.dto';
 export * from '@/modules/agendamento/contracts/listar-horarios-livres-query.dto';
 export * from '@/modules/agendamento/contracts/listar-horarios-livres-publicos-query.dto';
 export * from '@/modules/agendamento/contracts/listar-horarios-livres-remarcacao-query.dto';

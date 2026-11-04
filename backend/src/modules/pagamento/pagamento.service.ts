@@ -1,3 +1,4 @@
+import { decidirNotificacao } from '@/modules/pagamento/pagamento-estado-utils';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -11,13 +12,13 @@ import {
   type PaymentProvider,
   type RecebedorPix,
   type NotificacaoPagamento,
-} from '@/modules/pagamento/contracts/payment-provider.types';
+} from '@/modules/pagamento/contracts';
 import {
   PAYMENT_REPOSITORY,
   type CobrancaParaPagamento,
   type IniciarPagamentoInput,
   type PagamentoRepositoryPort,
-} from '@/modules/pagamento/contracts/pagamento-repository.types';
+} from '@/modules/pagamento/contracts';
 import { RecebimentoPixService } from '@/modules/salao-configuracao/recebimento-pix.service';
 import { emCentavos } from '@/modules/agendamento/agendamento-utils';
 import {
@@ -35,11 +36,16 @@ export class PagamentoService {
     private readonly provider: PaymentProvider,
   ) {}
 
+  async listarInstituicoes() {
+    if (!this.provider.listPixParticipants) return [];
+    return this.provider.listPixParticipants();
+  }
+
   async consultar(
     input: Pick<
       IniciarPagamentoInput,
       'salaoId' | 'clienteId' | 'agendamentoId'
-    >,
+    > & { sincronizar?: boolean },
   ) {
     const pagamento = await this.repository.buscarPagamento({
       salaoId: input.salaoId,
@@ -47,6 +53,27 @@ export class PagamentoService {
       agendamentoId: input.agendamentoId,
     });
     if (!pagamento) throw new NotFoundException('Pagamento não encontrado.');
+    if (pagamento.provedor !== this.provider.name)
+      throw new ConflictException('O pagamento pertence a outro provedor.');
+    if (
+      input.sincronizar !== false &&
+      this.provider.getPixPayment &&
+      pagamento.id_externo &&
+      pagamento.criada_em &&
+      pagamento.status !== 'confirmada'
+    ) {
+      const notificacao = await this.provider.getPixPayment({
+        externalId: pagamento.id_externo,
+        createdAt: pagamento.criada_em,
+      });
+      if (notificacao) {
+        await this.processarNotificacao({
+          salaoId: input.salaoId,
+          notificacao,
+        });
+        return (await this.repository.buscarPagamento(input)) ?? pagamento;
+      }
+    }
     return pagamento;
   }
 
@@ -55,10 +82,13 @@ export class PagamentoService {
     notificacao: NotificacaoPagamento;
     agora?: Date;
   }) {
+    if (!input.notificacao.provider?.trim())
+      throw new BadRequestException('Informe a origem da notificação.');
     const resultado = await this.repository.aplicarNotificacao({
       salaoId: input.salaoId,
       notificacao: input.notificacao,
       agora: input.agora ?? new Date(),
+      decidir: decidirNotificacao,
     });
     if (resultado === 'valor_divergente') {
       throw new ConflictException(
@@ -101,6 +131,8 @@ export class PagamentoService {
       });
     }
 
+    if (this.provider.requiresPayer && !input.pagador)
+      throw new BadRequestException('Informe os dados do pagador.');
     const valorSinalCentavos = Number(
       emCentavos({ valor: reserva.valor_sinal }),
     );
@@ -143,6 +175,7 @@ export class PagamentoService {
     const cobranca = await this.repository.criarOuBuscarTentativa({
       ...input,
       idempotencyKey: randomUUID(),
+      provedor: this.provider.name,
       ...cotacao,
       recebedor,
       agora,
@@ -171,6 +204,8 @@ export class PagamentoService {
     expiraEm: Date;
     salaoId: string;
   }) {
+    if (cobranca.provedor !== this.provider.name)
+      throw new ConflictException('O pagamento pertence a outro provedor.');
     if (cobranca.modalidade !== modalidade) {
       throw new ConflictException(
         'Já há outro pagamento ativo para a reserva.',
@@ -201,6 +236,7 @@ export class PagamentoService {
       cotacao,
       recebedor,
       expiraEm,
+      ...(cobranca.pagador ? { pagador: cobranca.pagador } : {}),
     });
     const pendente = await this.repository.marcarPendente({
       salaoId,
@@ -209,6 +245,13 @@ export class PagamentoService {
       instrucaoCliente: criado.instrucaoCliente,
     });
 
-    return pendente ?? cobranca;
+    return (
+      pendente ??
+      (await this.repository.buscarCobrancaPorId({
+        salaoId,
+        cobrancaId: cobranca.id,
+      })) ??
+      cobranca
+    );
   }
 }

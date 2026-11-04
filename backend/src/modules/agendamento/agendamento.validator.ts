@@ -17,7 +17,40 @@ export class AgendamentoValidator {
   validarCriacao({
     avaliacao,
     confirmarExcecoes,
+    publico = false,
   }: ValidarCriacaoAgendamentoInput): void {
+    if (publico) {
+      if (avaliacao.status === 'indisponivel') {
+        if (avaliacao.bloqueios.includes('sem_profissional_disponivel')) {
+          throw new ConflictException(
+            'Nenhuma profissional está disponível neste horário.',
+          );
+        }
+
+        throw new BadRequestException(
+          'O horário informado não pode ser agendado.',
+        );
+      }
+
+      if (avaliacao.status === 'requer_confirmacao') {
+        if (avaliacao.avisos.includes('antes_antecedencia_minima')) {
+          throw new BadRequestException(
+            'O horário selecionado não atende à antecedência mínima para agendamento.',
+          );
+        }
+        if (avaliacao.avisos.includes('apos_antecedencia_maxima')) {
+          throw new BadRequestException(
+            'O horário selecionado ultrapassa o limite máximo de antecedência para agendamento.',
+          );
+        }
+        throw new BadRequestException(
+          'O horário informado não está disponível para agendamento.',
+        );
+      }
+
+      return;
+    }
+
     if (avaliacao.status === 'indisponivel') {
       if (avaliacao.bloqueios.includes('sem_profissional_disponivel')) {
         throw new ConflictException(

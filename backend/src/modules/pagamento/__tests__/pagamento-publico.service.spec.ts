@@ -71,4 +71,18 @@ describe('PagamentoPublicoService', () => {
       }),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+  it('devolve instrução de criação sem consultar banco antes da autorização', async () => {
+    pagamento.consultar.mockResolvedValue({ id: 'cobranca-a' });
+    await service.iniciar({
+      salaoId: 'salao-a',
+      agendamentoId: 'reserva-a',
+      dados: { credencial: 'credencial-a', modalidade: 'sinal' },
+    });
+    expect(pagamento.consultar).toHaveBeenCalledWith({
+      salaoId: 'salao-a',
+      clienteId: 'cliente-a',
+      agendamentoId: 'reserva-a',
+      sincronizar: false,
+    });
+  });
 });

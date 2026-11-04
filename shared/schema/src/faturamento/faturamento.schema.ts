@@ -135,7 +135,6 @@ export const faturamentoResponseSchema = z
     periodo: periodoFaturamentoSchema,
     resumo: resumoFaturamentoSchema,
     recebimento_por_metodo: z.array(recebimentoPorMetodoSchema),
-    sinais_retidos: z.array(sinalRetidoResponseSchema),
   })
   .meta({ id: 'FaturamentoResponse' });
 
@@ -159,3 +158,16 @@ export const listaAtendimentosFaturamentoResponseSchema = z
     proximo_cursor: z.string().nullable(),
   })
   .meta({ id: 'ListaAtendimentosFaturamentoResponse' });
+
+export const listarSinaisRetidosFaturamentoQuerySchema = periodoFaturamentoQuerySchema
+  .extend({ cursor: z.string().optional() })
+  .superRefine(validarPeriodoFaturamento)
+  .meta({ id: 'ListarSinaisRetidosFaturamentoQuery' });
+
+export const listaSinaisRetidosFaturamentoResponseSchema = z
+  .object({
+    fuso_horario: fusoHorarioSchema,
+    itens: z.array(sinalRetidoResponseSchema),
+    proximo_cursor: z.string().nullable(),
+  })
+  .meta({ id: 'ListaSinaisRetidosFaturamentoResponse' });

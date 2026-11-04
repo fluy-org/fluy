@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import type {
   AtualizarConfiguracaoSalaoDto,
+  AtualizarRecebimentoPixDto,
+  RecebimentoPixResponseDto,
   ConfiguracaoSalaoResponseDto,
   SalaoResponseDto,
 } from '@fluy/schema';
@@ -10,7 +12,37 @@ import { firstValueFrom } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class ConfiguracaoService {
   private http = inject(HttpClient);
-  private readonly _configuracao = signal<ConfiguracaoSalaoResponseDto | null>(null);
+  private readonly _configuracao = signal<ConfiguracaoSalaoResponseDto | null>(
+    null,
+  );
+
+  private readonly _recebimento = signal<RecebimentoPixResponseDto | null>(
+    null,
+  );
+  readonly recebimento = this._recebimento.asReadonly();
+
+  async getRecebimento(): Promise<RecebimentoPixResponseDto> {
+    const dados = await firstValueFrom(
+      this.http.get<RecebimentoPixResponseDto>(
+        '/salao/configuracao/recebimento-pix',
+      ),
+    );
+    this._recebimento.set(dados);
+    return dados;
+  }
+
+  async updateRecebimento(
+    dados: AtualizarRecebimentoPixDto,
+  ): Promise<RecebimentoPixResponseDto> {
+    const atualizado = await firstValueFrom(
+      this.http.put<RecebimentoPixResponseDto>(
+        '/salao/configuracao/recebimento-pix',
+        dados,
+      ),
+    );
+    this._recebimento.set(atualizado);
+    return atualizado;
+  }
 
   readonly configuracao = this._configuracao.asReadonly();
 

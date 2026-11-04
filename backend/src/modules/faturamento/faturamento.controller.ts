@@ -10,12 +10,15 @@ import {
 } from '@nestjs/swagger';
 import {
   FaturamentoResponseDto,
+  ListarSinaisRetidosFaturamentoQueryDto,
+  ListaSinaisRetidosFaturamentoResponseDto,
   ListaAtendimentosFaturamentoResponseDto,
   ListarAtendimentosFaturamentoQueryDto,
   ListarFaturamentoQueryDto,
 } from '@/modules/faturamento/contracts';
 import {
   toFaturamentoResponse,
+  toListaSinaisRetidosFaturamentoResponse,
   toListaAtendimentosFaturamentoResponse,
 } from '@/modules/faturamento/faturamento.mapper';
 import { FaturamentoService } from '@/modules/faturamento/faturamento.service';
@@ -55,9 +58,29 @@ export class FaturamentoController {
     );
   }
 
+  @Get('sinais-retidos')
+  @ApiOperation({
+    summary: 'Lista sinais retidos no período, paginados por cursor',
+  })
+  @ApiOkResponse({ type: ListaSinaisRetidosFaturamentoResponseDto.Output })
+  @ApiBadRequestResponse({ description: 'Período ou cursor inválido.' })
+  @ApiUnauthorizedResponse({ description: 'Bearer token ausente ou inválido.' })
+  @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
+  async listarSinaisRetidos(
+    @TenantFromOwner() tenant: TenantContext,
+    @Query() dados: ListarSinaisRetidosFaturamentoQueryDto,
+  ) {
+    return toListaSinaisRetidosFaturamentoResponse(
+      await this.faturamentoService.listarSinaisRetidos({
+        salaoId: tenant.salaoId,
+        dados,
+      }),
+    );
+  }
+
   @Get()
   @ApiOperation({
-    summary: 'Fecha o período: resumo, recebimento por método e sinais retidos',
+    summary: 'Fecha o período: resumo e recebimento por método',
   })
   @ApiOkResponse({
     description: 'Fechamento do período no fuso do salão.',

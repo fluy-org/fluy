@@ -55,7 +55,9 @@ export type AvaliacaoHorarioAgendamento = {
 export type ListarHorariosLivresInput = Omit<
   AvaliarHorarioAgendamentoInput,
   'horaInicio'
->;
+> & {
+  apenasDisponiveis?: boolean;
+};
 
 export type DadosParaAvaliacaoHorario = {
   configuracao: {
@@ -108,6 +110,7 @@ export type CriarAgendamentoComValidacaoInput =
 export type ValidarCriacaoAgendamentoInput = {
   avaliacao: AvaliacaoHorarioAgendamento;
   confirmarExcecoes: boolean;
+  publico?: boolean;
 };
 
 export type ValidarConclusaoAgendamentoInput = {
@@ -313,4 +316,16 @@ export type CalcularAcoesAgendamentoInput = {
   inicioEm: Date;
   toleranciaAtrasoMin: number;
   agora: Date;
+};
+
+export type LinhaDaAgenda = {
+  agendamento: AgendamentoPersistido;
+  cliente: AgendamentoDaAgendaPersistido['cliente'];
+  procedimento: AgendamentoDaAgendaPersistido['procedimento'];
+  valor_manual: string | null;
+  valor_gateway: string | null;
+  status_gateway: PagamentoDoAgendamentoPersistido['status'];
+  tem_observacoes: boolean;
+  quantidade_anexos: number;
+  tem_imagens_referencia: boolean;
 };

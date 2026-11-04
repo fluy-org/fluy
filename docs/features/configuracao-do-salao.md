@@ -1,5 +1,10 @@
 # Configuração do Salão
 
+## Atualização de 28/10/2026
+
+A dona configura tipo/chave Pix e nome do recebedor em Configurações, usando sua conta bancária atual. Salvar não comprova titularidade nem habilitação de produção. Não recriar conta Fluy nem abrir conta bancária.
+
+
 ## Objetivo
 
 Manter os parâmetros operacionais que moldam o comportamento do sistema para o salão específico — regras de reserva, tolerâncias, antecedências, mensagens e informações apresentadas à cliente — separando estas configurações da disponibilidade e do catálogo (que têm features próprias).

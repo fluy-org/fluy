@@ -85,3 +85,11 @@ pids/
 
 # Windows recycle bin
 $RECYCLE.BIN/
+
+# Certificados privados de integrações financeiras
+*.p12
+*.pfx
+*.pem
+*.key
+
+/backend/efi/

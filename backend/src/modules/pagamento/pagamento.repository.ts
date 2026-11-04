@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, lte } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, lte, or, sql, isNull } from 'drizzle-orm';
 import {
   agendamento,
   cobrancaGateway,
@@ -10,18 +10,20 @@ import {
 import { Injectable } from '@nestjs/common';
 import { InjectDatabase } from '@/database/inject-database.decorator';
 import type { Database } from '@/database/database.provider';
-import type { PagamentoRepositoryPort } from '@/modules/pagamento/contracts/pagamento-repository.types';
+import type {
+  PagamentoRepositoryPort,
+  AplicarNotificacaoPagamentoPersistenciaInput,
+} from '@/modules/pagamento/contracts';
 import {
   emCentavos,
   formatarCentavos,
 } from '@/modules/agendamento/agendamento-utils';
-import {
-  decidirNotificacao,
-  normalizarTipoEvento,
-} from '@/modules/pagamento/pagamento-estado';
+import { normalizarTipoEvento } from '@/modules/pagamento/pagamento-estado-utils';
 import { chaveIdempotenciaEvento } from '@/modules/pagamento/pagamento-utils';
 
-const STATUS_ATIVOS = ['iniciando', 'pendente'] as const;
+import type { NotificacaoPagamento } from '@/modules/pagamento/contracts';
+
+import { STATUS_COBRANCA_ATIVOS } from '@/modules/pagamento/pagamento-data';
 
 @Injectable()
 export class PagamentoRepository implements PagamentoRepositoryPort {
@@ -57,7 +59,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
         and(
           eq(cobrancaGateway.salao_id, input.salaoId),
           eq(cobrancaGateway.agendamento_id, input.agendamentoId),
-          inArray(cobrancaGateway.status, [...STATUS_ATIVOS]),
+          inArray(cobrancaGateway.status, [...STATUS_COBRANCA_ATIVOS]),
         ),
       )
       .orderBy(desc(cobrancaGateway.criada_em))
@@ -119,22 +121,9 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
     >;
   }
 
-  async criarOuBuscarTentativa(input: {
-    salaoId: string;
-    clienteId: string;
-    agendamentoId: string;
-    modalidade: 'sinal' | 'total';
-    idempotencyKey: string;
-    valorSalaoCentavos: number;
-    taxaClienteCentavos: number;
-    totalClienteCentavos: number;
-    recebedor: {
-      tipoChave: 'cpf' | 'cnpj' | 'email' | 'telefone' | 'aleatoria';
-      chave: string;
-      nomeRecebedor: string;
-    };
-    agora: Date;
-  }) {
+  async criarOuBuscarTentativa(
+    input: Parameters<PagamentoRepositoryPort['criarOuBuscarTentativa']>[0],
+  ) {
     return this.database.transaction(async (tx) => {
       const reservas = await tx
         .select()
@@ -166,7 +155,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
           and(
             eq(cobrancaGateway.salao_id, input.salaoId),
             eq(cobrancaGateway.agendamento_id, input.agendamentoId),
-            inArray(cobrancaGateway.status, [...STATUS_ATIVOS]),
+            inArray(cobrancaGateway.status, [...STATUS_COBRANCA_ATIVOS]),
           ),
         )
         .limit(1);
@@ -193,6 +182,8 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
           pix_tipo_chave: input.recebedor.tipoChave,
           pix_chave: input.recebedor.chave,
           pix_nome_recebedor: input.recebedor.nomeRecebedor,
+          pagador: input.pagador ?? null,
+          provedor: input.provedor,
           metodo: 'pix',
           status: 'iniciando',
         })
@@ -203,24 +194,24 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
     });
   }
 
-  async marcarPendente(input: {
-    salaoId: string;
-    cobrancaId: string;
-    externalId: string;
-    instrucaoCliente: { tipo: 'url'; valor: string } | null;
-  }) {
+  async marcarPendente(
+    input: Parameters<PagamentoRepositoryPort['marcarPendente']>[0],
+  ) {
     const linhas = await this.database
       .update(cobrancaGateway)
       .set({
         id_externo: input.externalId,
         instrucao_cliente: input.instrucaoCliente,
-        status: 'pendente',
+        status: sql`case when ${cobrancaGateway.status} = 'iniciando' then 'pendente' else ${cobrancaGateway.status} end`,
       })
       .where(
         and(
           eq(cobrancaGateway.id, input.cobrancaId),
           eq(cobrancaGateway.salao_id, input.salaoId),
-          eq(cobrancaGateway.status, 'iniciando'),
+          or(
+            isNull(cobrancaGateway.id_externo),
+            eq(cobrancaGateway.id_externo, input.externalId),
+          ),
         ),
       )
       .returning();
@@ -229,17 +220,9 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
     >;
   }
 
-  async aplicarNotificacao(input: {
-    salaoId: string;
-    notificacao: {
-      eventId: string;
-      externalPaymentId: string;
-      tipo: 'confirmado' | 'falhou' | 'expirado';
-      ocorridoEm: Date;
-      valorPagoCentavos?: number;
-    };
-    agora: Date;
-  }): Promise<'valor_divergente' | undefined> {
+  async aplicarNotificacao(
+    input: AplicarNotificacaoPagamentoPersistenciaInput,
+  ): Promise<'valor_divergente' | undefined> {
     return this.database.transaction(async (tx) => {
       const cobrancas = await tx
         .select()
@@ -247,7 +230,22 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
         .where(
           and(
             eq(cobrancaGateway.salao_id, input.salaoId),
-            eq(cobrancaGateway.id_externo, input.notificacao.externalPaymentId),
+            eq(cobrancaGateway.provedor, input.notificacao.provider),
+            or(
+              eq(
+                cobrancaGateway.id_externo,
+                input.notificacao.externalPaymentId,
+              ),
+              input.notificacao.reference
+                ? and(
+                    eq(
+                      cobrancaGateway.idempotency_key,
+                      input.notificacao.reference,
+                    ),
+                    eq(cobrancaGateway.provedor, input.notificacao.provider),
+                  )
+                : undefined,
+            ),
           ),
         )
         .limit(1);
@@ -291,8 +289,13 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
         .limit(1);
       const cobranca = atuais[0];
       if (!cobranca?.modalidade || !cobranca.total_cliente) return;
+      if (
+        cobranca.id_externo &&
+        cobranca.id_externo !== input.notificacao.externalPaymentId
+      )
+        return;
 
-      const decisao = decidirNotificacao({
+      const decisao = input.decidir({
         tipo: input.notificacao.tipo,
         valorPagoCentavos: input.notificacao.valorPagoCentavos,
         statusCobranca: cobranca.status,
@@ -308,37 +311,74 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
       });
       if ('erro' in decisao) return decisao.erro;
 
-      const eventos = await tx
-        .insert(webhookGatewayEvento)
-        .values({
-          id_externo: chaveIdempotenciaEvento({
-            salaoId: input.salaoId,
-            eventoId: input.notificacao.eventId,
-          }),
+      const eventoExternoId = chaveIdempotenciaEvento({
+        salaoId: input.notificacao.provider,
+        eventoId: input.notificacao.eventId,
+      });
+      let registroId = input.notificacao.registroId;
+      if (!registroId) {
+        const eventos = await tx
+          .insert(webhookGatewayEvento)
+          .values({
+            id_externo: eventoExternoId,
+            salao_id: input.salaoId,
+            cobranca_gateway_id: cobranca.id,
+            tipo_bruto: input.notificacao.tipoBruto ?? input.notificacao.tipo,
+            tipo_normalizado: normalizarTipoEvento(input.notificacao.tipo),
+            payload: {
+              ...input.notificacao,
+              ocorridoEm: input.notificacao.ocorridoEm.toISOString(),
+            },
+            status: 'recebido',
+          })
+          .onConflictDoNothing()
+          .returning({ id: webhookGatewayEvento.id });
+        registroId = eventos[0]?.id;
+      }
+      const registros = await tx
+        .select()
+        .from(webhookGatewayEvento)
+        .where(
+          and(
+            registroId ? eq(webhookGatewayEvento.id, registroId) : undefined,
+            eq(webhookGatewayEvento.id_externo, eventoExternoId),
+            or(
+              isNull(webhookGatewayEvento.salao_id),
+              eq(webhookGatewayEvento.salao_id, input.salaoId),
+            ),
+          ),
+        )
+        .for('update')
+        .limit(1);
+      const registro = registros[0];
+      if (!registro || registro.status === 'processado') return;
+      await tx
+        .update(webhookGatewayEvento)
+        .set({
+          status: 'processado',
           salao_id: input.salaoId,
           cobranca_gateway_id: cobranca.id,
-          tipo_bruto: input.notificacao.tipo,
-          tipo_normalizado: normalizarTipoEvento(input.notificacao.tipo),
-          payload: {
-            eventId: input.notificacao.eventId,
-            externalPaymentId: input.notificacao.externalPaymentId,
-            valorPagoCentavos: input.notificacao.valorPagoCentavos,
-          },
-          status: 'processado',
           processado_em: input.agora,
+          erro_mensagem: null,
         })
-        .onConflictDoNothing()
-        .returning({ id: webhookGatewayEvento.id });
-      if (eventos.length === 0) {
-        return;
-      }
-
+        .where(
+          and(
+            eq(webhookGatewayEvento.id, registro.id),
+            eq(webhookGatewayEvento.id_externo, eventoExternoId),
+            or(
+              isNull(webhookGatewayEvento.salao_id),
+              eq(webhookGatewayEvento.salao_id, input.salaoId),
+            ),
+          ),
+        );
       await tx
         .update(cobrancaGateway)
         .set({
           status: decisao.novoStatus,
+          id_externo: input.notificacao.externalPaymentId,
           divergencia: decisao.divergencia || cobranca.divergencia,
-          ...(decisao.novoStatus === 'confirmada'
+          ...(decisao.novoStatus === 'confirmada' &&
+          cobranca.status !== 'confirmada'
             ? { confirmada_em: input.notificacao.ocorridoEm }
             : {}),
         })
@@ -409,11 +449,88 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
               cobrancaGateway.agendamento_id,
               expiradas.map((reserva) => reserva.id),
             ),
-            inArray(cobrancaGateway.status, [...STATUS_ATIVOS]),
+            inArray(cobrancaGateway.status, [...STATUS_COBRANCA_ATIVOS]),
           ),
         );
       return expiradas.length;
     });
+  }
+
+  async registrarNotificacao(notificacao: NotificacaoPagamento) {
+    const idExterno = chaveIdempotenciaEvento({
+      salaoId: notificacao.provider,
+      eventoId: notificacao.eventId,
+    });
+    await this.database
+      .insert(webhookGatewayEvento)
+      .values({
+        id_externo: idExterno,
+        tipo_bruto: notificacao.tipoBruto ?? notificacao.tipo,
+        tipo_normalizado: normalizarTipoEvento(notificacao.tipo),
+        payload: {
+          ...notificacao,
+          ocorridoEm: notificacao.ocorridoEm.toISOString(),
+        },
+        status: 'recebido',
+      })
+      .onConflictDoNothing();
+    const registros = await this.database
+      .select()
+      .from(webhookGatewayEvento)
+      .where(eq(webhookGatewayEvento.id_externo, idExterno))
+      .limit(1);
+    return registros[0];
+  }
+
+  // A notificação autenticada não possui tenant; apenas esta correlação global
+  // resolve o salão antes das operações financeiras filtradas pelo tenant.
+  async buscarCobrancaDoEvento(notificacao: NotificacaoPagamento) {
+    const registros = await this.database
+      .select()
+      .from(cobrancaGateway)
+      .where(
+        and(
+          eq(cobrancaGateway.provedor, notificacao.provider),
+          or(
+            eq(cobrancaGateway.id_externo, notificacao.externalPaymentId),
+            notificacao.reference
+              ? eq(cobrancaGateway.idempotency_key, notificacao.reference)
+              : undefined,
+          ),
+        ),
+      )
+      .limit(1);
+    return registros[0];
+  }
+
+  listarNotificacoesPendentes() {
+    return this.database
+      .select()
+      .from(webhookGatewayEvento)
+      .where(and(inArray(webhookGatewayEvento.status, ['recebido', 'falhou'])))
+      .orderBy(asc(webhookGatewayEvento.atualizado_em))
+      .limit(20);
+  }
+
+  async reagendarNotificacao(input: { id: string; falhou?: boolean }) {
+    await this.database
+      .update(webhookGatewayEvento)
+      .set({
+        atualizado_em: new Date(),
+        ...(input.falhou
+          ? {
+              status: 'falhou' as const,
+              erro_mensagem:
+                'Falha no processamento. Reprocessamento pendente.',
+            }
+          : {}),
+      })
+      .where(
+        and(
+          eq(webhookGatewayEvento.id, input.id),
+          inArray(webhookGatewayEvento.status, ['recebido', 'falhou']),
+        ),
+      );
   }
 
   listarSalaos() {

@@ -34,7 +34,9 @@ export const listarHorariosLivresQuerySchema = z
 export const listarHorariosLivresPublicosQuerySchema =
   listarHorariosLivresQuerySchema
     .extend({
-      credencial: z.uuid('Informe uma credencial de dispositivo válida.'),
+      credencial: z
+        .uuid('Informe uma credencial de dispositivo válida.')
+        .optional(),
     })
     .meta({ id: 'ListarHorariosLivresPublicosQuery' });
 
@@ -129,6 +131,24 @@ export const horariosLivresResponseSchema = z
     horarios: z.array(z.object({ hora_inicio: horaSchema })),
   })
   .meta({ id: 'HorariosLivresResponse' });
+
+export const listarDiasDisponiveisPublicosQuerySchema = z
+  .object({
+    procedimento_id: procedimentoIdSchema,
+    mes: z
+      .string()
+      .regex(/^\d{4}-\d{2}$/, 'Informe o mês no formato AAAA-MM.'),
+    credencial: z.uuid('Informe uma credencial de dispositivo válida.').optional(),
+  })
+  .strict()
+  .meta({ id: 'ListarDiasDisponiveisPublicosQuery' });
+
+export const diasDisponiveisResponseSchema = z
+  .object({
+    mes: z.string().regex(/^\d{4}-\d{2}$/),
+    dias: z.array(dataSchema),
+  })
+  .meta({ id: 'DiasDisponiveisResponse' });
 
 export const avaliacaoHorarioAgendamentoResponseSchema = z
   .object({

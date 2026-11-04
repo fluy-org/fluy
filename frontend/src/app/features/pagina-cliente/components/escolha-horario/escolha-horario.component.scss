@@ -47,12 +47,12 @@ header > div ion-text,
   line-height: var(--fluy-line-height-body);
 }
 
-ion-input {
-  --padding-start: var(--fluy-space-3);
-  --padding-end: var(--fluy-space-3);
-  min-height: 64px;
+.calendario-wrapper {
+  margin: 0 calc(-1 * var(--fluy-space-2));
   border: 1px solid var(--fluy-color-border-soft);
   border-radius: var(--fluy-radius-md);
+  background: var(--fluy-color-surface);
+  overflow: hidden;
 }
 
 .estado {
@@ -66,6 +66,20 @@ ion-input {
   border-radius: var(--fluy-radius-md);
   color: var(--fluy-color-danger);
   background: var(--fluy-color-danger-bg);
+}
+
+.horarios-secao {
+  display: grid;
+  gap: var(--fluy-space-3);
+  margin-top: var(--fluy-space-2);
+}
+
+.horarios-titulo {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: var(--fluy-font-weight-semibold);
+  color: var(--fluy-color-title);
+  text-transform: capitalize;
 }
 
 .horarios {

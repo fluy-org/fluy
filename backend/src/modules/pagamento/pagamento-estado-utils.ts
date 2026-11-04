@@ -1,3 +1,7 @@
+import type {
+  DecidirNotificacaoInput,
+  DecisaoNotificacao,
+} from '@/modules/pagamento/contracts';
 import { alocarPagamento } from '@/modules/pagamento/pagamento-utils';
 
 export function normalizarTipoEvento(tipo: DecidirNotificacaoInput['tipo']) {
@@ -11,30 +15,14 @@ export function normalizarTipoEvento(tipo: DecidirNotificacaoInput['tipo']) {
   }
 }
 
-export type DecidirNotificacaoInput = {
-  tipo: 'confirmado' | 'falhou' | 'expirado';
-  valorPagoCentavos?: number;
-  statusCobranca:
-    'iniciando' | 'pendente' | 'confirmada' | 'falhou' | 'expirada';
-  estadoReserva: string;
-  expiraEm: Date | null;
-  agora: Date;
-  modalidade: 'sinal' | 'total';
-  valorSalaoCentavos: number;
-  valorSinalCentavos: number;
-  totalClienteCentavos: number;
-};
-
-export type DecisaoNotificacao = {
-  novoStatus: 'iniciando' | 'pendente' | 'confirmada' | 'falhou' | 'expirada';
-  promoverReserva: boolean;
-  divergencia: boolean;
-  alocacoes: Array<{ tipo: 'sinal' | 'restante'; valorCentavos: number }>;
-};
-
 export function decidirNotificacao(
   input: DecidirNotificacaoInput,
 ): DecisaoNotificacao | { erro: 'valor_divergente' } {
+  if (
+    input.tipo === 'confirmado' &&
+    input.valorPagoCentavos !== input.totalClienteCentavos
+  )
+    return { erro: 'valor_divergente' };
   if (input.statusCobranca === 'confirmada') {
     return {
       novoStatus: 'confirmada' as const,
@@ -52,10 +40,6 @@ export function decidirNotificacao(
       divergencia: false,
       alocacoes: [],
     };
-  }
-
-  if (input.valorPagoCentavos !== input.totalClienteCentavos) {
-    return { erro: 'valor_divergente' };
   }
 
   const promoverReserva =

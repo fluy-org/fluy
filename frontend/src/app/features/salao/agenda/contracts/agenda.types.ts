@@ -1,18 +1,10 @@
 import type { AgendamentoAgendaResponseDto } from '@fluy/schema';
 
-export type EstadoPaginaAgenda =
-  | 'carregando'
-  | 'offline'
-  | 'erro'
-  | 'vazio'
-  | 'lista';
-
-export type EstadoPaginaDetalhe = 'carregando' | 'offline' | 'erro' | 'detalhe';
-
 export type DiaDaGrade = {
   data: string;
   dia: number;
-  total: number;
+  total?: number;
+  desabilitado?: boolean;
 };
 
 export type GradeDoMes = (DiaDaGrade | null)[];

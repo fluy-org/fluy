@@ -5,7 +5,7 @@ import type {
 import type {
   ProcedimentoComImagem,
   ProcedimentoPersistido,
-  ProcedimentoPublicoPersistido,
+  ProcedimentoPublicoResultado,
 } from '@/modules/procedimento/contracts';
 
 export function toProcedimentoResponse({
@@ -35,7 +35,7 @@ export function toProcedimentoPublicoResponse({
   procedimento,
   apiPublicUrl,
 }: {
-  procedimento: ProcedimentoPublicoPersistido;
+  procedimento: ProcedimentoPublicoResultado;
   apiPublicUrl: string;
 }): ProcedimentoPublicoResponseDto {
   return {
@@ -45,6 +45,7 @@ export function toProcedimentoPublicoResponse({
     info_pre_procedimento: procedimento.info_pre_procedimento,
     duracao_min: procedimento.duracao_min,
     preco: Number(procedimento.preco),
+    valor_sinal: Number(procedimento.valor_sinal_calculado),
     imagem_url: criarUrlImagemProcedimento({ procedimento, apiPublicUrl }),
   };
 }
