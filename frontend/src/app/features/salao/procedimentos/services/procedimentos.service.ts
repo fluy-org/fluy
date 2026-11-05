@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
+import { carregarArquivoEmMemoria } from '@app/shared/utils/arquivo';
 import type {
   AtualizarProcedimentoDto,
   CriarProcedimentoDto,
@@ -30,10 +31,11 @@ export class ProcedimentosService {
   }
 
   async enviarImagem(arquivo: File): Promise<UploadArquivoResponseDto> {
+    const arquivoEmMemoria = await carregarArquivoEmMemoria(arquivo);
     const formulario = new FormData();
 
     // O nome arquivo precisa corresponder ao campo esperado pelo backend.
-    formulario.append('arquivo', arquivo);
+    formulario.append('arquivo', arquivoEmMemoria);
 
     return firstValueFrom(
       this.http.post<UploadArquivoResponseDto>('/arquivos', formulario),

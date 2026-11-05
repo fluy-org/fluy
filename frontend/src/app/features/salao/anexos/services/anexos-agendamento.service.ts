@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
+import { carregarArquivoEmMemoria } from '@app/shared/utils/arquivo';
 import type {
   AnexoAgendamentoResponseDto,
   ListaAnexosAgendamentoResponseDto,
@@ -35,8 +36,9 @@ export class AnexosAgendamentoService {
     agendamentoId: string;
     arquivo: File;
   }): Promise<AnexoAgendamentoResponseDto> {
+    const arquivoEmMemoria = await carregarArquivoEmMemoria(arquivo);
     const dados = new FormData();
-    dados.append('arquivo', arquivo);
+    dados.append('arquivo', arquivoEmMemoria);
 
     const anexo = await firstValueFrom(
       this.http.post<AnexoAgendamentoResponseDto>(

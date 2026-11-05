@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
+import { carregarArquivoEmMemoria } from '@app/shared/utils/arquivo';
 import type {
   IdentificarClientePublicaDto,
   HorariosLivresResponseDto,
@@ -126,7 +127,7 @@ export class PaginaClienteService {
     );
   }
 
-  enviarReferencia({
+  async enviarReferencia({
     agendamentoId,
     arquivo,
     credencial,
@@ -137,8 +138,9 @@ export class PaginaClienteService {
     credencial: string;
     subdominio: string;
   }): Promise<AnexoAgendamentoResponseDto> {
+    const arquivoEmMemoria = await carregarArquivoEmMemoria(arquivo);
     const dados = new FormData();
-    dados.append('arquivo', arquivo);
+    dados.append('arquivo', arquivoEmMemoria);
 
     return firstValueFrom(
       this.http.post<AnexoAgendamentoResponseDto>(
