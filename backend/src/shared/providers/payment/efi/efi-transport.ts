@@ -32,9 +32,14 @@ export class EfiTransport {
     return new Promise((resolve, reject) => {
       const body =
         input.body === undefined ? undefined : JSON.stringify(input.body);
+      const isProduction =
+        this.config.get('EFI_ENVIRONMENT', { infer: true }) === 'production';
+      const hostname = isProduction
+        ? 'openfinance.api.efipay.com.br'
+        : 'openfinance-h.api.efipay.com.br';
       const req = request(
         {
-          hostname: 'openfinance-h.api.efipay.com.br',
+          hostname,
           path: input.path,
           method: input.method,
           agent: this.agent,

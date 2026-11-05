@@ -47,7 +47,7 @@ describe('transporte HTTP Efí', () => {
     req.emit('close');
     jest.useRealTimers();
   });
-  it('usa mTLS, host fixo e JSON sem seguir redirects', async () => {
+  it('usa mTLS, host de homologação por padrão e JSON sem seguir redirects', async () => {
     const result = transport.send({
       method: 'POST',
       path: '/v1/oauth/token',
@@ -71,6 +71,29 @@ describe('transporte HTTP Efí', () => {
       expect.any(Function),
     );
     expect(req.end).toHaveBeenCalledWith('{"grant_type":"client_credentials"}');
+  });
+  it('usa o endpoint de produção quando EFI_ENVIRONMENT=production', async () => {
+    const transportProducao = new EfiTransport(
+      new ConfigService({
+        EFI_CERTIFICATE_PATH: '/cert.p12',
+        EFI_CERTIFICATE_PASSPHRASE: 'pass',
+        EFI_ENVIRONMENT: 'production',
+      }) as never,
+    );
+    const result = transportProducao.send({
+      method: 'GET',
+      path: '/v1/participantes',
+    });
+    res.emit('data', Buffer.from('{"ok":true}'));
+    res.emit('end');
+    expect(await result).toEqual({ ok: true });
+    expect(request).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hostname: 'openfinance.api.efipay.com.br',
+        method: 'GET',
+      }),
+      expect.any(Function),
+    );
   });
   it.each([302, 401, 422, 500])('rejeita HTTP %s', async (status) => {
     res.statusCode = status;

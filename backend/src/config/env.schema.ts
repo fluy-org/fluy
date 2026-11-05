@@ -45,7 +45,9 @@ export const envSchema = z
     DEV_AUTH_TOKEN: z.string().min(32).optional(),
     DEV_AUTH_SUBJECT: z.string().trim().min(1).optional(),
     PAYMENT_PROVIDER: z.enum(['disabled', 'fake', 'efi']).default('disabled'),
-    EFI_ENVIRONMENT: z.literal('homologation').default('homologation'),
+    EFI_ENVIRONMENT: z
+      .enum(['homologation', 'production'])
+      .default('homologation'),
     EFI_CLIENT_ID: z.string().min(1).optional(),
     EFI_CLIENT_SECRET: z.string().min(1).optional(),
     EFI_CERTIFICATE_PATH: z.string().min(1).optional(),
@@ -84,13 +86,6 @@ export const envSchema = z
     }
 
     if (env.PAYMENT_PROVIDER === 'efi') {
-      if (env.NODE_ENV === 'production') {
-        context.addIssue({
-          code: 'custom',
-          path: ['PAYMENT_PROVIDER'],
-          message: 'Efí disponível somente para homologação.',
-        });
-      }
       for (const key of [
         'EFI_CLIENT_ID',
         'EFI_CLIENT_SECRET',

@@ -53,23 +53,77 @@ describe('configuração Efí', () => {
     EFI_CERTIFICATE_PATH: '/certificates/test.p12',
     EFI_WEBHOOK_SECRET: 'a'.repeat(64),
   };
-  it('exige credenciais e permite somente homologação fora de produção', () => {
-    expect(envSchema.safeParse(efi).success).toBe(true);
-    for (const key of [
+
+  it('permite homologação por padrão e de forma explícita', () => {
+    const defaultParsed = envSchema.safeParse(efi);
+    expect(defaultParsed.success).toBe(true);
+    if (defaultParsed.success) {
+      expect(defaultParsed.data.EFI_ENVIRONMENT).toBe('homologation');
+    }
+
+    const explicitHomolog = envSchema.safeParse({
+      ...efi,
+      EFI_ENVIRONMENT: 'homologation',
+    });
+    expect(explicitHomolog.success).toBe(true);
+  });
+
+  it('permite produção e habilita PAYMENT_PROVIDER=efi em NODE_ENV=production', () => {
+    const producao = envSchema.safeParse({
+      ...efi,
+      NODE_ENV: 'production',
+      EFI_ENVIRONMENT: 'production',
+    });
+    expect(producao.success).toBe(true);
+    if (producao.success) {
+      expect(producao.data.EFI_ENVIRONMENT).toBe('production');
+      expect(producao.data.PAYMENT_PROVIDER).toBe('efi');
+    }
+  });
+
+  it('rejeita ambiente inválido para EFI_ENVIRONMENT', () => {
+    expect(
+      envSchema.safeParse({
+        ...efi,
+        EFI_ENVIRONMENT: 'sandbox',
+      }).success,
+    ).toBe(false);
+
+    expect(
+      envSchema.safeParse({
+        ...efi,
+        EFI_ENVIRONMENT: 'invalid',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('exige credenciais obrigatórias tanto em homologação quanto em produção', () => {
+    const chavesObrigatorias = [
       'EFI_CLIENT_ID',
       'EFI_CLIENT_SECRET',
       'EFI_CERTIFICATE_PATH',
       'EFI_WEBHOOK_SECRET',
-    ]) {
-      expect(envSchema.safeParse({ ...efi, [key]: undefined }).success).toBe(
-        false,
-      );
+    ] as const;
+
+    for (const key of chavesObrigatorias) {
+      // Falha em homologação
+      expect(
+        envSchema.safeParse({
+          ...efi,
+          EFI_ENVIRONMENT: 'homologation',
+          [key]: undefined,
+        }).success,
+      ).toBe(false);
+
+      // Falha em produção
+      expect(
+        envSchema.safeParse({
+          ...efi,
+          NODE_ENV: 'production',
+          EFI_ENVIRONMENT: 'production',
+          [key]: undefined,
+        }).success,
+      ).toBe(false);
     }
-    expect(
-      envSchema.safeParse({ ...efi, EFI_ENVIRONMENT: 'production' }).success,
-    ).toBe(false);
-    expect(
-      envSchema.safeParse({ ...efi, NODE_ENV: 'production' }).success,
-    ).toBe(false);
   });
 });

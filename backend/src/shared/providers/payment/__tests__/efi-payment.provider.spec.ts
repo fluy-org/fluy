@@ -86,6 +86,29 @@ describe('EfiPaymentProvider', () => {
       }),
     );
   });
+  it('usa chave Pix do recebedor quando em producao', async () => {
+    const configProd = new ConfigService({
+      EFI_WEBHOOK_SECRET: 'a'.repeat(64),
+      EFI_ENVIRONMENT: 'production',
+    });
+    const prodProvider = new EfiPaymentProvider(
+      client as never,
+      new EfiWebhookAdapter(configProd as never),
+      configProd as never,
+    );
+    client.request.mockResolvedValue({
+      identificadorPagamento: 'urn:efi:2',
+      redirectURI: 'https://bank.example/authorize',
+    });
+    await prodProvider.createPixPayment(input);
+    expect(client.request).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: expect.objectContaining({
+          favorecido: { chave: 'salon@example.com' },
+        }),
+      }),
+    );
+  });
   it('não inventa tarifa em homologação', async () => {
     expect(
       await provider.quotePix({
