@@ -25,6 +25,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'socket_desconectado_antes_tls',
       codigo: 'ECONNRESET',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
 
     const erroHangup = new Error('socket hang up');
@@ -32,6 +36,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'socket_desconectado_antes_tls',
       codigo: 'ECONNRESET',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
   });
 
@@ -39,12 +47,17 @@ describe('diagnóstico seguro Efí', () => {
     const erroComCausaReset = new Error('Falha na requisição', {
       cause: Object.assign(new Error('read ECONNRESET'), {
         code: 'ECONNRESET',
+        syscall: 'read',
       }),
     });
     expect(diagnosticoEfi(erroComCausaReset)).toEqual({
       tipo: 'conexao_reiniciada',
       codigo: 'ECONNRESET',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: true,
+      quantidadeCausas: 1,
+      syscall: 'read',
     });
 
     const erroComCausaTls = new Error('Falha TLS', {
@@ -57,28 +70,42 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'alerta_tls_handshake_failure',
       codigo: 'ERR_SSL_TLSV1_ALERT_HANDSHAKE_FAILURE',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: true,
+      quantidadeCausas: 1,
+      syscall: null,
     });
 
     const erroTimeoutAninhado = new Error('Falha de rede', {
       cause: Object.assign(new Error('connect ETIMEDOUT'), {
         code: 'ETIMEDOUT',
+        syscall: 'connect',
       }),
     });
     expect(diagnosticoEfi(erroTimeoutAninhado)).toEqual({
       tipo: 'timeout',
       codigo: 'ETIMEDOUT',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: true,
+      quantidadeCausas: 1,
+      syscall: 'connect',
     });
 
     const erroDnsAninhado = new Error('Falha DNS', {
       cause: Object.assign(new Error('getaddrinfo ENOTFOUND'), {
         code: 'ENOTFOUND',
+        syscall: 'getaddrinfo',
       }),
     });
     expect(diagnosticoEfi(erroDnsAninhado)).toEqual({
       tipo: 'dns_nao_encontrado',
       codigo: 'ENOTFOUND',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: true,
+      quantidadeCausas: 1,
+      syscall: 'getaddrinfo',
     });
   });
 
@@ -92,6 +119,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'alerta_tls_certificado_obrigatorio',
       codigo: 'ERR_SSL_TLSV13_ALERT_CERTIFICATE_REQUIRED',
       statusHttpExterno: null,
+      classeErro: 'Object',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
 
     expect(
@@ -103,6 +134,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'alerta_tls_certificado_invalido',
       codigo: 'ERR_SSL_SSLV3_ALERT_BAD_CERTIFICATE',
       statusHttpExterno: null,
+      classeErro: 'Object',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
 
     expect(
@@ -114,6 +149,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'alerta_tls_ca_desconhecida',
       codigo: 'ERR_SSL_TLSV1_ALERT_UNKNOWN_CA',
       statusHttpExterno: null,
+      classeErro: 'Object',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
 
     expect(
@@ -125,6 +164,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'alerta_tls_acesso_negado',
       codigo: 'ERR_SSL_TLSV1_ALERT_ACCESS_DENIED',
       statusHttpExterno: null,
+      classeErro: 'Object',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
 
     expect(
@@ -136,6 +179,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'erro_validacao_certificado',
       codigo: 'CERT_HAS_EXPIRED',
       statusHttpExterno: null,
+      classeErro: 'Object',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
   });
 
@@ -144,6 +191,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'conexao_reiniciada',
       codigo: 'ECONNRESET',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
 
     expect(
@@ -152,6 +203,10 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'conexao_recusada',
       codigo: 'ECONNREFUSED',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
 
     expect(
@@ -164,10 +219,47 @@ describe('diagnóstico seguro Efí', () => {
       tipo: 'alerta_tls_handshake_failure',
       codigo: 'EPROTO',
       statusHttpExterno: null,
+      classeErro: 'Error',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
   });
 
-  it('descarta dados externos, mensagens, stack, códigos desconhecidos e cabeçalhos', () => {
+  it('captura classe do erro, causas e syscall segura sem registrar dados sensíveis', () => {
+    const aggErr = new AggregateError(
+      [
+        Object.assign(new Error('connect ECONNREFUSED'), {
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+        }),
+      ],
+      'Falha de agregação',
+    );
+
+    expect(diagnosticoEfi(aggErr)).toEqual({
+      tipo: 'conexao_recusada',
+      codigo: 'ECONNREFUSED',
+      statusHttpExterno: null,
+      classeErro: 'AggregateError',
+      possuiCausa: true,
+      quantidadeCausas: 1,
+      syscall: 'connect',
+    });
+
+    const typeErr = new TypeError('Parâmetro inválido interno');
+    expect(diagnosticoEfi(typeErr)).toEqual({
+      tipo: 'erro_nao_classificado',
+      codigo: null,
+      statusHttpExterno: null,
+      classeErro: 'TypeError',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
+    });
+  });
+
+  it('descarta dados externos, mensagens, stack, códigos desconhecidos, syscalls não seguras e cabeçalhos', () => {
     expect(
       diagnosticoEfi({
         code: 'SEGREDO',
@@ -175,14 +267,27 @@ describe('diagnóstico seguro Efí', () => {
         stack: 'SEGREDO',
         body: 'dados bancarios',
         headers: { Authorization: 'Basic SEGREDO' },
+        syscall: 'untrusted_command_line',
         status: 403,
       }),
-    ).toEqual({ tipo: 'http_externo', codigo: null, statusHttpExterno: 403 });
+    ).toEqual({
+      tipo: 'http_externo',
+      codigo: null,
+      statusHttpExterno: 403,
+      classeErro: 'Object',
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
+    });
 
     expect(diagnosticoEfi(null)).toEqual({
       tipo: 'erro_nao_classificado',
       codigo: null,
       statusHttpExterno: null,
+      classeErro: null,
+      possuiCausa: false,
+      quantidadeCausas: 0,
+      syscall: null,
     });
   });
 });

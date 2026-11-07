@@ -39,8 +39,9 @@ Procurar `efi_transport_falha` e `efi_client_falha` na mesma janela de tempo:
   bruto como atalho. Ampliar a classificação com códigos controlados e testes.
 
 Os eventos mostram ambiente, etapa, operação fixa, tipo e código permitido,
-além de status HTTP externo quando disponível. Não registram URL/query,
-headers, token, corpo, caminho, mensagem ou stack do erro externo.
+além de status HTTP externo e metadados técnicos seguros (classe do erro,
+presença e contagem de causas aninhadas e syscall mapeada). Não registram
+URL/query, headers, token, corpo, caminho, mensagem ou stack do erro externo.
 O erro público permanece genérico. Nenhuma transação real é necessária.
 
 Não alterar ambiente/credenciais automaticamente nem desabilitar validação TLS.
