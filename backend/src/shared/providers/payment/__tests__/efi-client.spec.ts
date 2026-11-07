@@ -1,4 +1,5 @@
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 import type { RequestInput } from '@/shared/providers/payment/efi/contracts';
 import { EfiClient } from '@/shared/providers/payment/efi/efi-client';
 
@@ -14,6 +15,25 @@ describe('EfiClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     client = new EfiClient(config as never, transport as never);
+  });
+  it('identifica falha OAuth sem registrar credenciais ou corpo externo', async () => {
+    const log = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    try {
+      transport.send
+        .mockReset()
+        .mockRejectedValue({ status: 401, body: 'segredo-oauth' });
+      await expect(
+        client.request({ method: 'GET', path: '/v1/participantes' }),
+      ).rejects.toMatchObject({ status: 503 });
+      expect(log).toHaveBeenCalledWith(
+        expect.objectContaining({ etapa: 'oauth', statusHttpExterno: 401 }),
+      );
+      expect(JSON.stringify(log.mock.calls)).not.toContain('segredo-oauth');
+    } finally {
+      log.mockRestore();
+    }
   });
   it('compartilha autenticação concorrente e reutiliza token válido', async () => {
     transport.send

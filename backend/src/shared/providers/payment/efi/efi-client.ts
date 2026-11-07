@@ -2,6 +2,7 @@ import { EfiTransport } from '@/shared/providers/payment/efi/efi-transport';
 import type { RequestInput } from '@/shared/providers/payment/efi/contracts';
 import {
   Injectable,
+  Logger,
   ServiceUnavailableException,
   BadGatewayException,
   BadRequestException,
@@ -9,9 +10,11 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '@/config/env.schema';
+import { diagnosticoEfi } from './efi-diagnostic';
 
 @Injectable()
 export class EfiClient {
+  private readonly logger = new Logger(EfiClient.name);
   private token?: { value: string; expiresAt: number };
   private authenticating?: Promise<string>;
   constructor(
@@ -54,9 +57,14 @@ export class EfiClient {
     }
   }
   async request(input: RequestInput): Promise<unknown> {
+    let etapa = 'oauth';
     try {
       for (let attempt = 0; attempt < 2; attempt++) {
+        etapa = 'oauth';
         const token = await this.authenticate();
+        etapa = input.path.startsWith('/v1/participantes')
+          ? 'instituicoes'
+          : 'requisicao_api';
         try {
           return await this.transport.send({
             ...input,
@@ -71,11 +79,6 @@ export class EfiClient {
           if (status === 404 && input.method === 'GET')
             throw new NotFoundException('Registro não encontrado no provedor.');
           if (status === 400 || status === 409 || status === 422) {
-            console.error(
-              '[EFI CLIENT ERROR]',
-              status,
-              (error as { body?: string }).body,
-            );
             throw new BadRequestException(
               'O provedor recusou os dados do pagamento.',
             );
@@ -89,8 +92,24 @@ export class EfiClient {
         error instanceof BadGatewayException ||
         error instanceof BadRequestException ||
         error instanceof NotFoundException
-      )
+      ) {
+        this.logger.warn({
+          evento: 'efi_client_falha',
+          etapa,
+          tipo:
+            error instanceof BadGatewayException
+              ? 'resposta_oauth_invalida'
+              : 'erro_normalizado',
+          codigo: null,
+          statusHttpExterno: null,
+        });
         throw error;
+      }
+      this.logger.warn({
+        evento: 'efi_client_falha',
+        etapa,
+        ...diagnosticoEfi(error),
+      });
       throw new ServiceUnavailableException(
         'Comunicação com o provedor de pagamento indisponível.',
       );

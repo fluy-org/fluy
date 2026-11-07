@@ -1,4 +1,6 @@
 import { EventEmitter } from 'node:events';
+import { Logger } from '@nestjs/common';
+import { readFileSync } from 'node:fs';
 import { ConfigService } from '@nestjs/config';
 import { request, Agent } from 'node:https';
 import type { IncomingMessage } from 'node:http';
@@ -46,6 +48,67 @@ describe('transporte HTTP Efí', () => {
   afterEach(() => {
     req.emit('close');
     jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+  it('diagnostica leitura do certificado sem revelar caminho ou segredo', async () => {
+    const log = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    (readFileSync as jest.Mock).mockImplementationOnce(() => {
+      throw Object.assign(new Error('/caminho/privado senha'), {
+        code: 'ENOENT',
+      });
+    });
+    await expect(
+      transport.send({ method: 'GET', path: '/v1/participantes' }),
+    ).rejects.toThrow();
+    expect(log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        etapa: 'leitura_certificado',
+        codigo: 'ENOENT',
+      }),
+    );
+    expect(JSON.stringify(log.mock.calls)).not.toContain('privado');
+    expect(request).not.toHaveBeenCalled();
+  });
+  it('diagnostica erro TLS imediato sem expor a mensagem original', async () => {
+    const log = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    (request as jest.Mock).mockImplementationOnce(() => {
+      throw new Error('mac verify failure segredo');
+    });
+    await expect(
+      transport.send({ method: 'POST', path: '/v1/oauth/token' }),
+    ).rejects.toThrow();
+    expect(log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        etapa: 'conexao_mtls',
+        tipo: 'p12_senha_ou_integridade',
+        operacao: 'oauth',
+      }),
+    );
+    expect(JSON.stringify(log.mock.calls)).not.toContain('segredo');
+  });
+  it('registra status HTTP sem incluir corpo externo', async () => {
+    const log = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    res.statusCode = 403;
+    const result = transport.send({ method: 'GET', path: '/v1/participantes' });
+    res.emit('data', Buffer.from('token CPF segredo'));
+    res.emit('end');
+    await expect(result).rejects.toMatchObject({
+      status: 403,
+      body: undefined,
+    });
+    expect(log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        etapa: 'resposta_http',
+        statusHttpExterno: 403,
+      }),
+    );
+    expect(JSON.stringify(log.mock.calls)).not.toContain('segredo');
   });
   it('usa mTLS, host de homologação por padrão e JSON sem seguir redirects', async () => {
     const result = transport.send({
