@@ -20,8 +20,19 @@ Procurar `efi_transport_falha` e `efi_client_falha` na mesma janela de tempo:
 - `leitura_certificado` + ENOENT/EACCES: caminho inexistente ou acesso negado.
 - `conexao_mtls` + `p12_senha_ou_integridade`: verificar senha e integridade.
 - `p12_formato_invalido`: conferir bytes originais; não renomear Base64 para P12.
-- Códigos de certificado/TLS: conferir validade, cadeia e ambiente.
-- `resposta_http` com operação `oauth` e 401: revisar credenciais/ambiente.
+- `conexao_mtls` + `socket_desconectado_antes_tls` (ou ECONNRESET): o servidor
+  Efí encerrou a conexão TCP antes da conclusão do handshake TLS. Indica
+  rejeição de mTLS (por exemplo, certificado de homologação enviado a produção,
+  certificado não emitido para a aplicação ou incompatibilidade de cifras).
+- `alerta_tls_handshake_failure` / `alerta_tls_certificado_obrigatorio` /
+  `alerta_tls_certificado_invalido`: alerta formal enviado pelo servidor Efí
+  recusando a autenticação do cliente.
+- `conexao_reiniciada` (ECONNRESET) / `timeout_conexao` (ETIMEDOUT) /
+  `dns_nao_encontrado` (ENOTFOUND): falhas de rede e conectividade.
+- Códigos de certificado/TLS (`erro_validacao_certificado`): validade expirada,
+  cadeia incompleta ou CA não confiável.
+- `resposta_http` com operação `oauth` e 401: credenciais rejeitadas (Client_Id /
+  Client_Secret incompatíveis com o ambiente).
 - 403: verificar permissões/habilitação com a Efí; não presume causa única.
 - `instituicoes`: OAuth passou, falha aconteceu na consulta da API.
 - `erro_nao_classificado`: diagnóstico ainda insuficiente; não imprimir o erro
