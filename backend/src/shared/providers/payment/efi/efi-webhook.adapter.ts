@@ -37,7 +37,14 @@ export class EfiWebhookAdapter {
     ) {
       return null;
     }
-    const result = efiPaymentSchema.safeParse(input.body);
+    const rawPayload =
+      'pagamento' in input.body &&
+      (input.body as Record<string, unknown>).pagamento &&
+      typeof (input.body as Record<string, unknown>).pagamento === 'object'
+        ? (input.body as Record<string, unknown>).pagamento
+        : input.body;
+
+    const result = efiPaymentSchema.safeParse(rawPayload);
     if (!result.success)
       throw new BadRequestException('Notificação de pagamento inválida.');
     return normalizarPagamentoEfi(result.data);

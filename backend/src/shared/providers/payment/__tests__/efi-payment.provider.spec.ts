@@ -252,4 +252,93 @@ describe('EfiPaymentProvider', () => {
       provider.getPixPayment({ externalId: 'id', createdAt: new Date() }),
     ).resolves.toBeNull();
   });
+  it('processa pagamento real da Efí com campos extras e idProprio', async () => {
+    client.request.mockResolvedValueOnce({
+      pagamentos: [
+        {
+          identificadorPagamento:
+            'urn:mercadopago:1c3e97bf-81bc-4fd2-88dc-285e17a57066',
+          endToEndId: 'E09089356202611100339780d4be9a36',
+          valor: '2.00',
+          status: 'aceito',
+          dataCriacao: '2026-11-10T03:39:08.000Z',
+          idProprio: 'f3106db5-bc40-4276-82df-eb36a4482211',
+          dataOperacao: '2026-11-10',
+        },
+      ],
+      total: 1,
+      porPagina: 15,
+      proximo: null,
+    });
+    const result = await provider.getPixPayment({
+      externalId: 'urn:mercadopago:1c3e97bf-81bc-4fd2-88dc-285e17a57066',
+      createdAt: new Date('2026-11-10T00:00:00Z'),
+    });
+    expect(result).toMatchObject({
+      externalPaymentId: 'urn:mercadopago:1c3e97bf-81bc-4fd2-88dc-285e17a57066',
+      reference: 'f3106db5-bc40-4276-82df-eb36a4482211',
+      tipo: 'confirmado',
+      tipoBruto: 'aceito',
+      valorPagoCentavos: 200,
+    });
+  });
+  it('encontra pagamento pelo idProprio caso externalId seja a chave da tentativa', async () => {
+    client.request.mockResolvedValueOnce({
+      pagamentos: [
+        {
+          identificadorPagamento:
+            'urn:mercadopago:1c3e97bf-81bc-4fd2-88dc-285e17a57066',
+          valor: '2.00',
+          status: 'aceito',
+          dataCriacao: '2026-11-10T03:39:08.000Z',
+          idProprio: 'f3106db5-bc40-4276-82df-eb36a4482211',
+        },
+      ],
+      proximo: null,
+    });
+    const result = await provider.getPixPayment({
+      externalId: 'f3106db5-bc40-4276-82df-eb36a4482211',
+      createdAt: new Date('2026-11-10T00:00:00Z'),
+    });
+    expect(result).toMatchObject({
+      tipo: 'confirmado',
+      valorPagoCentavos: 200,
+    });
+  });
+  it('garante que inicio <= fim mesmo se createdAt for posterior por diferença de fuso', async () => {
+    client.request.mockResolvedValueOnce({
+      pagamentos: [],
+      proximo: null,
+    });
+    const future = new Date(Date.now() + 86400000 * 2);
+    await provider.getPixPayment({
+      externalId: 'id',
+      createdAt: future,
+    });
+    const callPath = client.request.mock.calls[0][0].path;
+    const match = /inicio=([^&]+)&fim=([^&]+)/.exec(callPath);
+    expect(match).not.toBeNull();
+    const [, inicio, fim] = match!;
+    expect(inicio <= fim).toBe(true);
+  });
+  it('processa notificação webhook embrulhada em objeto pagamento', () => {
+    const body = {
+      pagamento: {
+        identificadorPagamento: 'urn:efi:2',
+        valor: '50.00',
+        status: 'aceito',
+        dataCriacao: '2026-11-10T12:00:00.000Z',
+      },
+    };
+    const event = provider.parseNotification({
+      body,
+      headers: {},
+      query: { hmac: 'a'.repeat(64) },
+    });
+    expect(event).toMatchObject({
+      externalPaymentId: 'urn:efi:2',
+      tipo: 'confirmado',
+      valorPagoCentavos: 5000,
+    });
+  });
 });

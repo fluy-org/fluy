@@ -2,6 +2,7 @@ import {
   BadGatewayException,
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   Optional,
 } from '@nestjs/common';
@@ -24,6 +25,7 @@ import {
 export class EfiPaymentProvider implements PaymentProvider {
   readonly name = 'efi';
   readonly requiresPayer = true;
+  private readonly logger = new Logger(EfiPaymentProvider.name);
   constructor(
     private readonly client: EfiClient,
     private readonly webhook: EfiWebhookAdapter,
@@ -119,7 +121,11 @@ export class EfiPaymentProvider implements PaymentProvider {
     externalId: string;
     createdAt: Date;
   }): Promise<NotificacaoPagamento | null> {
-    let path = `/v1/pagamentos/pix?inicio=${input.createdAt.toISOString().slice(0, 10)}&fim=${new Date().toISOString().slice(0, 10)}`;
+    const dInicio = input.createdAt.toISOString().slice(0, 10);
+    const dFim = new Date().toISOString().slice(0, 10);
+    const inicio = dInicio <= dFim ? dInicio : dFim;
+    const fim = dInicio <= dFim ? dFim : dInicio;
+    let path = `/v1/pagamentos/pix?inicio=${inicio}&fim=${fim}`;
     const visited = new Set<string>();
     for (let page = 0; page < 100; page++) {
       if (visited.has(path))
@@ -132,24 +138,41 @@ export class EfiPaymentProvider implements PaymentProvider {
         if (error instanceof NotFoundException) return null;
         throw error;
       }
-      const result = z
-        .object({
-          pagamentos: z.array(efiPaymentSchema),
-          proximo: z.string().nullable().optional(),
-        })
-        .safeParse(raw);
-      if (!result.success)
+      if (!raw || typeof raw !== 'object') {
         throw new BadGatewayException('Resposta de consulta inválida.');
-      const found = result.data.pagamentos.find(
-        (p) => p.identificadorPagamento === input.externalId,
+      }
+      const rawObj = raw as { pagamentos?: unknown; proximo?: unknown };
+      if (!Array.isArray(rawObj.pagamentos)) {
+        throw new BadGatewayException('Resposta de consulta inválida.');
+      }
+      const foundRaw = rawObj.pagamentos.find(
+        (p: any) =>
+          p &&
+          typeof p === 'object' &&
+          (p.identificadorPagamento === input.externalId ||
+            (p.idProprio && p.idProprio === input.externalId)),
       );
-      if (found) return normalizarPagamentoEfi(found);
-      if (!result.data.proximo) return null;
-      if (!/^\/(v1\/)?pagamentos\/pix\?/.test(result.data.proximo))
+      if (foundRaw) {
+        const parsed = efiPaymentSchema.safeParse(foundRaw);
+        if (parsed.success) {
+          return normalizarPagamentoEfi(parsed.data);
+        }
+        this.logger.warn({
+          evento: 'efi_payment_parse_falha',
+          externalId: input.externalId,
+          error: parsed.error.issues,
+        });
+        throw new BadGatewayException('Resposta de consulta inválida.');
+      }
+      if (!rawObj.proximo) return null;
+      if (
+        typeof rawObj.proximo !== 'string' ||
+        !/^\/(v1\/)?pagamentos\/pix\?/.test(rawObj.proximo)
+      )
         throw new BadGatewayException('Paginação do provedor inválida.');
-      path = result.data.proximo.startsWith('/v1/')
-        ? result.data.proximo
-        : `/v1${result.data.proximo}`;
+      path = rawObj.proximo.startsWith('/v1/')
+        ? rawObj.proximo
+        : `/v1${rawObj.proximo}`;
     }
     throw new BadGatewayException(
       'Consulta do provedor excedeu o limite de páginas.',
