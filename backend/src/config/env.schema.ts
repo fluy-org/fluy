@@ -51,6 +51,7 @@ export const envSchema = z
     EFI_CLIENT_ID: z.string().min(1).optional(),
     EFI_CLIENT_SECRET: z.string().min(1).optional(),
     EFI_CERTIFICATE_PATH: z.string().min(1).optional(),
+    EFI_CERTIFICATE_BASE64: z.string().min(1).optional(),
     EFI_CERTIFICATE_PASSPHRASE: z.string().default(''),
     EFI_WEBHOOK_SECRET: z
       .string()
@@ -89,7 +90,6 @@ export const envSchema = z
       for (const key of [
         'EFI_CLIENT_ID',
         'EFI_CLIENT_SECRET',
-        'EFI_CERTIFICATE_PATH',
         'EFI_WEBHOOK_SECRET',
       ] as const) {
         if (!env[key])
@@ -98,6 +98,14 @@ export const envSchema = z
             path: [key],
             message: 'Configuração obrigatória para Efí.',
           });
+      }
+      if (!env.EFI_CERTIFICATE_PATH && !env.EFI_CERTIFICATE_BASE64) {
+        context.addIssue({
+          code: 'custom',
+          path: ['EFI_CERTIFICATE_PATH'],
+          message:
+            'Configuração obrigatória para Efí: informe EFI_CERTIFICATE_PATH ou EFI_CERTIFICATE_BASE64.',
+        });
       }
     }
     if (!env.DEV_AUTH_ENABLED) {

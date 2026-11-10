@@ -101,7 +101,6 @@ describe('configuração Efí', () => {
     const chavesObrigatorias = [
       'EFI_CLIENT_ID',
       'EFI_CLIENT_SECRET',
-      'EFI_CERTIFICATE_PATH',
       'EFI_WEBHOOK_SECRET',
     ] as const;
 
@@ -124,6 +123,27 @@ describe('configuração Efí', () => {
           [key]: undefined,
         }).success,
       ).toBe(false);
+    }
+
+    // Falha se faltar tanto PATH quanto BASE64
+    expect(
+      envSchema.safeParse({
+        ...efi,
+        EFI_CERTIFICATE_PATH: undefined,
+        EFI_CERTIFICATE_BASE64: undefined,
+      }).success,
+    ).toBe(false);
+  });
+
+  it('aceita EFI_CERTIFICATE_BASE64 no lugar de EFI_CERTIFICATE_PATH', () => {
+    const comBase64 = envSchema.safeParse({
+      ...efi,
+      EFI_CERTIFICATE_PATH: undefined,
+      EFI_CERTIFICATE_BASE64: Buffer.from('cert').toString('base64'),
+    });
+    expect(comBase64.success).toBe(true);
+    if (comBase64.success) {
+      expect(comBase64.data.EFI_CERTIFICATE_BASE64).toBeDefined();
     }
   });
 });

@@ -27,16 +27,26 @@ export class EfiTransport {
         ? 'production'
         : 'homologation';
     try {
-      this.agent ??= new Agent({
-        pfx: readFileSync(
-          this.config.get('EFI_CERTIFICATE_PATH', { infer: true }),
-        ),
-        passphrase: this.config.get('EFI_CERTIFICATE_PASSPHRASE', {
+      if (!this.agent) {
+        const certBase64 = this.config.get('EFI_CERTIFICATE_BASE64', {
           infer: true,
-        }),
-        minVersion: 'TLSv1.2',
-        keepAlive: true,
-      });
+        });
+        const certPath = this.config.get('EFI_CERTIFICATE_PATH', {
+          infer: true,
+        });
+        const pfx = certBase64
+          ? Buffer.from(certBase64, 'base64')
+          : readFileSync(certPath!);
+
+        this.agent = new Agent({
+          pfx,
+          passphrase: this.config.get('EFI_CERTIFICATE_PASSPHRASE', {
+            infer: true,
+          }),
+          minVersion: 'TLSv1.2',
+          keepAlive: true,
+        });
+      }
       etapa = 'conexao_mtls';
       return await new Promise((resolve, reject) => {
         const body =

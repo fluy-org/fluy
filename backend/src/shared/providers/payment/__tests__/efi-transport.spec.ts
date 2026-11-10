@@ -181,4 +181,28 @@ describe('transporte HTTP Efí', () => {
     jest.advanceTimersByTime(10000);
     await expect(timeout).rejects.toThrow('timeout');
   });
+  it('inicializa o agente a partir de EFI_CERTIFICATE_BASE64 sem ler arquivo em disco', async () => {
+    (readFileSync as jest.Mock).mockClear();
+    const certBase64 = Buffer.from('meu-certificado-b64').toString('base64');
+    const transportB64 = new EfiTransport(
+      new ConfigService({
+        EFI_CERTIFICATE_BASE64: certBase64,
+        EFI_CERTIFICATE_PASSPHRASE: 'pass',
+      }) as never,
+    );
+    const promessa = transportB64.send({
+      method: 'GET',
+      path: '/v1/participantes',
+    });
+    res.emit('data', Buffer.from('{"ok":true}'));
+    res.emit('end');
+    await promessa;
+    expect(readFileSync).not.toHaveBeenCalled();
+    expect(Agent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pfx: Buffer.from(certBase64, 'base64'),
+        passphrase: 'pass',
+      }),
+    );
+  });
 });
