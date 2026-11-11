@@ -27,3 +27,29 @@ const indexCliente = index
   );
 
 writeFileSync(caminhoIndexCliente, indexCliente);
+
+const conteudoHeadersCloudflare = `/ngsw-worker.js
+  Cache-Control: no-cache
+
+/ngsw.json
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+  Content-Type: application/manifest+json
+
+/manifest-cliente.webmanifest
+  Cache-Control: no-cache
+  Content-Type: application/manifest+json
+
+/index.html
+  Cache-Control: no-cache
+
+/index-cliente
+  Cache-Control: no-cache
+
+/index-cliente.html
+  Cache-Control: no-cache
+`;
+
+writeFileSync(resolve(diretorioSaida, '_headers'), conteudoHeadersCloudflare);
