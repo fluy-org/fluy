@@ -1,54 +1,97 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  OnDestroy,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonButton, IonContent, IonHeader, IonSpinner, IonText, IonTitle, IonToolbar } from '@ionic/angular/standalone';
-import { ApiError } from '../../../../core/errors/api-error';
-import { AuthService } from '../../../../core/services/auth/auth.service';
-import { ContaService } from '../../services/conta.service';
+import {
+  IonContent,
+  IonHeader,
+  IonSpinner,
+  IonText,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import { ApiError } from '@app/core/errors/api-error';
+import { AuthService } from '@app/core/services/auth/auth.service';
+import { ContaService } from '@app/features/auth/services/conta.service';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [IonButton, IonContent, IonHeader, IonSpinner, IonText, IonTitle, IonToolbar],
+  imports: [IonContent, IonHeader, IonSpinner, IonText, IonTitle, IonToolbar],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
-  private authService = inject(AuthService);
-  private contaService = inject(ContaService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+export class LoginPage implements AfterViewInit, OnDestroy {
+  private readonly authService = inject(AuthService);
+  private readonly contaService = inject(ContaService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  isSubmitting = false;
-  verificandoConta = false;
-  errorMessage = '';
+  @ViewChild('clerkSignInHost')
+  private clerkSignInHost?: ElementRef<HTMLDivElement>;
 
-  ngOnInit(): void {
-    // Ao retornar do Clerk, a sessao ja existe e precisamos descobrir o estado da conta local.
-    if (this.authService.isAuthenticated()) {
-      void this.direcionarContaAutenticada();
-    }
+  private loginMontado = false;
+  private direcionandoConta = false;
+
+  readonly verificandoConta = signal(false);
+  readonly errorMessage = signal('');
+
+  constructor() {
+    effect(() => {
+      // Ao autenticar no componente embutido do Clerk (ou retornar logado), verifica a conta local.
+      if (this.authService.isAuthenticated() && !this.direcionandoConta) {
+        this.direcionandoConta = true;
+        this.desmontarFormularioLogin();
+        void this.direcionarContaAutenticada();
+      }
+    });
   }
 
-  async iniciarLogin(): Promise<void> {
-    if (this.isSubmitting) {
+  ngAfterViewInit(): void {
+    if (this.authService.isAuthenticated()) {
       return;
     }
 
-    this.isSubmitting = true;
-    this.errorMessage = '';
-
-    try {
-      await this.authService.iniciarLogin(this.returnUrl);
-    } catch {
-      this.errorMessage = 'Nao foi possivel iniciar o login.';
-      this.isSubmitting = false;
+    const host = this.clerkSignInHost?.nativeElement;
+    if (!host) {
+      return;
     }
+
+    const montado = this.authService.montarLogin({
+      container: host,
+      returnUrl: this.returnUrl,
+    });
+    if (!montado) {
+      this.errorMessage.set('Nao foi possivel carregar o formulario de login.');
+      return;
+    }
+
+    this.loginMontado = true;
+  }
+
+  ngOnDestroy(): void {
+    this.desmontarFormularioLogin();
+  }
+
+  private desmontarFormularioLogin(): void {
+    if (!this.loginMontado || !this.clerkSignInHost) {
+      return;
+    }
+
+    this.authService.desmontarLogin(this.clerkSignInHost.nativeElement);
+    this.loginMontado = false;
   }
 
   private async direcionarContaAutenticada(): Promise<void> {
-    // Este estado diferencia o retorno do Clerk do clique que inicia o login.
-    this.verificandoConta = true;
-    this.errorMessage = '';
+    this.verificandoConta.set(true);
+    this.errorMessage.set('');
 
     try {
       const conta = await this.contaService.consultarAtual();
@@ -71,8 +114,9 @@ export class LoginPage implements OnInit {
         throw error;
       }
 
-      this.errorMessage = error.message;
-      this.verificandoConta = false;
+      this.errorMessage.set(error.message);
+      this.verificandoConta.set(false);
+      this.direcionandoConta = false;
     }
   }
 

@@ -8,7 +8,10 @@ type ClerkWindow = Window & {
 
 let clerkUiLoading: Promise<ClerkUiOptions> | null = null;
 
-export function loadClerkUi(publishableKey: string): Promise<ClerkUiOptions> {
+export function loadClerkUi(input: {
+  publishableKey: string;
+  proxyUrl?: string;
+}): Promise<ClerkUiOptions> {
   const clerkWindow = window as ClerkWindow;
 
   if (clerkWindow.__internal_ClerkUICtor) {
@@ -16,7 +19,7 @@ export function loadClerkUi(publishableKey: string): Promise<ClerkUiOptions> {
   }
 
   if (!clerkUiLoading) {
-    clerkUiLoading = createClerkUiLoader(publishableKey).catch((error: unknown) => {
+    clerkUiLoading = createClerkUiLoader(input).catch((error: unknown) => {
       clerkUiLoading = null;
       throw error;
     });
@@ -25,10 +28,24 @@ export function loadClerkUi(publishableKey: string): Promise<ClerkUiOptions> {
   return clerkUiLoading;
 }
 
-function createClerkUiLoader(publishableKey: string): Promise<ClerkUiOptions> {
+export function resolveClerkUiScriptUrl(input: {
+  publishableKey: string;
+  proxyUrl?: string;
+}): string {
+  const normalizedProxyUrl = input.proxyUrl?.trim().replace(/\/+$/, '');
+  const baseUrl =
+    normalizedProxyUrl || `https://${getClerkDomain(input.publishableKey)}`;
+
+  return `${baseUrl}/npm/@clerk/ui@1/dist/ui.browser.js`;
+}
+
+function createClerkUiLoader(input: {
+  publishableKey: string;
+  proxyUrl?: string;
+}): Promise<ClerkUiOptions> {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = `https://${getClerkDomain(publishableKey)}/npm/@clerk/ui@1/dist/ui.browser.js`;
+    script.src = resolveClerkUiScriptUrl(input);
     script.async = true;
     script.crossOrigin = 'anonymous';
     script.onload = () => {

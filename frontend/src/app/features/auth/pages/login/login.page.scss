@@ -2,9 +2,15 @@
   display: block;
 }
 
-form {
+.login-main {
   max-width: 28rem;
   margin: 0 auto;
+}
+
+.clerk-signin-host {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 }
 
 .checking-account {

@@ -101,4 +101,28 @@ describe('AuthService - cadastro por convite', () => {
     ).toBeRejected();
     expect(setActive).not.toHaveBeenCalled();
   });
+
+  it('monta e desmonta o login embutido no container informado', () => {
+    const mountSignIn = jasmine.createSpy('mountSignIn');
+    const unmountSignIn = jasmine.createSpy('unmountSignIn');
+    const container = document.createElement('div');
+
+    Object.defineProperty(service, 'clerk', {
+      configurable: true,
+      value: { mountSignIn, unmountSignIn },
+    });
+
+    expect(
+      service.montarLogin({ container, returnUrl: '/painel/agenda' }),
+    ).toBeTrue();
+    expect(mountSignIn).toHaveBeenCalledOnceWith(container, {
+      routing: 'hash',
+      fallbackRedirectUrl: '/login?returnUrl=%2Fpainel%2Fagenda',
+      forceRedirectUrl: '/login?returnUrl=%2Fpainel%2Fagenda',
+      signUpUrl: '/convite',
+    });
+
+    service.desmontarLogin(container);
+    expect(unmountSignIn).toHaveBeenCalledOnceWith(container);
+  });
 });

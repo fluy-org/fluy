@@ -26,27 +26,56 @@ export class AuthService {
       return;
     }
 
-    this.clerk = new Clerk(environment.clerkPublishableKey);
-    await this.clerk.load({
-      ui: await loadClerkUi(environment.clerkPublishableKey),
-    });
-    this.syncAuthentication();
-    this.unsubscribeFromClerk = this.clerk.addListener(() =>
-      this.syncAuthentication(),
-    );
+    const proxyUrl = environment.clerkProxyUrl?.trim() || undefined;
+
+    try {
+      this.clerk = new Clerk(
+        environment.clerkPublishableKey,
+        proxyUrl ? { proxyUrl } : undefined,
+      );
+      await this.clerk.load({
+        ui: await loadClerkUi({
+          publishableKey: environment.clerkPublishableKey,
+          proxyUrl,
+        }),
+      });
+      this.syncAuthentication();
+      this.unsubscribeFromClerk = this.clerk.addListener(() =>
+        this.syncAuthentication(),
+      );
+    } catch (error) {
+      this.clerk = null;
+      this.isAuthenticated.set(false);
+      console.error('Falha ao inicializar o Clerk.', error);
+    }
   }
 
   async getToken(): Promise<string | null> {
     return this.clerk?.session?.getToken() ?? null;
   }
 
-  async iniciarLogin(returnUrl: string): Promise<void> {
-    const retornoLogin = `/login?returnUrl=${encodeURIComponent(returnUrl)}`;
+  montarLogin(input: {
+    container: HTMLDivElement;
+    returnUrl: string;
+  }): boolean {
+    if (!this.clerk) {
+      return false;
+    }
 
-    await this.getClerk().redirectToSignIn({
-      signInFallbackRedirectUrl: retornoLogin,
-      signInForceRedirectUrl: retornoLogin,
+    const retornoLogin = `/login?returnUrl=${encodeURIComponent(input.returnUrl)}`;
+
+    this.clerk.mountSignIn(input.container, {
+      routing: 'hash',
+      fallbackRedirectUrl: retornoLogin,
+      forceRedirectUrl: retornoLogin,
+      signUpUrl: '/convite',
     });
+
+    return true;
+  }
+
+  desmontarLogin(container: HTMLDivElement): void {
+    this.clerk?.unmountSignIn(container);
   }
 
   async prepararCadastroPorConvite(

@@ -5,26 +5,24 @@
 </ion-header>
 
 <ion-content class="ion-padding fluy-page-safe">
-  <main>
+  <main class="login-main">
     <ion-text>
       <h1>Acesse seu painel</h1>
       <p>Entre para gerenciar seu salao.</p>
     </ion-text>
 
-    @if (verificandoConta) {
+    @if (verificandoConta()) {
       <div class="checking-account">
         <ion-spinner aria-label="Verificando conta"></ion-spinner>
         <p>Preparando seu painel...</p>
       </div>
     } @else {
-      <ion-button expand="block" [disabled]="isSubmitting" (click)="iniciarLogin()">
-        {{ isSubmitting ? 'Redirecionando...' : 'Entrar' }}
-      </ion-button>
+      <div #clerkSignInHost class="clerk-signin-host"></div>
     }
 
-    @if (errorMessage) {
+    @if (errorMessage()) {
       <ion-text color="danger">
-        <p>{{ errorMessage }}</p>
+        <p>{{ errorMessage() }}</p>
       </ion-text>
     }
   </main>
