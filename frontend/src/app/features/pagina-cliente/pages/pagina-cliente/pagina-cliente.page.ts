@@ -26,7 +26,6 @@ import {
   IonInput,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
-  IonModal,
   IonSpinner,
   IonText,
 } from '@ionic/angular/standalone';
@@ -66,7 +65,6 @@ import {
     IonInput,
     IonInfiniteScroll,
     IonInfiniteScrollContent,
-    IonModal,
     IonSpinner,
     IonText,
     ReactiveFormsModule,
@@ -101,7 +99,6 @@ export class PaginaClientePage implements OnInit, OnDestroy {
   readonly estado = signal<EstadoPaginaCliente>('carregando');
   readonly formatarWhatsapp = formatarWhatsappInternacional;
   readonly cliente = signal<SessaoClientePublicaResponseDto['cliente']>(null);
-  readonly mensagemNatashaAberta = signal(false);
   readonly identificando = signal(false);
   readonly erroIdentificacao = signal<string | null>(null);
   readonly exibirFormulario = signal(false);
@@ -196,9 +193,6 @@ export class PaginaClientePage implements OnInit, OnDestroy {
         resultado.data,
       );
       this.cliente.set(resposta.cliente);
-      this.mensagemNatashaAberta.set(
-        this.nomeRecebeMensagemEspecial(resposta.cliente?.nome ?? ''),
-      );
       this.credencialCliente.set(credencial);
       this.exibirFormulario.set(false);
     } catch {
@@ -214,14 +208,9 @@ export class PaginaClientePage implements OnInit, OnDestroy {
 
   agendarComoOutraPessoa(): void {
     this.paginaClienteService.limparAgendamentos();
-    this.mensagemNatashaAberta.set(false);
     this.cliente.set(null);
     this.formulario.reset();
     this.exibirFormulario.set(true);
-  }
-
-  fecharMensagemNatasha(): void {
-    this.mensagemNatashaAberta.set(false);
   }
 
   async abrirMeusAgendamentos(): Promise<void> {
@@ -730,20 +719,6 @@ export class PaginaClientePage implements OnInit, OnDestroy {
     const mes = String(data.getMonth() + 1).padStart(2, '0');
     const dia = String(data.getDate()).padStart(2, '0');
     return `${ano}-${mes}-${dia}`;
-  }
-
-  private normalizarNome(nome: string): string {
-    return nome
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim()
-      .toLocaleLowerCase('pt-BR');
-  }
-
-  private nomeRecebeMensagemEspecial(nome: string): boolean {
-    const primeiroNome = this.normalizarNome(nome).split(/\s+/)[0];
-
-    return ['na', 'nat', 'nanat', 'natasha'].includes(primeiroNome);
   }
 
   private obterMensagemApi(error: ApiError): string {

@@ -14,6 +14,7 @@ import type {
 import { ProcedimentoRepository } from '@/modules/procedimento/procedimento.repository';
 import { ProcedimentoValidator } from '@/modules/procedimento/procedimento.validator';
 import { ArquivoService } from '@/modules/arquivo/arquivo.service';
+import { ehConflitoUnicidade } from '@/shared/database-errors/database-errors.utils';
 
 @Injectable()
 export class ProcedimentoService {
@@ -143,11 +144,10 @@ export class ProcedimentoService {
 
   private rethrowImageFileConflict(error: unknown): never {
     if (
-      typeof error === 'object' &&
-      error !== null &&
-      (error as { code?: unknown }).code === '23505' &&
-      (error as { constraint?: unknown }).constraint ===
-        'imagem_procedimento_arquivo_id_unique'
+      ehConflitoUnicidade({
+        error,
+        constraint: 'imagem_procedimento_arquivo_id_unique',
+      })
     ) {
       throw new ConflictException(
         'Este arquivo ja esta vinculado a outro procedimento.',

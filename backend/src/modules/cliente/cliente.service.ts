@@ -30,6 +30,7 @@ import type {
 } from '@/modules/cliente/contracts';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 import { adicionarDiasNoInstante } from '@/shared/horario-salao/horario-salao.utils';
+import { ehConflitoUnicidade } from '@/shared/database-errors/database-errors.utils';
 
 @Injectable()
 export class ClienteService {
@@ -142,7 +143,8 @@ export class ClienteService {
 
     private rethrowWhatsappConflict(error: unknown): never {
         if (
-            typeof error === 'object' && error !== null && (error as { code?: unknown }).code === '23505' && (error as { constraint?: unknown }).constraint === 'cliente_salao_whatsapp_uq') {
+            ehConflitoUnicidade({ error, constraint: 'cliente_salao_whatsapp_uq' })
+        ) {
             throw new ConflictException(
                 'Já existe um cliente com este WhatsApp.',
             );

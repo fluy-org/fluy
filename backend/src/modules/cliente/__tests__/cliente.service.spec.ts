@@ -1,4 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { DrizzleQueryError } from 'drizzle-orm';
 
 /* eslint-disable @typescript-eslint/unbound-method -- Jest assertions inspect detached mock functions. */
 
@@ -19,6 +20,8 @@ import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 
 describe('ClienteService', () => {
   const repository = {
+    criar: jest.fn(),
+    atualizar: jest.fn(),
     listar: jest.fn(),
     buscarPorId: jest.fn(),
     buscarFicha: jest.fn(),
@@ -42,6 +45,52 @@ describe('ClienteService', () => {
       .spyOn(salaoConsultaService, 'obterFusoHorario')
       .mockResolvedValue('America/Sao_Paulo');
   });
+
+  describe.each(['criar', 'atualizar'] as const)(
+    '%s: duplicidade',
+    (operacao) => {
+      const input = {
+        id: 'cliente-ana',
+        salaoId: 'salao-ana',
+        dados: { nome: 'Ana', whatsapp: '+5511999999999' },
+      };
+
+      it.each([false, true])(
+        'retorna 409 com erro encapsulado=%s',
+        async (encapsulado) => {
+          const origem = Object.assign(
+            new Error('Detalhes privados do banco'),
+            {
+              code: '23505',
+              constraint: 'cliente_salao_whatsapp_uq',
+            },
+          );
+          const error = encapsulado
+            ? new DrizzleQueryError('insert', [], origem)
+            : origem;
+          jest.spyOn(repository, operacao).mockRejectedValue(error);
+
+          await expect(service[operacao](input)).rejects.toMatchObject({
+            status: 409,
+            message: 'Já existe um cliente com este WhatsApp.',
+          });
+        },
+      );
+
+      it('preserva falhas de outras constraints', async () => {
+        const error = new DrizzleQueryError(
+          'insert',
+          [],
+          Object.assign(new Error('Outro erro'), {
+            code: '23505',
+            constraint: 'outra_constraint',
+          }),
+        );
+        jest.spyOn(repository, operacao).mockRejectedValue(error);
+        await expect(service[operacao](input)).rejects.toBe(error);
+      });
+    },
+  );
 
   describe('listar', () => {
     it('consulta a primeira página no salão informado', async () => {

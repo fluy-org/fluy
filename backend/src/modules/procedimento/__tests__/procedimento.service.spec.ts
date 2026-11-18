@@ -1,4 +1,5 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { DrizzleQueryError } from 'drizzle-orm';
 
 /* eslint-disable @typescript-eslint/unbound-method -- Jest assertions inspect detached mock functions. */
 
@@ -119,6 +120,66 @@ describe('ProcedimentoService', () => {
       ConflictException,
     );
   });
+
+  describe.each(['criar', 'atualizar'] as const)(
+    '%s: conflito de imagem',
+    (operacao) => {
+      const input = {
+        id: procedimento.id,
+        salaoId: procedimento.salao_id,
+        dados: {
+          nome: 'Corte',
+          duracao_min: 30,
+          preco: 100,
+          tipo_sinal: 'fixo' as const,
+          valor_sinal: 20,
+          imagem: { arquivo_id: 'c7d30e66-cf2a-4cdf-a6de-7a9a083e9a43' },
+        },
+      };
+
+      beforeEach(() => {
+        jest.spyOn(repository, 'buscarPorId').mockResolvedValue(procedimento);
+        jest.spyOn(validator, 'validarCriacao').mockReturnValue(input.dados);
+        jest
+          .spyOn(validator, 'validarAtualizacao')
+          .mockReturnValue(input.dados);
+      });
+
+      it.each([false, true])(
+        'retorna 409 com erro encapsulado=%s',
+        async (encapsulado) => {
+          const origem = Object.assign(
+            new Error('Detalhes privados do banco'),
+            {
+              code: '23505',
+              constraint: 'imagem_procedimento_arquivo_id_unique',
+            },
+          );
+          const error = encapsulado
+            ? new DrizzleQueryError('insert', [], origem)
+            : origem;
+          jest.spyOn(repository, operacao).mockRejectedValue(error);
+          await expect(service[operacao](input)).rejects.toMatchObject({
+            status: 409,
+            message: 'Este arquivo ja esta vinculado a outro procedimento.',
+          });
+        },
+      );
+
+      it('preserva falhas de outras constraints', async () => {
+        const error = new DrizzleQueryError(
+          'insert',
+          [],
+          Object.assign(new Error('Outro erro'), {
+            code: '23505',
+            constraint: 'outra_constraint',
+          }),
+        );
+        jest.spyOn(repository, operacao).mockRejectedValue(error);
+        await expect(service[operacao](input)).rejects.toBe(error);
+      });
+    },
+  );
 
   it('lista procedimentos no salão informado', async () => {
     jest.spyOn(repository, 'listar').mockResolvedValue([procedimento]);

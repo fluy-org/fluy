@@ -53,11 +53,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: '',
-        loadChildren: () =>
-          import('./features/demo/demo.routes').then((m) => m.routes),
-      },
-      {
         path: 'cliente',
         pathMatch: 'full',
         redirectTo: redirecionarPwaCliente,
@@ -73,9 +68,8 @@ export const routes: Routes = [
   },
   {
     path: 'clientes',
-    loadComponent: () =>
-      import('./features/salao/clientes/pages/clientes/clientes.page').then(
-        (m) => m.ClientesPage,
-      ),
+    pathMatch: 'full',
+    redirectTo: '/painel/clientes',
   },
+  { path: '**', redirectTo: '/login' },
 ];
