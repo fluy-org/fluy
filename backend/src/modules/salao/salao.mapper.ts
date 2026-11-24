@@ -16,10 +16,15 @@ export function toSalaoAtualResponse(
   };
 }
 
-export function toSalaoPublicoResponse(
-  salao: SalaoConsultado,
-  configuracao: SalaoConfiguracaoPersistida,
-): SalaoPublicoResponseDto {
+export function toSalaoPublicoResponse({
+  salao,
+  configuracao,
+  pagamentoOnlineDisponivel,
+}: {
+  salao: SalaoConsultado;
+  configuracao: SalaoConfiguracaoPersistida;
+  pagamentoOnlineDisponivel: boolean;
+}): SalaoPublicoResponseDto {
   return {
     nome: salao.nome,
     subdominio: salao.subdominio,
@@ -29,5 +34,7 @@ export function toSalaoPublicoResponse(
     mensagem_confirmacao: configuracao.mensagem_confirmacao,
     politica_atraso: configuracao.politica_atraso,
     tolerancia_atraso_min: configuracao.tolerancia_atraso_min,
+    pagamento_online_disponivel: pagamentoOnlineDisponivel,
+    prazo_reserva_min: configuracao.prazo_reserva_min,
   };
 }

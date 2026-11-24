@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 | --- | --- |
-| **Responsável** | _a definir_ |
-| **Status** | A fazer, **depende de decisão de produto** (ver "Decisões necessárias") |
+| **Responsável** | Agente Orquestrador de Implementação |
+| **Status** | Concluído |
 | **Prioridade** | Alta |
 | **Área** | Página pública · Configuração do procedimento · Backend de agendamento e pagamento |
 | **Origem** | Teste manual do dono + auditoria |
@@ -118,10 +118,10 @@ Registrar as decisões em `docs/flows/PENDENCIAS.md`.
 
 ## Critérios de conclusão
 
-- [ ] Um salão sem chave Pix recebe agendamentos de procedimento com sinal pelo link, e eles nascem `agendado`.
-- [ ] Com `PAYMENT_PROVIDER=disabled`, o agendamento público funciona para qualquer procedimento.
-- [ ] Com sinal opcional e Pix configurado, a cliente escolhe entre pagar agora e pagar no salão.
-- [ ] O agendamento reflete a escolha da cliente no painel.
-- [ ] O sinal aparece no catálogo e na revisão antes de qualquer reserva.
-- [ ] A mensagem "o sinal pago não será devolvido" só aparece quando houve pagamento confirmado.
-- [ ] As decisões e os docs listados estão atualizados.
+- [x] Um salão sem chave Pix recebe agendamentos de procedimento com sinal pelo link, e eles nascem `agendado`.
+- [x] Com `PAYMENT_PROVIDER=disabled`, o agendamento público funciona para qualquer procedimento.
+- [x] Com sinal opcional e Pix configurado, a cliente escolhe entre pagar agora e pagar no salão.
+- [x] O agendamento reflete a escolha da cliente no painel.
+- [x] O sinal aparece no catálogo e na revisão antes de qualquer reserva.
+- [x] A mensagem "o sinal pago não será devolvido" só aparece quando houve pagamento confirmado.
+- [x] As decisões e os docs listados estão atualizados.

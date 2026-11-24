@@ -1,4 +1,7 @@
-import { toAgendamentoPublicoDetalheResponse } from '@/modules/agendamento/agendamento.mapper';
+import {
+  toAgendamentoDetalheResponse,
+  toAgendamentoPublicoDetalheResponse,
+} from '@/modules/agendamento/agendamento.mapper';
 import type { AgendamentoDetalheResultado } from '@/modules/agendamento/contracts';
 
 describe('AgendamentoMapper', () => {
@@ -10,9 +13,30 @@ describe('AgendamentoMapper', () => {
     expect(resposta).not.toHaveProperty('quantidade_anexos');
     expect(resposta).not.toHaveProperty('anexos');
   });
+
+  it('mapeia pagamento_no_salao e valor_pago no detalhe publico e privado', () => {
+    const detalhe = criarAgendamentoDetalhe({
+      pagamento_no_salao: true,
+      valorPago: '35.00',
+    });
+
+    const respostaPublica = toAgendamentoPublicoDetalheResponse(detalhe);
+    expect(respostaPublica).toMatchObject({
+      pagamento_no_salao: true,
+      valor_pago: 35,
+    });
+
+    const respostaPrivada = toAgendamentoDetalheResponse(detalhe);
+    expect(respostaPrivada).toMatchObject({
+      pagamento_no_salao: true,
+      valor_pago: 35,
+    });
+  });
 });
 
-function criarAgendamentoDetalhe(): AgendamentoDetalheResultado {
+function criarAgendamentoDetalhe(
+  override: Partial<AgendamentoDetalheResultado> = {},
+): AgendamentoDetalheResultado {
   return {
     id: 'b94a24a5-5036-43ba-af8a-f2128fd63bed',
     salao_id: '46df3565-f773-4744-aa61-c84950ed37ba',
@@ -26,6 +50,7 @@ function criarAgendamentoDetalhe(): AgendamentoDetalheResultado {
     valor_sinal: '0.00',
     estado: 'agendado',
     expira_em: null,
+    pagamento_no_salao: false,
     criado_em: new Date('2026-10-01T12:00:00.000Z'),
     cliente: {
       id: 'f8fd9eae-8ea2-4df5-a321-e46621b28a4d',
@@ -47,5 +72,6 @@ function criarAgendamentoDetalhe(): AgendamentoDetalheResultado {
     avisos: [],
     fusoHorario: 'America/Sao_Paulo',
     remarcado_vezes: 0,
+    ...override,
   };
 }

@@ -26,13 +26,13 @@ export class PagamentoPublicoService {
 
   async consultarCheckout(salaoId: string) {
     this.exigirProvedor();
-    const recebimento = await this.recebimentoPix.buscar(salaoId);
+    const recebimento = await this.obterRecebimentoPix(salaoId);
     return { nome_recebedor: recebimento.pix_nome_recebedor! };
   }
 
   async listarInstituicoes(salaoId: string) {
     this.exigirProvedor();
-    await this.recebimentoPix.buscar(salaoId);
+    await this.obterRecebimentoPix(salaoId);
     return this.pagamento.listarInstituicoes();
   }
 
@@ -41,7 +41,7 @@ export class PagamentoPublicoService {
     dados: CriarAgendamentoPublicoDto;
   }) {
     this.exigirProvedor();
-    await this.recebimentoPix.buscar(input.salaoId);
+    await this.obterRecebimentoPix(input.salaoId);
     return this.agendamento.reservar(input);
   }
 
@@ -98,6 +98,14 @@ export class PagamentoPublicoService {
 
   private exigirProvedor() {
     if (this.config.get('PAYMENT_PROVIDER', { infer: true }) === 'disabled') {
+      throw new ServiceUnavailableException('Pagamento online indisponível.');
+    }
+  }
+
+  private async obterRecebimentoPix(salaoId: string) {
+    try {
+      return await this.recebimentoPix.buscar(salaoId);
+    } catch {
       throw new ServiceUnavailableException('Pagamento online indisponível.');
     }
   }

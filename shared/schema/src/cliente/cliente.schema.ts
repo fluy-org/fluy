@@ -111,6 +111,8 @@ export const agendamentoClienteResponseSchema = z
     }),
     preco_total: z.number().nonnegative(),
     valor_sinal: z.number().nonnegative(),
+    valor_pago: z.number().nonnegative(),
+    pagamento_no_salao: z.boolean(),
   })
   .meta({ id: "AgendamentoClienteResponse" });
 

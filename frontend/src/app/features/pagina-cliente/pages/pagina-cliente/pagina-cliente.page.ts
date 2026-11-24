@@ -37,7 +37,10 @@ import { formatarWhatsappInternacional } from '@fluy/schema';
 import { CabecalhoPublicoComponent } from '@app/features/pagina-cliente/components/cabecalho-publico/cabecalho-publico.component';
 import { CatalogoProcedimentosComponent } from '@app/features/pagina-cliente/components/catalogo-procedimentos/catalogo-procedimentos.component';
 import { EscolhaHorarioComponent } from '@app/features/pagina-cliente/components/escolha-horario/escolha-horario.component';
-import { ConfirmacaoAgendamentoComponent } from '@app/features/pagina-cliente/components/confirmacao-agendamento/confirmacao-agendamento.component';
+import {
+  ConfirmacaoAgendamentoComponent,
+  type ConfirmacaoAgendamentoEvento,
+} from '@app/features/pagina-cliente/components/confirmacao-agendamento/confirmacao-agendamento.component';
 import { MeusAgendamentosComponent } from '@app/features/pagina-cliente/components/meus-agendamentos/meus-agendamentos.component';
 import { PaginaClienteService } from '@app/features/pagina-cliente/services/pagina-cliente.service';
 import { ApiError } from '@app/core/errors/api-error';
@@ -527,11 +530,14 @@ export class PaginaClientePage implements OnInit, OnDestroy {
     this.erroAgendamento.set(null);
   }
 
-  async confirmarAgendamento(referencias: File[]): Promise<void> {
+  async confirmarAgendamento(
+    evento: ConfirmacaoAgendamentoEvento,
+  ): Promise<void> {
     if (this.salvandoAgendamento() || this.agendamentoCriado()) return;
     const versao = this.versaoPagina;
     const subdominio = this.obterSubdominio();
     const procedimento = this.procedimentoSelecionado();
+    const salao = this.salao();
     const hora = this.horaSelecionada();
     const credencial = this.paginaClienteService.obterCredencial(subdominio);
 
@@ -548,8 +554,17 @@ export class PaginaClientePage implements OnInit, OnDestroy {
         data: this.dataSelecionada(),
         hora_inicio: hora,
         confirmar_excecoes: false,
+        ...(evento.opcaoPagamento === 'no_salao'
+          ? { opcao_pagamento: 'no_salao' as const }
+          : {}),
       };
-      const exigePagamento = procedimento.valor_sinal > 0;
+      const pagamentoOnlineDisponivel =
+        salao?.pagamento_online_disponivel ?? false;
+      const exigePagamento =
+        evento.opcaoPagamento === 'online' &&
+        procedimento.valor_sinal > 0 &&
+        pagamentoOnlineDisponivel;
+
       const agendamento = exigePagamento
         ? (
             await this.checkout.reservar({
@@ -561,6 +576,7 @@ export class PaginaClientePage implements OnInit, OnDestroy {
         : await this.paginaClienteService.criarAgendamento(subdominio, dados);
       this.agendamentoCriadoId.set(agendamento.id);
 
+      const referencias = evento.referencias;
       if (referencias.length > 0) {
         const resultados = await Promise.allSettled(
           referencias.map((arquivo) =>

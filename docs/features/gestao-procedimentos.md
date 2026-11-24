@@ -10,7 +10,8 @@ Manter o catálogo de serviços oferecidos pelo salão, com os dados essenciais 
 
 ## Capacidades entregues
 
-- Criar procedimento com: nome, duração estimada (min), preço, sinal (percentual ou fixo).
+- Criar procedimento com: nome, duração estimada (min), preço, sinal (percentual ou fixo) e política do sinal (`obrigatorio` ou `opcional`).
+- Configurar se o sinal é obrigatório (bloqueia confirmação sem Pix em salões com pagamento online) ou opcional (permite que a cliente escolha pagar no salão). Quando o salão não tiver pagamento online disponível, procedimentos com sinal caem automaticamente para pagamento no salão.
 - Adicionar informações opcionais ao procedimento: descrição, informações pré-procedimento e período de manutenção sugerido (dias).
 - Associar uma imagem opcional ao criar ou editar o procedimento por `imagem.arquivo_id`.
 - Substituir a imagem ao informar outro arquivo e removê-la por comando dedicado.

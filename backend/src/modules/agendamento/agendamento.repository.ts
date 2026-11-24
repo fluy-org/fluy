@@ -241,6 +241,9 @@ export class AgendamentoRepository {
           valor_sinal: input.valorSinal,
           estado: input.estado ?? 'agendado',
           ...(input.expiraEm ? { expira_em: input.expiraEm } : {}),
+          ...(input.pagamentoNoSalao !== undefined
+            ? { pagamento_no_salao: input.pagamentoNoSalao }
+            : {}),
         })
         .returning();
 

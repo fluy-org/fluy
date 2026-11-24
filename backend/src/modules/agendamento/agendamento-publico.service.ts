@@ -188,6 +188,8 @@ export class AgendamentoPublicoService {
     });
     const clienteId = sessaoPublica.cliente?.id ?? (sessaoPublica as any).id;
     const sessaoId = sessaoPublica.sessao?.id;
+    const pagamentoNoSalao =
+      dados.opcao_pagamento === 'no_salao' || dados.pagamento_no_salao === true;
 
     const criado = await this.agendamentoService.criar({
       exigirSemSinal: true,
@@ -196,6 +198,7 @@ export class AgendamentoPublicoService {
       notificarCliente: false,
       publico: true,
       sessaoClienteId: sessaoId,
+      pagamentoNoSalao,
       dados: {
         cliente_id: clienteId,
         procedimento_id: dados.procedimento_id,

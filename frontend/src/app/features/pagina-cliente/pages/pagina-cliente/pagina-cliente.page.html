@@ -162,6 +162,7 @@
       <app-catalogo-procedimentos
         [procedimentos]="procedimentos()"
         [procedimentoSelecionadoId]="procedimentoSelecionado()?.id ?? null"
+        [pagamentoOnlineDisponivel]="salaoAtual.pagamento_online_disponivel"
         [carregando]="carregandoCatalogo()"
         [erro]="erroCatalogo()"
         (selecionar)="selecionarProcedimento($event)"

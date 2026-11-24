@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { imagemProcedimentoInputSchema } from "../imagem_procedimento/imagem_procedimento.schema.js";
-import { TIPO_SINAL } from "./procedimento.enums.js";
+import { POLITICA_SINAL, TIPO_SINAL } from "./procedimento.enums.js";
 import { PERIODO_MANUTENCAO_MAXIMO_DIAS } from "./procedimento.constants.js";
 
 const MENSAGEM_NOME_INVALIDO = "Informe o nome do procedimento.";
@@ -34,6 +34,7 @@ const camposCriarProcedimento = {
   preco: valorMonetarioSchema,
   tipo_sinal: z.enum(TIPO_SINAL),
   valor_sinal: valorMonetarioSchema,
+  politica_sinal: z.enum(POLITICA_SINAL).default("obrigatorio"),
   imagem: imagemProcedimentoInputSchema.optional(),
   periodo_manutencao_dias: z
     .number()
@@ -85,6 +86,7 @@ export const procedimentoResponseSchema = z
     preco: z.number().nonnegative(),
     tipo_sinal: z.enum(TIPO_SINAL),
     valor_sinal: z.number().nonnegative(),
+    politica_sinal: z.enum(POLITICA_SINAL),
     periodo_manutencao_dias: z.number().int().positive().nullable(),
     imagem_url: z.url().nullable(),
     ativo: z.boolean(),
@@ -100,7 +102,9 @@ export const procedimentoPublicoResponseSchema = z
     info_pre_procedimento: z.string().nullable(),
     duracao_min: z.number().int().positive(),
     preco: z.number().nonnegative(),
+    tipo_sinal: z.enum(TIPO_SINAL),
     valor_sinal: z.number().nonnegative(),
+    politica_sinal: z.enum(POLITICA_SINAL),
     imagem_url: z.url().nullable(),
   })
   .meta({ id: "ProcedimentoPublicoResponse" });

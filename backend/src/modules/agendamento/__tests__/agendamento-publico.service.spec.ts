@@ -158,22 +158,47 @@ describe('AgendamentoPublicoService', () => {
       },
     });
 
-    expect(criar).toHaveBeenCalledWith({
-      exigirSemSinal: true,
-      salaoId: 'salao-do-path',
-      bloquearProcedimentoDuplicadoNoDia: true,
-      notificarCliente: false,
-      publico: true,
-      dados: {
-        cliente_id: 'cliente-da-sessao',
-        procedimento_id: dados.procedimento_id,
-        data: dados.data,
-        hora_inicio: '10:00',
-        confirmar_excecoes: false,
-      },
-    });
+    expect(criar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        exigirSemSinal: true,
+        salaoId: 'salao-do-path',
+        bloquearProcedimentoDuplicadoNoDia: true,
+        notificarCliente: false,
+        publico: true,
+        pagamentoNoSalao: false,
+        dados: {
+          cliente_id: 'cliente-da-sessao',
+          procedimento_id: dados.procedimento_id,
+          data: dados.data,
+          hora_inicio: '10:00',
+          confirmar_excecoes: false,
+        },
+      }),
+    );
     expect(notificarCriacaoPublica).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'agendamento-1' }),
+    );
+  });
+
+  it('repassa pagamentoNoSalao ao agendamentoService quando opção no_salao for informada', async () => {
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    criar.mockResolvedValue({ id: 'agendamento-1', estado: 'agendado' });
+    buscarDetalhe.mockResolvedValue({ id: 'agendamento-1' });
+
+    await service.criar({
+      salaoId: 'salao-do-path',
+      dados: {
+        ...dados,
+        hora_inicio: '10:00',
+        confirmar_excecoes: false,
+        opcao_pagamento: 'no_salao',
+      },
+    });
+
+    expect(criar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pagamentoNoSalao: true,
+      }),
     );
   });
 

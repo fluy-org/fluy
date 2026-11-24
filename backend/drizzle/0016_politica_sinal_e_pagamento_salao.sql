@@ -1,0 +1,2 @@
+ALTER TABLE "procedimento" ADD COLUMN "politica_sinal" varchar(20) DEFAULT 'obrigatorio' NOT NULL;--> statement-breakpoint
+ALTER TABLE "agendamento" ADD COLUMN "pagamento_no_salao" boolean DEFAULT false NOT NULL;

@@ -155,6 +155,15 @@ export class ClienteRepository {
         estado: agendamento.estado,
         preco_total: agendamento.preco_total,
         valor_sinal: agendamento.valor_sinal,
+        pagamento_no_salao: agendamento.pagamento_no_salao,
+        valor_pago: sql<string>`coalesce((
+          select sum(coalesce(pa.valor, cg.valor, cm.valor, 0))::text
+          from ${pagamentoAgendamento} pa
+          left join ${cobrancaGateway} cg on cg.id = pa.cobranca_gateway_id and cg.salao_id = ${input.salaoId}
+          left join ${cobrancaManual} cm on cm.id = pa.cobranca_manual_id and cm.salao_id = ${input.salaoId}
+          where pa.agendamento_id = ${agendamento.id}
+            and (cg.status = 'confirmada' or pa.cobranca_manual_id is not null)
+        ), '0.00')`,
         procedimento: {
           id: procedimento.id,
           nome: procedimento.nome,

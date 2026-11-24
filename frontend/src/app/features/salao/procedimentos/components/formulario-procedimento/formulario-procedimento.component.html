@@ -133,6 +133,16 @@
         formControlName="valor_sinal"
       ></ion-input>
 
+      <ion-select
+        label="Política do sinal"
+        class="campo-metade"
+        labelPlacement="stacked"
+        formControlName="politica_sinal"
+      >
+        <ion-select-option value="obrigatorio">Obrigatório</ion-select-option>
+        <ion-select-option value="opcional">Opcional (cliente pode pagar no salão)</ion-select-option>
+      </ion-select>
+
       <ion-input
         type="number"
         label="Periodo de manutenção em dias"

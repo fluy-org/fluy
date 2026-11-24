@@ -60,6 +60,15 @@
               <ion-text>{{ formatarDuracao(procedimento.duracao_min) }}</ion-text>
               <strong>{{ formatarPreco(procedimento.preco) }}</strong>
             </div>
+
+            @if (procedimento.valor_sinal > 0) {
+              <div class="sinal-info">
+                <ion-text class="sinal-tag">
+                  Sinal: {{ formatarPreco(procedimento.valor_sinal) }}
+                  ({{ !pagamentoOnlineDisponivel() ? 'pago no salão' : procedimento.politica_sinal === 'opcional' ? 'opcional' : 'obrigatório' }})
+                </ion-text>
+              </div>
+            }
           </div>
           </div>
         </ion-card>

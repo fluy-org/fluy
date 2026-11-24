@@ -54,4 +54,52 @@ describe('RecebimentoPixService', () => {
       NotFoundException,
     );
   });
+
+  describe('verificarPagamentoOnlineDisponivel', () => {
+    it('retorna false quando PAYMENT_PROVIDER está disabled', async () => {
+      const config = { get: jest.fn().mockReturnValue('disabled') };
+      const servicoComConfig = new RecebimentoPixService(
+        repository as never,
+        config as never,
+      );
+
+      const resultado = await servicoComConfig.verificarPagamentoOnlineDisponivel('salao-a');
+      expect(resultado).toBe(false);
+      expect(repository.buscar).not.toHaveBeenCalled();
+    });
+
+    it('retorna false quando provedor ativo mas pix incompleto', async () => {
+      const config = { get: jest.fn().mockReturnValue('efi') };
+      const servicoComConfig = new RecebimentoPixService(
+        repository as never,
+        config as never,
+      );
+      repository.buscar.mockResolvedValue({
+        pix_tipo_chave: 'email',
+        pix_chave: 'salao@example.com',
+        pix_nome_recebedor: null,
+        pix_atualizado_em: null,
+      });
+
+      const resultado = await servicoComConfig.verificarPagamentoOnlineDisponivel('salao-a');
+      expect(resultado).toBe(false);
+    });
+
+    it('retorna true quando provedor ativo e pix completo', async () => {
+      const config = { get: jest.fn().mockReturnValue('efi') };
+      const servicoComConfig = new RecebimentoPixService(
+        repository as never,
+        config as never,
+      );
+      repository.buscar.mockResolvedValue({
+        pix_tipo_chave: 'email',
+        pix_chave: 'salao@example.com',
+        pix_nome_recebedor: 'Salão Completo',
+        pix_atualizado_em: new Date(),
+      });
+
+      const resultado = await servicoComConfig.verificarPagamentoOnlineDisponivel('salao-a');
+      expect(resultado).toBe(true);
+    });
+  });
 });

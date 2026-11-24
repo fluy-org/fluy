@@ -10,6 +10,9 @@ jest.mock('@/modules/disponibilidade/disponibilidade.service', () => ({
 jest.mock('@/modules/procedimento/procedimento.service', () => ({
   ProcedimentoService: class {},
 }));
+jest.mock('@/modules/salao-configuracao/recebimento-pix.service', () => ({
+  RecebimentoPixService: class {},
+}));
 import { AgendamentoService } from '@/modules/agendamento/agendamento.service';
 import { ConflictException } from '@nestjs/common';
 
@@ -27,6 +30,9 @@ describe('AgendamentoService: dispensa de antecipação pública', () => {
   };
   const avaliarHorario = jest.fn();
   const cliente = { buscarPorId: jest.fn() };
+  const recebimentoPixService = {
+    verificarPagamentoOnlineDisponivel: jest.fn(),
+  };
   const service = new AgendamentoService(
     repository as never,
     { avaliarHorario } as never,
@@ -37,6 +43,7 @@ describe('AgendamentoService: dispensa de antecipação pública', () => {
     {} as never,
     cliente as never,
     {} as never,
+    recebimentoPixService as never,
   );
   const input = {
     salaoId: 'salao-a',
@@ -56,8 +63,9 @@ describe('AgendamentoService: dispensa de antecipação pública', () => {
       id: 'agendamento-a',
       estado: 'agendado',
     });
+    recebimentoPixService.verificarPagamentoOnlineDisponivel.mockResolvedValue(true);
   });
-  function configurarSinal(valor: string) {
+  function configurarSinal(valor: string, politica: 'obrigatorio' | 'opcional' = 'obrigatorio') {
     jest.spyOn(service, 'buscarDadosParaAvaliacaoHorario').mockResolvedValue({
       fusoHorario: 'America/Sao_Paulo',
       configuracao: {},
@@ -67,12 +75,51 @@ describe('AgendamentoService: dispensa de antecipação pública', () => {
         preco: '100.00',
         tipo_sinal: 'fixo',
         valor_sinal: valor,
+        politica_sinal: politica,
         duracao_min: 30,
       },
     } as never);
   }
-  it('impede confirmar sem pagamento quando o sinal é positivo', async () => {
-    configurarSinal('25.00');
+  it('impede confirmar sem pagamento quando o sinal é positivo, online disponível e política obrigatória', async () => {
+    configurarSinal('25.00', 'obrigatorio');
+    await expect(service.criar(input)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(repository.criar).not.toHaveBeenCalled();
+  });
+  it('permite agendar com sinal quando pagamento online estiver indisponível no salão', async () => {
+    recebimentoPixService.verificarPagamentoOnlineDisponivel.mockResolvedValue(false);
+    configurarSinal('25.00', 'obrigatorio');
+    await expect(service.criar(input)).resolves.toMatchObject({
+      estado: 'agendado',
+    });
+    expect(repository.criar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        salaoId: 'salao-a',
+        valorSinal: '25.00',
+        pagamentoNoSalao: true,
+      }),
+    );
+  });
+  it('permite agendar com sinal quando política for opcional e cliente escolheu pagar no salão', async () => {
+    recebimentoPixService.verificarPagamentoOnlineDisponivel.mockResolvedValue(true);
+    configurarSinal('25.00', 'opcional');
+    await expect(
+      service.criar({ ...input, pagamentoNoSalao: true }),
+    ).resolves.toMatchObject({
+      estado: 'agendado',
+    });
+    expect(repository.criar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        salaoId: 'salao-a',
+        valorSinal: '25.00',
+        pagamentoNoSalao: true,
+      }),
+    );
+  });
+  it('impede agendar quando política for opcional mas cliente não escolheu pagar no salão', async () => {
+    recebimentoPixService.verificarPagamentoOnlineDisponivel.mockResolvedValue(true);
+    configurarSinal('25.00', 'opcional');
     await expect(service.criar(input)).rejects.toBeInstanceOf(
       ConflictException,
     );

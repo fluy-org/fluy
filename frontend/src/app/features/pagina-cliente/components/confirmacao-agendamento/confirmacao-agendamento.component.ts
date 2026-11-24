@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  computed,
   input,
   output,
   signal,
@@ -13,11 +14,22 @@ import type {
   SalaoPublicoResponseDto,
 } from '@fluy/schema';
 import { IonButton, IonIcon, IonImg, IonText } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  informationCircleOutline,
+  radioButtonOff,
+  radioButtonOn,
+} from 'ionicons/icons';
 import {
   LIMITE_REFERENCIAS_POR_AGENDAMENTO,
   TAMANHO_MAXIMO_REFERENCIA_BYTES,
   TIPOS_REFERENCIA_ACEITOS,
 } from '@app/features/pagina-cliente/pagina-cliente-data';
+
+export type ConfirmacaoAgendamentoEvento = {
+  referencias: File[];
+  opcaoPagamento: 'online' | 'no_salao';
+};
 
 type ReferenciaSelecionada = {
   arquivo: File;
@@ -41,12 +53,48 @@ export class ConfirmacaoAgendamentoComponent implements OnDestroy {
   readonly erro = input<string | null>(null);
 
   readonly voltar = output<void>();
-  readonly confirmar = output<File[]>();
+  readonly confirmar = output<ConfirmacaoAgendamentoEvento>();
   readonly seletorArquivo =
     viewChild<ElementRef<HTMLInputElement>>('seletorReferencia');
   readonly referencias = signal<ReferenciaSelecionada[]>([]);
   readonly erroReferencia = signal<string | null>(null);
   readonly limiteReferencias = LIMITE_REFERENCIAS_POR_AGENDAMENTO;
+
+  readonly opcaoPagamento = signal<'online' | 'no_salao'>('online');
+
+  readonly podeEscolherPagamento = computed(() => {
+    return (
+      this.salao().pagamento_online_disponivel &&
+      this.procedimento().valor_sinal > 0 &&
+      this.procedimento().politica_sinal === 'opcional'
+    );
+  });
+
+  readonly devePagarNoSalao = computed(() => {
+    if (!this.salao().pagamento_online_disponivel) return true;
+    if (this.procedimento().valor_sinal === 0) return true;
+    if (this.podeEscolherPagamento() && this.opcaoPagamento() === 'no_salao') return true;
+    return false;
+  });
+
+  readonly textoBotaoConfirmar = computed(() => {
+    if (this.salvando()) return 'Preparando...';
+    if (this.devePagarNoSalao()) {
+      if (this.procedimento().valor_sinal === 0) {
+        return 'Confirmar sem pagamento antecipado';
+      }
+      return 'Confirmar agendamento (pagar no salão)';
+    }
+    return 'Reservar e ir ao pagamento';
+  });
+
+  constructor() {
+    addIcons({
+      informationCircleOutline,
+      radioButtonOff,
+      radioButtonOn,
+    });
+  }
 
   ngOnDestroy(): void {
     this.referencias().forEach(({ url }) => URL.revokeObjectURL(url));
@@ -54,6 +102,10 @@ export class ConfirmacaoAgendamentoComponent implements OnDestroy {
 
   abrirSeletor(): void {
     this.seletorArquivo()?.nativeElement.click();
+  }
+
+  selecionarOpcaoPagamento(opcao: 'online' | 'no_salao'): void {
+    this.opcaoPagamento.set(opcao);
   }
 
   selecionarReferencias(evento: Event): void {
@@ -97,7 +149,11 @@ export class ConfirmacaoAgendamentoComponent implements OnDestroy {
   }
 
   confirmarAgendamento(): void {
-    this.confirmar.emit(this.referencias().map(({ arquivo }) => arquivo));
+    const opcaoFinal = this.devePagarNoSalao() ? 'no_salao' : 'online';
+    this.confirmar.emit({
+      referencias: this.referencias().map(({ arquivo }) => arquivo),
+      opcaoPagamento: opcaoFinal,
+    });
   }
 
   formatarData(data: string): string {

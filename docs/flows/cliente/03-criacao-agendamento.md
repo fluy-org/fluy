@@ -1,5 +1,11 @@
 # Cliente — Criação de agendamento
 
+## Atualização de 23/11/2026 (FLY-002: Sinal Opcional e Salão sem Pagamento Online)
+
+- **Salão sem recebimento online (`pagamento_online_disponivel = false`)**: se o salão não possui chave Pix ativa ou provedor desativado, procedimentos com sinal não impedem o agendamento. O agendamento é criado diretamente em `agendado` com `pagamento_no_salao = true` (sem passar por `reservado`).
+- **Procedimento com sinal opcional (`politica_sinal = 'opcional'`)**: a cliente pode escolher entre pagar o sinal agora via Pix ou pagar presencialmente no salão. Se optar pelo salão, nasce diretamente como `agendado` (`pagamento_no_salao = true`).
+- **Resumo do sinal**: exibe valor do sinal, se obrigatório ou opcional, prazo de reserva e aviso sobre CPF e app do banco.
+
 ## Atualização de 28/10/2026
 
 Efí Open Finance em homologação prevalece sobre hipóteses históricas de gateway. Sinal zero confirma sem antecipação (inclusive gratuito); restante presencial. Sinal positivo exige reserva e confirmação financeira. Falha de provider não dispensa pagamento. Tarifa canônica discriminada antes da autorização externa; retorno do banco não confirma pagamento. Confirmação tardia orienta contato do salão para combinar remarcação/devolução. Histórico financeiro de reservas expiradas é preservado.

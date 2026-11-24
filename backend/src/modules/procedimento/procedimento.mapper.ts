@@ -24,6 +24,7 @@ export function toProcedimentoResponse({
     preco: Number(procedimento.preco),
     tipo_sinal: procedimento.tipo_sinal,
     valor_sinal: Number(procedimento.valor_sinal),
+    politica_sinal: procedimento.politica_sinal,
     periodo_manutencao_dias: procedimento.periodo_manutencao_dias,
     imagem_url: criarUrlImagemProcedimento({ procedimento, apiPublicUrl }),
     ativo: procedimento.ativo,
@@ -45,7 +46,9 @@ export function toProcedimentoPublicoResponse({
     info_pre_procedimento: procedimento.info_pre_procedimento,
     duracao_min: procedimento.duracao_min,
     preco: Number(procedimento.preco),
+    tipo_sinal: procedimento.tipo_sinal,
     valor_sinal: Number(procedimento.valor_sinal_calculado),
+    politica_sinal: procedimento.politica_sinal,
     imagem_url: criarUrlImagemProcedimento({ procedimento, apiPublicUrl }),
   };
 }

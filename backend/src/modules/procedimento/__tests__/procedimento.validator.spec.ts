@@ -12,6 +12,7 @@ describe('ProcedimentoValidator', () => {
       preco: 0,
       tipo_sinal: 'fixo',
       valor_sinal: 20,
+      politica_sinal: 'obrigatorio',
     });
 
     expect(dados.valor_sinal).toBe(0);
@@ -58,6 +59,7 @@ function criarProcedimentoPersistido(
     preco: '100.00',
     tipo_sinal: 'fixo',
     valor_sinal: '20.00',
+    politica_sinal: 'obrigatorio',
     periodo_manutencao_dias: null,
     ativo: true,
     criado_em: new Date('2026-01-01T00:00:00.000Z'),

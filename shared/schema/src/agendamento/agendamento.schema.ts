@@ -7,6 +7,7 @@ import {
   AVISO_AVALIACAO_AGENDAMENTO,
   BLOQUEIO_AVALIACAO_AGENDAMENTO,
   ESTADO_AGENDAMENTO,
+  OPCAO_PAGAMENTO_AGENDAMENTO,
   STATUS_AVALIACAO_AGENDAMENTO,
 } from './agendamento.enums.js';
 
@@ -77,6 +78,8 @@ export const criarAgendamentoPublicoSchema = criarAgendamentoSchema
   .omit({ cliente_id: true })
   .extend({
     credencial: z.uuid('Informe uma credencial de dispositivo válida.'),
+    opcao_pagamento: z.enum(OPCAO_PAGAMENTO_AGENDAMENTO).optional(),
+    pagamento_no_salao: z.boolean().optional(),
   })
   .meta({ id: 'CriarAgendamentoPublico' });
 
@@ -243,6 +246,7 @@ export const agendamentoAgendaResponseSchema = z
     valor_sinal: z.number().nonnegative(),
     valor_pago: z.number().nonnegative(),
     valor_pendente: z.number().nonnegative(),
+    pagamento_no_salao: z.boolean(),
     quantidade_anexos: z.number().int().nonnegative(),
     tem_imagens_referencia: z.boolean(),
     tem_observacoes: z.boolean(),
@@ -277,6 +281,8 @@ export const agendamentoPublicoDetalheResponseSchema = z
     procedimento: procedimentoDoAgendamentoSchema,
     preco_total: z.number().nonnegative(),
     valor_sinal: z.number().nonnegative(),
+    valor_pago: z.number().nonnegative(),
+    pagamento_no_salao: z.boolean(),
     fuso_horario: fusoHorarioSchema,
   })
   .meta({ id: 'AgendamentoPublicoDetalheResponse' });

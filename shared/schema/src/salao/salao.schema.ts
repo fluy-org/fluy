@@ -59,6 +59,8 @@ export const salaoPublicoResponseSchema = salaoResponseSchema
     mensagem_confirmacao: z.string().nullable(),
     politica_atraso: z.string().nullable(),
     tolerancia_atraso_min: z.number().int().positive(),
+    pagamento_online_disponivel: z.boolean(),
+    prazo_reserva_min: z.number().int().positive(),
   })
   .meta({ id: "SalaoPublicoResponse" });
 

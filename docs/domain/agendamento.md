@@ -28,6 +28,7 @@ Representa a reserva de um horário de uma profissional por uma cliente para rea
 | `duracao_min` | int | Sim | Duração congelada do procedimento. |
 | `preco_total` | decimal | Sim | Preço total congelado do procedimento. |
 | `valor_sinal` | decimal | Sim | Valor do sinal congelado. |
+| `pagamento_no_salao` | boolean | Sim | Indica se o agendamento foi feito sem pagamento online prévio (pagamento presencial no salão). Padrão false. |
 | `estado` | estado_agendamento | Sim | Estado atual do agendamento no ciclo de vida. |
 | `expira_em` | timestamp | Não | Preenchido quando `estado = reservado`; após esse instante, o agendamento é apagado se pagamento não confirmar. |
 | `criado_em` | timestamp | Sim | Data de criação. |

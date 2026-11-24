@@ -57,6 +57,7 @@ describe('ProcedimentoService', () => {
         preco: 100,
         tipo_sinal: 'fixo',
         valor_sinal: 20,
+        politica_sinal: 'obrigatorio',
       },
     };
     const dadosValidados = { ...input.dados, valor_sinal: 0 };
@@ -84,6 +85,7 @@ describe('ProcedimentoService', () => {
         preco: 100,
         tipo_sinal: 'fixo',
         valor_sinal: 20,
+        politica_sinal: 'obrigatorio',
         imagem: { arquivo_id: 'c7d30e66-cf2a-4cdf-a6de-7a9a083e9a43' },
       },
     };
@@ -107,6 +109,7 @@ describe('ProcedimentoService', () => {
         preco: 100,
         tipo_sinal: 'fixo',
         valor_sinal: 20,
+        politica_sinal: 'obrigatorio',
         imagem: { arquivo_id: 'c7d30e66-cf2a-4cdf-a6de-7a9a083e9a43' },
       },
     };
@@ -133,6 +136,7 @@ describe('ProcedimentoService', () => {
           preco: 100,
           tipo_sinal: 'fixo' as const,
           valor_sinal: 20,
+          politica_sinal: 'obrigatorio' as const,
           imagem: { arquivo_id: 'c7d30e66-cf2a-4cdf-a6de-7a9a083e9a43' },
         },
       };
@@ -311,6 +315,7 @@ function criarProcedimentoPersistido(): ProcedimentoPersistido {
     preco: '100.00',
     tipo_sinal: 'fixo',
     valor_sinal: '20.00',
+    politica_sinal: 'obrigatorio',
     periodo_manutencao_dias: null,
     ativo: true,
     criado_em: new Date('2026-01-01T00:00:00.000Z'),

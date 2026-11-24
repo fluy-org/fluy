@@ -91,11 +91,17 @@
           aria-labelledby="titulo-cancelamento"
         >
           <h2 id="titulo-cancelamento">Cancelar agendamento?</h2>
-          <ion-text>
-            Ao cancelar, o sinal pago ({{
-              formatarPreco(agendamento.valor_sinal)
-            }}) não será devolvido. Deseja continuar?
-          </ion-text>
+          @if ((agendamento.valor_pago ?? 0) > 0) {
+            <ion-text>
+              Ao cancelar, o sinal pago ({{
+                formatarPreco(agendamento.valor_pago ?? agendamento.valor_sinal)
+              }}) não será devolvido. Deseja continuar?
+            </ion-text>
+          } @else {
+            <ion-text>
+              Deseja realmente cancelar este agendamento?
+            </ion-text>
+          }
           <div class="acoes">
             <ion-button
               type="button"

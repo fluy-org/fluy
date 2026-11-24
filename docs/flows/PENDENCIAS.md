@@ -1,5 +1,12 @@
 # Pendências e decisões adiadas
 
+## Atualização de 23/11/2026 (FLY-002: Sinal Opcional e Agendamento sem Pagamento Online)
+
+- **Política de sinal por procedimento**: cada procedimento define `politica_sinal` (`obrigatorio` ou `opcional`, padrão `obrigatorio`).
+- **Salão sem recebimento online configurado**: quando o salão não possui chave Pix ativa ou o provedor estiver desativado (`pagamento_online_disponivel === false`), procedimentos com sinal não impedem o agendamento; a exigência de sinal online cai para presencial/no salão, criando o agendamento diretamente no estado `agendado` com a flag `pagamento_no_salao = true`.
+- **Sinal opcional com pagamento online ativo**: a cliente pode optar entre antecipar o sinal via Pix (gerando reserva pendente) ou pagar presencialmente no salão (criando o agendamento direto como `agendado` e `pagamento_no_salao = true`).
+- **Cancelamento e retenção**: avisos sobre retenção de sinal só são apresentados se houver valor efetivamente pago (`valor_pago > 0`).
+
 ## Atualização de 28/10/2026
 
 Decisões de gateway e recebimento: Efí autorizada em homologação, recebimento direto na conta atual, tarifa discriminada paga pela cliente. Sinal zero confirma sem antecipação (decisão obtida nesta execução). Confirmação tardia orienta contato do salão. Permanecem pendentes contratação multi-salão/bancos externos, mecanismo e preço da tarifa e reembolsos fora desta entrega. Estas decisões prevalecem sobre as hipóteses históricas abaixo.

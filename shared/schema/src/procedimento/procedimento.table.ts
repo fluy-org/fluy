@@ -13,7 +13,7 @@ import {
 import { salao } from "../salao/salao.table.js";
 import { agendamento } from "../agendamento/agendamento.table.js";
 import { imagemProcedimento } from "../imagem_procedimento/imagem_procedimento.table.js";
-import type { TipoSinal } from "./procedimento.enums.js";
+import type { PoliticaSinal, TipoSinal } from "./procedimento.enums.js";
 
 export const procedimento = pgTable(
   "procedimento",
@@ -33,6 +33,12 @@ export const procedimento = pgTable(
       .notNull()
       .$type<TipoSinal>(),
     valor_sinal: numeric("valor_sinal", { precision: 10, scale: 2 }).notNull(),
+    politica_sinal: varchar("politica_sinal", {
+      length: 20,
+    })
+      .notNull()
+      .default("obrigatorio")
+      .$type<PoliticaSinal>(),
     periodo_manutencao_dias: integer("periodo_manutencao_dias"),
     ativo: boolean("ativo").notNull().default(true),
     criado_em: timestamp("criado_em", { withTimezone: true })

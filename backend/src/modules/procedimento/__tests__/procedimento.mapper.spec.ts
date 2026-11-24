@@ -12,10 +12,20 @@ describe('ProcedimentoMapper', () => {
       tipo_sinal: 'percentual',
       valor_sinal: '25.00',
       valor_sinal_calculado: '19.98',
+      politica_sinal: 'opcional',
     });
     expect(
       toProcedimentoPublicoResponse({ procedimento: percentual, apiPublicUrl }),
     ).toHaveProperty('valor_sinal', 19.98);
+    expect(
+      toProcedimentoPublicoResponse({ procedimento: percentual, apiPublicUrl }),
+    ).toHaveProperty('politica_sinal', 'opcional');
+    expect(
+      toProcedimentoPublicoResponse({ procedimento: percentual, apiPublicUrl }),
+    ).toHaveProperty('tipo_sinal', 'percentual');
+    expect(
+      toProcedimentoResponse({ procedimento: percentual, apiPublicUrl }),
+    ).toHaveProperty('politica_sinal', 'opcional');
     expect(
       toProcedimentoPublicoResponse({
         procedimento: criarProcedimentoPersistido({
@@ -91,6 +101,7 @@ function criarProcedimentoPersistido(
     tipo_sinal: 'fixo',
     valor_sinal: '20.00',
     valor_sinal_calculado: '20.00',
+    politica_sinal: 'obrigatorio',
     periodo_manutencao_dias: null,
     ativo: true,
     criado_em: new Date('2026-01-01T00:00:00.000Z'),

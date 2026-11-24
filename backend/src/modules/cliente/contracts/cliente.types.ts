@@ -80,6 +80,8 @@ export type AgendamentoDaClientePersistido = {
     estado: EstadoAgendamento;
     preco_total: string;
     valor_sinal: string;
+    valor_pago?: string;
+    pagamento_no_salao?: boolean;
     procedimento: {
         id: string;
         nome: string;

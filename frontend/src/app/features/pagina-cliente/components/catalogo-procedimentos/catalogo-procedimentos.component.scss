@@ -150,6 +150,21 @@ header > div ion-text {
   font-size: var(--fluy-font-size-body);
 }
 
+.sinal-info {
+  display: flex;
+  align-items: center;
+}
+
+.sinal-tag {
+  display: inline-block;
+  padding: 2px var(--fluy-space-2);
+  border-radius: var(--fluy-radius-sm);
+  background: var(--fluy-color-primary-light);
+  color: var(--fluy-color-primary);
+  font-size: var(--fluy-font-size-small);
+  font-weight: var(--fluy-font-weight-medium);
+}
+
 .feedback {
   display: grid;
   min-height: 180px;

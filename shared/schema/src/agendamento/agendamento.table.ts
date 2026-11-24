@@ -1,5 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
 import {
+  boolean,
   index,
   pgTable,
   uuid,
@@ -48,6 +49,7 @@ export const agendamento = pgTable(
       .notNull()
       .$type<EstadoAgendamento>(),
     expira_em: timestamp('expira_em', { withTimezone: true }),
+    pagamento_no_salao: boolean('pagamento_no_salao').notNull().default(false),
     criado_em: timestamp('criado_em', { withTimezone: true })
       .notNull()
       .defaultNow(),

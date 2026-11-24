@@ -1,10 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { Env } from '@/config/env.schema';
 import { RecebimentoPixRepository } from '@/modules/salao-configuracao/recebimento-pix.repository';
 import type { DadosRecebimentoPix } from '@/modules/salao-configuracao/contracts';
 
 @Injectable()
 export class RecebimentoPixService {
-  constructor(private readonly repository: RecebimentoPixRepository) {}
+  constructor(
+    private readonly repository: RecebimentoPixRepository,
+    @Optional() private readonly config?: ConfigService<Env, true>,
+  ) {}
+
+  async verificarPagamentoOnlineDisponivel(salaoId: string): Promise<boolean> {
+    if (this.config?.get('PAYMENT_PROVIDER', { infer: true }) === 'disabled') {
+      return false;
+    }
+
+    const configuracao = await this.repository.buscar(salaoId);
+    return Boolean(
+      configuracao?.pix_chave &&
+        configuracao.pix_tipo_chave &&
+        configuracao.pix_nome_recebedor &&
+        configuracao.pix_atualizado_em,
+    );
+  }
 
   async buscar(salaoId: string) {
     const configuracao = await this.repository.buscar(salaoId);

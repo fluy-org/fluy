@@ -15,6 +15,7 @@ export class CatalogoProcedimentosComponent {
   readonly procedimentoSelecionadoId = input<string | null>(null);
   readonly carregando = input(false);
   readonly erro = input<string | null>(null);
+  readonly pagamentoOnlineDisponivel = input(true);
 
   readonly selecionar = output<ProcedimentoPublicoResponseDto>();
 

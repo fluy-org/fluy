@@ -113,6 +113,13 @@
       "when": 1795477668785,
       "tag": "0015_sessao_cliente_verificacao_e_expiracao",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1795482077675,
+      "tag": "0016_politica_sinal_e_pagamento_salao",
+      "breakpoints": true
     }
   ]
 }

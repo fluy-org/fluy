@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import type {
   AvaliarHorarioAgendamentoQueryDto,
@@ -39,6 +40,7 @@ import { SalaoConfiguracaoService } from '@/modules/salao-configuracao/salao-con
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 import { ClienteService } from '@/modules/cliente/cliente.service';
 import { AgendamentoAvisoService } from '@/modules/aviso/agendamento-aviso.service';
+import { RecebimentoPixService } from '@/modules/salao-configuracao/recebimento-pix.service';
 
 @Injectable()
 export class AgendamentoService {
@@ -52,6 +54,7 @@ export class AgendamentoService {
     private readonly salaoConsultaService: SalaoConsultaService,
     private readonly clienteService: ClienteService,
     private readonly agendamentoAvisoService: AgendamentoAvisoService,
+    private readonly recebimentoPixService: RecebimentoPixService,
   ) {}
 
   async listarHorariosLivres({
@@ -250,6 +253,7 @@ export class AgendamentoService {
     exigirSemSinal = false,
     publico = false,
     sessaoClienteId,
+    pagamentoNoSalao = false,
   }: {
     salaoId: string;
     dados: CriarAgendamentoDto;
@@ -259,6 +263,7 @@ export class AgendamentoService {
     exigirSemSinal?: boolean;
     publico?: boolean;
     sessaoClienteId?: string;
+    pagamentoNoSalao?: boolean;
   }) {
     await this.clienteService.buscarPorId({
       id: dados.cliente_id,
@@ -303,13 +308,31 @@ export class AgendamentoService {
       publico,
     });
     const procedimento = dadosParaAvaliacao.procedimento;
+    let agendamentoNoSalao = pagamentoNoSalao;
+
     if (
       exigirSemSinal &&
       Number(calcularValorSinalDoProcedimento(procedimento)) > 0
     ) {
-      throw new ConflictException(
-        'Este procedimento exige reserva e pagamento do sinal.',
-      );
+      const pagamentoOnlineDisponivel =
+        await this.recebimentoPixService.verificarPagamentoOnlineDisponivel(
+          salaoId,
+        );
+
+      if (!pagamentoOnlineDisponivel) {
+        agendamentoNoSalao = true;
+      } else if (procedimento.politica_sinal === 'opcional' && pagamentoNoSalao) {
+        agendamentoNoSalao = true;
+      } else {
+        throw new ConflictException(
+          'Este procedimento exige reserva e pagamento do sinal.',
+        );
+      }
+    } else if (
+      publico &&
+      Number(calcularValorSinalDoProcedimento(procedimento)) === 0
+    ) {
+      agendamentoNoSalao = true;
     }
     const inicioEm = dataHoraCivilParaUtc({
       data: dados.data,
@@ -337,6 +360,7 @@ export class AgendamentoService {
       valorSinal: calcularValorSinalDoProcedimento(procedimento),
       fusoHorario: dadosParaAvaliacao.fusoHorario,
       bloquearProcedimentoDuplicadoNoDia,
+      pagamentoNoSalao: agendamentoNoSalao,
       ...(reservar ? { estado: 'reservado' as const, expiraEm } : {}),
     });
 

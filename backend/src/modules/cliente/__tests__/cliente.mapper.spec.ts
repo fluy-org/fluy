@@ -81,6 +81,8 @@ describe('cliente.mapper', () => {
           estado: 'concluido',
           preco_total: '120.00',
           valor_sinal: '30.00',
+          valor_pago: '30.00',
+          pagamento_no_salao: true,
           procedimento: { id: 'procedimento-corte', nome: 'Corte' },
         },
       ],
@@ -94,6 +96,8 @@ describe('cliente.mapper', () => {
       procedimento: { id: 'procedimento-corte', nome: 'Corte' },
       preco_total: 120,
       valor_sinal: 30,
+      valor_pago: 30,
+      pagamento_no_salao: true,
     });
   });
 

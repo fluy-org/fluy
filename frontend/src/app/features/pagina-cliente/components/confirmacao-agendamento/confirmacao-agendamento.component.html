@@ -38,6 +38,91 @@
     </div>
   </div>
 
+  @if (procedimento().valor_sinal > 0) {
+    @if (!salao().pagamento_online_disponivel) {
+      <aside class="pagamento-aviso" aria-label="Informações de pagamento">
+        <h2>Pagamento no salão</h2>
+        <ion-text>
+          Este salão não recebe pagamentos online. O valor do procedimento será pago diretamente no salão no momento do atendimento.
+        </ion-text>
+      </aside>
+    } @else if (procedimento().politica_sinal === 'obrigatorio') {
+      <section class="pagamento-sinal" aria-labelledby="titulo-sinal">
+        <h2 id="titulo-sinal">Sinal para confirmação</h2>
+        <div class="sinal-destaque">
+          <div>
+            <ion-text>Valor do sinal</ion-text>
+            <strong class="sinal-valor">{{ formatarPreco(procedimento().valor_sinal) }}</strong>
+          </div>
+          <ion-text class="sinal-obrigatorio-tag">Obrigatório</ion-text>
+        </div>
+        <ion-text class="sinal-instrucoes">
+          Você terá {{ salao().prazo_reserva_min }} minutos para pagar via Pix após confirmar.
+        </ion-text>
+        <div class="sinal-alerta">
+          <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
+          <ion-text>Tenha seu CPF e app do banco prontos antes de confirmar.</ion-text>
+        </div>
+      </section>
+    } @else {
+      <section class="pagamento-escolha" aria-labelledby="titulo-escolha-pagamento">
+        <h2 id="titulo-escolha-pagamento">Como deseja pagar?</h2>
+        <ion-text>Este salão permite adiantar o sinal ou pagar no atendimento.</ion-text>
+
+        <div class="opcoes-pagamento" role="radiogroup" aria-labelledby="titulo-escolha-pagamento">
+          <div
+            class="opcao-pagamento"
+            [class.opcao-pagamento--selecionada]="opcaoPagamento() === 'online'"
+            role="radio"
+            [attr.aria-checked]="opcaoPagamento() === 'online'"
+            tabindex="0"
+            (click)="selecionarOpcaoPagamento('online')"
+            (keydown.enter)="selecionarOpcaoPagamento('online')"
+            (keydown.space)="$event.preventDefault(); selecionarOpcaoPagamento('online')"
+          >
+            <div class="opcao-radio">
+              @if (opcaoPagamento() === 'online') {
+                <ion-icon name="radio-button-on" color="primary" aria-hidden="true"></ion-icon>
+              } @else {
+                <ion-icon name="radio-button-off" aria-hidden="true"></ion-icon>
+              }
+            </div>
+            <div class="opcao-info">
+              <strong>Pagar sinal online agora</strong>
+              <ion-text>
+                Sinal de {{ formatarPreco(procedimento().valor_sinal) }} via Pix (prazo de {{ salao().prazo_reserva_min }} min).
+              </ion-text>
+              <ion-text class="opcao-apoio">Tenha seu CPF e app do banco prontos.</ion-text>
+            </div>
+          </div>
+
+          <div
+            class="opcao-pagamento"
+            [class.opcao-pagamento--selecionada]="opcaoPagamento() === 'no_salao'"
+            role="radio"
+            [attr.aria-checked]="opcaoPagamento() === 'no_salao'"
+            tabindex="0"
+            (click)="selecionarOpcaoPagamento('no_salao')"
+            (keydown.enter)="selecionarOpcaoPagamento('no_salao')"
+            (keydown.space)="$event.preventDefault(); selecionarOpcaoPagamento('no_salao')"
+          >
+            <div class="opcao-radio">
+              @if (opcaoPagamento() === 'no_salao') {
+                <ion-icon name="radio-button-on" color="primary" aria-hidden="true"></ion-icon>
+              } @else {
+                <ion-icon name="radio-button-off" aria-hidden="true"></ion-icon>
+              }
+            </div>
+            <div class="opcao-info">
+              <strong>Pagar no salão no dia do atendimento</strong>
+              <ion-text>Sem pagamento antecipado. Pague no momento do atendimento.</ion-text>
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+  }
+
   @if (procedimento().info_pre_procedimento) {
     <aside>
       <h2>Antes do procedimento</h2>
@@ -125,7 +210,7 @@
       Voltar
     </ion-button>
     <ion-button type="button" [disabled]="salvando()" (click)="confirmarAgendamento()">
-      {{ salvando() ? 'Preparando...' : procedimento().valor_sinal > 0 ? 'Reservar e ir ao pagamento' : 'Confirmar sem pagamento antecipado' }}
+      {{ textoBotaoConfirmar() }}
     </ion-button>
   </div>
 </section>

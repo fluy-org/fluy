@@ -59,6 +59,8 @@ export type ListarHorariosLivresInput = Omit<
   apenasDisponiveis?: boolean;
 };
 
+import type { PoliticaSinal } from '@fluy/schema';
+
 export type DadosParaAvaliacaoHorario = {
   configuracao: {
     granularidade_min: number;
@@ -73,6 +75,7 @@ export type DadosParaAvaliacaoHorario = {
     preco: string;
     tipo_sinal: 'percentual' | 'fixo';
     valor_sinal: string;
+    politica_sinal: PoliticaSinal;
   };
   profissionais: ProfissionalComJanelas[];
 };
@@ -91,6 +94,7 @@ export type CriarAgendamentoPersistenciaInput = {
   bloquearProcedimentoDuplicadoNoDia?: boolean;
   estado?: 'agendado' | 'reservado';
   expiraEm?: Date;
+  pagamentoNoSalao?: boolean;
 };
 
 export type PossuiAgendamentoDoProcedimentoNoDiaInput = {

@@ -27,21 +27,27 @@ describe('salao.mapper', () => {
   describe('toSalaoPublicoResponse', () => {
     it('expõe o fuso do salão para apresentar os instantes do checkout', () => {
       expect(
-        toSalaoPublicoResponse(
-          {
+        toSalaoPublicoResponse({
+          salao: {
             nome: 'Salão',
             subdominio: 'salao',
             contato_whatsapp: '+5511999999999',
             endereco: 'Rua A',
             fuso_horario: 'America/Manaus',
           } as never,
-          {
+          configuracao: {
             mensagem_confirmacao: null,
             politica_atraso: null,
             tolerancia_atraso_min: 15,
+            prazo_reserva_min: 20,
           } as never,
-        ),
-      ).toHaveProperty('fuso_horario', 'America/Manaus');
+          pagamentoOnlineDisponivel: true,
+        }),
+      ).toMatchObject({
+        fuso_horario: 'America/Manaus',
+        pagamento_online_disponivel: true,
+        prazo_reserva_min: 20,
+      });
     });
   });
 });

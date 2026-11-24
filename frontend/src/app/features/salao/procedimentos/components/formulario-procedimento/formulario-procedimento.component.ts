@@ -15,9 +15,10 @@ import { imageOutline } from 'ionicons/icons';
 import type {
   CriarProcedimentoDto,
   ProcedimentoResponseDto,
+  PoliticaSinal,
+  TipoSinal,
 } from '@fluy/schema';
 import { criarProcedimentoSchema } from '@fluy/schema';
-import type { TipoSinal } from '@fluy/schema';
 import {
   IonButton,
   IonContent,
@@ -83,6 +84,9 @@ export class FormularioProcedimentoComponent implements OnDestroy {
       preco: new FormControl<number | null>(null),
       tipo_sinal: new FormControl<TipoSinal>('fixo', { nonNullable: true }),
       valor_sinal: new FormControl<number | null>(null),
+      politica_sinal: new FormControl<PoliticaSinal>('obrigatorio', {
+        nonNullable: true,
+      }),
       periodo_manutencao_dias: new FormControl<number | null>(null),
     },
     { updateOn: 'blur' },
@@ -188,6 +192,7 @@ export class FormularioProcedimentoComponent implements OnDestroy {
             preco: procedimento.preco,
             tipo_sinal: procedimento.tipo_sinal,
             valor_sinal: procedimento.valor_sinal,
+            politica_sinal: procedimento.politica_sinal ?? 'obrigatorio',
             periodo_manutencao_dias: procedimento.periodo_manutencao_dias,
           }
         : {
@@ -198,6 +203,7 @@ export class FormularioProcedimentoComponent implements OnDestroy {
             preco: null,
             tipo_sinal: 'fixo',
             valor_sinal: null,
+            politica_sinal: 'obrigatorio',
             periodo_manutencao_dias: null,
           },
     );

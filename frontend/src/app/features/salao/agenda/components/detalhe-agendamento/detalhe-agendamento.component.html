@@ -46,6 +46,11 @@
       <dt>Pago</dt>
       <dd>{{ valorFormatado(detalhe.valor_pago) }}</dd>
 
+      @if (detalhe.pagamento_no_salao) {
+        <dt>Cobrança</dt>
+        <dd>No salão</dd>
+      }
+
       <div class="recibo__divisor"></div>
 
       <dt class="recibo__saldo">Pendente</dt>

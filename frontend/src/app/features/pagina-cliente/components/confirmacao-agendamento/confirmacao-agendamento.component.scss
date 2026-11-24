@@ -8,6 +8,25 @@ h2 { font-size: var(--fluy-font-size-body); }
 header ion-text, aside ion-text { color: var(--fluy-color-muted); line-height: var(--fluy-line-height-body); }
 .passo { display: grid; width: 2.25rem; height: 2.25rem; flex: 0 0 auto; place-items: center; border-radius: 50%; color: var(--fluy-color-on-primary); background: var(--fluy-color-primary); font-weight: var(--fluy-font-weight-bold); }
 .resumo, aside { display: grid; gap: var(--fluy-space-3); padding: var(--fluy-space-4); border: 1px solid var(--fluy-color-border-soft); border-radius: var(--fluy-radius-lg); background: var(--fluy-color-surface); }
+.pagamento-sinal, .pagamento-escolha { display: grid; gap: var(--fluy-space-3); padding: var(--fluy-space-4); border: 1px solid var(--fluy-color-border-soft); border-radius: var(--fluy-radius-lg); background: var(--fluy-color-surface); }
+.sinal-destaque { display: flex; justify-content: space-between; align-items: center; }
+.sinal-destaque > div { display: grid; gap: var(--fluy-space-1); }
+.sinal-destaque ion-text { color: var(--fluy-color-muted); font-size: var(--fluy-font-size-small); }
+.sinal-valor { color: var(--fluy-color-title); font-size: 1.25rem; font-weight: var(--fluy-font-weight-bold); }
+.sinal-obrigatorio-tag { display: inline-block; padding: 2px var(--fluy-space-2); border-radius: var(--fluy-radius-sm); background: var(--fluy-color-primary-light); color: var(--fluy-color-primary); font-size: var(--fluy-font-size-small); font-weight: var(--fluy-font-weight-medium); }
+.sinal-instrucoes { color: var(--fluy-color-muted); font-size: var(--fluy-font-size-body); line-height: var(--fluy-line-height-body); }
+.sinal-alerta { display: flex; align-items: center; gap: var(--fluy-space-2); padding: var(--fluy-space-2) var(--fluy-space-3); border-radius: var(--fluy-radius-md); background: var(--fluy-color-decorative-light); color: var(--fluy-color-title); font-size: var(--fluy-font-size-small); }
+.sinal-alerta ion-icon { flex: 0 0 auto; color: var(--fluy-color-primary); font-size: 1.25rem; }
+.opcoes-pagamento { display: grid; gap: var(--fluy-space-3); }
+.opcao-pagamento { display: flex; align-items: flex-start; gap: var(--fluy-space-3); padding: var(--fluy-space-3); border: 1px solid var(--fluy-color-border-soft); border-radius: var(--fluy-radius-md); cursor: pointer; transition: border-color 0.15s ease, background-color 0.15s ease; }
+.opcao-pagamento:hover { border-color: var(--fluy-color-border); }
+.opcao-pagamento--selecionada { border-color: var(--fluy-color-primary); background-color: var(--fluy-color-primary-light); }
+.opcao-radio ion-icon { font-size: 1.35rem; }
+.opcao-info { display: grid; gap: var(--fluy-space-1); min-width: 0; }
+.opcao-info strong { color: var(--fluy-color-title); font-size: var(--fluy-font-size-body); }
+.opcao-info ion-text { color: var(--fluy-color-muted); font-size: var(--fluy-font-size-small); }
+.opcao-apoio { font-size: var(--fluy-font-size-xs); font-style: italic; }
+.pagamento-aviso { border-left: 4px solid var(--fluy-color-primary); }
 .resumo > div { display: flex; gap: var(--fluy-space-3); align-items: flex-start; }
 .resumo ion-icon { flex: 0 0 auto; color: var(--fluy-color-primary); font-size: 1.25rem; }
 .resumo > div > div { display: grid; gap: var(--fluy-space-1); min-width: 0; }

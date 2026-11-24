@@ -7,6 +7,10 @@ export const ESTADO_AGENDAMENTO = [
 ] as const;
 export type EstadoAgendamento = (typeof ESTADO_AGENDAMENTO)[number];
 
+export const OPCAO_PAGAMENTO_AGENDAMENTO = ['online', 'no_salao'] as const;
+export type OpcaoPagamentoAgendamento =
+  (typeof OPCAO_PAGAMENTO_AGENDAMENTO)[number];
+
 export const STATUS_AVALIACAO_AGENDAMENTO = [
   'disponivel',
   'requer_confirmacao',

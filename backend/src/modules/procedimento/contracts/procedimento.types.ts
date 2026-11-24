@@ -29,6 +29,7 @@ export type ProcedimentoPublicoPersistido = Pick<
   | 'preco'
   | 'tipo_sinal'
   | 'valor_sinal'
+  | 'politica_sinal'
 > &
   ProcedimentoComImagem;
 

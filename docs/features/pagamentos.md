@@ -1,5 +1,11 @@
 # Pagamentos
 
+## Atualização de 23/11/2026 (FLY-002: Salão sem Pagamento Online e Sinal Opcional)
+
+- **Salão sem recebimento online (`pagamento_online_disponivel = false`)**: salões sem chave Pix ativa ou com provedor desativado continuam permitindo agendamento de procedimentos com sinal; a cobrança online prévia é suprimida e o agendamento nasce como `agendado` com `pagamento_no_salao = true`. O valor total fica pendente para pagamento presencial.
+- **Sinal Opcional (`politica_sinal = 'opcional'`)**: a cliente escolhe entre adiantar o sinal via Pix ou pagar no salão presencialmente.
+- **Cancelamento**: o aviso de retenção de sinal só ocorre se houver sinal efetivamente pago (`valor_pago > 0`).
+
 ## Atualização de 28/10/2026
 
 Decisões de 28/10/2026: recebimento direto na conta atual do salão por chave Pix, sem abertura de conta bancária ou repasse pelo Fluy. A cliente paga tarifa adicional discriminada antes da autorização. Contratação, valor e mecanismo da tarifa de produção dependem da Efí. Sinal zero confirma sem antecipação, inclusive gratuito; eventual total fica para o atendimento. Confirmação tardia exige contato com o salão para combinar remarcação/devolução, sem garantir horário e sem devolução automática.

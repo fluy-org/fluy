@@ -48,6 +48,7 @@ export class ProcedimentoRepository {
         preco: procedimento.preco,
         tipo_sinal: procedimento.tipo_sinal,
         valor_sinal: procedimento.valor_sinal,
+        politica_sinal: procedimento.politica_sinal,
         imagem: {
           procedimento_id: imagemProcedimento.procedimento_id,
         },

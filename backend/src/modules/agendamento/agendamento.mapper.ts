@@ -103,6 +103,8 @@ export function toAgendamentoPublicoDetalheResponse(
     },
     preco_total: Number(agendamento.preco_total),
     valor_sinal: Number(agendamento.valor_sinal),
+    valor_pago: Number(agendamento.valorPago),
+    pagamento_no_salao: agendamento.pagamento_no_salao ?? false,
     fuso_horario: agendamento.fusoHorario,
   };
 }
@@ -122,6 +124,8 @@ export function toListaAgendamentosPublicosResponse({
       procedimento: agendamento.procedimento,
       preco_total: Number(agendamento.preco_total),
       valor_sinal: Number(agendamento.valor_sinal),
+      valor_pago: Number(agendamento.valor_pago ?? 0),
+      pagamento_no_salao: agendamento.pagamento_no_salao ?? false,
     })),
     proximo_cursor: proximoCursor,
   };
@@ -147,6 +151,7 @@ function toAgendamentoAgendaResponse(
     valor_sinal: Number(agendamento.valor_sinal),
     valor_pago: Number(agendamento.valorPago),
     valor_pendente: Number(agendamento.valorPendente),
+    pagamento_no_salao: agendamento.pagamento_no_salao ?? false,
     quantidade_anexos: agendamento.quantidade_anexos,
     tem_imagens_referencia: agendamento.tem_imagens_referencia,
     tem_observacoes: agendamento.tem_observacoes,

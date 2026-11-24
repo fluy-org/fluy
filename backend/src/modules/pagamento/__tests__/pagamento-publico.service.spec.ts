@@ -49,6 +49,18 @@ describe('PagamentoPublicoService', () => {
     });
   });
 
+  it('lança ServiceUnavailableException quando salão não tiver Pix cadastrado ao reservar ou consultar checkout', async () => {
+    recebimentoPix.buscar.mockRejectedValue(
+      new NotFoundException('Recebimento Pix não cadastrado.'),
+    );
+    await expect(
+      service.reservar({ salaoId: 'salao-a', dados: {} as never }),
+    ).rejects.toBeInstanceOf(ServiceUnavailableException);
+    await expect(service.consultarCheckout('salao-a')).rejects.toBeInstanceOf(
+      ServiceUnavailableException,
+    );
+  });
+
   it('inicia somente para a cliente da credencial no salão', async () => {
     pagamento.consultar.mockResolvedValue({ id: 'cobranca-a' });
     await service.iniciar({
