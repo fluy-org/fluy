@@ -12,6 +12,7 @@ import {
   reservaPixResponseSchema,
 } from '@fluy/schema';
 import type {
+  AgendamentoPublicoDetalheResponseDto,
   PagamentoPixResponseDto,
   IniciarPagamentoPixDto,
   InstituicoesPixResponseDto,
@@ -71,6 +72,7 @@ export class CheckoutService {
     const contexto = {
       subdominio: input.subdominio,
       nomeProcedimento: input.nomeProcedimento,
+      clienteWhatsapp: input.clienteWhatsapp,
       reserva,
       vinculo: await this.vincularDispositivo(input.dados.credencial),
     };
@@ -129,6 +131,10 @@ export class CheckoutService {
       this.chave({ subdominio: contexto.subdominio, id: contexto.reserva.id }),
       JSON.stringify(contexto),
     );
+  }
+
+  removerContexto(input: { subdominio: string; id: string }): void {
+    localStorage.removeItem(this.chave(input));
   }
 
   registrarReferenciasPendentes(input: {
@@ -204,16 +210,26 @@ export class CheckoutService {
     this.salvarContexto(atualizado);
     this._contexto.set(atualizado);
     const geracao = this.geracao;
-    const pagamento = await firstValueFrom(
-      this.http.post<PagamentoPixResponseDto>(
-        this.base() +
-          '/' +
-          encodeURIComponent(contexto.reserva.id) +
-          '/pagamentos',
-        dados,
-      ),
-    );
-    if (geracao === this.geracao) this.aplicarPagamento(pagamento);
+    try {
+      const pagamento = await firstValueFrom(
+        this.http.post<PagamentoPixResponseDto>(
+          this.base() +
+            '/' +
+            encodeURIComponent(contexto.reserva.id) +
+            '/pagamentos',
+          dados,
+        ),
+      );
+      if (geracao === this.geracao) this.aplicarPagamento(pagamento);
+    } catch (erro) {
+      if (erro instanceof ApiError && erro.status === 409) {
+        this.removerContexto({
+          subdominio: contexto.subdominio,
+          id: contexto.reserva.id,
+        });
+      }
+      throw erro;
+    }
   }
 
   async retomar(input: {
@@ -223,19 +239,11 @@ export class CheckoutService {
   }): Promise<void> {
     this.limparContexto();
     const geracao = this.geracao;
-    const contexto = this.listarContextos().find(
-      (item) =>
-        item.subdominio === input.subdominio && item.reserva.id === input.id,
-    );
-    if (!contexto || !input.credencial)
+    if (!input.credencial)
       throw new ErroCheckout(
         'Não foi possível recuperar esta reserva neste dispositivo. Fale com o salão.',
       );
-    if ((await this.vincularDispositivo(input.credencial)) !== contexto.vinculo)
-      throw new ErroCheckout(
-        'Esta reserva pertence a outra identificação. Fale com o salão.',
-      );
-    if (geracao !== this.geracao) return;
+
     const sessao = await firstValueFrom(
       this.http.get<SessaoClientePublicaResponseDto>(
         '/publico/s/' +
@@ -249,6 +257,60 @@ export class CheckoutService {
       throw new ErroCheckout(
         'Esta reserva pertence a outra identificação. Fale com o salão.',
       );
+
+    let contexto = this.listarContextos().find(
+      (item) =>
+        item.subdominio === input.subdominio && item.reserva.id === input.id,
+    );
+
+    if (contexto) {
+      const vinculoAtual = await this.vincularDispositivo(input.credencial);
+      contexto = {
+        ...contexto,
+        vinculo: vinculoAtual,
+        clienteWhatsapp: sessao.cliente.whatsapp,
+      };
+      this.salvarContexto(contexto);
+    } else {
+      try {
+        const agendamento = await firstValueFrom(
+          this.http.get<AgendamentoPublicoDetalheResponseDto>(
+            `/publico/s/${encodeURIComponent(input.subdominio)}/agendamentos/${encodeURIComponent(input.id)}`,
+            { headers: { 'x-cliente-credencial': input.credencial } },
+          ),
+        );
+        if (agendamento.estado !== 'reservado') {
+          throw new ErroCheckout('A reserva expirou ou foi encerrada.');
+        }
+        contexto = {
+          subdominio: input.subdominio,
+          vinculo: await this.vincularDispositivo(input.credencial),
+          nomeProcedimento: agendamento.procedimento.nome,
+          clienteWhatsapp: sessao.cliente.whatsapp,
+          reserva: {
+            id: agendamento.id,
+            procedimento_id: agendamento.procedimento.id,
+            cliente_id: '00000000-0000-0000-0000-000000000000',
+            profissional_id: '00000000-0000-0000-0000-000000000000',
+            inicio_em: agendamento.inicio_em,
+            duracao_min: agendamento.duracao_min,
+            preco_total: agendamento.preco_total,
+            valor_sinal: agendamento.valor_sinal,
+            expira_em: agendamento.expira_em ?? '',
+            estado: agendamento.estado,
+            criado_em: agendamento.inicio_em,
+          },
+        };
+        this.salvarContexto(contexto);
+      } catch (err) {
+        if (err instanceof ErroCheckout) throw err;
+        throw new ErroCheckout(
+          'Não foi possível recuperar esta reserva neste dispositivo. Fale com o salão.',
+        );
+      }
+    }
+
+    if (geracao !== this.geracao) return;
     this.credencial = input.credencial;
     this._contexto.set(contexto);
     try {
@@ -310,6 +372,13 @@ export class CheckoutService {
         );
         if (erro.status === 401 || erro.status === 403 || erro.status === 404)
           this.parar();
+        if (erro.status === 409) {
+          this.removerContexto({
+            subdominio: contexto.subdominio,
+            id: contexto.reserva.id,
+          });
+          this.parar();
+        }
       }
       throw erro;
     }
@@ -349,6 +418,16 @@ export class CheckoutService {
     const atual = this._pagamento();
     if (atual?.id === pagamento.id && atual.status === 'confirmada') return;
     this._pagamento.set(pagamento);
+
+    if (pagamento.status === 'confirmada' || pagamento.status === 'expirada') {
+      const contexto = this._contexto();
+      if (contexto) {
+        this.removerContexto({
+          subdominio: contexto.subdominio,
+          id: contexto.reserva.id,
+        });
+      }
+    }
   }
 
   private async vincularDispositivo(credencial: string): Promise<string> {

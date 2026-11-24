@@ -77,6 +77,10 @@ export function toAgendamentosDaClienteResponse({
             valor_sinal: Number(agendamento.valor_sinal),
             valor_pago: Number(agendamento.valor_pago ?? 0),
             pagamento_no_salao: agendamento.pagamento_no_salao ?? false,
+            expira_em: agendamento.expira_em?.toISOString() ?? null,
+            status_pagamento: agendamento.status_pagamento ?? null,
+            situacao_pagamento: agendamento.situacao_pagamento ?? null,
+            motivo_cancelamento: agendamento.motivo_cancelamento ?? null,
         })),
         proximo_cursor: proximoCursor,
     };

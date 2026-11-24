@@ -90,7 +90,19 @@ export class PaginaClientePage implements OnInit, OnDestroy {
 
   readonly contextosCheckout = computed(() => {
     this.checkout.contexto();
-    return this.checkout.listarContextos();
+    const subdominio = this.subdominio();
+    const agora = Date.now();
+    const cliente = this.cliente();
+    return this.checkout.listarContextos().filter((c) => {
+      if (c.subdominio !== subdominio) return false;
+      if (!c.reserva.expira_em) return false;
+      const expiraEm = new Date(c.reserva.expira_em).getTime();
+      if (expiraEm <= agora) return false;
+      if (cliente && c.clienteWhatsapp && c.clienteWhatsapp !== cliente.whatsapp) {
+        return false;
+      }
+      return true;
+    });
   });
   retomarCheckout(id: string): void {
     void this.router.navigate(['/s', this.obterSubdominio(), 'checkout', id]);
@@ -387,6 +399,7 @@ export class PaginaClientePage implements OnInit, OnDestroy {
       );
       this.detalheAgendamento.set(detalhe);
       this.confirmandoCancelamento.set(false);
+      this.checkout.removerContexto({ subdominio, id: agendamento.id });
     } catch {
       this.erroCancelamento.set(
         'Não foi possível cancelar. Atualize a lista e tente novamente.',

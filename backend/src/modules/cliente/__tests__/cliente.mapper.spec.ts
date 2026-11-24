@@ -98,6 +98,51 @@ describe('cliente.mapper', () => {
       valor_sinal: 30,
       valor_pago: 30,
       pagamento_no_salao: true,
+      expira_em: null,
+      status_pagamento: null,
+      situacao_pagamento: null,
+      motivo_cancelamento: null,
+    });
+  });
+
+  it('mapeia campos de expiração e pagamento de reserva nos itens do histórico', () => {
+    const expiraEm = new Date('2026-09-10T15:15:00.000Z');
+    const resposta = toAgendamentosDaClienteResponse({
+      fusoHorario: 'America/Sao_Paulo',
+      proximoCursor: null,
+      itens: [
+        {
+          id: 'agendamento-reserva',
+          inicio_em: new Date('2026-09-10T16:00:00.000Z'),
+          duracao_min: 45,
+          estado: 'cancelado',
+          preco_total: '100.00',
+          valor_sinal: '20.00',
+          valor_pago: '20.00',
+          pagamento_no_salao: false,
+          expira_em: expiraEm,
+          status_pagamento: 'pago',
+          situacao_pagamento: 'confirmado_apos_expiracao',
+          motivo_cancelamento: 'Reserva expirada.',
+          procedimento: { id: 'procedimento-manicure', nome: 'Manicure' },
+        },
+      ],
+    });
+
+    expect(resposta.itens[0]).toEqual({
+      id: 'agendamento-reserva',
+      inicio_em: '2026-09-10T16:00:00.000Z',
+      duracao_min: 45,
+      estado: 'cancelado',
+      procedimento: { id: 'procedimento-manicure', nome: 'Manicure' },
+      preco_total: 100,
+      valor_sinal: 20,
+      valor_pago: 20,
+      pagamento_no_salao: false,
+      expira_em: '2026-09-10T15:15:00.000Z',
+      status_pagamento: 'pago',
+      situacao_pagamento: 'confirmado_apos_expiracao',
+      motivo_cancelamento: 'Reserva expirada.',
     });
   });
 

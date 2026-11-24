@@ -9,6 +9,7 @@ import type {
   FusoHorarioBrasil,
   MetodoPagamentoManual,
   RemarcarAgendamentoDto,
+  SituacaoPagamentoPix,
   StatusAvaliacaoAgendamento,
   StatusCobrancaGateway,
   agendamento,
@@ -248,6 +249,9 @@ export type AgendamentoDaAgendaPersistido = AgendamentoPersistido & {
 
 export type AgendamentoDetalhePersistido = AgendamentoDaAgendaPersistido & {
   remarcado_vezes: number;
+  motivo_cancelamento?: string | null;
+  status_pagamento?: StatusCobrancaGateway | null;
+  situacao_pagamento?: SituacaoPagamentoPix | null;
 };
 
 export type AvaliacaoDaRemarcacao = {
@@ -314,6 +318,9 @@ export type AgendamentoDetalheResultado = AgendamentoDaAgendaResultado &
   AcoesDoAgendamento & {
     fusoHorario: FusoHorarioBrasil;
     remarcado_vezes: number;
+    status_pagamento?: StatusCobrancaGateway | null;
+    situacao_pagamento?: SituacaoPagamentoPix | null;
+    motivo_cancelamento?: string | null;
   };
 
 export type CalcularAcoesAgendamentoInput = {

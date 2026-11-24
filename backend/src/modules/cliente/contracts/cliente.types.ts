@@ -7,6 +7,8 @@ import type {
     FusoHorarioBrasil,
     OrdenacaoCliente,
     SegmentoCliente,
+    SituacaoPagamentoPix,
+    StatusCobrancaGateway,
     StatusFiltroCliente,
     IdentificarClientePublicaDto,
 } from '@fluy/schema';
@@ -82,6 +84,10 @@ export type AgendamentoDaClientePersistido = {
     valor_sinal: string;
     valor_pago?: string;
     pagamento_no_salao?: boolean;
+    expira_em?: Date | null;
+    status_pagamento?: StatusCobrancaGateway | null;
+    situacao_pagamento?: SituacaoPagamentoPix | null;
+    motivo_cancelamento?: string | null;
     procedimento: {
         id: string;
         nome: string;

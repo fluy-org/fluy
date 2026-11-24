@@ -30,7 +30,7 @@ Representa a reserva de um horário de uma profissional por uma cliente para rea
 | `valor_sinal` | decimal | Sim | Valor do sinal congelado. |
 | `pagamento_no_salao` | boolean | Sim | Indica se o agendamento foi feito sem pagamento online prévio (pagamento presencial no salão). Padrão false. |
 | `estado` | estado_agendamento | Sim | Estado atual do agendamento no ciclo de vida. |
-| `expira_em` | timestamp | Não | Preenchido quando `estado = reservado`; após esse instante, o agendamento é apagado se pagamento não confirmar. |
+| `expira_em` | timestamp | Não | Preenchido quando `estado = reservado`; após esse instante, o agendamento transita para cancelado pelo job se o pagamento não confirmar. |
 | `criado_em` | timestamp | Sim | Data de criação. |
 
 ### Relacionamentos
@@ -46,7 +46,7 @@ Representa a reserva de um horário de uma profissional por uma cliente para rea
 O ciclo de vida completo (transições permitidas, quem pode transitar, condições) está descrito em [gestao-agendamentos.md — Ciclo de vida e estados](../features/gestao-agendamentos.md#ciclo-de-vida-e-estados). Resumo:
 
 - `reservado` → `agendado` (pagamento confirmado)
-- `reservado` → expira (job apaga a linha após `expira_em`)
+- `reservado` → `cancelado` (job cancela a reserva após `expira_em`, ou cliente desiste)
 - `agendado` → `concluido` (conclusão pelo salão)
 - `agendado` → `cancelado` (cliente ou salão)
 - `agendado` → `falta` (salão após `inicio_em + tolerancia`)
@@ -62,7 +62,7 @@ Estados `concluido`, `cancelado` e `falta` são terminais no MVP.
 ### Observações
 
 - **Valores são congelados no ato da criação** — alterações posteriores no procedimento não afetam agendamentos existentes.
-- **Reserva expirada** é apagada por job (soft-delete opcional para telemetria/auditoria — decisão de implementação, não de domínio).
+- **Reserva expirada** é cancelada por job e preservada no histórico (com motivo 'Reserva expirada.').
 - **Múltiplos pagamentos** compõem a quitação: agendamento está quitado quando `soma(pagamento confirmado) ≥ preco_total`.
 - **Fuso**: `inicio_em` é UTC no banco; exibição sempre no fuso do salão.
 - **Integração com calendário** (`.ics` de convite, update e cancelamento): não persiste dado próprio no domínio. O UID iCalendar é derivado de `agendamento.id`; o `SEQUENCE` é a contagem de `evento_agendamento` com `tipo = remarcado`. Camada de integração, não de domínio.
@@ -107,7 +107,7 @@ Começa mínima. Novos campos (autor, payload detalhado) entram por migração a
 
 - **Imutável**: eventos nunca são editados ou removidos.
 - **Cardinalidade por tipo:** `cancelado`, `concluido` e `falta` acontecem no máximo uma vez por agendamento (estados terminais). `remarcado` pode se repetir.
-- **Tipos removidos do MVP** (podem entrar como novos valores no enum quando/se surgir necessidade): `criado` (já coberto por `agendamento.criado_em`), `pagamento_vinculado` (a existência do `pagamento_agendamento` já é o registro), `reembolso_registrado` (idem para `reembolso`), `reserva_expirada` (o agendamento simplesmente deixa de existir), `cortesia` (fora do MVP — ver observações em `agendamento`).
+- **Tipos removidos do MVP** (podem entrar como novos valores no enum quando/se surgir necessidade): `criado` (já coberto por `agendamento.criado_em`), `pagamento_vinculado` (a existência do `pagamento_agendamento` já é o registro), `reembolso_registrado` (idem para `reembolso`), `reserva_expirada` (registrado como evento `cancelado` com motivo 'Reserva expirada.'), `cortesia` (fora do MVP — ver observações em `agendamento`).
 
 ---
 

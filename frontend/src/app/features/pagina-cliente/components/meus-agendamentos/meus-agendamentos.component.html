@@ -17,8 +17,8 @@
   } @else if (detalhe(); as agendamento) {
     <header>
       <h1 id="titulo-meus-agendamentos">Detalhes do agendamento</h1>
-      <ion-badge [color]="obterCorEstado(agendamento.estado)">
-        {{ obterRotuloEstado(agendamento.estado) }}
+      <ion-badge [color]="obterCorExibicao(agendamento)">
+        {{ obterRotuloExibicao(agendamento) }}
       </ion-badge>
     </header>
 
@@ -36,10 +36,21 @@
           <div>
             <ion-text>Data e horário</ion-text>
             <strong>{{
-              formatarDataHora(agendamento.inicio_em, agendamento.fuso_horario)
+              agendamento.inicio_em | horaSalao:agendamento.fuso_horario:'data-hora'
             }}</strong>
           </div>
         </div>
+        @if (agendamento.estado === "reservado" && agendamento.expira_em) {
+          <div class="linha-destaque">
+            <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+            <div>
+              <ion-text>Prazo para pagamento</ion-text>
+              <strong>{{
+                agendamento.expira_em | horaSalao:agendamento.fuso_horario:'data-hora'
+              }}</strong>
+            </div>
+          </div>
+        }
         <dl>
           <div>
             <dt>Duração</dt>
@@ -84,7 +95,98 @@
       <ion-text class="erro" role="alert">{{ erroCancelamento() }}</ion-text>
     }
 
-    @if (agendamento.estado === "agendado") {
+    @if (ehPagoAposPrazo(agendamento)) {
+      <ion-card class="detalhe" style="margin-top: 16px;">
+        <ion-card-content>
+          <ion-text color="warning">
+            <strong>Pago após o prazo. Fale com o salão</strong>
+          </ion-text>
+          <p>Seu pagamento foi confirmado após o prazo de validade da reserva. Fale com o salão para reagendar ou solicitar devolução.</p>
+          @if (contatoWhatsapp(); as whatsapp) {
+            <ion-button
+              type="button"
+              expand="block"
+              fill="outline"
+              color="success"
+              style="margin-top: 8px;"
+              [href]="obterUrlWhatsapp(whatsapp)"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Falar com o salão
+            </ion-button>
+          }
+        </ion-card-content>
+      </ion-card>
+    } @else if (ehReservaExpirada(agendamento)) {
+      <ion-card class="detalhe" style="margin-top: 16px;">
+        <ion-card-content>
+          <ion-text color="medium">
+            <strong>Reserva expirada</strong>
+          </ion-text>
+          <p>Esta reserva expirou porque o pagamento não foi confirmado dentro do prazo de tolerância.</p>
+          <ion-button
+            type="button"
+            expand="block"
+            fill="outline"
+            style="margin-top: 8px;"
+            (click)="fecharDetalhe.emit()"
+          >
+            Escolher novo horário
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    } @else if (agendamento.estado === "reservado") {
+      <div class="acoes" style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <ion-button
+          type="button"
+          expand="block"
+          color="primary"
+          (click)="pagarReserva.emit(agendamento.id)"
+        >
+          Pagar reserva
+        </ion-button>
+        @if (confirmandoCancelamento()) {
+          <section
+            class="confirmacao-cancelamento"
+            aria-labelledby="titulo-desistencia"
+          >
+            <h2 id="titulo-desistencia">Desistir da reserva?</h2>
+            <ion-text>O horário reservado será liberado imediatamente para outras clientes.</ion-text>
+            <div class="acoes">
+              <ion-button
+                type="button"
+                expand="block"
+                fill="outline"
+                [disabled]="cancelando()"
+                (click)="desistirCancelamento.emit()"
+              >
+                Manter reserva
+              </ion-button>
+              <ion-button
+                type="button"
+                expand="block"
+                color="danger"
+                [disabled]="cancelando()"
+                (click)="confirmarCancelamento.emit()"
+              >
+                {{ cancelando() ? "Cancelando..." : "Sim, desistir" }}
+              </ion-button>
+            </div>
+          </section>
+        } @else {
+          <ion-button
+            type="button"
+            expand="block"
+            fill="outline"
+            color="danger"
+            (click)="solicitarCancelamento.emit()"
+          >
+            Desistir da reserva
+          </ion-button>
+        }
+      </div>
+    } @else if (agendamento.estado === "agendado") {
       @if (confirmandoCancelamento()) {
         <section
           class="confirmacao-cancelamento"
@@ -176,11 +278,14 @@
             <ion-card-content>
               <div class="cabecalho-card">
                 <h2>{{ agendamento.procedimento.nome }}</h2>
-                <ion-badge [color]="obterCorEstado(agendamento.estado)">
-                  {{ obterRotuloEstado(agendamento.estado) }}
+                <ion-badge [color]="obterCorExibicao(agendamento)">
+                  {{ obterRotuloExibicao(agendamento) }}
                 </ion-badge>
               </div>
-              <ion-text>{{ formatarDataHora(agendamento.inicio_em) }}</ion-text>
+              <ion-text>{{ agendamento.inicio_em | horaSalao:fusoHorario():'data-hora' }}</ion-text>
+              @if (agendamento.estado === "reservado" && agendamento.expira_em) {
+                <ion-text color="medium">Expira às {{ agendamento.expira_em | horaSalao:fusoHorario():'hora' }}</ion-text>
+              }
               <div class="resumo-card">
                 <ion-text>{{
                   formatarDuracao(agendamento.duracao_min)

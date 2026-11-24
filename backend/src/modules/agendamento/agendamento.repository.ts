@@ -2,7 +2,7 @@ import {
   agruparAgendamentos,
   condicaoDeSobreposicao,
 } from '@/modules/agendamento/agendamento-utils';
-import { and, asc, eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, lt, ne, or, sql } from 'drizzle-orm';
 import {
   agendamento,
   anexoAgendamento,
@@ -71,7 +71,13 @@ export class AgendamentoRepository {
       .where(
         and(
           eq(agendamento.salao_id, salaoId),
-          inArray(agendamento.estado, ['reservado', 'agendado']),
+          or(
+            eq(agendamento.estado, 'agendado'),
+            and(
+              eq(agendamento.estado, 'reservado'),
+              gt(agendamento.expira_em, sql`now()`),
+            ),
+          ),
           gte(agendamento.inicio_em, inicioDia),
           lt(agendamento.inicio_em, fimDia),
           ignorarAgendamentoId
@@ -81,16 +87,28 @@ export class AgendamentoRepository {
       );
   }
 
-  async possuiAgendamentoDoProcedimentoNoDia(
+  async buscarAgendamentoDoProcedimentoNoDia(
     input: PossuiAgendamentoDoProcedimentoNoDiaInput,
-  ): Promise<boolean> {
+  ): Promise<{ id: string; estado: 'reservado' | 'agendado' } | undefined> {
     const resultados = await this.database
-      .select({ id: agendamento.id })
+      .select({
+        id: agendamento.id,
+        estado: agendamento.estado,
+      })
       .from(agendamento)
       .where(this.condicaoAgendamentoDoProcedimentoNoDia(input))
       .limit(1);
 
-    return resultados.length > 0;
+    return resultados[0] as
+      | { id: string; estado: 'reservado' | 'agendado' }
+      | undefined;
+  }
+
+  async possuiAgendamentoDoProcedimentoNoDia(
+    input: PossuiAgendamentoDoProcedimentoNoDiaInput,
+  ): Promise<boolean> {
+    const encontrado = await this.buscarAgendamentoDoProcedimentoNoDia(input);
+    return Boolean(encontrado);
   }
 
   async listarDoDia({
@@ -167,17 +185,56 @@ export class AgendamentoRepository {
       return undefined;
     }
 
-    const remarcacoes = await this.database
-      .select({ id: eventoAgendamento.id })
-      .from(eventoAgendamento)
-      .where(
-        and(
-          eq(eventoAgendamento.agendamento_id, id),
-          eq(eventoAgendamento.tipo, 'remarcado'),
+    const [remarcacoes, cancelamentos, cobrancas] = await Promise.all([
+      this.database
+        .select({ id: eventoAgendamento.id })
+        .from(eventoAgendamento)
+        .where(
+          and(
+            eq(eventoAgendamento.agendamento_id, id),
+            eq(eventoAgendamento.tipo, 'remarcado'),
+          ),
         ),
-      );
+      this.database
+        .select({ motivo: eventoAgendamento.motivo })
+        .from(eventoAgendamento)
+        .where(
+          and(
+            eq(eventoAgendamento.agendamento_id, id),
+            eq(eventoAgendamento.tipo, 'cancelado'),
+          ),
+        )
+        .orderBy(desc(eventoAgendamento.ocorreu_em))
+        .limit(1),
+      this.database
+        .select({
+          status: cobrancaGateway.status,
+          divergencia: cobrancaGateway.divergencia,
+        })
+        .from(cobrancaGateway)
+        .where(
+          and(
+            eq(cobrancaGateway.agendamento_id, id),
+            eq(cobrancaGateway.salao_id, salaoId),
+          ),
+        )
+        .orderBy(desc(cobrancaGateway.criada_em))
+        .limit(1),
+    ]);
 
-    return { ...agendamentoDaAgenda, remarcado_vezes: remarcacoes.length };
+    return {
+      ...agendamentoDaAgenda,
+      remarcado_vezes: remarcacoes.length,
+      motivo_cancelamento: cancelamentos[0]?.motivo === 'Reserva expirada.'
+        ? 'Reserva expirada.'
+        : (cancelamentos[0]?.motivo?.includes('pela cliente')
+          ? cancelamentos[0].motivo
+          : null),
+      status_pagamento: cobrancas[0]?.status ?? null,
+      situacao_pagamento: cobrancas[0]?.divergencia
+        ? 'confirmado_apos_expiracao'
+        : (cobrancas[0] ? 'normal' : null),
+    };
   }
 
   async criar(
@@ -396,6 +453,17 @@ export class AgendamentoRepository {
         cancelado_por: canceladoPor,
       });
 
+      await tx
+        .update(cobrancaGateway)
+        .set({ status: 'expirada' })
+        .where(
+          and(
+            eq(cobrancaGateway.salao_id, salaoId),
+            eq(cobrancaGateway.agendamento_id, agendamentoCancelado.id),
+            inArray(cobrancaGateway.status, ['iniciando', 'pendente']),
+          ),
+        );
+
       return agendamentoCancelado;
     });
   }
@@ -533,7 +601,13 @@ export class AgendamentoRepository {
       eq(agendamento.salao_id, salaoId),
       eq(agendamento.cliente_id, clienteId),
       eq(agendamento.procedimento_id, procedimentoId),
-      inArray(agendamento.estado, ['reservado', 'agendado']),
+      or(
+        eq(agendamento.estado, 'agendado'),
+        and(
+          eq(agendamento.estado, 'reservado'),
+          gt(agendamento.expira_em, sql`now()`),
+        ),
+      ),
       gte(agendamento.inicio_em, inicioDia),
       lt(agendamento.inicio_em, fimDia),
     );

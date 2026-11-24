@@ -328,6 +328,34 @@ describe('AgendamentoPublicoService', () => {
     );
   });
 
+  it('permite a cliente cancelar reserva pendente (reservado) sem notificar atendimento cancelado', async () => {
+    resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
+    buscarDetalhe.mockResolvedValue({
+      id: 'reserva-1',
+      estado: 'reservado',
+      cliente: { id: 'cliente-da-sessao' },
+    });
+    cancelar.mockResolvedValue({
+      id: 'reserva-1',
+      estado: 'cancelado',
+    });
+
+    await service.cancelar({
+      id: 'reserva-1',
+      salaoId: 'salao-do-path',
+      dados: { credencial: dados.credencial },
+    });
+
+    expect(cancelar).toHaveBeenCalledWith({
+      id: 'reserva-1',
+      salaoId: 'salao-do-path',
+      dados: { motivo: 'Reserva cancelada pela cliente.' },
+      canceladoPor: 'cliente',
+      notificarCliente: false,
+    });
+    expect(notificarCancelamentoPelaCliente).not.toHaveBeenCalled();
+  });
+
   it('rejeita o cancelamento de agendamento de outra sessao quando a sessao nao e verificada', async () => {
     resolverSessaoPublica.mockResolvedValue({
       cliente: { id: 'cliente-da-sessao' },

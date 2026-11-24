@@ -212,6 +212,9 @@ export class AgendamentoService {
       ...this.acrescentarValores(agendamento),
       remarcado_vezes: agendamento.remarcado_vezes,
       fusoHorario,
+      status_pagamento: agendamento.status_pagamento,
+      situacao_pagamento: agendamento.situacao_pagamento,
+      motivo_cancelamento: agendamento.motivo_cancelamento,
       ...calcularAcoesDoAgendamento({
         estado: agendamento.estado,
         inicioEm: agendamento.inicio_em,
@@ -283,15 +286,23 @@ export class AgendamentoService {
       fusoHorario: dadosParaAvaliacao.fusoHorario,
     };
 
-    if (
-      bloquearProcedimentoDuplicadoNoDia &&
-      (await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
-        escopoDuplicidade,
-      ))
-    ) {
-      throw new ConflictException(
-        'A cliente já possui este procedimento agendado neste dia.',
-      );
+    if (bloquearProcedimentoDuplicadoNoDia) {
+      const agendamentoExistente =
+        await this.agendamentoRepository.buscarAgendamentoDoProcedimentoNoDia(
+          escopoDuplicidade,
+        );
+
+      if (agendamentoExistente) {
+        if (agendamentoExistente.estado === 'reservado') {
+          throw new ConflictException(
+            'Você já tem uma reserva aguardando pagamento neste dia.',
+          );
+        }
+
+        throw new ConflictException(
+          'Você já possui este procedimento agendado neste dia.',
+        );
+      }
     }
 
     const avaliacao = this.agendamentoDisponibilidadeService.avaliarHorario(
@@ -365,15 +376,21 @@ export class AgendamentoService {
     });
 
     if (!agendamento) {
-      if (
-        bloquearProcedimentoDuplicadoNoDia &&
-        (await this.agendamentoRepository.possuiAgendamentoDoProcedimentoNoDia(
-          escopoDuplicidade,
-        ))
-      ) {
-        throw new ConflictException(
-          'A cliente já possui este procedimento agendado neste dia.',
-        );
+      if (bloquearProcedimentoDuplicadoNoDia) {
+        const duplicado =
+          await this.agendamentoRepository.buscarAgendamentoDoProcedimentoNoDia(
+            escopoDuplicidade,
+          );
+        if (duplicado) {
+          if (duplicado.estado === 'reservado') {
+            throw new ConflictException(
+              'Você já tem uma reserva aguardando pagamento neste dia.',
+            );
+          }
+          throw new ConflictException(
+            'Você já possui este procedimento agendado neste dia.',
+          );
+        }
       }
 
       throw new ConflictException('O horário deixou de estar disponível.');

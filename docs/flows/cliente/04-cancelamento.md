@@ -22,7 +22,7 @@ Permitir que a cliente cancele um agendamento futuro pelo próprio app, com clar
 - **Sucesso:** cancelado, slot liberado, sinal retido com o salão, salão notificado.
 - **Cliente desiste na confirmação:** agendamento permanece intacto.
 - **Cliente tenta cancelar agendamento já passado/concluído/cancelado/no-show:** botão não aparece ou é bloqueado.
-- **Cancelamento durante estado `Reservado` (antes do pagamento):** simplesmente descarta a reserva; nem chega a virar "cancelamento" com sinal retido, porque não houve pagamento.
+- **Cancelamento durante estado `Reservado` (antes do pagamento):** descarta a reserva (transita para `Cancelado` sem sinal retido e expira cobranças ativas); o slot é liberado imediatamente e a reserva é preservada no histórico.
 
 ## Regras de negócio
 

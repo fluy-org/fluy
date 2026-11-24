@@ -21,6 +21,7 @@ import {
 } from '@ionic/angular/standalone';
 import { ESTILO_ESTADO_AGENDAMENTO } from '@app/shared/utils/estado-agendamento';
 import { formatarValor } from '@app/shared/utils/formatacao';
+import { HoraSalaoPipe } from '@app/shared/pipes/hora-salao.pipe';
 import type { ReferenciaAgendamentoVisual } from '@app/features/pagina-cliente/contracts';
 
 @Component({
@@ -35,6 +36,7 @@ import type { ReferenciaAgendamentoVisual } from '@app/features/pagina-cliente/c
     IonImg,
     IonSpinner,
     IonText,
+    HoraSalaoPipe,
   ],
   templateUrl: './meus-agendamentos.component.html',
   styleUrls: ['./meus-agendamentos.component.scss'],
@@ -53,6 +55,7 @@ export class MeusAgendamentosComponent {
   readonly confirmandoCancelamento = input(false);
   readonly cancelando = input(false);
   readonly erroCancelamento = input<string | null>(null);
+  readonly contatoWhatsapp = input<string | null>(null);
 
   readonly voltar = output<void>();
   readonly selecionar = output<string>();
@@ -60,6 +63,7 @@ export class MeusAgendamentosComponent {
   readonly solicitarCancelamento = output<void>();
   readonly desistirCancelamento = output<void>();
   readonly confirmarCancelamento = output<void>();
+  readonly pagarReserva = output<string>();
   readonly tentarNovamente = output<void>();
 
   obterRotuloEstado(estado: EstadoAgendamento): string {
@@ -70,12 +74,37 @@ export class MeusAgendamentosComponent {
     return ESTILO_ESTADO_AGENDAMENTO[estado].cor;
   }
 
-  formatarDataHora(instante: string, fusoHorario = this.fusoHorario()): string {
-    return new Intl.DateTimeFormat('pt-BR', {
-      timeZone: fusoHorario,
-      dateStyle: 'full',
-      timeStyle: 'short',
-    }).format(new Date(instante));
+  ehReservaExpirada(item: { estado: string; motivo_cancelamento?: string | null }): boolean {
+    return item.estado === 'cancelado' && item.motivo_cancelamento === 'Reserva expirada.';
+  }
+
+  ehPagoAposPrazo(item: { situacao_pagamento?: string | null }): boolean {
+    return item.situacao_pagamento === 'confirmado_apos_expiracao';
+  }
+
+  obterRotuloExibicao(item: {
+    estado: EstadoAgendamento;
+    situacao_pagamento?: string | null;
+    motivo_cancelamento?: string | null;
+  }): string {
+    if (this.ehPagoAposPrazo(item)) return 'Pago após o prazo';
+    if (this.ehReservaExpirada(item)) return 'Reserva expirada';
+    return this.obterRotuloEstado(item.estado);
+  }
+
+  obterCorExibicao(item: {
+    estado: EstadoAgendamento;
+    situacao_pagamento?: string | null;
+    motivo_cancelamento?: string | null;
+  }): string {
+    if (this.ehPagoAposPrazo(item)) return 'warning';
+    if (this.ehReservaExpirada(item)) return 'medium';
+    return this.obterCorEstado(item.estado);
+  }
+
+  obterUrlWhatsapp(numero: string): string {
+    const limpo = numero.replace(/\D/g, '');
+    return limpo ? `https://wa.me/${limpo}` : '';
   }
 
   formatarDuracao(duracaoMin: number): string {

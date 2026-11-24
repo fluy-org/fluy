@@ -1,10 +1,4 @@
 <ion-content class="tema-fluy fluy-page-safe">
-  @for (contexto of contextosCheckout(); track contexto.reserva.id) {
-    @if (contexto.subdominio === subdominio()) {
-      <ion-button fill="outline" (click)="retomarCheckout(contexto.reserva.id)">Retomar pagamento de {{ contexto.nomeProcedimento }}</ion-button>
-    }
-  }
-
   @if (estado() === 'carregando') {
   <div class="estado-pagina" role="status">
     <ion-spinner name="crescent"></ion-spinner>
@@ -33,6 +27,18 @@
       } }
     </app-cabecalho-publico>
 
+    @for (contexto of contextosCheckout(); track contexto.reserva.id) {
+      <div class="retomar-pagamento-container ion-padding-horizontal" style="margin-top: 12px;">
+        <ion-button
+          expand="block"
+          fill="outline"
+          (click)="retomarCheckout(contexto.reserva.id)"
+        >
+          Retomar pagamento de {{ contexto.nomeProcedimento }}
+        </ion-button>
+      </div>
+    }
+
     <main class="conteudo-publico">
       @if (meusAgendamentosAberto()) {
       <app-meus-agendamentos
@@ -48,12 +54,14 @@
         [confirmandoCancelamento]="confirmandoCancelamento()"
         [cancelando]="cancelandoAgendamento()"
         [erroCancelamento]="erroCancelamento()"
+        [contatoWhatsapp]="salaoAtual.contato_whatsapp"
         (voltar)="fecharMeusAgendamentos()"
         (selecionar)="abrirDetalheAgendamento($event)"
         (fecharDetalhe)="fecharDetalheAgendamento()"
         (solicitarCancelamento)="solicitarCancelamento()"
         (desistirCancelamento)="desistirCancelamento()"
         (confirmarCancelamento)="cancelarAgendamento()"
+        (pagarReserva)="retomarCheckout($event)"
         (tentarNovamente)="carregarAgendamentos()"
       ></app-meus-agendamentos>
 

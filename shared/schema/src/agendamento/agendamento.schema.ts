@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import { METODO_PAGAMENTO_MANUAL } from '../cobranca_manual/cobranca_manual.enums.js';
+import {
+  STATUS_COBRANCA_GATEWAY,
+  SITUACAO_PAGAMENTO_PIX,
+} from '../cobranca_gateway/cobranca_gateway.enums.js';
 import { FUSOS_HORARIOS_BRASIL } from '../salao/salao.enums.js';
 import {
   ACAO_AGENDAMENTO,
@@ -284,5 +288,9 @@ export const agendamentoPublicoDetalheResponseSchema = z
     valor_pago: z.number().nonnegative(),
     pagamento_no_salao: z.boolean(),
     fuso_horario: fusoHorarioSchema,
+    expira_em: z.iso.datetime().nullable().optional(),
+    status_pagamento: z.enum(STATUS_COBRANCA_GATEWAY).nullable().optional(),
+    situacao_pagamento: z.enum(SITUACAO_PAGAMENTO_PIX).nullable().optional(),
+    motivo_cancelamento: z.string().nullable().optional(),
   })
   .meta({ id: 'AgendamentoPublicoDetalheResponse' });

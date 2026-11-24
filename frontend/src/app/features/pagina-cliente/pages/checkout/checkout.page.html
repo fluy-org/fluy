@@ -68,7 +68,13 @@
                 <div class="tag-prazo">
                   <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
                   <span>
-                    Prazo da reserva: {{ contextoAtual.reserva.expira_em | horaSalao:salaoAtual.fuso_horario:'data-hora' }}. A validade é conferida pelo servidor.
+                    @if (reservaExpirada() || pagamento()?.status === 'expirada') {
+                      Reserva expirada.
+                    } @else if (segundosRestantes() !== null) {
+                      Tempo restante para pagar: {{ formatacaoPrazoRestante() }} (até {{ contextoAtual.reserva.expira_em | horaSalao:salaoAtual.fuso_horario:'hora' }}).
+                    } @else {
+                      Prazo da reserva: {{ contextoAtual.reserva.expira_em | horaSalao:salaoAtual.fuso_horario:'data-hora' }}. A validade é conferida pelo servidor.
+                    }
                   </span>
                 </div>
               </div>
@@ -183,7 +189,18 @@
               }
             }
 
-            @if (pagamento()?.status !== 'confirmada') {
+            @if (reservaExpirada() || pagamento()?.status === 'expirada') {
+              <div class="alerta alerta-erro" role="alert" style="margin-bottom: 16px;">
+                <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+                <div class="alerta-conteudo">
+                  <strong>Reserva expirada</strong>
+                  <p>O prazo desta reserva venceu e o horário foi liberado para outros clientes.</p>
+                </div>
+              </div>
+              <ion-button expand="block" fill="outline" (click)="escolherNovoHorario()">
+                Escolher novo horário
+              </ion-button>
+            } @else if (pagamento()?.status !== 'confirmada') {
               @if (!pagamento() || pagamento()?.status === 'falhou' || pagamento()?.status === 'expirada' || pagamento()?.status === 'iniciando') {
                 <form [formGroup]="formulario" (ngSubmit)="iniciar()" class="form-pagamento">
                   <div class="campo-grupo">
@@ -265,7 +282,7 @@
                   Consultar situação
                 </ion-button>
 
-                <ion-button fill="clear" class="botao-link" [routerLink]="['/s', subdominio()]">
+                <ion-button fill="clear" class="botao-link" [disabled]="enviando()" (click)="descartarReserva()">
                   Escolher outro horário
                 </ion-button>
 

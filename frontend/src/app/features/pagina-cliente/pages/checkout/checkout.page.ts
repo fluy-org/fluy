@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { iniciarPagamentoPixSchema, pagadorPixSchema } from '@fluy/schema';
 import type {
@@ -95,6 +95,7 @@ export class CheckoutPage implements OnInit, OnDestroy {
     });
   }
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly checkout = inject(CheckoutService);
   private readonly pagina = inject(PaginaClienteService);
   private readonly calendario = inject(CalendarioAgendamentoService);
@@ -113,6 +114,19 @@ export class CheckoutPage implements OnInit, OnDestroy {
   readonly avisoReferencias = signal<string | null>(null);
   readonly subdominio = signal('');
   readonly id = signal('');
+  readonly segundosRestantes = signal<number | null>(null);
+  readonly reservaExpirada = computed(() => {
+    const s = this.segundosRestantes();
+    return s !== null && s <= 0;
+  });
+  readonly formatacaoPrazoRestante = computed(() => {
+    const s = this.segundosRestantes();
+    if (s === null || s <= 0) return '00:00';
+    const min = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  });
+  private intervaloContagem: ReturnType<typeof setInterval> | undefined;
   private parametros: Subscription | undefined;
   private versaoTela = 0;
   private visivel = true;
@@ -175,11 +189,13 @@ export class CheckoutPage implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.versaoTela++;
     this.parametros?.unsubscribe();
+    this.pararContagemRegressiva();
     this.checkout.parar();
   }
   ionViewWillLeave(): void {
     this.visivel = false;
     this.versaoTela++;
+    this.pararContagemRegressiva();
     this.checkout.parar();
   }
   ionViewDidEnter(): void {
@@ -194,6 +210,7 @@ export class CheckoutPage implements OnInit, OnDestroy {
     const subdominio = this.subdominio();
     const id = this.id();
     this.checkout.limparContexto();
+    this.pararContagemRegressiva();
     this.formulario.reset({
       modalidade: 'sinal',
       pagador: { cpf: '', instituicao_id: '' },
@@ -232,6 +249,9 @@ export class CheckoutPage implements OnInit, OnDestroy {
       if (contexto?.tentativa)
         this.formulario.controls.modalidade.setValue(contexto.tentativa);
       if (contexto) {
+        if (contexto.reserva.expira_em) {
+          this.iniciarContagemRegressiva(contexto.reserva.expira_em);
+        }
         try {
           const recebedor = await this.checkout.consultarRecebedor();
           if (versao !== this.versaoTela) return;
@@ -385,6 +405,59 @@ export class CheckoutPage implements OnInit, OnDestroy {
     } finally {
       if (versao === this.versaoTela) this.enviando.set(false);
     }
+  }
+
+  private iniciarContagemRegressiva(expiraEmIso: string): void {
+    this.pararContagemRegressiva();
+    const atualizar = () => {
+      const agora = Date.now();
+      const fim = new Date(expiraEmIso).getTime();
+      const restoSegundos = Math.max(0, Math.floor((fim - agora) / 1000));
+      this.segundosRestantes.set(restoSegundos);
+      if (restoSegundos <= 0) {
+        this.pararContagemRegressiva();
+        this.checkout.removerContexto({
+          subdominio: this.subdominio(),
+          id: this.id(),
+        });
+      }
+    };
+    atualizar();
+    if ((this.segundosRestantes() ?? 0) > 0) {
+      this.intervaloContagem = setInterval(atualizar, 1000);
+    }
+  }
+
+  private pararContagemRegressiva(): void {
+    if (this.intervaloContagem !== undefined) {
+      clearInterval(this.intervaloContagem);
+      this.intervaloContagem = undefined;
+    }
+  }
+
+  async descartarReserva(): Promise<void> {
+    const subdominio = this.subdominio();
+    const id = this.id();
+    const credencial = this.pagina.obterCredencial(subdominio);
+    this.enviando.set(true);
+    try {
+      if (credencial && id) {
+        await this.pagina.cancelarAgendamento(subdominio, id, credencial);
+      }
+    } catch {
+      // Ignora erro se a reserva já tiver sido encerrada ou cancelada
+    } finally {
+      this.checkout.removerContexto({ subdominio, id });
+      this.enviando.set(false);
+      await this.router.navigate(['/s', subdominio]);
+    }
+  }
+
+  async escolherNovoHorario(): Promise<void> {
+    const subdominio = this.subdominio();
+    const id = this.id();
+    this.checkout.removerContexto({ subdominio, id });
+    await this.router.navigate(['/s', subdominio]);
   }
 
   private mostrarErro(erro: unknown): void {

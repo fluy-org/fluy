@@ -82,6 +82,7 @@ jest.mock('@/database/database.provider', () => ({
 import { eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
 import {
   agendamento,
+  cobrancaGateway,
   cobrancaManual,
   eventoAgendamento,
   lembrete,
@@ -139,10 +140,20 @@ describe('AgendamentoRepository', () => {
     where: filtrarAgenda,
   };
   let remarcacoes: unknown[] = [];
-  const filtrarRemarcacoes = jest.fn(() => Promise.resolve(remarcacoes));
+  const limitarEventos = jest.fn(() => Promise.resolve([]));
+  const ordenarEventos = jest.fn(() => ({ limit: limitarEventos }));
+  const filtrarEventos = jest.fn(() => {
+    const p = Promise.resolve(remarcacoes) as Promise<unknown[]> & {
+      orderBy: jest.Mock;
+      limit: jest.Mock;
+    };
+    p.orderBy = ordenarEventos;
+    p.limit = limitarEventos;
+    return p;
+  });
   const origemAgenda = jest.fn((tabela: unknown) =>
-    tabela === eventoAgendamento
-      ? ({ where: filtrarRemarcacoes } as unknown as EncadeamentoAgenda)
+    tabela === eventoAgendamento || tabela === cobrancaGateway
+      ? ({ where: filtrarEventos } as unknown as EncadeamentoAgenda)
       : encadearAgenda,
   );
   const selecionarAgenda = jest.fn(() => ({ from: origemAgenda }));
@@ -469,6 +480,15 @@ describe('AgendamentoRepository', () => {
         cancelado_por: 'salao',
       });
     });
+
+    it('expira cobranças ativas associadas ao agendamento no cancelamento', async () => {
+      retornarConclusao.mockResolvedValue([agendamentoCancelado]);
+
+      await repository.cancelar(entrada);
+
+      expect(atualizarAgendamentos).toHaveBeenCalledWith(cobrancaGateway);
+      expect(definirConclusao).toHaveBeenCalledWith({ status: 'expirada' });
+    });
   });
 
   describe('listarDoDia', () => {
@@ -655,10 +675,10 @@ describe('AgendamentoRepository', () => {
         agendamento.profissional_id,
         entrada.profissionalId,
       );
-      expect(inArray).toHaveBeenCalledWith(agendamento.estado, [
-        'reservado',
+      expect(eq).toHaveBeenCalledWith(
+        agendamento.estado,
         'agendado',
-      ]);
+      );
     });
 
     it('não remarca quando o novo horário já está ocupado', async () => {

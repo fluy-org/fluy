@@ -1,4 +1,4 @@
-import { and, inArray, lt, sql } from 'drizzle-orm';
+import { and, eq, gt, lt, or, sql } from 'drizzle-orm';
 import { agendamento } from '@fluy/schema';
 import { ACAO_AGENDAMENTO } from '@fluy/schema';
 import { utcParaDataHoraCivil } from '@/shared/horario-salao/horario-salao.utils';
@@ -150,7 +150,13 @@ export function condicaoDeSobreposicao({
   const fimEm = new Date(inicioEm.getTime() + duracaoMin * 60_000);
 
   return and(
-    inArray(agendamento.estado, ['reservado', 'agendado']),
+    or(
+      eq(agendamento.estado, 'agendado'),
+      and(
+        eq(agendamento.estado, 'reservado'),
+        gt(agendamento.expira_em, sql`now()`),
+      ),
+    ),
     lt(agendamento.inicio_em, fimEm),
     sql`${agendamento.inicio_em} + ${agendamento.duracao_min} * interval '1 minute' > ${inicioEm}::timestamptz`,
   );

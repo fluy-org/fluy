@@ -108,21 +108,29 @@ export class AgendamentoPublicoService {
   }) {
     const agendamento = await this.buscarDetalhe({ id, salaoId, dados });
 
-    if (agendamento.estado !== 'agendado') {
+    if (agendamento.estado !== 'agendado' && agendamento.estado !== 'reservado') {
       throw new ConflictException('Este agendamento não pode ser cancelado.');
     }
+
+    const ehReserva = agendamento.estado === 'reservado';
 
     const cancelado = await this.agendamentoCancelamentoService.cancelar({
       id,
       salaoId,
-      dados: { motivo: 'Cancelado pela cliente.' },
+      dados: {
+        motivo: ehReserva
+          ? 'Reserva cancelada pela cliente.'
+          : 'Cancelado pela cliente.',
+      },
       canceladoPor: 'cliente',
       notificarCliente: false,
     });
 
-    await this.agendamentoAvisoService.notificarCancelamentoPelaCliente(
-      cancelado,
-    );
+    if (!ehReserva) {
+      await this.agendamentoAvisoService.notificarCancelamentoPelaCliente(
+        cancelado,
+      );
+    }
 
     return cancelado;
   }

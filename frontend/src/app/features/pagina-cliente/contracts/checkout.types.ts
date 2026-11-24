@@ -8,11 +8,13 @@ export type ContextoCheckout = {
   vinculo: string;
   referenciasPendentes?: boolean;
   nomeProcedimento: string;
+  clienteWhatsapp?: string;
   reserva: ReservaPixResponseDto;
   tentativa?: IniciarPagamentoPixDto['modalidade'];
 };
 export type ReservarCheckoutInput = {
   subdominio: string;
   nomeProcedimento: string;
+  clienteWhatsapp?: string;
   dados: CriarAgendamentoPublicoDto;
 };

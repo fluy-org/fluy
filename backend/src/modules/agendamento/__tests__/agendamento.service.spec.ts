@@ -27,6 +27,7 @@ describe('AgendamentoService: dispensa de antecipação pública', () => {
   const repository = {
     criar: jest.fn(),
     possuiAgendamentoDoProcedimentoNoDia: jest.fn(),
+    buscarAgendamentoDoProcedimentoNoDia: jest.fn(),
   };
   const avaliarHorario = jest.fn();
   const cliente = { buscarPorId: jest.fn() };
@@ -132,6 +133,34 @@ describe('AgendamentoService: dispensa de antecipação pública', () => {
     });
     expect(repository.criar).toHaveBeenCalledWith(
       expect.objectContaining({ salaoId: 'salao-a', valorSinal: '0.00' }),
+    );
+  });
+
+  it('informa que a cliente já tem reserva aguardando pagamento quando procedimento duplicado for reservado', async () => {
+    configurarSinal('0.00');
+    repository.buscarAgendamentoDoProcedimentoNoDia.mockResolvedValue({
+      id: 'reserva-pendente',
+      estado: 'reservado',
+    });
+
+    await expect(
+      service.criar({ ...input, bloquearProcedimentoDuplicadoNoDia: true }),
+    ).rejects.toThrow(
+      new ConflictException('Você já tem uma reserva aguardando pagamento neste dia.'),
+    );
+  });
+
+  it('informa que a cliente já tem procedimento agendado quando procedimento duplicado for agendado', async () => {
+    configurarSinal('0.00');
+    repository.buscarAgendamentoDoProcedimentoNoDia.mockResolvedValue({
+      id: 'agendamento-existente',
+      estado: 'agendado',
+    });
+
+    await expect(
+      service.criar({ ...input, bloquearProcedimentoDuplicadoNoDia: true }),
+    ).rejects.toThrow(
+      new ConflictException('Você já possui este procedimento agendado neste dia.'),
     );
   });
 });

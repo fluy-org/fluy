@@ -18,10 +18,13 @@ import {
   cliente,
   cobrancaGateway,
   cobrancaManual,
+  eventoAgendamento,
   pagamentoAgendamento,
   procedimento,
   reembolso,
   sessaoCliente,
+  SituacaoPagamentoPix,
+  StatusCobrancaGateway,
 } from '@fluy/schema';
 import { Injectable } from '@nestjs/common';
 import { InjectDatabase } from '@/database/inject-database.decorator';
@@ -156,6 +159,7 @@ export class ClienteRepository {
         preco_total: agendamento.preco_total,
         valor_sinal: agendamento.valor_sinal,
         pagamento_no_salao: agendamento.pagamento_no_salao,
+        expira_em: agendamento.expira_em,
         valor_pago: sql<string>`coalesce((
           select sum(coalesce(pa.valor, cg.valor, cm.valor, 0))::text
           from ${pagamentoAgendamento} pa
@@ -164,6 +168,34 @@ export class ClienteRepository {
           where pa.agendamento_id = ${agendamento.id}
             and (cg.status = 'confirmada' or pa.cobranca_manual_id is not null)
         ), '0.00')`,
+        status_pagamento: sql<StatusCobrancaGateway | null>`(
+          select cg.status
+          from ${cobrancaGateway} cg
+          where cg.agendamento_id = ${agendamento.id}
+            and cg.salao_id = ${input.salaoId}
+          order by cg.criada_em desc
+          limit 1
+        )`,
+        situacao_pagamento: sql<SituacaoPagamentoPix | null>`(
+          select case when cg.divergencia then 'confirmado_apos_expiracao' else 'normal' end
+          from ${cobrancaGateway} cg
+          where cg.agendamento_id = ${agendamento.id}
+            and cg.salao_id = ${input.salaoId}
+          order by cg.criada_em desc
+          limit 1
+        )`,
+        motivo_cancelamento: sql<string | null>`(
+          select case
+            when ea.motivo = 'Reserva expirada.' then 'Reserva expirada.'
+            when ea.motivo like '%pela cliente%' then ea.motivo
+            else null
+          end
+          from ${eventoAgendamento} ea
+          where ea.agendamento_id = ${agendamento.id}
+            and ea.tipo = 'cancelado'
+          order by ea.ocorreu_em desc
+          limit 1
+        )`,
         procedimento: {
           id: procedimento.id,
           nome: procedimento.nome,

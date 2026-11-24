@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { ESTADO_AGENDAMENTO } from "../agendamento/agendamento.enums.js";
+import {
+  STATUS_COBRANCA_GATEWAY,
+  SITUACAO_PAGAMENTO_PIX,
+} from "../cobranca_gateway/cobranca_gateway.enums.js";
 import { FUSOS_HORARIOS_BRASIL } from "../salao/salao.enums.js";
 import { whatsappInternacionalSchema } from "../whatsapp/whatsapp.schema.js";
 import {
@@ -113,6 +117,10 @@ export const agendamentoClienteResponseSchema = z
     valor_sinal: z.number().nonnegative(),
     valor_pago: z.number().nonnegative(),
     pagamento_no_salao: z.boolean(),
+    expira_em: z.iso.datetime().nullable().optional(),
+    status_pagamento: z.enum(STATUS_COBRANCA_GATEWAY).nullable().optional(),
+    situacao_pagamento: z.enum(SITUACAO_PAGAMENTO_PIX).nullable().optional(),
+    motivo_cancelamento: z.string().nullable().optional(),
   })
   .meta({ id: "AgendamentoClienteResponse" });
 

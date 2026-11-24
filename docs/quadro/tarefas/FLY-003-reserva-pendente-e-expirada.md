@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 | --- | --- |
-| **Responsável** | _a definir_ |
-| **Status** | A fazer |
+| **Responsável** | Agente Orquestrador |
+| **Status** | Concluída |
 | **Prioridade** | Alta |
 | **Área** | Página pública · Checkout · Meus agendamentos · Backend de agendamento |
 | **Origem** | Relato do dono (agendamento expirado) + auditoria |
@@ -110,12 +110,12 @@
 
 ## Critérios de conclusão
 
-- [ ] A cliente desiste de uma reserva e o horário volta a aparecer livre na mesma hora.
-- [ ] Depois de a reserva vencer, a cliente agenda o mesmo procedimento no mesmo dia sem esperar o job.
-- [ ] O botão "Retomar pagamento" some depois do pagamento confirmado, da expiração ou do cancelamento.
-- [ ] O botão "Retomar pagamento" não aparece para outra identificação.
-- [ ] Abrir uma reserva expirada nunca mostra o formulário de pagamento.
-- [ ] A cliente consegue pagar a reserva no prazo a partir de "Meus agendamentos", em outro navegador.
-- [ ] O checkout mostra a contagem regressiva do prazo.
-- [ ] Os status "Reserva expirada" e "Pago após o prazo" aparecem com orientação.
-- [ ] Os docs de domínio e de fluxo estão alinhados.
+- [x] A cliente desiste de uma reserva e o horário volta a aparecer livre na mesma hora.
+- [x] Depois de a reserva vencer, a cliente agenda o mesmo procedimento no mesmo dia sem esperar o job.
+- [x] O botão "Retomar pagamento" some depois do pagamento confirmado, da expiração ou do cancelamento.
+- [x] O botão "Retomar pagamento" não aparece para outra identificação.
+- [x] Abrir uma reserva expirada nunca mostra o formulário de pagamento.
+- [x] A cliente consegue pagar a reserva no prazo a partir de "Meus agendamentos", em outro navegador.
+- [x] O checkout mostra a contagem regressiva do prazo.
+- [x] Os status "Reserva expirada" e "Pago após o prazo" aparecem com orientação.
+- [x] Os docs de domínio e de fluxo estão alinhados.

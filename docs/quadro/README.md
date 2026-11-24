@@ -26,7 +26,7 @@ As tarefas nasceram de duas fontes, em 12/11/2026:
 | --- | --- | --- | --- | --- | --- |
 | [FLY-001](./tarefas/FLY-001-identificacao-da-cliente-sem-verificacao.md) | O WhatsApp de outra pessoa dá acesso à conta dela | Cliente · Segurança | **Crítica** | A fazer | — |
 | [FLY-002](./tarefas/FLY-002-agendamento-sem-pagamento-online.md) | Agendar sem pagamento online: salão sem Pix e "pagar no salão" | Cliente · Pagamento | Alta | Concluída | Agente Orquestrador |
-| [FLY-003](./tarefas/FLY-003-reserva-pendente-e-expirada.md) | Reserva pendente e expirada: cliente travada | Cliente · Pagamento | Alta | A fazer | — |
+| [FLY-003](./tarefas/FLY-003-reserva-pendente-e-expirada.md) | Reserva pendente e expirada: cliente travada | Cliente · Pagamento | Alta | Concluída | Agente Orquestrador |
 | [FLY-004](./tarefas/FLY-004-checkout-da-cliente.md) | Checkout simples e só de pagamento | Cliente · Pagamento | Alta | A fazer | — |
 | [FLY-005](./tarefas/FLY-005-confiabilidade-do-pagamento-online.md) | Confiabilidade do pagamento: prazo, confirmação e avisos | Backend · Pagamento | Alta | A fazer | — |
 | [FLY-006](./tarefas/FLY-006-primeiros-passos-do-salao.md) | Primeiros passos, link em destaque e aviso de Pix | Salão · Configuração inicial | Alta | A fazer | — |
