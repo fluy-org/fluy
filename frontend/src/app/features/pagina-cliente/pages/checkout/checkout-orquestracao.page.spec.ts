@@ -1,5 +1,5 @@
-import { Injector, runInInjectionContext, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Injector, NgZone, runInInjectionContext, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CheckoutPage } from './checkout.page';
 import { CheckoutService } from '@app/features/pagina-cliente/services/checkout.service';
 import { PaginaClienteService } from '@app/features/pagina-cliente/services/pagina-cliente.service';
@@ -51,6 +51,14 @@ describe('Checkout: isolamento da orquestração da página', () => {
       Injector.create({
         providers: [
           { provide: ActivatedRoute, useValue: {} },
+          {
+            provide: Router,
+            useValue: { navigate: jasmine.createSpy().and.resolveTo(true) },
+          },
+          {
+            provide: NgZone,
+            useValue: new NgZone({ enableLongStackTrace: false }),
+          },
           { provide: CheckoutService, useValue: checkout },
           { provide: PaginaClienteService, useValue: pagina },
           { provide: CalendarioAgendamentoService, useValue: {} },
@@ -82,29 +90,28 @@ describe('Checkout: isolamento da orquestração da página', () => {
     await operacao;
     expect(checkout.acompanhar).not.toHaveBeenCalled();
   });
-  it('não grava aviso de upload antigo no contexto da próxima reserva', async () => {
-    pagina.obterCredencial.and.returnValue('credencial');
-    let concluir!: (value: never) => void;
-    pagina.enviarReferencia.and.returnValue(
-      new Promise((resolve) => {
-        concluir = resolve;
-      }),
-    );
-    const operacao = page.enviarReferencias({
-      target: {
-        files: [new File(['x'], 'foto.png', { type: 'image/png' })],
-        value: '',
-      },
-    } as unknown as Event);
-    page.ionViewWillLeave();
-    page.id.set('reserva-outra');
-    concluir({} as never);
-    await operacao;
-    expect(checkout.registrarReferenciasPendentes).toHaveBeenCalledWith({
-      subdominio: 'novo',
-      id: 'reserva-nova',
-      pendentes: false,
-    });
-    expect(page.avisoReferencias()).toBeNull();
+  it('rejeita CPF inválido sem chamar checkout.iniciar', async () => {
+    checkout.instituicoes.set([{ id: 'banco-1', nome: 'Nubank' }] as never);
+    page.instituicoesCarregadas.set(true);
+    page.formulario.controls.pagador.controls.instituicao_id.setValue('banco-1');
+    page.formulario.controls.pagador.controls.cpf.setValue('123.456.789-00'); // CPF matematicamente inválido
+
+    await page.iniciar();
+
+    expect(checkout.iniciar).not.toHaveBeenCalled();
+    expect(page.erro()).toBe('Informe um CPF válido.');
+  });
+
+  it('filtra bancos corretamente e destaca mais usados', () => {
+    checkout.instituicoes.set([
+      { id: '1', nome: 'Nubank' },
+      { id: '2', nome: 'Banco do Brasil' },
+      { id: '3', nome: 'Cooperativa de Crédito Regional' },
+    ] as never);
+
+    expect(page.bancosMaisUsados().map((b) => b.id)).toEqual(['1', '2']);
+
+    page.atualizarBuscaBanco('regional');
+    expect(page.bancosFiltrados().map((b) => b.id)).toEqual(['3']);
   });
 });

@@ -51,6 +51,7 @@
         [referencias]="referenciasDetalhe()"
         [carregandoReferencias]="carregandoReferenciasDetalhe()"
         [erroReferencias]="erroReferenciasDetalhe()"
+        [enviandoReferencias]="enviandoNovasReferencias()"
         [confirmandoCancelamento]="confirmandoCancelamento()"
         [cancelando]="cancelandoAgendamento()"
         [erroCancelamento]="erroCancelamento()"
@@ -63,6 +64,7 @@
         (confirmarCancelamento)="cancelarAgendamento()"
         (pagarReserva)="retomarCheckout($event)"
         (tentarNovamente)="carregarAgendamentos()"
+        (salvarReferencias)="enviarNovasReferenciasDetalhe($event)"
       ></app-meus-agendamentos>
 
       @if (!detalheAgendamento() && proximoCursorAgendamentos()) {

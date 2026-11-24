@@ -152,7 +152,7 @@ describe('Checkout: estados apresentados', () => {
       'Adicionar ao calendário',
     );
   });
-  it('escolher outro horário navega para o subdomínio atual', async () => {
+  it('voltar ao salão navega para o subdomínio atual', async () => {
     const fixture = TestBed.createComponent(CheckoutPage);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -161,7 +161,7 @@ describe('Checkout: estados apresentados', () => {
       .queryAll(By.directive(RouterLink))
       .find((elemento) =>
         (elemento.nativeElement.textContent as string).includes(
-          'Escolher outro horário',
+          'Voltar ao salão',
         ),
       );
     expect(link).toBeDefined();

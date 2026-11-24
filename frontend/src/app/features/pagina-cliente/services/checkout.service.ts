@@ -244,6 +244,15 @@ export class CheckoutService {
         'Não foi possível recuperar esta reserva neste dispositivo. Fale com o salão.',
       );
 
+    const contextoLocal = this.listarContextos().find(
+      (item) => item.reserva.id === input.id,
+    );
+    if (contextoLocal && contextoLocal.subdominio !== input.subdominio) {
+      throw new ErroCheckout(
+        'Não foi possível recuperar esta reserva neste dispositivo. Fale com o salão.',
+      );
+    }
+
     const sessao = await firstValueFrom(
       this.http.get<SessaoClientePublicaResponseDto>(
         '/publico/s/' +
@@ -265,6 +274,11 @@ export class CheckoutService {
 
     if (contexto) {
       const vinculoAtual = await this.vincularDispositivo(input.credencial);
+      if (contexto.vinculo && contexto.vinculo !== vinculoAtual) {
+        throw new ErroCheckout(
+          'Esta reserva pertence a outra identificação. Fale com o salão.',
+        );
+      }
       contexto = {
         ...contexto,
         vinculo: vinculoAtual,
@@ -279,7 +293,7 @@ export class CheckoutService {
             { headers: { 'x-cliente-credencial': input.credencial } },
           ),
         );
-        if (agendamento.estado !== 'reservado') {
+        if (agendamento.estado !== 'reservado' || !agendamento.expira_em) {
           throw new ErroCheckout('A reserva expirou ou foi encerrada.');
         }
         contexto = {
@@ -296,7 +310,7 @@ export class CheckoutService {
             duracao_min: agendamento.duracao_min,
             preco_total: agendamento.preco_total,
             valor_sinal: agendamento.valor_sinal,
-            expira_em: agendamento.expira_em ?? '',
+            expira_em: agendamento.expira_em,
             estado: agendamento.estado,
             criado_em: agendamento.inicio_em,
           },

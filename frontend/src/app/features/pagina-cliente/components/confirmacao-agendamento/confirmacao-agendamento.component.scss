@@ -38,7 +38,17 @@ header ion-text, aside ion-text { color: var(--fluy-color-muted); line-height: v
 .referencias { display: grid; gap: var(--fluy-space-3); padding: var(--fluy-space-4); border: 1px solid var(--fluy-color-border-soft); border-radius: var(--fluy-radius-lg); background: var(--fluy-color-surface); }
 .referencias > div:first-child { display: grid; gap: var(--fluy-space-1); }
 .referencias ion-text { color: var(--fluy-color-muted); line-height: var(--fluy-line-height-body); }
-.seletor-arquivo { display: none; }
+.seletor-arquivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .galeria-referencias { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--fluy-space-2); }
 .galeria-referencias article { position: relative; display: grid; gap: var(--fluy-space-1); min-width: 0; }
 .galeria-referencias ion-img { width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: var(--fluy-radius-md); background: var(--fluy-color-background); }

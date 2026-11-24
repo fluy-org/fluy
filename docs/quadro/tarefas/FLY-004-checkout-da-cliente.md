@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 | --- | --- |
-| **Responsável** | _a definir_ |
-| **Status** | A fazer |
+| **Responsável** | Rudney |
+| **Status** | Concluída |
 | **Prioridade** | Alta |
 | **Área** | Página pública · Checkout |
 | **Origem** | Teste manual do dono + auditoria |
@@ -105,10 +105,10 @@ As imagens de referência ficam **fora** do checkout:
 
 ## Critérios de conclusão
 
-- [ ] O checkout não tem seção de envio de imagens. As imagens podem ser adicionadas pelo detalhe do agendamento.
-- [ ] A cliente cola ou digita um CPF com pontuação e o valor fica correto.
-- [ ] A cliente encontra o banco digitando parte do nome.
-- [ ] Há no máximo um botão de ação principal visível por estado da tela.
-- [ ] Nenhum texto técnico ou repetido ("Recebedor: Recebedor", "sinal" cru, "servidor").
-- [ ] Mensagem e tolerância vazias não aparecem.
-- [ ] O input de arquivo é alcançável por teclado.
+- [x] O checkout não tem seção de envio de imagens. As imagens podem ser adicionadas pelo detalhe do agendamento.
+- [x] A cliente cola ou digita um CPF com pontuação e o valor fica correto.
+- [x] A cliente encontra o banco digitando parte do nome.
+- [x] Há no máximo um botão de ação principal visível por estado da tela.
+- [x] Nenhum texto técnico ou repetido ("Recebedor: Recebedor", "sinal" cru, "servidor").
+- [x] Mensagem e tolerância vazias não aparecem.
+- [x] O input de arquivo é alcançável por teclado.

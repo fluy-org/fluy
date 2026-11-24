@@ -121,7 +121,7 @@ describe('cliente.mapper', () => {
           valor_pago: '20.00',
           pagamento_no_salao: false,
           expira_em: expiraEm,
-          status_pagamento: 'pago',
+          status_pagamento: 'confirmada',
           situacao_pagamento: 'confirmado_apos_expiracao',
           motivo_cancelamento: 'Reserva expirada.',
           procedimento: { id: 'procedimento-manicure', nome: 'Manicure' },
@@ -140,7 +140,7 @@ describe('cliente.mapper', () => {
       valor_pago: 20,
       pagamento_no_salao: false,
       expira_em: '2026-09-10T15:15:00.000Z',
-      status_pagamento: 'pago',
+      status_pagamento: 'confirmada',
       situacao_pagamento: 'confirmado_apos_expiracao',
       motivo_cancelamento: 'Reserva expirada.',
     });

@@ -73,6 +73,16 @@
       aria-labelledby="titulo-referencias-detalhe"
     >
       <h2 id="titulo-referencias-detalhe">Suas imagens de referência</h2>
+      <input
+        #seletorReferencia
+        class="seletor-arquivo"
+        type="file"
+        aria-label="Selecionar imagem de referência"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        (change)="selecionarNovasReferencias($event)"
+      />
+
       @if (carregandoReferencias()) {
         <ion-spinner aria-label="Carregando imagens de referência"></ion-spinner>
       } @else if (erroReferencias()) {
@@ -88,6 +98,56 @@
         </div>
       } @else {
         <ion-text color="medium">Nenhuma imagem de referência enviada.</ion-text>
+      }
+
+      @if (novasReferencias().length > 0) {
+        <div class="novas-referencias-secao">
+          <ion-text class="subtitulo-novas">Novas fotos a enviar:</ion-text>
+          <div class="novas-referencias-galeria">
+            @for (nova of novasReferencias(); track nova.url; let indice = $index) {
+              <article>
+                <ion-img [src]="nova.url" [alt]="'Nova referência ' + (indice + 1)"></ion-img>
+                <ion-button
+                  type="button"
+                  size="small"
+                  color="danger"
+                  fill="solid"
+                  [attr.aria-label]="'Remover nova referência ' + (indice + 1)"
+                  (click)="removerNovaReferencia(indice)"
+                >
+                  Remover
+                </ion-button>
+              </article>
+            }
+          </div>
+          <ion-button
+            type="button"
+            class="botao-salvar-referencias"
+            [disabled]="enviandoReferencias()"
+            (click)="enviarNovasReferencias()"
+          >
+            @if (enviandoReferencias()) {
+              <ion-spinner name="crescent" slot="start"></ion-spinner>
+            }
+            {{ enviandoReferencias() ? 'Enviando imagens...' : 'Salvar imagens de referência' }}
+          </ion-button>
+        </div>
+      }
+
+      @if (erroNovaReferencia(); as erroNova) {
+        <ion-text class="erro" role="alert">{{ erroNova }}</ion-text>
+      }
+
+      @if ((agendamento.estado === 'reservado' || agendamento.estado === 'agendado') && (referencias().length + novasReferencias().length) < limiteReferencias) {
+        <ion-button
+          type="button"
+          fill="outline"
+          class="botao-adicionar-referencia"
+          [disabled]="enviandoReferencias()"
+          (click)="abrirSeletor()"
+        >
+          Adicionar referência
+        </ion-button>
       }
     </section>
 

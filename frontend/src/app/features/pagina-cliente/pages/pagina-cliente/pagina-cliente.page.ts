@@ -154,6 +154,7 @@ export class PaginaClientePage implements OnInit, OnDestroy {
   readonly carregandoDetalheAgendamento = signal(false);
   readonly referenciasDetalhe = signal<ReferenciaAgendamentoVisual[]>([]);
   readonly carregandoReferenciasDetalhe = signal(false);
+  readonly enviandoNovasReferencias = signal(false);
   readonly erroReferenciasDetalhe = signal<string | null>(null);
   readonly confirmandoCancelamento = signal(false);
   readonly cancelandoAgendamento = signal(false);
@@ -326,6 +327,43 @@ export class PaginaClientePage implements OnInit, OnDestroy {
     this.detalheAgendamento.set(null);
     this.confirmandoCancelamento.set(false);
     this.erroCancelamento.set(null);
+  }
+
+  async enviarNovasReferenciasDetalhe(arquivos: File[]): Promise<void> {
+    const detalhe = this.detalheAgendamento();
+    const subdominio = this.subdominio() || this.obterSubdominio();
+    const credencial = this.paginaClienteService.obterCredencial(subdominio);
+    if (!detalhe || !credencial || !arquivos.length) return;
+    this.enviandoNovasReferencias.set(true);
+    this.erroReferenciasDetalhe.set(null);
+    try {
+      const resultados = await Promise.allSettled(
+        arquivos.map((arquivo) =>
+          this.paginaClienteService.enviarReferencia({
+            subdominio,
+            agendamentoId: detalhe.id,
+            credencial,
+            arquivo,
+          }),
+        ),
+      );
+      if (resultados.some((r) => r.status === 'rejected')) {
+        this.erroReferenciasDetalhe.set(
+          'Algumas imagens não puderam ser enviadas. Tente novamente.',
+        );
+      } else {
+        this.checkout.registrarReferenciasPendentes({
+          subdominio,
+          id: detalhe.id,
+          pendentes: false,
+        });
+      }
+      await this.carregarReferenciasDetalhe(detalhe.id, credencial);
+    } catch {
+      this.erroReferenciasDetalhe.set('Erro ao enviar imagens de referência.');
+    } finally {
+      this.enviandoNovasReferencias.set(false);
+    }
   }
 
   private async carregarReferenciasDetalhe(
