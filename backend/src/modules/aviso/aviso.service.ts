@@ -56,11 +56,20 @@ export class AvisoService {
     credencial: string;
     cursor?: string;
   }): Promise<ListaAvisosResultado> {
-    const cliente = await this.resolverCliente({ salaoId, credencial });
+    const sessao = await this.resolverSessao({ salaoId, credencial });
+
+    if (sessao.verificada === false) {
+      return {
+        itens: [],
+        proximoCursor: null,
+      };
+    }
+
+    const clienteId = sessao.cliente?.id ?? (sessao as any).id;
 
     return this.listarCliente({
       salaoId,
-      clienteId: cliente.id,
+      clienteId,
       cursor,
     });
   }
@@ -112,12 +121,18 @@ export class AvisoService {
     salaoId: string;
     credencial: string;
   }): Promise<AvisoPersistido> {
-    const cliente = await this.resolverCliente({ salaoId, credencial });
+    const sessao = await this.resolverSessao({ salaoId, credencial });
+
+    if (sessao.verificada === false) {
+      throw new NotFoundException('Aviso não encontrado.');
+    }
+
+    const clienteId = sessao.cliente?.id ?? (sessao as any).id;
 
     return this.reconhecerCliente({
       id,
       salaoId,
-      clienteId: cliente.id,
+      clienteId,
     });
   }
 
@@ -185,6 +200,25 @@ export class AvisoService {
     return offset;
   }
 
+  private async resolverSessao({
+    salaoId,
+    credencial,
+  }: {
+    salaoId: string;
+    credencial: string;
+  }) {
+    const sessao = await this.clienteService.resolverSessaoPublica({
+      salaoId,
+      credencial,
+    });
+
+    if (!sessao) {
+      throw new NotFoundException('Sessão da cliente não encontrada.');
+    }
+
+    return sessao;
+  }
+
   private async resolverCliente({
     salaoId,
     credencial,
@@ -192,15 +226,7 @@ export class AvisoService {
     salaoId: string;
     credencial: string;
   }) {
-    const cliente = await this.clienteService.resolverSessaoPublica({
-      salaoId,
-      credencial,
-    });
-
-    if (!cliente) {
-      throw new NotFoundException('Sessão da cliente não encontrada.');
-    }
-
-    return cliente;
+    const sessao = await this.resolverSessao({ salaoId, credencial });
+    return sessao.cliente;
   }
 }

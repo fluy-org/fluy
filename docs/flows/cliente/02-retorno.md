@@ -9,9 +9,13 @@ Reconhecer automaticamente a cliente em acessos posteriores pelo mesmo dispositi
 1. Cliente abre o link do salão pelo navegador.
 2. Sistema lê o UUID armazenado localmente (cookie/localStorage).
 3. Sistema consulta o cadastro associado ao UUID no salão daquele subdomínio.
-4. Sistema exibe mensagem de reconhecimento (ex.: "Olá, Maria!") e oferece opções:
-   - **Continuar como Maria** — segue para o fluxo de agendamento identificada como Maria.
-   - **Agendar como outra pessoa** — pede novo Nome + WhatsApp e segue o fluxo de [primeiro acesso](./01-primeiro-acesso.md) para essa nova identidade.
+4. Sistema exibe mensagem de reconhecimento e oferece opções:
+   - Se sessão **verificada**: exibe "Olá, [Nome Cadastrado]!" com acesso aos agendamentos e avisos.
+   - Se sessão **não-verificada**: exibe "Olá, [Nome Informado]!" (ou genérico), sem expor o histórico prévio da cliente.
+   - Opções na interface:
+     - **Continuar como [Nome]** — segue para o fluxo de agendamento.
+     - **Sair** — revoga a sessão no servidor (`DELETE /publico/s/:subdominio/cliente/sessao`), remove a credencial local e redireciona para tela limpa de identificação.
+     - **Agendar como outra pessoa** — revoga a sessão atual, limpa a credencial e abre o formulário de identificação para a nova pessoa.
 
 ## Variações
 
@@ -42,4 +46,4 @@ Reconhecer automaticamente a cliente em acessos posteriores pelo mesmo dispositi
 ## Dúvidas em aberto
 
 - **Múltiplas identidades salvas por dispositivo:** vale permitir "trocar entre identidades salvas" (ex.: uma mãe agenda pra si e pra 2 filhas)? MVP escolhe "não" — quem quiser troca via "agendar como outra pessoa" e re-informa dados. Se virar caso comum, evoluir.
-- **Tempo de expiração do UUID:** cookie/localStorage tem vida infinita por padrão. Precisa expirar após X meses de inatividade? Fora do MVP.
+- **Tempo de expiração da sessão:** A sessão no servidor (`sessao_cliente`) tem validade deslizante de 90 dias a cada requisição (`expira_em`). Sessões com prazo vencido ou revogadas são rejeitadas pelo backend e tratadas pelo frontend como primeiro acesso.

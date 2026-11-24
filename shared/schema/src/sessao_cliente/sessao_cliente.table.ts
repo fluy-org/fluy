@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import { pgTable, uuid, varchar, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { cliente } from '@schema/cliente/cliente.table.js';
 import type { TipoSessaoCliente } from './sessao_cliente.enums.js';
@@ -12,6 +12,12 @@ export const sessaoCliente = pgTable(
       .references(() => cliente.id, { onDelete: 'cascade' }),
     tipo: varchar('tipo', { length: 30 }).notNull().$type<TipoSessaoCliente>(),
     credencial: varchar('credencial', { length: 500 }).notNull(),
+    nome_informado: varchar('nome_informado', { length: 200 }),
+    verificada_em: timestamp('verificada_em', { withTimezone: true }),
+    expira_em: timestamp('expira_em', { withTimezone: true })
+      .notNull()
+      .default(sql`now() + interval '90 days'`),
+    revogada_em: timestamp('revogada_em', { withTimezone: true }),
     criada_em: timestamp('criada_em', { withTimezone: true })
       .notNull()
       .defaultNow(),

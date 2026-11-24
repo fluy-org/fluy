@@ -1,11 +1,24 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiHeader,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import {
   ConsultarSessaoClienteQueryDto,
   IdentificarClientePublicaRequestDto,
@@ -23,32 +36,72 @@ export class ClientePublicoController {
 
   @Get('sessao')
   @ApiOperation({ summary: 'Reconhece a cliente pelo dispositivo' })
+  @ApiHeader({
+    name: 'x-cliente-credencial',
+    required: false,
+    description: 'Credencial do dispositivo da cliente',
+  })
   @ApiOkResponse({ type: SessaoClientePublicaResponseDto.Output })
   async consultarSessao(
     @TenantFromPath() tenant: TenantContext,
-    @Query() query: ConsultarSessaoClienteQueryDto,
+    @Query() query?: ConsultarSessaoClienteQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
-    const cliente = await this.clienteService.resolverSessaoPublica({
-      credencial: query.credencial,
+    const credencial = headerCredencial || query?.credencial;
+    if (!credencial) {
+      return toSessaoClientePublicaResponse(undefined);
+    }
+
+    const sessao = await this.clienteService.resolverSessaoPublica({
+      credencial,
       salaoId: tenant.salaoId,
     });
 
-    return toSessaoClientePublicaResponse(cliente);
+    return toSessaoClientePublicaResponse(sessao);
+  }
+
+  @Delete('sessao')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Revoga a sessão da cliente no dispositivo' })
+  @ApiHeader({
+    name: 'x-cliente-credencial',
+    required: false,
+    description: 'Credencial do dispositivo da cliente',
+  })
+  @ApiNoContentResponse({ description: 'Sessão revogada com sucesso.' })
+  async revogarSessao(
+    @TenantFromPath() tenant: TenantContext,
+    @Query() query?: ConsultarSessaoClienteQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
+  ) {
+    const credencial = headerCredencial || query?.credencial;
+    if (credencial) {
+      await this.clienteService.revogarSessaoPublica({
+        credencial,
+        salaoId: tenant.salaoId,
+      });
+    }
   }
 
   @Post('identificacao')
+  @Throttle({
+    identificacao_ip: { limit: 5, ttl: 60000 },
+    identificacao_whatsapp: { limit: 3, ttl: 60000 },
+  })
   @ApiOperation({ summary: 'Identifica ou cadastra a cliente' })
   @ApiCreatedResponse({ type: SessaoClientePublicaResponseDto.Output })
   @ApiConflictResponse({ description: 'Credencial usada por outro salão.' })
   async identificar(
     @TenantFromPath() tenant: TenantContext,
     @Body() dados: IdentificarClientePublicaRequestDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
-    const cliente = await this.clienteService.identificarPublicamente({
-      dados,
+    const credencial = dados.credencial || headerCredencial || '';
+    const sessao = await this.clienteService.identificarPublicamente({
+      dados: { ...dados, credencial },
       salaoId: tenant.salaoId,
     });
 
-    return toSessaoClientePublicaResponse(cliente);
+    return toSessaoClientePublicaResponse(sessao);
   }
 }

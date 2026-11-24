@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Headers,
   Param,
   ParseUUIDPipe,
   Post,
@@ -47,10 +48,12 @@ export class AnexoAgendamentoPublicoController {
     @Param('agendamentoId', new ParseUUIDPipe()) agendamentoId: string,
     @Query() dados: ConsultarAgendamentoPublicoQueryDto,
     @TenantFromPath() tenant: TenantContext,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     const escopo = await this.anexoService.resolverEscopoDaCliente({
       agendamentoId,
-      credencial: dados.credencial,
+      credencial,
       salaoId: tenant.salaoId,
     });
 
@@ -77,10 +80,12 @@ export class AnexoAgendamentoPublicoController {
     @Query() dados: ConsultarAgendamentoPublicoQueryDto,
     @TenantFromPath() tenant: TenantContext,
     @UploadedFile() arquivo: Express.Multer.File | undefined,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     const escopo = await this.anexoService.resolverEscopoDaCliente({
       agendamentoId,
-      credencial: dados.credencial,
+      credencial,
       salaoId: tenant.salaoId,
     });
 
@@ -111,10 +116,12 @@ export class AnexoAgendamentoPublicoController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() dados: ConsultarAgendamentoPublicoQueryDto,
     @TenantFromPath() tenant: TenantContext,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     const escopo = await this.anexoService.resolverEscopoDaCliente({
       agendamentoId,
-      credencial: dados.credencial,
+      credencial,
       salaoId: tenant.salaoId,
     });
     const { anexo, objeto } =

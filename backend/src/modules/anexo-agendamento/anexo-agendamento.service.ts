@@ -83,16 +83,25 @@ export class AnexoAgendamentoService {
     credencial: string;
     salaoId: string;
   }): Promise<EscopoAgendamentoDaCliente> {
-    const cliente = await this.clienteService.resolverSessaoPublica({
+    const sessaoPublica = await this.clienteService.resolverSessaoPublica({
       credencial,
       salaoId,
     });
 
-    if (!cliente) {
+    if (!sessaoPublica) {
       throw new NotFoundException('Sessão da cliente não encontrada.');
     }
 
-    const escopo = { agendamentoId, clienteId: cliente.id, salaoId };
+    const clienteId = sessaoPublica.cliente?.id ?? (sessaoPublica as any).id;
+    const sessaoId = sessaoPublica.sessao?.id;
+    const verificada = sessaoPublica.verificada !== false;
+
+    const escopo: EscopoAgendamentoDaCliente = {
+      agendamentoId,
+      clienteId,
+      salaoId,
+      sessaoClienteId: verificada ? undefined : sessaoId,
+    };
     if (!(await this.anexoRepository.possuiAgendamentoDaCliente(escopo))) {
       throw new NotFoundException('Agendamento não encontrado.');
     }

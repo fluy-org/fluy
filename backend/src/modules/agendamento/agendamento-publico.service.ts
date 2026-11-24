@@ -34,15 +34,19 @@ export class AgendamentoPublicoService {
     salaoId: string;
     dados: ListarAgendamentosPublicosQueryDto;
   }) {
-    const cliente = await this.resolverCliente({
+    const sessaoPublica = await this.resolverSessao({
       salaoId,
       credencial: dados.credencial,
     });
+    const clienteId = sessaoPublica.cliente?.id ?? (sessaoPublica as any).id;
+    const sessaoId = sessaoPublica.sessao?.id;
+    const verificada = sessaoPublica.verificada !== false;
 
     return this.clienteService.listarAgendamentos({
-      id: cliente.id,
+      id: clienteId,
       salaoId,
       cursor: dados.cursor,
+      sessaoClienteId: verificada ? undefined : sessaoId,
     });
   }
 
@@ -55,16 +59,24 @@ export class AgendamentoPublicoService {
     salaoId: string;
     dados: ConsultarAgendamentoPublicoQueryDto;
   }) {
-    const cliente = await this.resolverCliente({
+    const sessaoPublica = await this.resolverSessao({
       salaoId,
       credencial: dados.credencial,
     });
+    const clienteId = sessaoPublica.cliente?.id ?? (sessaoPublica as any).id;
+    const sessaoId = sessaoPublica.sessao?.id;
+    const verificada = sessaoPublica.verificada !== false;
+
     const agendamento = await this.agendamentoService.buscarDetalhe({
       id,
       salaoId,
     });
 
-    if (agendamento.cliente.id !== cliente.id) {
+    if (agendamento.cliente.id !== clienteId) {
+      throw new NotFoundException('Agendamento não encontrado.');
+    }
+
+    if (!verificada && sessaoId && agendamento.sessao_cliente_id !== sessaoId) {
       throw new NotFoundException('Agendamento não encontrado.');
     }
 
@@ -170,10 +182,12 @@ export class AgendamentoPublicoService {
     salaoId: string;
     dados: CriarAgendamentoPublicoDto;
   }) {
-    const cliente = await this.resolverCliente({
+    const sessaoPublica = await this.resolverSessao({
       salaoId,
       credencial: dados.credencial,
     });
+    const clienteId = sessaoPublica.cliente?.id ?? (sessaoPublica as any).id;
+    const sessaoId = sessaoPublica.sessao?.id;
 
     const criado = await this.agendamentoService.criar({
       exigirSemSinal: true,
@@ -181,8 +195,9 @@ export class AgendamentoPublicoService {
       bloquearProcedimentoDuplicadoNoDia: true,
       notificarCliente: false,
       publico: true,
+      sessaoClienteId: sessaoId,
       dados: {
-        cliente_id: cliente.id,
+        cliente_id: clienteId,
         procedimento_id: dados.procedimento_id,
         data: dados.data,
         hora_inicio: dados.hora_inicio,
@@ -207,10 +222,12 @@ export class AgendamentoPublicoService {
     salaoId: string;
     dados: CriarAgendamentoPublicoDto;
   }) {
-    const cliente = await this.resolverCliente({
+    const sessaoPublica = await this.resolverSessao({
       salaoId,
       credencial: dados.credencial,
     });
+    const clienteId = sessaoPublica.cliente?.id ?? (sessaoPublica as any).id;
+    const sessaoId = sessaoPublica.sessao?.id;
 
     return this.agendamentoService.criar({
       salaoId,
@@ -218,14 +235,34 @@ export class AgendamentoPublicoService {
       notificarCliente: false,
       reservar: true,
       publico: true,
+      sessaoClienteId: sessaoId,
       dados: {
-        cliente_id: cliente.id,
+        cliente_id: clienteId,
         procedimento_id: dados.procedimento_id,
         data: dados.data,
         hora_inicio: dados.hora_inicio,
         confirmar_excecoes: dados.confirmar_excecoes,
       },
     });
+  }
+
+  private async resolverSessao({
+    salaoId,
+    credencial,
+  }: {
+    salaoId: string;
+    credencial: string;
+  }) {
+    const sessao = await this.clienteService.resolverSessaoPublica({
+      salaoId,
+      credencial,
+    });
+
+    if (!sessao) {
+      throw new NotFoundException('Sessão da cliente não encontrada.');
+    }
+
+    return sessao;
   }
 
   private async resolverCliente({
@@ -235,15 +272,7 @@ export class AgendamentoPublicoService {
     salaoId: string;
     credencial: string;
   }) {
-    const cliente = await this.clienteService.resolverSessaoPublica({
-      salaoId,
-      credencial,
-    });
-
-    if (!cliente) {
-      throw new NotFoundException('Sessão da cliente não encontrada.');
-    }
-
-    return cliente;
+    const sessao = await this.resolverSessao({ salaoId, credencial });
+    return sessao.cliente;
   }
 }

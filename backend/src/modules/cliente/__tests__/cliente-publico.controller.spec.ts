@@ -17,9 +17,11 @@ import type { ClienteService } from '@/modules/cliente/cliente.service';
 describe('ClientePublicoController', () => {
   const resolverSessaoPublica = jest.fn();
   const identificarPublicamente = jest.fn();
+  const revogarSessaoPublica = jest.fn();
   const service = {
     resolverSessaoPublica,
     identificarPublicamente,
+    revogarSessaoPublica,
   } as unknown as ClienteService;
   const controller = new ClientePublicoController(service);
   const tenant = {
@@ -55,6 +57,19 @@ describe('ClientePublicoController', () => {
 
     expect(identificarPublicamente).toHaveBeenCalledWith({
       dados,
+      salaoId: 'salao-correto',
+    });
+  });
+
+  it('revoga a sessão pública no salão correto via header', async () => {
+    await controller.revogarSessao(
+      tenant,
+      undefined,
+      '550e8400-e29b-41d4-a716-446655440000',
+    );
+
+    expect(revogarSessaoPublica).toHaveBeenCalledWith({
+      credencial: '550e8400-e29b-41d4-a716-446655440000',
       salaoId: 'salao-correto',
     });
   });

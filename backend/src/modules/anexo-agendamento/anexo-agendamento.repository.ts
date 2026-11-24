@@ -48,6 +48,7 @@ export class AnexoAgendamentoRepository {
     agendamentoId,
     clienteId,
     salaoId,
+    sessaoClienteId,
   }: EscopoAgendamentoDaCliente): Promise<boolean> {
     const agendamentos = await this.database
       .select({ id: agendamento.id })
@@ -57,6 +58,9 @@ export class AnexoAgendamentoRepository {
           eq(agendamento.id, agendamentoId),
           eq(agendamento.cliente_id, clienteId),
           eq(agendamento.salao_id, salaoId),
+          sessaoClienteId
+            ? eq(agendamento.sessao_cliente_id, sessaoClienteId)
+            : undefined,
         ),
       )
       .limit(1);

@@ -78,14 +78,16 @@ Este documento consolida as decisões que foram **explicitamente adiadas** duran
 
 ## 5. Recuperação de acesso da cliente (perdeu UUID)
 
-**Status:** não coberto no MVP; cliente que limpou cookies e quer cancelar/ver agendamento precisa falar com o salão via WhatsApp.
+**Status:** Decisão tomada (FLY-001).
 
-- Vale ter fluxo "identificar por código no WhatsApp" para recuperar acesso? Depende de canal WhatsApp (custo).
-- Alternativa: link personalizado enviado quando salão cria agendamento manual.
+- **Solução adotada:** Link mágico de uso único gerado pelo salão diretamente no painel administrativo, na ficha da cliente (`/salao/clientes/:id`), e compartilhado via WhatsApp (`wa.me`).
+- **Vantagens:** Custo zero, sem dependência de contratação de provedor terceiro de SMS/WhatsApp, e aproveita o contato humano já existente entre o salão e a cliente.
+- Ao clicar no link mágico no dispositivo da cliente, a sessão daquele dispositivo é promovida a verificada (`verificada_em = agora`), restaurando o acesso ao histórico completo de agendamentos, fotos e avisos.
 
 **Onde impacta:**
 - [cliente/02-retorno.md](./cliente/02-retorno.md)
 - [cliente/04-cancelamento.md](./cliente/04-cancelamento.md)
+- [salao/11-clientes-historico.md](./salao/11-clientes-historico.md)
 
 ---
 
@@ -101,16 +103,27 @@ Este documento consolida as decisões que foram **explicitamente adiadas** duran
 
 ---
 
-## 7. Validação de identidade da cliente
+## 7. Validação de identidade da cliente e segurança da sessão
 
-**Status:** MVP aceita WhatsApp sem validar.
+**Status:** Contenção de segurança implementada (FLY-001).
 
-- **Risco:** agendamentos "fantasma" com WhatsApp inventado.
-- **Alternativa:** confirmação por código enviado ao WhatsApp (custo de API WhatsApp) OU pelo menos validação de formato + duplicata.
-- Impacta pagamento? (cliente sem WhatsApp real ainda paga; salão fica sem contato).
+- **Riscos reais identificados (além de agendamentos fantasma):**
+  - **Exposição de dados pessoais (LGPD):** informar o WhatsApp de outra cliente em dispositivo novo expunha nome completo cadastrado, histórico completo de procedimentos, datas, valores e fotos de referência (rosto/corpo).
+  - **Prejuízo financeiro:** cancelamento indevido de agendamentos com retenção de sinal ou estorno fraudulento.
+  - **Abuso de agenda:** agendamentos maliciosos ocupando a grade do salão em nome de clientes reais.
+- **Regras implementadas na contenção (FLY-001):**
+  - Sessão em novo dispositivo para WhatsApp já existente nasce **não-verificada** (`verificada_em = null`).
+  - Nunca expõe o nome cadastrado da cliente (exibe o nome informado na identificação daquele dispositivo).
+  - Histórico de agendamentos, imagens de referência e avisos anteriores ficam ocultos para a sessão não-verificada.
+  - Agendamentos criados durante uma sessão não-verificada ficam vinculados àquela sessão (`sessao_cliente_id`) e só podem ser visualizados ou cancelados por ela.
+  - Sessões possuem expiração deslizante (90 dias) e suporte a revogação explícita (`DELETE /publico/s/:subdominio/cliente/sessao`) via botão "Sair" e "Agendar como outra pessoa".
+  - Rate limiting dedicado no endpoint de identificação por IP (5/min) e por WhatsApp (3/min) com resposta amigável em português.
+  - Credencial do cliente trafega em header `x-cliente-credencial`, saindo da query string.
+- **Recuperação de acesso completo:** Realizada via link mágico enviado pelo salão (conforme item 5).
 
 **Onde impacta:**
 - [cliente/01-primeiro-acesso.md](./cliente/01-primeiro-acesso.md)
+- [cliente/02-retorno.md](./cliente/02-retorno.md)
 - [salao/05-agendamento-manual.md](./salao/05-agendamento-manual.md)
 
 ---

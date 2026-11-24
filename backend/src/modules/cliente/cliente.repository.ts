@@ -4,6 +4,7 @@ import {
   desc,
   eq,
   exists,
+  gt,
   gte,
   isNotNull,
   isNull,
@@ -45,6 +46,8 @@ import type {
   ListarAgendamentosClientePersistenciaInput,
   ListarClientePersistenciaInput,
   ResolverSessaoClienteInput,
+  RevogarSessaoClienteInput,
+  SessaoClientePublicaResultado,
 } from '@/modules/cliente/contracts';
 
 @Injectable()
@@ -163,6 +166,9 @@ export class ClienteRepository {
         and(
           eq(agendamento.cliente_id, input.id),
           eq(agendamento.salao_id, input.salaoId),
+          input.sessaoClienteId
+            ? eq(agendamento.sessao_cliente_id, input.sessaoClienteId)
+            : undefined,
         ),
       )
       .orderBy(desc(agendamento.inicio_em), desc(agendamento.id))
@@ -258,10 +264,11 @@ export class ClienteRepository {
 
   async resolverSessao(
     input: ResolverSessaoClienteInput,
-  ): Promise<ClientePersistido | undefined> {
+  ): Promise<SessaoClientePublicaResultado | undefined> {
     return this.database.transaction(async (tx) => {
+      const agora = new Date();
       const resultados = await tx
-        .select({ cliente })
+        .select({ cliente, sessao: sessaoCliente })
         .from(sessaoCliente)
         .innerJoin(cliente, eq(cliente.id, sessaoCliente.cliente_id))
         .where(
@@ -270,31 +277,72 @@ export class ClienteRepository {
             eq(sessaoCliente.credencial, input.credencial),
             eq(cliente.salao_id, input.salaoId),
             isNull(cliente.removido_em),
+            isNull(sessaoCliente.revogada_em),
+            gt(sessaoCliente.expira_em, agora),
           ),
         )
         .limit(1);
 
-      const clienteEncontrado = resultados[0]?.cliente;
-
-      if (clienteEncontrado) {
-        await tx
-          .update(sessaoCliente)
-          .set({ ultimo_uso_em: new Date() })
-          .where(
-            and(
-              eq(sessaoCliente.tipo, 'uuid_dispositivo'),
-              eq(sessaoCliente.credencial, input.credencial),
-            ),
-          );
+      const linha = resultados[0];
+      if (!linha) {
+        return undefined;
       }
 
-      return clienteEncontrado;
+      const novoExpiraEm = new Date(
+        agora.getTime() + 90 * 24 * 60 * 60 * 1000,
+      );
+
+      await tx
+        .update(sessaoCliente)
+        .set({
+          ultimo_uso_em: agora,
+          expira_em: novoExpiraEm,
+        })
+        .where(eq(sessaoCliente.id, linha.sessao.id));
+
+      const verificada = Boolean(linha.sessao.verificada_em);
+      const nomeExibicao = verificada
+        ? linha.cliente.nome
+        : (linha.sessao.nome_informado || 'Olá');
+
+      return {
+        cliente: linha.cliente,
+        sessao: linha.sessao,
+        verificada,
+        nomeExibicao,
+      };
     });
+  }
+
+  async revogarSessao(input: RevogarSessaoClienteInput): Promise<void> {
+    await this.database
+      .update(sessaoCliente)
+      .set({ revogada_em: new Date() })
+      .where(
+        and(
+          eq(sessaoCliente.tipo, 'uuid_dispositivo'),
+          eq(sessaoCliente.credencial, input.credencial),
+          exists(
+            this.database
+              .select({ um: sql`1` })
+              .from(cliente)
+              .where(
+                and(
+                  eq(cliente.id, sessaoCliente.cliente_id),
+                  eq(cliente.salao_id, input.salaoId),
+                ),
+              ),
+          ),
+        ),
+      );
   }
 
   async identificarPublicamente(
     input: IdentificarClientePublicaInput,
-  ): Promise<{ cliente?: ClientePersistido; conflitoCredencial: boolean }> {
+  ): Promise<{
+    resultado?: SessaoClientePublicaResultado;
+    conflitoCredencial: boolean;
+  }> {
     return this.database.transaction(async (tx) => {
       const existentes = await tx
         .select()
@@ -308,6 +356,7 @@ export class ClienteRepository {
         .limit(1);
 
       let clienteIdentificado = existentes[0];
+      const clienteJaCadastrado = Boolean(clienteIdentificado);
 
       if (clienteIdentificado?.removido_em) {
         const reativados = await tx
@@ -353,7 +402,11 @@ export class ClienteRepository {
       }
 
       const sessoesExistentes = await tx
-        .select({ salaoId: cliente.salao_id })
+        .select({
+          salaoId: cliente.salao_id,
+          clienteId: sessaoCliente.cliente_id,
+          verificadaEm: sessaoCliente.verificada_em,
+        })
         .from(sessaoCliente)
         .innerJoin(cliente, eq(cliente.id, sessaoCliente.cliente_id))
         .where(
@@ -364,30 +417,65 @@ export class ClienteRepository {
         )
         .limit(1);
 
+      const sessaoExistente = sessoesExistentes[0];
+
       if (
-        sessoesExistentes[0] &&
-        sessoesExistentes[0].salaoId !== input.salaoId
+        sessaoExistente &&
+        sessaoExistente.salaoId !== input.salaoId
       ) {
         return { conflitoCredencial: true };
       }
 
-      await tx
+      const agora = new Date();
+      const expiraEm = new Date(agora.getTime() + 90 * 24 * 60 * 60 * 1000);
+      const mantemVerificacao = Boolean(
+        sessaoExistente &&
+          sessaoExistente.clienteId === clienteIdentificado.id &&
+          sessaoExistente.verificadaEm,
+      );
+      const verificadaEm = mantemVerificacao
+        ? sessaoExistente!.verificadaEm
+        : clienteJaCadastrado
+          ? null
+          : agora;
+
+      const sessoesUpsert = await tx
         .insert(sessaoCliente)
         .values({
           cliente_id: clienteIdentificado.id,
           tipo: 'uuid_dispositivo',
           credencial: input.dados.credencial,
-          ultimo_uso_em: new Date(),
+          nome_informado: input.dados.nome,
+          verificada_em: verificadaEm,
+          expira_em: expiraEm,
+          revogada_em: null,
+          ultimo_uso_em: agora,
         })
         .onConflictDoUpdate({
           target: [sessaoCliente.tipo, sessaoCliente.credencial],
           set: {
             cliente_id: clienteIdentificado.id,
-            ultimo_uso_em: new Date(),
+            nome_informado: input.dados.nome,
+            verificada_em: verificadaEm,
+            expira_em: expiraEm,
+            revogada_em: null,
+            ultimo_uso_em: agora,
           },
-        });
+        })
+        .returning();
 
-      return { cliente: clienteIdentificado, conflitoCredencial: false };
+      const sessaoPersistida = sessoesUpsert[0];
+      const verificada = Boolean(verificadaEm);
+
+      return {
+        resultado: {
+          cliente: clienteIdentificado,
+          sessao: sessaoPersistida,
+          verificada,
+          nomeExibicao: input.dados.nome,
+        },
+        conflitoCredencial: false,
+      };
     });
   }
 

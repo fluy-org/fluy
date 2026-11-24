@@ -249,6 +249,7 @@ export class AgendamentoService {
     reservar = false,
     exigirSemSinal = false,
     publico = false,
+    sessaoClienteId,
   }: {
     salaoId: string;
     dados: CriarAgendamentoDto;
@@ -257,6 +258,7 @@ export class AgendamentoService {
     reservar?: boolean;
     exigirSemSinal?: boolean;
     publico?: boolean;
+    sessaoClienteId?: string;
   }) {
     await this.clienteService.buscarPorId({
       id: dados.cliente_id,
@@ -328,6 +330,7 @@ export class AgendamentoService {
       clienteId: dados.cliente_id,
       procedimentoId: dados.procedimento_id,
       profissionalId: avaliacao.profissionalId!,
+      sessaoClienteId,
       inicioEm,
       duracaoMin: procedimento.duracao_min,
       precoTotal: procedimento.preco,

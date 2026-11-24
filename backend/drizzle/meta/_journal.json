@@ -106,6 +106,13 @@
       "when": 1792965898679,
       "tag": "0014_isolar_identificadores_por_provedor",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1795477668785,
+      "tag": "0015_sessao_cliente_verificacao_e_expiracao",
+      "breakpoints": true
     }
   ]
 }

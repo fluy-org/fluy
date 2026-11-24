@@ -71,6 +71,25 @@ describe('AvisoService', () => {
     });
   });
 
+  it('retorna lista vazia e não consulta o banco quando a sessão pública não é verificada', async () => {
+    jest.spyOn(clienteService, 'resolverSessaoPublica').mockResolvedValue({
+      cliente: { id: 'cliente-1' },
+      sessao: { id: 'sessao-1' },
+      verificada: false,
+    } as never);
+
+    const resultado = await service.listarPublicamente({
+      salaoId: 'salao-1',
+      credencial: 'credencial-1',
+    });
+
+    expect(resultado).toEqual({
+      itens: [],
+      proximoCursor: null,
+    });
+    expect(repository.listarCliente).not.toHaveBeenCalled();
+  });
+
   it('não consulta avisos quando a sessão pública não existe', async () => {
     jest
       .spyOn(clienteService, 'resolverSessaoPublica')

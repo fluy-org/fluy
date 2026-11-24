@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -41,11 +42,13 @@ export class AvisoPublicoController {
   async listar(
     @TenantFromPath() tenant: TenantContext,
     @Query() query: ListarAvisosPublicosQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || query.credencial;
     return toListaAvisosResponse(
       await this.avisoService.listarPublicamente({
         salaoId: tenant.salaoId,
-        credencial: query.credencial,
+        credencial,
         cursor: query.cursor,
       }),
     );
@@ -62,12 +65,14 @@ export class AvisoPublicoController {
     @TenantFromPath() tenant: TenantContext,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dados: ReconhecerAvisoPublicoRequestDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toAvisoResponse(
       await this.avisoService.reconhecerPublicamente({
         id,
         salaoId: tenant.salaoId,
-        credencial: dados.credencial,
+        credencial,
       }),
     );
   }

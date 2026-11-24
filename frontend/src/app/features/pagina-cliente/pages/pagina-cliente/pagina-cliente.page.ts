@@ -195,18 +195,32 @@ export class PaginaClientePage implements OnInit, OnDestroy {
       this.cliente.set(resposta.cliente);
       this.credencialCliente.set(credencial);
       this.exibirFormulario.set(false);
-    } catch {
+    } catch (error: unknown) {
       this.paginaClienteService.removerCredencial(subdominio);
       this.credencialCliente.set(null);
+      const mensagemApi = this.obterMensagemApi(error as ApiError);
       this.erroIdentificacao.set(
-        'Não foi possível continuar. Tente novamente.',
+        mensagemApi || 'Não foi possível continuar. Tente novamente.',
       );
     } finally {
       this.identificando.set(false);
     }
   }
 
-  agendarComoOutraPessoa(): void {
+  async agendarComoOutraPessoa(): Promise<void> {
+    const subdominio = this.obterSubdominio();
+    await this.paginaClienteService.revogarSessao(subdominio);
+    this.credencialCliente.set(null);
+    this.paginaClienteService.limparAgendamentos();
+    this.cliente.set(null);
+    this.formulario.reset();
+    this.exibirFormulario.set(true);
+  }
+
+  async sair(): Promise<void> {
+    const subdominio = this.obterSubdominio();
+    await this.paginaClienteService.revogarSessao(subdominio);
+    this.credencialCliente.set(null);
     this.paginaClienteService.limparAgendamentos();
     this.cliente.set(null);
     this.formulario.reset();

@@ -3,8 +3,12 @@ jest.mock('@fluy/schema', () => ({}));
 import {
   toAgendamentosDaClienteResponse,
   toClienteFichaResponse,
+  toSessaoClientePublicaResponse,
 } from '@/modules/cliente/cliente.mapper';
-import type { ClientePersistido } from '@/modules/cliente/contracts';
+import type {
+  ClientePersistido,
+  SessaoClientePersistida,
+} from '@/modules/cliente/contracts';
 
 describe('cliente.mapper', () => {
   const cliente: ClientePersistido = {
@@ -90,6 +94,68 @@ describe('cliente.mapper', () => {
       procedimento: { id: 'procedimento-corte', nome: 'Corte' },
       preco_total: 120,
       valor_sinal: 30,
+    });
+  });
+
+  describe('toSessaoClientePublicaResponse', () => {
+    const sessaoBase: SessaoClientePersistida = {
+      id: 'sessao-1',
+      cliente_id: 'cliente-ana',
+      credencial: 'cred-123',
+      tipo: 'uuid_dispositivo',
+      nome_informado: null,
+      verificada_em: null,
+      expira_em: new Date('2027-01-01T00:00:00.000Z'),
+      revogada_em: null,
+      ultimo_uso_em: null,
+      criada_em: new Date('2026-09-01T12:00:00.000Z'),
+    };
+
+    it('retorna o nome cadastrado quando a sessão é verificada', () => {
+      const sessao: SessaoClientePersistida = {
+        ...sessaoBase,
+        verificada_em: new Date('2026-09-01T12:00:00.000Z'),
+        nome_informado: 'Nome Falso Digitado',
+      };
+
+      const res = toSessaoClientePublicaResponse({
+        cliente,
+        sessao,
+        nomeExibicao: cliente.nome,
+        verificada: true,
+      });
+
+      expect(res).toEqual({
+        cliente: {
+          nome: 'Ana',
+          whatsapp: '11988887777',
+          verificada: true,
+        },
+      });
+    });
+
+    it('NUNCA vaza o nome cadastrado quando a sessão NÃO é verificada', () => {
+      const sessao: SessaoClientePersistida = {
+        ...sessaoBase,
+        verificada_em: null,
+        nome_informado: 'Nome Informado no Dispositivo Novo',
+      };
+
+      const res = toSessaoClientePublicaResponse({
+        cliente,
+        sessao,
+        nomeExibicao: sessao.nome_informado ?? cliente.nome,
+        verificada: false,
+      });
+
+      expect(res).toEqual({
+        cliente: {
+          nome: 'Nome Informado no Dispositivo Novo',
+          whatsapp: '11988887777',
+          verificada: false,
+        },
+      });
+      expect(res.cliente?.nome).not.toBe(cliente.nome);
     });
   });
 });

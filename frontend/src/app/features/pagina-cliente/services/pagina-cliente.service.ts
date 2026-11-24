@@ -51,9 +51,29 @@ export class PaginaClienteService {
     return firstValueFrom(
       this.http.get<SessaoClientePublicaResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/cliente/sessao`,
-        { params: { credencial } },
+        { headers: { 'x-cliente-credencial': credencial } },
       ),
     );
+  }
+
+  async revogarSessao(subdominio: string): Promise<void> {
+    const credencial = this.obterCredencial(subdominio);
+    if (credencial) {
+      try {
+        await firstValueFrom(
+          this.http.delete(
+            `/publico/s/${encodeURIComponent(subdominio)}/cliente/sessao`,
+            { headers: { 'x-cliente-credencial': credencial } },
+          ),
+        );
+      } catch {
+        // Ignora erro de rede para sempre limpar a credencial local
+      } finally {
+        this.removerCredencial(subdominio);
+      }
+    } else {
+      this.removerCredencial(subdominio);
+    }
   }
 
   identificar(
@@ -64,6 +84,7 @@ export class PaginaClienteService {
       this.http.post<SessaoClientePublicaResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/cliente/identificacao`,
         dados,
+        { headers: { 'x-cliente-credencial': dados.credencial } },
       ),
     );
   }
@@ -90,8 +111,10 @@ export class PaginaClienteService {
           params: {
             procedimento_id: dados.procedimento_id,
             mes: dados.mes,
-            ...(dados.credencial ? { credencial: dados.credencial } : {}),
           },
+          ...(dados.credencial
+            ? { headers: { 'x-cliente-credencial': dados.credencial } }
+            : {}),
         },
       ),
     );
@@ -108,8 +131,10 @@ export class PaginaClienteService {
           params: {
             procedimento_id: dados.procedimento_id,
             data: dados.data,
-            ...(dados.credencial ? { credencial: dados.credencial } : {}),
           },
+          ...(dados.credencial
+            ? { headers: { 'x-cliente-credencial': dados.credencial } }
+            : {}),
         },
       ),
     );
@@ -123,6 +148,7 @@ export class PaginaClienteService {
       this.http.post<AgendamentoResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos`,
         dados,
+        { headers: { 'x-cliente-credencial': dados.credencial } },
       ),
     );
   }
@@ -146,7 +172,7 @@ export class PaginaClienteService {
       this.http.post<AnexoAgendamentoResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(agendamentoId)}/referencias`,
         dados,
-        { params: { credencial } },
+        { headers: { 'x-cliente-credencial': credencial } },
       ),
     );
   }
@@ -163,7 +189,7 @@ export class PaginaClienteService {
     return firstValueFrom(
       this.http.get<ListaAnexosAgendamentoResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(agendamentoId)}/referencias`,
-        { params: { credencial } },
+        { headers: { 'x-cliente-credencial': credencial } },
       ),
     );
   }
@@ -182,7 +208,7 @@ export class PaginaClienteService {
     return firstValueFrom(
       this.http.get(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(agendamentoId)}/referencias/${encodeURIComponent(id)}/conteudo`,
-        { params: { credencial }, responseType: 'blob' },
+        { headers: { 'x-cliente-credencial': credencial }, responseType: 'blob' },
       ),
     );
   }
@@ -195,7 +221,10 @@ export class PaginaClienteService {
     const resposta = await firstValueFrom(
       this.http.get<ListaAgendamentosClienteResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos`,
-        { params: { credencial, ...(cursor ? { cursor } : {}) } },
+        {
+          headers: { 'x-cliente-credencial': credencial },
+          ...(cursor ? { params: { cursor } } : {}),
+        },
       ),
     );
 
@@ -215,7 +244,7 @@ export class PaginaClienteService {
     return firstValueFrom(
       this.http.get<AgendamentoPublicoDetalheResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(id)}`,
-        { params: { credencial } },
+        { headers: { 'x-cliente-credencial': credencial } },
       ),
     );
   }
@@ -229,6 +258,7 @@ export class PaginaClienteService {
       this.http.patch<AgendamentoPublicoDetalheResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(id)}/cancelar`,
         { credencial },
+        { headers: { 'x-cliente-credencial': credencial } },
       ),
     );
 

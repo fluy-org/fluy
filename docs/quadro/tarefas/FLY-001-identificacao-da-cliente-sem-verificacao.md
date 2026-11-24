@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | **Responsável** | _a definir_ |
-| **Status** | A fazer |
+| **Status** | Concluído |
 | **Prioridade** | Crítica |
 | **Área** | Página pública do salão · Segurança e LGPD |
 | **Origem** | Teste manual do dono, confirmado na auditoria |
@@ -118,11 +118,11 @@ A regra é crítica, no mesmo nível do guard multi-tenant. Cobrir:
 
 ## Critérios de conclusão
 
-- [ ] Informar o WhatsApp de uma cliente existente em outro aparelho **não** mostra o nome, os agendamentos, as fotos nem os avisos dela.
-- [ ] Nesse cenário, a pessoa consegue agendar, e o agendamento novo fica visível só para a sessão que o criou.
-- [ ] Nenhum endpoint público permite cancelar ou anexar imagens em agendamento que não pertence à sessão.
-- [ ] "Sair" e "Agendar como outra pessoa" limpam o aparelho e invalidam a sessão no servidor.
-- [ ] As sessões expiram.
-- [ ] Repetir a identificação muitas vezes seguidas recebe um bloqueio temporário com mensagem amigável.
-- [ ] Existe um mecanismo decidido e documentado para recuperar o acesso completo.
-- [ ] Os testes automatizados cobrem as regras acima.
+- [x] Informar o WhatsApp de uma cliente existente em outro aparelho **não** mostra o nome, os agendamentos, as fotos nem os avisos dela.
+- [x] Nesse cenário, a pessoa consegue agendar, e o agendamento novo fica visível só para a sessão que o criou.
+- [x] Nenhum endpoint público permite cancelar ou anexar imagens em agendamento que não pertence à sessão.
+- [x] "Sair" e "Agendar como outra pessoa" limpam o aparelho e invalidam a sessão no servidor.
+- [x] As sessões expiram.
+- [x] Repetir a identificação muitas vezes seguidas recebe um bloqueio temporário com mensagem amigável.
+- [x] Existe um mecanismo decidido e documentado para recuperar o acesso completo.
+- [x] Os testes automatizados cobrem as regras acima.

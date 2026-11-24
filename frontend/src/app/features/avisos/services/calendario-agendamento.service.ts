@@ -19,7 +19,7 @@ export class CalendarioAgendamentoService {
       this.http.get(
         `/publico/s/${encodeURIComponent(subdominio)}/agendamentos/${encodeURIComponent(agendamentoId)}/calendario.ics`,
         {
-          params: { credencial },
+          headers: { 'x-cliente-credencial': credencial },
           responseType: 'blob',
         },
       ),

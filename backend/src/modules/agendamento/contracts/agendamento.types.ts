@@ -82,6 +82,7 @@ export type CriarAgendamentoPersistenciaInput = {
   clienteId: string;
   procedimentoId: string;
   profissionalId: string;
+  sessaoClienteId?: string;
   inicioEm: Date;
   duracaoMin: number;
   precoTotal: string;

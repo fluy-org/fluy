@@ -19,6 +19,7 @@ function criarAgendamentoDetalhe(): AgendamentoDetalheResultado {
     profissional_id: '3330fa1b-a83c-4f9d-8517-2779cf271a26',
     cliente_id: 'f8fd9eae-8ea2-4df5-a321-e46621b28a4d',
     procedimento_id: '413f4c24-2308-464f-93c8-67557267d6e0',
+    sessao_cliente_id: null,
     inicio_em: new Date('2026-10-06T12:00:00.000Z'),
     duracao_min: 60,
     preco_total: '100.00',

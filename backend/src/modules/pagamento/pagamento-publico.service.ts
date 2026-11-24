@@ -55,6 +55,13 @@ export class PagamentoPublicoService {
       salaoId: input.salaoId,
       credencial: input.dados.credencial,
     });
+    if (this.agendamento.buscarDetalhe) {
+      await this.agendamento.buscarDetalhe({
+        id: input.agendamentoId,
+        salaoId: input.salaoId,
+        dados: { credencial: input.dados.credencial },
+      });
+    }
     const escopo = {
       salaoId: input.salaoId,
       clienteId: cliente.id,
@@ -75,6 +82,13 @@ export class PagamentoPublicoService {
   }) {
     this.exigirProvedor();
     const cliente = await this.resolverCliente(input);
+    if (this.agendamento.buscarDetalhe) {
+      await this.agendamento.buscarDetalhe({
+        id: input.agendamentoId,
+        salaoId: input.salaoId,
+        dados: { credencial: input.credencial },
+      });
+    }
     return this.pagamento.consultar({
       salaoId: input.salaoId,
       clienteId: cliente.id,
@@ -92,9 +106,9 @@ export class PagamentoPublicoService {
     salaoId: string;
     credencial: string;
   }) {
-    const cliente = await this.cliente.resolverSessaoPublica(input);
-    if (!cliente)
+    const sessao = await this.cliente.resolverSessaoPublica(input);
+    if (!sessao)
       throw new NotFoundException('Sessão da cliente não encontrada.');
-    return cliente;
+    return sessao.cliente ?? (sessao as any);
   }
 }

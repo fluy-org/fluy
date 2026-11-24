@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { FluyThrottlerGuard } from '@/shared/throttler/fluy-throttler.guard';
 import { LoggerModule } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AppController } from '@/app.controller';
@@ -60,6 +61,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
               'req.headers.authorization',
               'req.headers.cookie',
               'req.headers.x-api-key',
+              'req.headers.x-cliente-credencial',
               'req.body.password',
               'req.body.token',
               'req.body.accessToken',
@@ -93,8 +95,19 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
       useFactory: (config: ConfigService<Env, true>) => ({
         throttlers: [
           {
+            name: 'default',
             ttl: config.get('THROTTLE_TTL_MS', { infer: true }),
             limit: config.get('THROTTLE_LIMIT', { infer: true }),
+          },
+          {
+            name: 'identificacao_ip',
+            ttl: 60000,
+            limit: 5,
+          },
+          {
+            name: 'identificacao_whatsapp',
+            ttl: 60000,
+            limit: 3,
           },
         ],
       }),
@@ -129,7 +142,7 @@ import { TenantContextGuard } from '@/shared/tenant-context/guards/tenant-contex
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useExisting: TenantContextGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: FluyThrottlerGuard },
   ],
 })
 export class AppModule {}

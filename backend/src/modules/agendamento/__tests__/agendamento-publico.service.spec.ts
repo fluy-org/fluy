@@ -217,10 +217,52 @@ describe('AgendamentoPublicoService', () => {
     });
   });
 
+  it('lista somente os agendamentos da própria sessão quando a sessão não é verificada', async () => {
+    resolverSessaoPublica.mockResolvedValue({
+      cliente: { id: 'cliente-da-sessao' },
+      sessao: { id: 'sessao-1' },
+      verificada: false,
+    });
+    listarAgendamentos.mockResolvedValue({ itens: [] });
+
+    await service.listar({
+      salaoId: 'salao-do-path',
+      dados: { credencial: dados.credencial, cursor: 'cursor-2' },
+    });
+
+    expect(listarAgendamentos).toHaveBeenCalledWith({
+      id: 'cliente-da-sessao',
+      salaoId: 'salao-do-path',
+      cursor: 'cursor-2',
+      sessaoClienteId: 'sessao-1',
+    });
+  });
+
   it('nao revela o agendamento de outra cliente', async () => {
     resolverSessaoPublica.mockResolvedValue({ id: 'cliente-da-sessao' });
     buscarDetalhe.mockResolvedValue({
       cliente: { id: 'outra-cliente' },
+    });
+
+    await expect(
+      service.buscarDetalhe({
+        id: 'agendamento-1',
+        salaoId: 'salao-do-path',
+        dados: { credencial: dados.credencial },
+      }),
+    ).rejects.toThrow(new NotFoundException('Agendamento não encontrado.'));
+  });
+
+  it('nao revela o agendamento de outra sessao para sessao nao-verificada', async () => {
+    resolverSessaoPublica.mockResolvedValue({
+      cliente: { id: 'cliente-da-sessao' },
+      sessao: { id: 'sessao-nova' },
+      verificada: false,
+    });
+    buscarDetalhe.mockResolvedValue({
+      id: 'agendamento-1',
+      cliente: { id: 'cliente-da-sessao' },
+      sessao_cliente_id: 'sessao-antiga',
     });
 
     await expect(
@@ -259,6 +301,61 @@ describe('AgendamentoPublicoService', () => {
     expect(notificarCancelamentoPelaCliente).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'agendamento-1' }),
     );
+  });
+
+  it('rejeita o cancelamento de agendamento de outra sessao quando a sessao nao e verificada', async () => {
+    resolverSessaoPublica.mockResolvedValue({
+      cliente: { id: 'cliente-da-sessao' },
+      sessao: { id: 'sessao-nova' },
+      verificada: false,
+    });
+    buscarDetalhe.mockResolvedValue({
+      id: 'agendamento-1',
+      cliente: { id: 'cliente-da-sessao' },
+      sessao_cliente_id: 'sessao-antiga',
+      estado: 'agendado',
+    });
+
+    await expect(
+      service.cancelar({
+        id: 'agendamento-1',
+        salaoId: 'salao-do-path',
+        dados: { credencial: dados.credencial },
+      }),
+    ).rejects.toThrow(new NotFoundException('Agendamento não encontrado.'));
+    expect(cancelar).not.toHaveBeenCalled();
+  });
+
+  it('permite o cancelamento de agendamento da propria sessao nao-verificada', async () => {
+    resolverSessaoPublica.mockResolvedValue({
+      cliente: { id: 'cliente-da-sessao' },
+      sessao: { id: 'sessao-nova' },
+      verificada: false,
+    });
+    buscarDetalhe.mockResolvedValue({
+      id: 'agendamento-1',
+      cliente: { id: 'cliente-da-sessao' },
+      sessao_cliente_id: 'sessao-nova',
+      estado: 'agendado',
+    });
+    cancelar.mockResolvedValue({
+      id: 'agendamento-1',
+      estado: 'cancelado',
+    });
+
+    await service.cancelar({
+      id: 'agendamento-1',
+      salaoId: 'salao-do-path',
+      dados: { credencial: dados.credencial },
+    });
+
+    expect(cancelar).toHaveBeenCalledWith({
+      id: 'agendamento-1',
+      salaoId: 'salao-do-path',
+      dados: { motivo: 'Cancelado pela cliente.' },
+      canceladoPor: 'cliente',
+      notificarCliente: false,
+    });
   });
 
   it('gera calendário apenas para agendamento da cliente da sessão', async () => {

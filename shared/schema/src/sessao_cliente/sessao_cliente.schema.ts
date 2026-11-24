@@ -4,10 +4,11 @@ import { whatsappInternacionalSchema } from '../whatsapp/whatsapp.schema.js';
 const clientePublicaSchema = z.object({
   nome: z.string(),
   whatsapp: whatsappInternacionalSchema,
+  verificada: z.boolean().default(false),
 });
 
 export const consultarSessaoClienteSchema = z.object({
-  credencial: z.uuid(),
+  credencial: z.string().uuid().optional(),
 });
 
 export const identificarClientePublicaSchema = z.object({

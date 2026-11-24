@@ -48,6 +48,7 @@ export type CriarAnexoInternoPersistenciaResultado =
 
 export type EscopoAgendamentoDaCliente = EscopoAgendamentoDoSalao & {
   clienteId: string;
+  sessaoClienteId?: string;
 };
 
 export type BuscarReferenciaDaClienteInput = EscopoAgendamentoDaCliente & {

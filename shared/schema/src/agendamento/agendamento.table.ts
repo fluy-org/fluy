@@ -17,6 +17,7 @@ import { pagamentoAgendamento } from '@schema/pagamento_agendamento/pagamento_ag
 import { anexoAgendamento } from '@schema/anexo_agendamento/anexo_agendamento.table.js';
 import { nota } from '@schema/nota/nota.table.js';
 import { lembrete } from '@schema/lembrete/lembrete.table.js';
+import { sessaoCliente } from '@schema/sessao_cliente/sessao_cliente.table.js';
 import type { EstadoAgendamento } from './agendamento.enums.js';
 
 export const agendamento = pgTable(
@@ -35,6 +36,10 @@ export const agendamento = pgTable(
     procedimento_id: uuid('procedimento_id')
       .notNull()
       .references(() => procedimento.id, { onDelete: 'restrict' }),
+    sessao_cliente_id: uuid('sessao_cliente_id').references(
+      () => sessaoCliente.id,
+      { onDelete: 'set null' },
+    ),
     inicio_em: timestamp('inicio_em', { withTimezone: true }).notNull(),
     duracao_min: integer('duracao_min').notNull(),
     preco_total: numeric('preco_total', { precision: 10, scale: 2 }).notNull(),
@@ -71,6 +76,10 @@ export const agendamentoRelations = relations(agendamento, ({ one, many }) => ({
   procedimento: one(procedimento, {
     fields: [agendamento.procedimento_id],
     references: [procedimento.id],
+  }),
+  sessaoCliente: one(sessaoCliente, {
+    fields: [agendamento.sessao_cliente_id],
+    references: [sessaoCliente.id],
   }),
   eventos: many(eventoAgendamento),
   pagamentos: many(pagamentoAgendamento),

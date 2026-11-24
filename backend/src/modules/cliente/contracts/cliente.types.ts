@@ -1,6 +1,7 @@
 import type {
     AtualizarClienteDto,
     cliente,
+    sessaoCliente,
     CriarClienteDto,
     EstadoAgendamento,
     FusoHorarioBrasil,
@@ -46,11 +47,13 @@ export type AtualizarClienteInput = {
 
 export type ListarAgendamentosClienteInput = BuscarClienteInput & {
     cursor?: string;
+    sessaoClienteId?: string;
 };
 
 export type ListarAgendamentosClientePersistenciaInput = BuscarClienteInput & {
     offset: number;
     limite: number;
+    sessaoClienteId?: string;
 };
 
 export type ClienteDaListaPersistido = ClientePersistido & {
@@ -99,6 +102,20 @@ export type ListaAgendamentosClienteResultado =
 export type ResolverSessaoClienteInput = {
     credencial: string;
     salaoId: string;
+};
+
+export type RevogarSessaoClienteInput = {
+    credencial: string;
+    salaoId: string;
+};
+
+export type SessaoClientePersistida = typeof sessaoCliente.$inferSelect;
+
+export type SessaoClientePublicaResultado = {
+    cliente: ClientePersistido;
+    sessao: SessaoClientePersistida;
+    verificada: boolean;
+    nomeExibicao: string;
 };
 
 export type IdentificarClientePublicaInput = {

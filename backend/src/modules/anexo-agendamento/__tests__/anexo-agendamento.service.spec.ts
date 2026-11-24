@@ -166,6 +166,33 @@ describe('AnexoAgendamentoService', () => {
     ).rejects.toThrow(new NotFoundException('Agendamento não encontrado.'));
   });
 
+  it('passa sessaoClienteId quando a sessão não é verificada', async () => {
+    resolverSessaoPublica.mockResolvedValue({
+      cliente: { id: 'cliente-ana' },
+      sessao: { id: 'sessao-1' },
+      verificada: false,
+    });
+    possuiAgendamentoDaCliente.mockResolvedValue(true);
+
+    const resultado = await service.resolverEscopoDaCliente({
+      ...escopo,
+      credencial: 'credencial-da-cliente',
+    });
+
+    expect(resultado).toEqual({
+      agendamentoId: escopo.agendamentoId,
+      clienteId: 'cliente-ana',
+      salaoId: escopo.salaoId,
+      sessaoClienteId: 'sessao-1',
+    });
+    expect(possuiAgendamentoDaCliente).toHaveBeenCalledWith({
+      agendamentoId: escopo.agendamentoId,
+      clienteId: 'cliente-ana',
+      salaoId: escopo.salaoId,
+      sessaoClienteId: 'sessao-1',
+    });
+  });
+
   it('cria referência pública somente no agendamento da cliente', async () => {
     const referencia = {
       ...anexo,

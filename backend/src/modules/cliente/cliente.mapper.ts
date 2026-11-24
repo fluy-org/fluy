@@ -12,6 +12,7 @@ import type {
     ClientePersistido,
     ListaAgendamentosClienteResultado,
     ListaClientesResultado,
+    SessaoClientePublicaResultado,
 } from '@/modules/cliente/contracts';
 
 export function toClienteResponse(cliente: ClientePersistido,): ClienteResponseDto {
@@ -80,11 +81,15 @@ export function toAgendamentosDaClienteResponse({
 }
 
 export function toSessaoClientePublicaResponse(
-    cliente: ClientePersistido | undefined,
+    sessaoPublica: SessaoClientePublicaResultado | undefined,
 ): SessaoClientePublicaResponseDto {
     return {
-        cliente: cliente
-            ? { nome: cliente.nome, whatsapp: cliente.whatsapp }
+        cliente: sessaoPublica
+            ? {
+                nome: sessaoPublica.nomeExibicao,
+                whatsapp: sessaoPublica.cliente.whatsapp,
+                verificada: sessaoPublica.verificada,
+            }
             : null,
     };
 }

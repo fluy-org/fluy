@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -57,11 +58,13 @@ export class AgendamentoPublicoController {
   async listar(
     @TenantFromPath() tenant: TenantContext,
     @Query() dados: ListarAgendamentosPublicosQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toListaAgendamentosPublicosResponse(
       await this.agendamentoPublicoService.listar({
         salaoId: tenant.salaoId,
-        dados,
+        dados: { ...dados, credencial },
       }),
     );
   }
@@ -78,11 +81,13 @@ export class AgendamentoPublicoController {
   async listarHorariosLivres(
     @TenantFromPath() tenant: TenantContext,
     @Query() dados: ListarHorariosLivresPublicosQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toHorariosLivresResponse(
       await this.agendamentoPublicoService.listarHorariosLivres({
         salaoId: tenant.salaoId,
-        dados,
+        dados: { ...dados, credencial },
       }),
     );
   }
@@ -100,10 +105,12 @@ export class AgendamentoPublicoController {
   async listarDiasDisponiveis(
     @TenantFromPath() tenant: TenantContext,
     @Query() dados: ListarDiasDisponiveisPublicosQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return this.agendamentoPublicoService.listarDiasDisponiveis({
       salaoId: tenant.salaoId,
-      dados,
+      dados: { ...dados, credencial },
     });
   }
 
@@ -118,12 +125,14 @@ export class AgendamentoPublicoController {
     @TenantFromPath() tenant: TenantContext,
     @Param('id', ParseUUIDPipe) id: string,
     @Query() dados: ConsultarAgendamentoPublicoQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toAgendamentoPublicoDetalheResponse(
       await this.agendamentoPublicoService.buscarDetalhe({
         id,
         salaoId: tenant.salaoId,
-        dados,
+        dados: { ...dados, credencial },
       }),
     );
   }
@@ -143,11 +152,13 @@ export class AgendamentoPublicoController {
     @TenantFromPath() tenant: TenantContext,
     @Param('id', ParseUUIDPipe) id: string,
     @Query() dados: ConsultarAgendamentoPublicoQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     const calendario = await this.agendamentoPublicoService.gerarCalendario({
       id,
       salaoId: tenant.salaoId,
-      dados,
+      dados: { ...dados, credencial },
     });
 
     return new StreamableFile(Buffer.from(calendario.conteudo, 'utf8'), {
@@ -168,12 +179,14 @@ export class AgendamentoPublicoController {
     @TenantFromPath() tenant: TenantContext,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dados: CancelarAgendamentoPublicoRequestDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toAgendamentoPublicoDetalheResponse(
       await this.agendamentoPublicoService.cancelar({
         id,
         salaoId: tenant.salaoId,
-        dados,
+        dados: { ...dados, credencial },
       }),
     );
   }
@@ -195,11 +208,13 @@ export class AgendamentoPublicoController {
   async criar(
     @TenantFromPath() tenant: TenantContext,
     @Body() dados: CriarAgendamentoPublicoRequestDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toAgendamentoResponse(
       await this.agendamentoPublicoService.criar({
         salaoId: tenant.salaoId,
-        dados,
+        dados: { ...dados, credencial },
       }),
     );
   }

@@ -234,6 +234,7 @@ export class AgendamentoRepository {
           cliente_id: input.clienteId,
           procedimento_id: input.procedimentoId,
           profissional_id: input.profissionalId,
+          sessao_cliente_id: input.sessaoClienteId,
           inicio_em: input.inicioEm,
           duracao_min: input.duracaoMin,
           preco_total: input.precoTotal,

@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { DrizzleQueryError } from 'drizzle-orm';
 
 /* eslint-disable @typescript-eslint/unbound-method -- Jest assertions inspect detached mock functions. */
@@ -27,6 +31,9 @@ describe('ClienteService', () => {
     buscarFicha: jest.fn(),
     possuiCliente: jest.fn(),
     listarAgendamentos: jest.fn(),
+    resolverSessao: jest.fn(),
+    revogarSessao: jest.fn(),
+    identificarPublicamente: jest.fn(),
   } as unknown as ClienteRepository;
   const salaoConsultaService = {
     obterFusoHorario: jest.fn(),
@@ -226,6 +233,60 @@ describe('ClienteService', () => {
       await expect(
         service.buscarPorId({ id: 'cliente-inativa', salaoId: 'salao-ana' }),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('sessão pública da cliente', () => {
+    it('resolve sessão pública delegando para o repositório', async () => {
+      const sessaoMock = {
+        cliente: { id: 'cliente-1', nome: 'Ana', whatsapp: '+5511999999999' },
+        sessao: { id: 'sessao-1', credencial: 'cred-1' },
+        verificada: true,
+      };
+      jest.spyOn(repository, 'resolverSessao').mockResolvedValue(sessaoMock as never);
+
+      const resultado = await service.resolverSessaoPublica({
+        salaoId: 'salao-ana',
+        credencial: 'cred-1',
+      });
+
+      expect(repository.resolverSessao).toHaveBeenCalledWith({
+        salaoId: 'salao-ana',
+        credencial: 'cred-1',
+      });
+      expect(resultado).toEqual(sessaoMock);
+    });
+
+    it('revoga sessão pública delegando para o repositório', async () => {
+      jest.spyOn(repository, 'revogarSessao').mockResolvedValue(undefined);
+
+      await service.revogarSessaoPublica({
+        salaoId: 'salao-ana',
+        credencial: 'cred-1',
+      });
+
+      expect(repository.revogarSessao).toHaveBeenCalledWith({
+        salaoId: 'salao-ana',
+        credencial: 'cred-1',
+      });
+    });
+
+    it('lança ConflictException quando há conflito de credencial', async () => {
+      jest.spyOn(repository, 'identificarPublicamente').mockResolvedValue({
+        conflitoCredencial: true,
+      });
+
+      await expect(
+        service.identificarPublicamente({
+          salaoId: 'salao-ana',
+          dados: {
+            nome: 'Ana',
+            whatsapp: '+5511999999999',
+            credencial: 'cred-1',
+            consentimento_privacidade: true,
+          },
+        }),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
   });
 });

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   ParseUUIDPipe,
   Post,
@@ -92,9 +93,14 @@ export class PagamentoPublicoController {
   async reservar(
     @TenantFromPath() tenant: TenantContext,
     @Body() dados: CriarReservaRequestDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toReservaPixResponse(
-      await this.service.reservar({ salaoId: tenant.salaoId, dados }),
+      await this.service.reservar({
+        salaoId: tenant.salaoId,
+        dados: { ...dados, credencial },
+      }),
     );
   }
 
@@ -118,12 +124,14 @@ export class PagamentoPublicoController {
     @TenantFromPath() tenant: TenantContext,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dados: IniciarPagamentoPixRequestDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toPagamentoPixResponse(
       await this.service.iniciar({
         salaoId: tenant.salaoId,
         agendamentoId: id,
-        dados,
+        dados: { ...dados, credencial },
       }),
     );
   }
@@ -150,12 +158,14 @@ export class PagamentoPublicoController {
     @TenantFromPath() tenant: TenantContext,
     @Param('id', ParseUUIDPipe) id: string,
     @Query() dados: ConsultarPagamentoPixQueryDto,
+    @Headers('x-cliente-credencial') headerCredencial?: string,
   ) {
+    const credencial = headerCredencial || dados.credencial;
     return toPagamentoPixResponse(
       await this.service.consultar({
         salaoId: tenant.salaoId,
         agendamentoId: id,
-        credencial: dados.credencial,
+        credencial,
       }),
     );
   }

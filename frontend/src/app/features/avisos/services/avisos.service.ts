@@ -33,10 +33,8 @@ export class AvisosService {
       this.http.get<ListaAvisosResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/avisos`,
         {
-          params: {
-            credencial,
-            ...(cursor ? { cursor } : {}),
-          },
+          headers: { 'x-cliente-credencial': credencial },
+          ...(cursor ? { params: { cursor } } : {}),
         },
       ),
     );
@@ -51,6 +49,7 @@ export class AvisosService {
       this.http.patch<AvisoResponseDto>(
         `/publico/s/${encodeURIComponent(subdominio)}/avisos/${encodeURIComponent(id)}/reconhecer`,
         { credencial },
+        { headers: { 'x-cliente-credencial': credencial } },
       ),
     );
   }

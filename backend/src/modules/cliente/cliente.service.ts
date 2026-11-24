@@ -27,6 +27,8 @@ import type {
     ListarAgendamentosClienteInput,
     ListarClienteInput,
     ResolverSessaoClienteInput,
+    RevogarSessaoClienteInput,
+    SessaoClientePublicaResultado,
 } from '@/modules/cliente/contracts';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
 import { adicionarDiasNoInstante } from '@/shared/horario-salao/horario-salao.utils';
@@ -189,13 +191,19 @@ export class ClienteService {
         return clienteReativado;
     }
 
-    resolverSessaoPublica(input: ResolverSessaoClienteInput) {
+    resolverSessaoPublica(
+        input: ResolverSessaoClienteInput,
+    ): Promise<SessaoClientePublicaResultado | undefined> {
         return this.clienteRepository.resolverSessao(input);
+    }
+
+    async revogarSessaoPublica(input: RevogarSessaoClienteInput): Promise<void> {
+        await this.clienteRepository.revogarSessao(input);
     }
 
     async identificarPublicamente(
         input: IdentificarClientePublicaInput,
-    ): Promise<ClientePersistido> {
+    ): Promise<SessaoClientePublicaResultado> {
         const resultado = await this.clienteRepository.identificarPublicamente(input);
 
         if (resultado.conflitoCredencial) {
@@ -204,12 +212,12 @@ export class ClienteService {
             );
         }
 
-        if (!resultado.cliente) {
+        if (!resultado.resultado) {
             throw new InternalServerErrorException(
                 'Não foi possível identificar a cliente.',
             );
         }
 
-        return resultado.cliente;
+        return resultado.resultado;
     }
 }

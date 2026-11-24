@@ -11,16 +11,17 @@ Identificar a cliente em seu primeiro contato com o link de agendamento do salã
 3. Sistema pede: **Nome** e **WhatsApp**.
 4. Cliente preenche e envia.
 5. Sistema busca no cadastro do salão se já existe cliente com aquele WhatsApp:
-   - Se **existe** — reutiliza o cadastro; associa o UUID novo ao cadastro existente.
-   - Se **não existe** — cria novo cadastro com Nome + WhatsApp.
-6. Sistema gera um UUID único e armazena localmente no dispositivo (cookie ou localStorage).
+   - Se **existe** — associa o UUID novo ao cadastro existente com status **não-verificado** (`verificada_em = null`) e armazena o `nome_informado` fornecido neste dispositivo. O histórico passado, dados cadastrados e avisos permanecem protegidos e ocultos deste dispositivo.
+   - Se **não existe** — cria novo cadastro com Nome + WhatsApp e marca a sessão como **verificada** (`verificada_em = agora`).
+6. Sistema gera um UUID único e armazena localmente no dispositivo (localStorage), enviando nas requisições subsequentes via cabeçalho HTTP `x-cliente-credencial`.
 7. Cliente segue para o fluxo de agendamento propriamente dito.
 
 ## Variações
 
-- **Sucesso (novo cadastro):** cliente inédita naquele salão — cadastro criado, UUID armazenado, avança.
-- **Sucesso (retorno como WhatsApp existente):** cliente já cadastrada por outro dispositivo — cadastro reutilizado, novo UUID associado ao mesmo cadastro, avança.
+- **Sucesso (novo cadastro):** cliente inédita naquele salão — cadastro criado, sessão verificada, UUID armazenado, avança.
+- **Sucesso (retorno como WhatsApp existente em novo dispositivo):** cadastro reutilizado com sessão não-verificada; novo UUID associado, nome digitado salvo como nome informado na sessão sem alterar o nome original cadastrado, avança para agendamento sem expor dados anteriores.
 - **Erro de validação:** WhatsApp em formato inválido — sistema pede correção.
+- **Limite de tentativas excedido (Rate limit):** mais de 5 tentativas por IP ou 3 por WhatsApp em 1 minuto — sistema bloqueia temporariamente com mensagem amigável.
 - **Cliente ignora e fecha o navegador:** sem UUID gerado, sem cadastro criado; próximo acesso reinicia.
 
 ## Regras de negócio
