@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 | --- | --- |
-| **Responsável** | _a definir_ |
-| **Status** | A fazer |
+| **Responsável** | Antigravity |
+| **Status** | Concluído |
 | **Prioridade** | Alta |
 | **Área** | Backend de pagamento (Efí) · Retorno do pagamento · Avisos ao salão |
 | **Origem** | Pedido do dono de avaliar todo o fluxo de pagamento (auditoria) |
@@ -90,9 +90,9 @@ Avaliar Pix com QR Code ou copia e cola como alternativa ao Open Finance. A clie
 
 ## Critérios de conclusão
 
-- [ ] Uma autorização feita no banco depois de `expira_em` não resulta em dinheiro recebido sem agendamento, ou a cobrança é cancelada no provider.
-- [ ] Um pagamento feito antes de `expira_em` e processado depois é tratado como "no prazo".
-- [ ] Uma reserva paga cujo webhook não chegou é confirmada pelo job antes de expirar.
-- [ ] Voltar do banco em outro navegador não deixa a cliente sem caminho.
-- [ ] O salão recebe aviso de agendamento pago e de pagamento após o prazo.
-- [ ] Os testes automatizados dos três cenários estão verdes.
+- [x] Uma autorização feita no banco depois de `expira_em` não resulta em dinheiro recebido sem agendamento, ou a cobrança é cancelada no provider.
+- [x] Um pagamento feito antes de `expira_em` e processado depois é tratado como "no prazo".
+- [x] Uma reserva paga cujo webhook não chegou é confirmada pelo job antes de expirar.
+- [x] Voltar do banco em outro navegador não deixa a cliente sem caminho.
+- [x] O salão recebe aviso de agendamento pago e de pagamento após o prazo.
+- [x] Os testes automatizados dos três cenários estão verdes.

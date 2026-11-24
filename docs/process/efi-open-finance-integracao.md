@@ -28,6 +28,7 @@ Em homologação, a cotação envia somente o valor do salão, com `taxa_cliente
 - As capacidades adicionais do contrato são dados do pagador, identificação do provider, consulta de pagamentos, instituições participantes e normalização/autenticação de callbacks. Fake e disabled continuam sem dependência de credenciais Efí.
 - `PagamentoService` reutiliza cotação, reserva, tentativas, verificação de valor e confirmação existentes. A consulta externa acontece somente depois de validar salão, cliente e reserva.
 - `PagamentoWebhookService` registra e reprocessa eventos. O job existente de pagamentos executa o reprocessamento antes da expiração de reservas, a cada minuto.
+- **Expiração e Cancelamento no Open Finance Efí (FLY-005):** A API da Efí para Pix via Open Finance (`POST /v1/pagamentos/pix`) não aceita tempo de expiração customizado na iniciação de pagamento imediato (o consentimento obedece a regras do ecossistema Open Finance/BACEN). Não existe endpoint para revogação/cancelamento prévio de iniciação pendente na API de Open Finance da Efí. Portanto, o controle temporal é assegurado pelo Fluy com base no instante real do pagamento (`ocorridoEm`). O job de expiração consulta o provedor (`getPixPayment`) antes de cancelar reservas com cobrança pendente. Pagamentos autorizados após a expiração da reserva são confirmados com divergência e geram aviso `pagamento_apos_prazo` ao salão para ação manual (encaixe ou estorno via `POST /v1/pagamentos/pix/:identificadorPagamento/devolver`).
 
 ## Configuração
 

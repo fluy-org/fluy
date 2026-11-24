@@ -1,5 +1,14 @@
 # Pagamentos
 
+## Atualização de 24/11/2026 (FLY-005: Confiabilidade do pagamento online)
+
+- **Prazo decidido por `ocorridoEm`:** a validação de pagamento dentro do prazo de reserva usa a data e hora do pagamento informadas pelo provedor bancário (`ocorridoEm`), e não a hora do processamento (`agora`). Pagamentos feitos dentro do prazo mesmo com webhook atrasado são confirmados normalmente (`agendado`).
+- **Reconciliação ativa no job de expiração:** antes de cancelar reservas com expiração atingida, o job de expiração consulta o provedor bancário para cobranças pendentes. Se constar pagamento confirmado, a reserva é promovida para `agendado` antes do cancelamento da agenda.
+- **Retorno seguro e desacoplado de navegador:** a tela `/retorno-pagamento` recebe o `identificadorPagamento` retornado pela Efí para consultar de forma segura a reserva e redirecionar a cliente para a tela de status do agendamento, funcionando mesmo quando o link foi aberto em navegador diferente (ex: webview do WhatsApp redirecionando para navegador padrão do celular).
+- **Avisos ao salão:** o salão recebe avisos dedicados:
+  - `agendamento_pago_confirmado`: emitido quando uma reserva com sinal ou valor total online é confirmada.
+  - `pagamento_apos_prazo`: emitido quando um pagamento é confirmado após a reserva ter sido expirada/cancelada, instruindo a ação manual (encaixe na agenda ou estorno).
+
 ## Atualização de 23/11/2026 (FLY-002: Salão sem Pagamento Online e Sinal Opcional)
 
 - **Salão sem recebimento online (`pagamento_online_disponivel = false`)**: salões sem chave Pix ativa ou com provedor desativado continuam permitindo agendamento de procedimentos com sinal; a cobrança online prévia é suprimida e o agendamento nasce como `agendado` com `pagamento_no_salao = true`. O valor total fica pendente para pagamento presencial.

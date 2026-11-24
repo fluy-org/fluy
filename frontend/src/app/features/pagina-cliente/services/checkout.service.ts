@@ -17,6 +17,7 @@ import type {
   IniciarPagamentoPixDto,
   InstituicoesPixResponseDto,
   RecebimentoPixPublicoResponseDto,
+  RetornoPagamentoPublicoResponseDto,
   SessaoClientePublicaResponseDto,
 } from '@fluy/schema';
 import type {
@@ -120,6 +121,17 @@ export class CheckoutService {
       }
     }
     return contextos;
+  }
+
+  consultarRetorno(
+    identificadorPagamento: string,
+  ): Promise<RetornoPagamentoPublicoResponseDto> {
+    return firstValueFrom(
+      this.http.get<RetornoPagamentoPublicoResponseDto>(
+        '/publico/pagamentos/retorno',
+        { params: { identificadorPagamento } },
+      ),
+    );
   }
 
   private chave(input: { subdominio: string; id: string }): string {

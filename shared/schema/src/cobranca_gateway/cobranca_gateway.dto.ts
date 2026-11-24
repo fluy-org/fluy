@@ -10,10 +10,14 @@ import type {
   simularPagamentoPixSchema,
   simularPagamentoPixResponseSchema,
   reservaPixResponseSchema,
+  consultarRetornoPagamentoQuerySchema,
+  retornoPagamentoPublicoResponseSchema,
 } from './cobranca_gateway.schema.js';
 
 export type IniciarPagamentoPixDto = z.infer<typeof iniciarPagamentoPixSchema>;
 export type ConsultarPagamentoPixQueryDto = z.infer<typeof consultarPagamentoPixQuerySchema>;
+export type ConsultarRetornoPagamentoQueryDto = z.infer<typeof consultarRetornoPagamentoQuerySchema>;
+export type RetornoPagamentoPublicoResponseDto = z.infer<typeof retornoPagamentoPublicoResponseSchema>;
 export type PagamentoPixResponseDto = z.infer<typeof pagamentoPixResponseSchema>;
 export type SimularPagamentoPixDto = z.infer<typeof simularPagamentoPixSchema>;
 export type SimularPagamentoPixResponseDto = z.infer<typeof simularPagamentoPixResponseSchema>;

@@ -59,3 +59,29 @@ export const pagamentoPixResponseSchema = z
 export const webhookPagamentoResponseSchema = z
   .object({ recebido: z.literal(true) })
   .meta({ id: 'WebhookPagamentoResponse' });
+
+export const consultarRetornoPagamentoQuerySchema = z
+  .object({
+    identificadorPagamento: z.string().min(1).max(200),
+  })
+  .strict()
+  .meta({ id: 'ConsultarRetornoPagamentoQuery' });
+
+export const retornoPagamentoPublicoResponseSchema = z
+  .object({
+    encontrado: z.boolean(),
+    reserva_id: z.string().uuid().optional(),
+    status: z.enum(STATUS_COBRANCA_GATEWAY).optional(),
+    procedimento: z
+      .object({
+        nome: z.string(),
+      })
+      .optional(),
+    salao: z
+      .object({
+        nome: z.string(),
+        subdominio: z.string(),
+      })
+      .optional(),
+  })
+  .meta({ id: 'RetornoPagamentoPublicoResponse' });

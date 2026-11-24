@@ -23,10 +23,12 @@ import {
 } from '@nestjs/swagger';
 import {
   ConsultarPagamentoPixQueryDto,
+  ConsultarRetornoPagamentoQueryDto,
   CriarReservaRequestDto,
   IniciarPagamentoPixRequestDto,
   PagamentoPixResponseDto,
   ReservaPixResponseDto,
+  RetornoPagamentoPublicoResponseDto,
   SimularPagamentoPixRequestDto,
   SimularPagamentoPixResponseDto,
 } from '@/modules/pagamento/contracts';
@@ -39,6 +41,7 @@ import {
   RecebimentoPixPublicoResponseDto,
 } from '@/modules/pagamento/contracts';
 import { PagamentoPublicoService } from '@/modules/pagamento/pagamento-publico.service';
+import { PagamentoService } from '@/modules/pagamento/pagamento.service';
 import { PagamentoSimulacaoService } from '@/modules/pagamento/pagamento-simulacao.service';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
 import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
@@ -201,5 +204,22 @@ export class PagamentoFakeController {
       resultado: dados.resultado,
     });
     return { processado: true as const };
+  }
+}
+
+@ApiTags('Pagamento público')
+@Controller('publico/pagamentos')
+export class PagamentoRetornoPublicoController {
+  constructor(private readonly service: PagamentoService) {}
+
+  @Get('retorno')
+  @ApiOperation({
+    summary: 'Consulta a situação do agendamento pelo identificador da cobrança',
+  })
+  @ApiOkResponse({ type: RetornoPagamentoPublicoResponseDto.Output })
+  async consultarRetorno(@Query() query: ConsultarRetornoPagamentoQueryDto) {
+    return this.service.buscarRetornoPorIdentificador(
+      query.identificadorPagamento,
+    );
   }
 }

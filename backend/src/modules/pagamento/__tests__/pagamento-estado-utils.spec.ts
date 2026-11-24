@@ -38,6 +38,47 @@ describe('decidirNotificacao', () => {
     });
   });
 
+  it('promove a reserva quando ocorridoEm é antes de expiraEm mesmo que agora seja posterior (processamento atrasado)', () => {
+    expect(
+      decidirNotificacao({
+        ...base,
+        estadoReserva: 'reservado',
+        expiraEm: new Date('2030-01-01T00:15:00.000Z'),
+        ocorridoEm: new Date('2030-01-01T00:14:00.000Z'),
+        agora: new Date('2030-01-01T00:25:00.000Z'), // webhook atrasado 10 min
+        tipo: 'confirmado',
+        valorPagoCentavos: 10100,
+      }),
+    ).toEqual({
+      novoStatus: 'confirmada',
+      promoverReserva: true,
+      divergencia: false,
+      alocacoes: [
+        { tipo: 'sinal', valorCentavos: 3000 },
+        { tipo: 'restante', valorCentavos: 7000 },
+      ],
+    });
+  });
+
+  it('trata como divergência quando ocorridoEm é após expiraEm', () => {
+    expect(
+      decidirNotificacao({
+        ...base,
+        estadoReserva: 'reservado',
+        expiraEm: new Date('2030-01-01T00:15:00.000Z'),
+        ocorridoEm: new Date('2030-01-01T00:16:00.000Z'),
+        agora: new Date('2030-01-01T00:25:00.000Z'),
+        tipo: 'confirmado',
+        valorPagoCentavos: 10100,
+      }),
+    ).toEqual({
+      novoStatus: 'confirmada',
+      promoverReserva: false,
+      divergencia: true,
+      alocacoes: [],
+    });
+  });
+
   it('registra confirmação tardia sem reocupar o horário', () => {
     expect(
       decidirNotificacao({

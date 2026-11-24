@@ -11,3 +11,5 @@ export * from '@/modules/pagamento/contracts/payment-simulator.types';
 export * from '@/modules/pagamento/contracts/checkout-pix-response.dto';
 export * from '@/modules/pagamento/contracts/pagamento.types';
 export * from '@/modules/pagamento/contracts/webhook-pagamento-response.dto';
+export * from '@/modules/pagamento/contracts/consultar-retorno-pagamento-query.dto';
+export * from '@/modules/pagamento/contracts/retorno-pagamento-response.dto';

@@ -18,17 +18,26 @@ describe('PagamentoService', () => {
     aplicarNotificacao: jest.fn(),
     buscarPagamento: jest.fn(),
     buscarCobrancaPorId: jest.fn(),
+    listarCobrancasPendentesParaReconciliacao: jest.fn(),
   };
   const recebimentoPix = { buscar: jest.fn() };
   const provider = {
     name: 'fake',
     quotePix: jest.fn(),
     createPixPayment: jest.fn<Promise<unknown>, [{ idempotencyKey: string }]>(),
+    getPixPayment: jest.fn(),
+  };
+  const agendamentoService = { buscarDetalhe: jest.fn() };
+  const agendamentoAvisoService = {
+    notificarAgendamentoPagoConfirmado: jest.fn(),
+    notificarPagamentoAposPrazo: jest.fn(),
   };
   const service = new PagamentoService(
     repository as never,
     recebimentoPix as never,
     provider as never,
+    agendamentoService as never,
+    agendamentoAvisoService as never,
   );
   const entrada = {
     salaoId: 'salao-a',
@@ -283,5 +292,104 @@ describe('PagamentoService', () => {
       }),
     ).rejects.toThrow('origem');
     expect(repository.aplicarNotificacao).not.toHaveBeenCalled();
+  });
+
+  it('dispara aviso de agendamento pago confirmado ao salão quando a reserva é promovida', async () => {
+    repository.aplicarNotificacao.mockResolvedValueOnce({
+      resultado: 'promovido',
+      agendamentoId: 'reserva-a',
+    });
+    agendamentoService.buscarDetalhe.mockResolvedValueOnce({
+      id: 'reserva-a',
+      salao_id: 'salao-a',
+    });
+
+    await service.processarNotificacao({
+      salaoId: 'salao-a',
+      notificacao: {
+        provider: 'fake',
+        eventId: 'evento-1',
+        externalPaymentId: 'ext-1',
+        tipo: 'confirmado',
+        ocorridoEm: new Date(),
+        valorPagoCentavos: 10000,
+      },
+    });
+
+    expect(agendamentoService.buscarDetalhe).toHaveBeenCalledWith({
+      id: 'reserva-a',
+      salaoId: 'salao-a',
+    });
+    expect(
+      agendamentoAvisoService.notificarAgendamentoPagoConfirmado,
+    ).toHaveBeenCalledWith({
+      id: 'reserva-a',
+      salao_id: 'salao-a',
+    });
+  });
+
+  it('dispara aviso de pagamento após o prazo ao salão quando a reserva foi confirmada tardiamente', async () => {
+    repository.aplicarNotificacao.mockResolvedValueOnce({
+      resultado: 'confirmado_apos_expiracao',
+      agendamentoId: 'reserva-a',
+    });
+    agendamentoService.buscarDetalhe.mockResolvedValueOnce({
+      id: 'reserva-a',
+      salao_id: 'salao-a',
+    });
+
+    await service.processarNotificacao({
+      salaoId: 'salao-a',
+      notificacao: {
+        provider: 'fake',
+        eventId: 'evento-2',
+        externalPaymentId: 'ext-2',
+        tipo: 'confirmado',
+        ocorridoEm: new Date(),
+        valorPagoCentavos: 10000,
+      },
+    });
+
+    expect(
+      agendamentoAvisoService.notificarPagamentoAposPrazo,
+    ).toHaveBeenCalledWith({
+      id: 'reserva-a',
+      salao_id: 'salao-a',
+    });
+  });
+
+  it('reconcilia cobranças pendentes consultando o provider', async () => {
+    repository.listarCobrancasPendentesParaReconciliacao.mockResolvedValueOnce([
+      {
+        id: 'cobranca-1',
+        id_externo: 'ext-1',
+        criada_em: new Date('2030-01-01T00:00:00.000Z'),
+        agendamento_id: 'reserva-1',
+        provedor: 'fake',
+      },
+    ]);
+    provider.getPixPayment.mockResolvedValueOnce({
+      provider: 'fake',
+      eventId: 'evt-1',
+      externalPaymentId: 'ext-1',
+      tipo: 'confirmado',
+      ocorridoEm: new Date('2030-01-01T00:05:00.000Z'),
+      valorPagoCentavos: 5000,
+    });
+    repository.aplicarNotificacao.mockResolvedValueOnce({
+      resultado: 'promovido',
+      agendamentoId: 'reserva-1',
+    });
+
+    const conc = await service.reconciliarCobrancasPendentes({
+      salaoId: 'salao-a',
+      agora: new Date('2030-01-01T00:15:00.000Z'),
+    });
+
+    expect(conc).toBe(1);
+    expect(provider.getPixPayment).toHaveBeenCalledWith({
+      externalId: 'ext-1',
+      createdAt: new Date('2030-01-01T00:00:00.000Z'),
+    });
   });
 });

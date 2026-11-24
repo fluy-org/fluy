@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { RetornoPagamentoPage } from './retorno-pagamento.page';
 import { CheckoutService } from '@app/features/pagina-cliente/services/checkout.service';
@@ -8,7 +8,11 @@ import type { ContextoCheckout } from '@app/features/pagina-cliente/contracts';
 describe('RetornoPagamentoPage (TDD)', () => {
   let fixture: ComponentFixture<RetornoPagamentoPage>;
   let router: Router;
-  let mockCheckoutService: { listarContextos: jasmine.Spy };
+  let mockCheckoutService: {
+    listarContextos: jasmine.Spy;
+    consultarRetorno?: jasmine.Spy;
+  };
+  let queryParamMapStub: ReturnType<typeof convertToParamMap>;
 
   const criarContexto = (id: string, subdominio: string, procedimento: string): ContextoCheckout => ({
     subdominio,
@@ -30,20 +34,82 @@ describe('RetornoPagamentoPage (TDD)', () => {
   });
 
   beforeEach(async () => {
+    queryParamMapStub = convertToParamMap({});
     mockCheckoutService = {
-      listarContextos: jasmine.createSpy('listarContextos'),
+      listarContextos: jasmine.createSpy('listarContextos').and.returnValue([]),
+      consultarRetorno: jasmine.createSpy('consultarRetorno'),
     };
 
     await TestBed.configureTestingModule({
       imports: [RetornoPagamentoPage],
       providers: [
         provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: {
+                get: (key: string) => queryParamMapStub.get(key),
+              },
+            },
+          },
+        },
         { provide: CheckoutService, useValue: mockCheckoutService },
       ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.resolveTo(true);
+  });
+
+  it('deve exibir confirmação na tela quando identificadorPagamento for reconhecido em navegador diferente (sem contexto local)', async () => {
+    queryParamMapStub = convertToParamMap({
+      identificadorPagamento: 'urn:efi:12345',
+    });
+    mockCheckoutService.listarContextos.and.returnValue([]);
+    mockCheckoutService.consultarRetorno!.and.resolveTo({
+      encontrado: true,
+      reserva_id: 'reserva-999',
+      status: 'confirmada',
+      procedimento: { nome: 'Corte Degradê' },
+      salao: { nome: 'Salão Bella', subdominio: 'salao-bella' },
+    });
+
+    fixture = TestBed.createComponent(RetornoPagamentoPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(router.navigate).not.toHaveBeenCalled();
+    const texto = fixture.nativeElement.textContent;
+    expect(texto).toContain('Pagamento confirmado!');
+    expect(texto).toContain('Corte Degradê');
+    expect(texto).toContain('Salão Bella');
+  });
+
+  it('deve redirecionar para o checkout quando identificadorPagamento for reconhecido no mesmo navegador (com contexto local)', async () => {
+    const contextoLocal = criarContexto('reserva-999', 'salao-bella', 'Corte Degradê');
+    queryParamMapStub = convertToParamMap({
+      identificadorPagamento: 'urn:efi:12345',
+    });
+    mockCheckoutService.listarContextos.and.returnValue([contextoLocal]);
+    mockCheckoutService.consultarRetorno!.and.resolveTo({
+      encontrado: true,
+      reserva_id: 'reserva-999',
+      status: 'confirmada',
+      procedimento: { nome: 'Corte Degradê' },
+      salao: { nome: 'Salão Bella', subdominio: 'salao-bella' },
+    });
+
+    fixture = TestBed.createComponent(RetornoPagamentoPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(router.navigate).toHaveBeenCalledWith([
+      '/s',
+      'salao-bella',
+      'checkout',
+      'reserva-999',
+    ]);
   });
 
   it('deve redirecionar automaticamente para a tela de checkout quando houver exatamente um contexto salvo', async () => {

@@ -50,6 +50,21 @@ export type PagamentoConsultado = CobrancaParaPagamento & {
   estado_reserva: string;
 };
 
+export type ResultadoAplicacaoNotificacao =
+  | 'valor_divergente'
+  | { resultado: 'promovido'; agendamentoId: string }
+  | { resultado: 'confirmado_apos_expiracao'; agendamentoId: string }
+  | { resultado: 'processado'; agendamentoId: string }
+  | undefined;
+
+export type CobrancaPendenteReconciliacao = {
+  id: string;
+  id_externo: string | null;
+  criada_em?: Date;
+  agendamento_id: string | null;
+  provedor: string;
+};
+
 export interface PagamentoRepositoryPort {
   buscarReserva(input: {
     salaoId: string;
@@ -82,7 +97,7 @@ export interface PagamentoRepositoryPort {
   }): Promise<CobrancaParaPagamento | undefined>;
   aplicarNotificacao(
     input: AplicarNotificacaoPagamentoPersistenciaInput,
-  ): Promise<'valor_divergente' | undefined>;
+  ): Promise<ResultadoAplicacaoNotificacao>;
   buscarPagamento(input: {
     salaoId: string;
     clienteId: string;
@@ -92,6 +107,25 @@ export interface PagamentoRepositoryPort {
     salaoId: string;
     cobrancaId: string;
   }): Promise<CobrancaParaPagamento | undefined>;
+  listarCobrancasPendentesParaReconciliacao?(input: {
+    salaoId: string;
+    agora: Date;
+  }): Promise<CobrancaPendenteReconciliacao[]>;
+  buscarRetornoPorIdentificador?(input: {
+    identificadorPagamento: string;
+    provedor?: string;
+  }): Promise<{
+    encontrado: boolean;
+    reserva_id?: string;
+    status?: StatusCobrancaGateway;
+    procedimento?: {
+      nome: string;
+    };
+    salao?: {
+      nome: string;
+      subdominio: string;
+    };
+  }>;
 }
 
 export type IniciarPagamentoInput = {

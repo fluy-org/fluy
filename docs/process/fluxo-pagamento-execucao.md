@@ -1,5 +1,12 @@
 # Execução do fluxo de pagamento — 28/10/2026
 
+## Atualização de 24/11/2026 (FLY-005)
+
+- **Prazo e reconciliação:** A decisão de confirmação de pagamento no prazo passou a utilizar o timestamp de ocorrência do pagamento informado pelo provedor (`ocorridoEm`). O job de expiração passou a reconciliar cobranças pendentes antes de cancelar reservas com prazo expirado.
+- **Suporte Efí Open Finance:** Registrado que `POST /v1/pagamentos/pix` não aceita tempo de expiração customizável e não há endpoint de cancelamento prévio de iniciação pendente na API de pagamentos imediatos via Open Finance da Efí. O controle é mantido pelo Fluy e avisos são emitidos em pagamentos tardios (`pagamento_apos_prazo`).
+- **Retorno desacoplado de navegador:** Endpoint público `/publico/pagamentos/retorno` permite à página `/retorno-pagamento` consultar a reserva com base no `identificadorPagamento` retornado pela Efí, sem depender exclusivamente de dados em `localStorage`.
+- **Avisos ao salão:** Integrados avisos `agendamento_pago_confirmado` e `pagamento_apos_prazo`.
+
 ## Resultado e limites
 
 Implementados recebimento da dona, reserva pública paga, checkout sinal/total,

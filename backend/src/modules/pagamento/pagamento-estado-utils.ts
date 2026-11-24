@@ -42,10 +42,11 @@ export function decidirNotificacao(
     };
   }
 
+  const dataReferencia = input.ocorridoEm ?? input.agora;
   const promoverReserva =
     input.estadoReserva === 'reservado' &&
     input.expiraEm !== null &&
-    input.expiraEm.getTime() > input.agora.getTime();
+    input.expiraEm.getTime() >= dataReferencia.getTime();
 
   return {
     novoStatus: 'confirmada' as const,

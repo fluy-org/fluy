@@ -89,4 +89,30 @@ describe('AgendamentoAvisoService', () => {
       }),
     );
   });
+
+  it('avisa o salão sobre o agendamento pago confirmado', async () => {
+    await service.notificarAgendamentoPagoConfirmado(agendamento);
+
+    expect(criarParaSalao).toHaveBeenCalledWith(
+      expect.objectContaining({
+        salaoId: 'salao-1',
+        agendamentoId: 'agendamento-1',
+        tipo: 'agendamento_pago_confirmado',
+        titulo: 'Agendamento pago confirmado',
+      }),
+    );
+  });
+
+  it('avisa o salão sobre pagamento recebido após o prazo', async () => {
+    await service.notificarPagamentoAposPrazo(agendamento);
+
+    expect(criarParaSalao).toHaveBeenCalledWith(
+      expect.objectContaining({
+        salaoId: 'salao-1',
+        agendamentoId: 'agendamento-1',
+        tipo: 'pagamento_apos_prazo',
+        titulo: 'Pagamento recebido após o prazo',
+      }),
+    );
+  });
 });

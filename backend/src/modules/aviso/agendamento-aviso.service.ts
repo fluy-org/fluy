@@ -68,11 +68,40 @@ export class AgendamentoAvisoService {
     });
   }
 
-  private formatarDataHora(data: Date, fusoHorario: string): string {
-    return new Intl.DateTimeFormat('pt-BR', {
-      dateStyle: 'short',
-      timeStyle: 'short',
-      timeZone: fusoHorario,
-    }).format(data);
+  notificarAgendamentoPagoConfirmado(agendamento: AgendamentoDetalheResultado) {
+    return this.avisoService.criarParaSalao({
+      salaoId: agendamento.salao_id,
+      agendamentoId: agendamento.id,
+      tipo: 'agendamento_pago_confirmado',
+      titulo: 'Agendamento pago confirmado',
+      mensagem: `${agendamento.cliente.nome} confirmou o pagamento de ${agendamento.procedimento.nome} para ${this.formatarDataHora(agendamento.inicio_em, agendamento.fusoHorario)}.`,
+    });
+  }
+
+  notificarPagamentoAposPrazo(agendamento: AgendamentoDetalheResultado) {
+    return this.avisoService.criarParaSalao({
+      salaoId: agendamento.salao_id,
+      agendamentoId: agendamento.id,
+      tipo: 'pagamento_apos_prazo',
+      titulo: 'Pagamento recebido após o prazo',
+      mensagem: `Pagamento recebido para a reserva expirada de ${agendamento.cliente.nome} (${agendamento.procedimento.nome}). Combine o encaixe ou realize o estorno.`,
+    });
+  }
+
+  private formatarDataHora(data: Date, fusoHorario?: string): string {
+    const fuso = fusoHorario?.trim() || 'America/Sao_Paulo';
+    try {
+      return new Intl.DateTimeFormat('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+        timeZone: fuso,
+      }).format(data);
+    } catch {
+      return new Intl.DateTimeFormat('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+        timeZone: 'America/Sao_Paulo',
+      }).format(data);
+    }
   }
 }

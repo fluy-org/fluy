@@ -4,6 +4,7 @@ import {
   cobrancaGateway,
   eventoAgendamento,
   pagamentoAgendamento,
+  procedimento,
   salao,
   webhookGatewayEvento,
 } from '@fluy/schema';
@@ -13,6 +14,7 @@ import type { Database } from '@/database/database.provider';
 import type {
   PagamentoRepositoryPort,
   AplicarNotificacaoPagamentoPersistenciaInput,
+  ResultadoAplicacaoNotificacao,
 } from '@/modules/pagamento/contracts';
 import {
   emCentavos,
@@ -222,7 +224,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
 
   async aplicarNotificacao(
     input: AplicarNotificacaoPagamentoPersistenciaInput,
-  ): Promise<'valor_divergente' | undefined> {
+  ): Promise<ResultadoAplicacaoNotificacao> {
     return this.database.transaction(async (tx) => {
       const cobrancas = await tx
         .select()
@@ -302,6 +304,7 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
         estadoReserva: reserva.estado,
         expiraEm: reserva.expira_em,
         agora: input.agora,
+        ocorridoEm: input.notificacao.ocorridoEm,
         modalidade: cobranca.modalidade,
         valorSalaoCentavos: Number(emCentavos({ valor: cobranca.valor })),
         valorSinalCentavos: Number(emCentavos({ valor: reserva.valor_sinal })),
@@ -390,7 +393,15 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
         );
 
       if (!decisao.promoverReserva) {
-        return;
+        return decisao.divergencia
+          ? {
+              resultado: 'confirmado_apos_expiracao' as const,
+              agendamentoId: reserva.id,
+            }
+          : {
+              resultado: 'processado' as const,
+              agendamentoId: reserva.id,
+            };
       }
 
       await tx
@@ -411,6 +422,11 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
           valor: formatarCentavos({ valor: BigInt(alocacao.valorCentavos) }),
         })),
       );
+
+      return {
+        resultado: 'promovido' as const,
+        agendamentoId: reserva.id,
+      };
     });
   }
 
@@ -535,5 +551,94 @@ export class PagamentoRepository implements PagamentoRepositoryPort {
 
   listarSalaos() {
     return this.database.select({ id: salao.id }).from(salao);
+  }
+
+  async listarCobrancasPendentesParaReconciliacao(input: {
+    salaoId: string;
+    agora: Date;
+  }) {
+    return this.database
+      .select({
+        id: cobrancaGateway.id,
+        id_externo: cobrancaGateway.id_externo,
+        criada_em: cobrancaGateway.criada_em,
+        agendamento_id: cobrancaGateway.agendamento_id,
+        provedor: cobrancaGateway.provedor,
+      })
+      .from(cobrancaGateway)
+      .innerJoin(
+        agendamento,
+        and(
+          eq(agendamento.id, cobrancaGateway.agendamento_id),
+          eq(agendamento.salao_id, input.salaoId),
+        ),
+      )
+      .where(
+        and(
+          eq(cobrancaGateway.salao_id, input.salaoId),
+          eq(cobrancaGateway.status, 'pendente'),
+          sql`${cobrancaGateway.id_externo} is not null`,
+          eq(agendamento.estado, 'reservado'),
+          lte(agendamento.expira_em, input.agora),
+        ),
+      );
+  }
+
+  async buscarRetornoPorIdentificador(input: {
+    identificadorPagamento: string;
+    provedor?: string;
+  }) {
+    const linhas = await this.database
+      .select({
+        cobrancaId: cobrancaGateway.id,
+        status: cobrancaGateway.status,
+        agendamentoId: cobrancaGateway.agendamento_id,
+        subdominio: salao.subdominio,
+        nomeSalao: salao.nome,
+        nomeProcedimento: procedimento.nome,
+      })
+      .from(cobrancaGateway)
+      .innerJoin(salao, eq(salao.id, cobrancaGateway.salao_id))
+      .innerJoin(
+        agendamento,
+        and(
+          eq(agendamento.id, cobrancaGateway.agendamento_id),
+          eq(agendamento.salao_id, cobrancaGateway.salao_id),
+        ),
+      )
+      .innerJoin(
+        procedimento,
+        and(
+          eq(procedimento.id, agendamento.procedimento_id),
+          eq(procedimento.salao_id, cobrancaGateway.salao_id),
+        ),
+      )
+      .where(
+        and(
+          eq(cobrancaGateway.id_externo, input.identificadorPagamento),
+          input.provedor
+            ? eq(cobrancaGateway.provedor, input.provedor)
+            : undefined,
+        ),
+      )
+      .limit(1);
+
+    const encontrada = linhas[0];
+    if (!encontrada) {
+      return { encontrado: false };
+    }
+
+    return {
+      encontrado: true,
+      reserva_id: encontrada.agendamentoId ?? undefined,
+      status: encontrada.status,
+      procedimento: {
+        nome: encontrada.nomeProcedimento,
+      },
+      salao: {
+        nome: encontrada.nomeSalao,
+        subdominio: encontrada.subdominio,
+      },
+    };
   }
 }
