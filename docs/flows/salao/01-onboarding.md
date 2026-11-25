@@ -36,20 +36,22 @@ estado `sem-salao` direciona ao onboarding e `com-salao` direciona ao painel.
 8. Backend cria, em uma transação, o `salao`, a membership `usuario_salao` com
    papel de dono, a `configuracao_salao` com defaults e o `profissional` inicial.
 9. Sistema provisiona o subdomínio.
-10. Sistema conduz o dono para configurar **pelo menos 1 procedimento**:
-   - Nome, duração, preço (obrigatórios)
-   - Sinal (percentual ou fixo)
-   - Descrição, imagem (opcionais)
-11. A configuração de disponibilidade fica disponível no painel após a criação
-    do salão; ela não integra a conclusão do onboarding.
-12. Demais configurações **assumem defaults sensatos** e ficam disponíveis para ajuste posterior:
+10. Ao concluir a criação do salão, o sistema exibe mensagem de sucesso e direciona a dona para a tela de **Primeiros passos** (`/painel/primeiros-passos`), apresentando o checklist de configuração inicial:
+   - 1. Cadastrar primeiro procedimento (obrigatório — atalho direto com formulário aberto em `/painel/procedimentos?novo=true`).
+   - 2. Definir dias e horários de atendimento (obrigatório — atalho para `/painel/disponibilidade`).
+   - 3. Cadastrar chave Pix (recomendado — atalho para `/painel/configuracao`, explicando que sem Pix clientes pagam tudo no salão e não há sinal antecipado).
+   - 4. Compartilhar link público (com botões de copiar e compartilhar via Web Share API / WhatsApp).
+11. Enquanto houver pendências obrigatórias (sem procedimento ativo ou sem disponibilidade):
+   - A agenda exibe card de destaque "Falta pouco para receber agendamentos" com o próximo passo e atalho para o checklist.
+   - A página pública exibe "Este salão ainda está configurando a agenda" com botão para contato via WhatsApp.
+12. Demais configurações **assumem defaults sensatos** e ficam disponíveis para ajuste posterior em Configurações:
    - Granularidade: 30min
    - Prazo de reserva sem pagamento: 15min
    - Tolerância de atraso: 15min
    - Antecedência mínima: 2h
    - Antecedência máxima: 60 dias
    - Informações pré-procedimento, mensagem personalizada: vazios (opcional editar)
-13. Onboarding concluído — sistema exibe a URL pública do salão para compartilhar.
+13. O link público do salão fica acessível a qualquer momento em Primeiros passos, no topo da agenda e em Configurações (mesmo que a consulta de regras falhe).
 14. Salão pode explorar demais configurações no painel a qualquer momento.
 
 ## Variações

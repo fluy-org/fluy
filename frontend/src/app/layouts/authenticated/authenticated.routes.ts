@@ -4,6 +4,13 @@ export const AUTHENTICATED_ROUTES: Routes = [
   // A rota vazia dentro do painel redireciona para o dashboard/agenda.
   { path: '', redirectTo: 'agenda', pathMatch: 'full' },
   {
+    path: 'primeiros-passos',
+    loadComponent: () =>
+      import(
+        '@app/features/salao/primeiros-passos/pages/primeiros-passos/primeiros-passos.page'
+      ).then((m) => m.PrimeirosPassosPage),
+  },
+  {
     path: 'agenda',
     loadChildren: () =>
       import('../../features/salao/agenda/agenda.routes').then(

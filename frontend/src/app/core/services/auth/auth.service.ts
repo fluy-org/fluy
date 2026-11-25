@@ -5,12 +5,14 @@ import type {
   CadastroPorConvitePreparado,
   ConcluirCadastroPorConviteInput,
 } from '@app/features/auth/contracts';
+import { ContaService } from '@app/features/auth/services/conta.service';
 import { environment } from '../../../../environments/environment';
 import { loadClerkUi } from './clerk-ui.loader';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private router = inject(Router);
+  private contaService = inject(ContaService);
   private clerk: Clerk | null = null;
   private emailConvitePreparado: string | null = null;
   private unsubscribeFromClerk: (() => void) | null = null;
@@ -135,11 +137,13 @@ export class AuthService {
   async logout(): Promise<void> {
     await this.clerk?.signOut();
     this.emailConvitePreparado = null;
+    this.contaService.limparCache();
     this.isAuthenticated.set(false);
     await this.router.navigate(['/login']);
   }
 
   handleUnauthorized(): void {
+    this.contaService.limparCache();
     this.isAuthenticated.set(false);
 
     if (!this.router.url.startsWith('/login')) {

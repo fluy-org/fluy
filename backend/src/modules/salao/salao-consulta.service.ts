@@ -21,4 +21,14 @@ export class SalaoConsultaService {
 
     return salao;
   }
+
+  async buscarSetup(salaoId: string) {
+    const setup = await this.salaoRepository.buscarSetup(salaoId);
+
+    if (!setup) {
+      throw new NotFoundException('Salão não encontrado.');
+    }
+
+    return setup;
+  }
 }

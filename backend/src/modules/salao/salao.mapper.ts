@@ -1,5 +1,12 @@
-import type { SalaoPublicoResponseDto, SalaoResponseDto } from '@fluy/schema';
-import type { SalaoConsultado } from '@/modules/salao/contracts';
+import type {
+  SalaoPublicoResponseDto,
+  SalaoResponseDto,
+  SalaoSetupResponseDto,
+} from '@fluy/schema';
+import type {
+  SalaoConsultado,
+  SalaoSetupConsultado,
+} from '@/modules/salao/contracts';
 import type { SalaoConfiguracaoPersistida } from '@/modules/salao-configuracao/contracts';
 
 export function toSalaoAtualResponse(
@@ -13,6 +20,17 @@ export function toSalaoAtualResponse(
     endereco: salao.endereco,
     fuso_horario: salao.fuso_horario,
     criado_em: salao.criado_em.toISOString(),
+  };
+}
+
+export function toSalaoSetupResponse(
+  setup: SalaoSetupConsultado,
+): SalaoSetupResponseDto {
+  return {
+    tem_procedimento_ativo: setup.temProcedimentoAtivo,
+    tem_disponibilidade: setup.temDisponibilidade,
+    tem_pix: setup.temPix,
+    subdominio: setup.subdominio,
   };
 }
 

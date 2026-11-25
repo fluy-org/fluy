@@ -12,6 +12,7 @@ import {
 } from '@fluy/schema/salao/salao.enums';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonInput,
@@ -29,6 +30,8 @@ import {
 } from '@ionic/angular/standalone';
 import { FieldErrorComponent } from '../../../../../shared/components/field-error/field-error.component';
 import { ApiError } from '../../../../../core/errors/api-error';
+import { AuthService } from '@app/core/services/auth/auth.service';
+import { ContaService } from '@app/features/auth/services/conta.service';
 import { ROTULOS_FUSO_HORARIO } from '../../onboarding.data';
 import { zodValidator } from '../../../../../shared/utils/zod-validator';
 import { OnboardingService } from '../../services/onboarding.service';
@@ -42,6 +45,7 @@ import {
   standalone: true,
   imports: [
     IonButton,
+    IonButtons,
     IonContent,
     FieldErrorComponent,
     IonHeader,
@@ -64,12 +68,15 @@ import {
 })
 export class OnboardingPage {
   private onboardingService = inject(OnboardingService);
+  private authService = inject(AuthService);
+  private contaService = inject(ContaService);
   private router = inject(Router);
 
   readonly fusosHorarios = FUSOS_HORARIOS_BRASIL;
   readonly rotulosFusoHorario = ROTULOS_FUSO_HORARIO;
   readonly formatarWhatsapp = formatarWhatsapp;
   readonly enviando = signal(false);
+  readonly saindo = signal(false);
   readonly erroGeral = signal<string | null>(null);
   readonly sugestoesSubdominio = signal<string[]>([]);
 
@@ -144,7 +151,24 @@ export class OnboardingPage {
       this.enviando.set(false);
     }
 
-    await this.router.navigate(['/painel/agenda'], { replaceUrl: true });
+    this.contaService.limparCache();
+    await this.router.navigate(['/painel/primeiros-passos'], {
+      queryParams: { sucesso: 'true' },
+      replaceUrl: true,
+    });
+  }
+
+  async sair(): Promise<void> {
+    if (this.saindo()) {
+      return;
+    }
+
+    this.saindo.set(true);
+    try {
+      await this.authService.logout();
+    } finally {
+      this.saindo.set(false);
+    }
   }
 
   atualizarWhatsapp(event: CustomEvent<{ value?: string | null }>): void {

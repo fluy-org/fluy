@@ -1,6 +1,11 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Crie seu salão</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="sair()" [disabled]="saindo()">
+        {{ saindo() ? 'Saindo...' : 'Sair' }}
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

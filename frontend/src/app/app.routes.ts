@@ -1,6 +1,8 @@
 import { inject } from '@angular/core';
 import { RedirectFunction, Router, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { comSalaoGuard } from './core/guards/com-salao.guard';
+import { semSalaoGuard } from './core/guards/sem-salao.guard';
 import { AUTH_ROUTES } from './features/auth/auth.routes';
 import { AuthenticatedLayoutComponent } from './layouts/authenticated/authenticated-layout.component';
 import { PublicLayoutComponent } from './layouts/public/public-layout.component';
@@ -25,7 +27,7 @@ export const routes: Routes = [
   {
     path: 'painel',
     component: AuthenticatedLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, comSalaoGuard],
     loadChildren: () =>
       import('./layouts/authenticated/authenticated.routes').then(
         (m) => m.AUTHENTICATED_ROUTES,
@@ -46,7 +48,7 @@ export const routes: Routes = [
       ...AUTH_ROUTES,
       {
         path: 'onboarding',
-        canActivate: [authGuard],
+        canActivate: [authGuard, semSalaoGuard],
         loadChildren: () =>
           import('./features/salao/onboarding/onboarding.routes').then(
             (m) => m.ONBOARDING_ROUTES,

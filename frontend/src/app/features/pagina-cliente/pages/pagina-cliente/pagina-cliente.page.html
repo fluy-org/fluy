@@ -173,6 +173,7 @@
         [procedimentos]="procedimentos()"
         [procedimentoSelecionadoId]="procedimentoSelecionado()?.id ?? null"
         [pagamentoOnlineDisponivel]="salaoAtual.pagamento_online_disponivel"
+        [contatoWhatsapp]="salaoAtual.contato_whatsapp"
         [carregando]="carregandoCatalogo()"
         [erro]="erroCatalogo()"
         (selecionar)="selecionarProcedimento($event)"

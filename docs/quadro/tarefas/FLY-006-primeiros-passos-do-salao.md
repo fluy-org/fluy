@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 | --- | --- |
-| **Responsável** | _a definir_ |
-| **Status** | A fazer |
+| **Responsável** | _Agente Orquestrador_ |
+| **Status** | Concluído |
 | **Prioridade** | Alta |
 | **Área** | Pós-cadastro · Agenda · Navegação do painel |
 | **Origem** | Teste manual do dono + auditoria |
@@ -137,12 +137,12 @@ O link do salão fica sempre a um toque, com copiar e compartilhar:
 
 ## Critérios de conclusão
 
-- [ ] Ao criar o salão, a dona vê uma confirmação e cai em Primeiros passos.
-- [ ] Cada item do checklist leva direto à ação e fica marcado como feito quando concluído.
-- [ ] A agenda mostra as pendências até haver procedimento ativo e disponibilidade.
-- [ ] O link público aparece na agenda (ou no cabeçalho) com copiar e compartilhar.
-- [ ] O link continua visível em Configurações mesmo se a configuração falhar ao carregar.
-- [ ] Sem Pix, há um banner explicando a consequência, com atalho para o cadastro.
-- [ ] Conta sem salão nunca vê "Salão não encontrado." no painel.
-- [ ] Conta com salão não vê o formulário de onboarding.
-- [ ] O doc de onboarding está atualizado.
+- [x] Ao criar o salão, a dona vê uma confirmação e cai em Primeiros passos.
+- [x] Cada item do checklist leva direto à ação e fica marcado como feito quando concluído.
+- [x] A agenda mostra as pendências até haver procedimento ativo e disponibilidade.
+- [x] O link público aparece na agenda (ou no cabeçalho) com copiar e compartilhar.
+- [x] O link continua visível em Configurações mesmo se a configuração falhar ao carregar.
+- [x] Sem Pix, há um banner explicando a consequência, com atalho para o cadastro.
+- [x] Conta sem salão nunca vê "Salão não encontrado." no painel.
+- [x] Conta com salão não vê o formulário de onboarding.
+- [x] O doc de onboarding está atualizado.

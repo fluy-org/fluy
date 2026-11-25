@@ -3,6 +3,97 @@
 </ion-header>
 
 <ion-content class="ion-padding fluy-page-safe">
+  @if (setup(); as s) {
+    <div class="agenda-link-publico">
+      <app-link-publico
+        [subdominio]="s.subdominio"
+        [compacto]="true"
+      ></app-link-publico>
+    </div>
+
+    @if (!s.tem_procedimento_ativo || !s.tem_disponibilidade) {
+      <div class="card-pendencia" role="region" aria-label="Pendências de configuração">
+        <div class="card-pendencia-conteudo">
+          <div class="card-pendencia-icone">
+            <ion-icon name="warning-outline" color="warning" aria-hidden="true"></ion-icon>
+          </div>
+          <div class="card-pendencia-texto">
+            <h3>Falta pouco para receber agendamentos</h3>
+            <p>
+              @if (!s.tem_procedimento_ativo) {
+                Cadastre pelo menos 1 procedimento para suas clientes agendarem.
+              } @else if (!s.tem_disponibilidade) {
+                Defina seus horários e dias de atendimento para liberar a agenda.
+              }
+            </p>
+          </div>
+        </div>
+        <div class="card-pendencia-acoes">
+          @if (!s.tem_procedimento_ativo) {
+            <ion-button
+              size="small"
+              fill="solid"
+              color="primary"
+              routerLink="/painel/procedimentos"
+              [queryParams]="{ novo: 'true' }"
+            >
+              Cadastrar procedimento
+              <ion-icon name="arrow-forward-outline" slot="end" aria-hidden="true"></ion-icon>
+            </ion-button>
+          } @else if (!s.tem_disponibilidade) {
+            <ion-button
+              size="small"
+              fill="solid"
+              color="primary"
+              routerLink="/painel/disponibilidade"
+            >
+              Configurar horários
+              <ion-icon name="arrow-forward-outline" slot="end" aria-hidden="true"></ion-icon>
+            </ion-button>
+          }
+          <ion-button
+            size="small"
+            fill="clear"
+            routerLink="/painel/primeiros-passos"
+          >
+            Ver checklist
+          </ion-button>
+        </div>
+      </div>
+    }
+
+    @if (!s.tem_pix && !bannerPixDispensado()) {
+      <div class="banner-pix" role="region" aria-label="Aviso sobre Pix">
+        <div class="banner-pix-conteudo">
+          <ion-icon name="alert-circle-outline" color="warning" aria-hidden="true"></ion-icon>
+          <div class="banner-pix-texto">
+            <strong>Cadastre sua chave Pix:</strong>
+            sem Pix, você não recebe sinal online das clientes e corre mais risco de faltas.
+          </div>
+        </div>
+        <div class="banner-pix-acoes">
+          <ion-button
+            size="small"
+            fill="outline"
+            color="warning"
+            routerLink="/painel/configuracao"
+          >
+            Cadastrar Pix
+          </ion-button>
+          <ion-button
+            size="small"
+            fill="clear"
+            color="medium"
+            (click)="dispensarBannerPix()"
+            aria-label="Dispensar aviso de Pix"
+          >
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    }
+  }
+
   @let agenda = agendaDoDia(); @if (agenda) {
   <app-navegacao-dia
     [data]="agenda.data"

@@ -7,9 +7,15 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { SalaoAtualResponseDto } from '@/modules/salao/contracts';
+import {
+  SalaoAtualResponseDto,
+  SalaoSetupResponseDto,
+} from '@/modules/salao/contracts';
 import { SalaoConsultaService } from '@/modules/salao/salao-consulta.service';
-import { toSalaoAtualResponse } from '@/modules/salao/salao.mapper';
+import {
+  toSalaoAtualResponse,
+  toSalaoSetupResponse,
+} from '@/modules/salao/salao.mapper';
 import type { TenantContext } from '@/shared/tenant-context/contracts';
 import { TenantFromOwner } from '@/shared/tenant-context/decorators/tenant-from-owner.decorator';
 
@@ -32,6 +38,25 @@ export class SalaoAtualController {
   async buscar(@TenantFromOwner() tenant: TenantContext) {
     return toSalaoAtualResponse(
       await this.salaoConsultaService.buscarPorId(tenant.salaoId),
+    );
+  }
+
+  @Get('eu/setup')
+  @ApiOperation({
+    summary: 'Busca o status de configuração do salão autenticado',
+  })
+  @ApiOkResponse({
+    description:
+      'Status de configuração do salão vinculado à conta autenticada.',
+    type: SalaoSetupResponseDto.Output,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token ausente ou inválido.',
+  })
+  @ApiNotFoundResponse({ description: 'Salão não encontrado.' })
+  async buscarSetup(@TenantFromOwner() tenant: TenantContext) {
+    return toSalaoSetupResponse(
+      await this.salaoConsultaService.buscarSetup(tenant.salaoId),
     );
   }
 }

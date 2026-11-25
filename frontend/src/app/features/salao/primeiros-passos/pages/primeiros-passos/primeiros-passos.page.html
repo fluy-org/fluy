@@ -1,0 +1,168 @@
+<ion-header>
+  <app-header titulo="Primeiros passos" voltarPara="/painel/agenda"></app-header>
+</ion-header>
+
+<ion-content class="primeiros-passos-page fluy-page-safe">
+  <main class="page-content">
+    @if (salaoCriadoRecentemente()) {
+      <div class="banner-sucesso" role="status">
+        <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+        <div>
+          <h3>Salão criado com sucesso!</h3>
+          <p>Siga os passos abaixo para deixar tudo pronto para suas clientes.</p>
+        </div>
+      </div>
+    }
+
+    <section class="secao-progresso">
+      <div class="progresso-header">
+        <h2>Configure seu salão</h2>
+        <ion-badge color="primary">{{ totalConcluidos() }} de 4 concluídos</ion-badge>
+      </div>
+      <ion-progress-bar [value]="progressoPercentual()"></ion-progress-bar>
+    </section>
+
+    @if (carregando()) {
+      <div class="feedback" role="status">
+        <ion-spinner name="crescent" aria-label="Carregando status do salão"></ion-spinner>
+        <ion-text><p>Carregando passos...</p></ion-text>
+      </div>
+    } @else if (erro(); as msg) {
+      <div class="feedback" role="alert">
+        <ion-text color="danger"><p>{{ msg }}</p></ion-text>
+        <ion-button fill="outline" (click)="recarregar()">Tentar novamente</ion-button>
+      </div>
+    } @else if (setup(); as s) {
+      <div class="lista-passos">
+        <!-- Passo 1: Procedimento -->
+        <ion-card class="passo-card" [class.passo-card--concluido]="s.tem_procedimento_ativo">
+          <ion-card-header>
+            <div class="passo-status">
+              <ion-icon
+                [name]="s.tem_procedimento_ativo ? 'checkmark-circle' : 'ellipse-outline'"
+                [color]="s.tem_procedimento_ativo ? 'success' : 'medium'"
+                aria-hidden="true"
+              ></ion-icon>
+              <div>
+                <ion-card-subtitle>Passo 1 · Obrigatório</ion-card-subtitle>
+                <ion-card-title>Cadastre seu primeiro procedimento</ion-card-title>
+              </div>
+            </div>
+          </ion-card-header>
+          <ion-card-content>
+            <p>
+              Adicione pelo menos um serviço para que suas clientes possam escolher e agendar.
+            </p>
+            <ion-button
+              class="passo-acao"
+              [fill]="s.tem_procedimento_ativo ? 'outline' : 'solid'"
+              color="primary"
+              size="small"
+              (click)="irParaProcedimentos()"
+            >
+              {{ s.tem_procedimento_ativo ? 'Ver procedimentos' : 'Cadastrar procedimento' }}
+              <ion-icon name="arrow-forward-outline" slot="end" aria-hidden="true"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Passo 2: Disponibilidade -->
+        <ion-card class="passo-card" [class.passo-card--concluido]="s.tem_disponibilidade">
+          <ion-card-header>
+            <div class="passo-status">
+              <ion-icon
+                [name]="s.tem_disponibilidade ? 'checkmark-circle' : 'ellipse-outline'"
+                [color]="s.tem_disponibilidade ? 'success' : 'medium'"
+                aria-hidden="true"
+              ></ion-icon>
+              <div>
+                <ion-card-subtitle>Passo 2 · Obrigatório</ion-card-subtitle>
+                <ion-card-title>Defina seus dias e horários de atendimento</ion-card-title>
+              </div>
+            </div>
+          </ion-card-header>
+          <ion-card-content>
+            <p>
+              Configure os dias da semana e os turnos em que você atende para abrir horários na agenda.
+            </p>
+            <ion-button
+              class="passo-acao"
+              [fill]="s.tem_disponibilidade ? 'outline' : 'solid'"
+              color="primary"
+              size="small"
+              (click)="irParaDisponibilidade()"
+            >
+              {{ s.tem_disponibilidade ? 'Ver disponibilidade' : 'Configurar horários' }}
+              <ion-icon name="arrow-forward-outline" slot="end" aria-hidden="true"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Passo 3: Chave Pix -->
+        <ion-card class="passo-card" [class.passo-card--concluido]="s.tem_pix">
+          <ion-card-header>
+            <div class="passo-status">
+              <ion-icon
+                [name]="s.tem_pix ? 'checkmark-circle' : 'ellipse-outline'"
+                [color]="s.tem_pix ? 'success' : 'medium'"
+                aria-hidden="true"
+              ></ion-icon>
+              <div>
+                <ion-card-subtitle>Passo 3 · Recomendado</ion-card-subtitle>
+                <ion-card-title>Cadastre sua chave Pix</ion-card-title>
+              </div>
+            </div>
+          </ion-card-header>
+          <ion-card-content>
+            <p>
+              Sem Pix, suas clientes pagam tudo no salão e você não recebe sinal antecipado para evitar faltas.
+            </p>
+            <ion-button
+              class="passo-acao"
+              [fill]="s.tem_pix ? 'outline' : 'solid'"
+              color="primary"
+              size="small"
+              (click)="irParaConfiguracao()"
+            >
+              {{ s.tem_pix ? 'Alterar chave Pix' : 'Cadastrar chave Pix' }}
+              <ion-icon name="arrow-forward-outline" slot="end" aria-hidden="true"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Passo 4: Compartilhe seu link -->
+        <ion-card
+          class="passo-card"
+          [class.passo-card--concluido]="s.tem_procedimento_ativo && s.tem_disponibilidade"
+        >
+          <ion-card-header>
+            <div class="passo-status">
+              <ion-icon
+                [name]="(s.tem_procedimento_ativo && s.tem_disponibilidade) ? 'checkmark-circle' : 'ellipse-outline'"
+                [color]="(s.tem_procedimento_ativo && s.tem_disponibilidade) ? 'success' : 'medium'"
+                aria-hidden="true"
+              ></ion-icon>
+              <div>
+                <ion-card-subtitle>Passo 4 · Divulgação</ion-card-subtitle>
+                <ion-card-title>Compartilhe seu link</ion-card-title>
+              </div>
+            </div>
+          </ion-card-header>
+          <ion-card-content>
+            @if (!s.tem_procedimento_ativo || !s.tem_disponibilidade) {
+              <p>
+                Complete os passos 1 e 2 para liberar sua agenda antes de divulgar seu link às clientes.
+              </p>
+            }
+            <app-link-publico
+              [subdominio]="s.subdominio"
+              [compacto]="true"
+            ></app-link-publico>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    }
+  </main>
+</ion-content>
+
+<app-navegacao-painel></app-navegacao-painel>

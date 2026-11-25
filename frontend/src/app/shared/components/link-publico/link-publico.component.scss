@@ -1,0 +1,56 @@
+.link-publico-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &--compacto {
+    gap: 0.5rem;
+  }
+}
+
+.link-publico-header {
+  h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--ion-color-step-600, #666);
+  }
+}
+
+.link-publico-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.link-url-box {
+  padding: 0.625rem 0.75rem;
+  background-color: var(--ion-color-light, #f4f5f8);
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-light-shade, #e0e0e0);
+  font-family: monospace;
+  font-size: 0.875rem;
+  word-break: break-all;
+  user-select: all;
+  color: var(--ion-color-dark, #222);
+}
+
+.link-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  ion-button {
+    margin: 0;
+    --border-radius: 6px;
+  }
+}
+
+.link-feedback {
+  min-height: 1.25rem;
+}

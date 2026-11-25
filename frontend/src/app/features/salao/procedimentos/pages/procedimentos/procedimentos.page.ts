@@ -2,6 +2,7 @@ import { NavegacaoPainelComponent } from '@app/shared/components/navegacao-paine
 import { addIcons } from 'ionicons';
 import { cutOutline, ellipsisVertical, addOutline } from 'ionicons/icons';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import type {
   CriarProcedimentoDto,
   ProcedimentoResponseDto,
@@ -61,6 +62,8 @@ export class ProcedimentosPage implements OnInit {
     addIcons({ cutOutline, ellipsisVertical, addOutline });
   }
   private procedimentosService = inject(ProcedimentosService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   readonly procedimentos = this.procedimentosService.procedimentos;
   readonly carregando = signal(true);
@@ -115,6 +118,14 @@ export class ProcedimentosPage implements OnInit {
 
   ngOnInit(): void {
     void this.carregar();
+    if (this.route.snapshot.queryParamMap.get('novo') === 'true') {
+      this.abrirFormulario();
+      void this.router.navigate([], {
+        queryParams: { novo: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   atualizarPesquisa(valor: string | null | undefined): void {

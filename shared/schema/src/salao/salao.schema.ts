@@ -70,3 +70,12 @@ export const subdominioIndisponivelSchema = z
     sugestoes: z.array(subdominioSchema).length(3),
   })
   .meta({ id: "SubdominioIndisponivel" });
+
+export const salaoSetupResponseSchema = z
+  .object({
+    tem_procedimento_ativo: z.boolean(),
+    tem_disponibilidade: z.boolean(),
+    tem_pix: z.boolean(),
+    subdominio: subdominioSchema,
+  })
+  .meta({ id: "SalaoSetupResponse" });

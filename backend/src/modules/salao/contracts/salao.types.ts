@@ -10,3 +10,10 @@ export type SalaoConsultado = Pick<
   | 'fuso_horario'
   | 'criado_em'
 >;
+
+export type SalaoSetupConsultado = {
+  temProcedimentoAtivo: boolean;
+  temDisponibilidade: boolean;
+  temPix: boolean;
+  subdominio: string;
+};

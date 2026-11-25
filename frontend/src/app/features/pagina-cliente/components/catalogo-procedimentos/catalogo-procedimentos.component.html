@@ -20,7 +20,19 @@
   } @else if (procedimentos().length === 0) {
     <div class="feedback">
       <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
-      <ion-text>Este salão ainda não possui procedimentos disponíveis.</ion-text>
+      <ion-text>Este salão ainda está configurando a agenda.</ion-text>
+      @if (contatoWhatsapp()) {
+        <ion-button
+          fill="outline"
+          size="small"
+          [href]="urlWhatsapp()"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <ion-icon name="logo-whatsapp" slot="start" aria-hidden="true"></ion-icon>
+          Falar pelo WhatsApp
+        </ion-button>
+      }
     </div>
   } @else {
     <div class="lista">

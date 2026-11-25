@@ -1,7 +1,11 @@
-import type { SalaoConsultado } from '@/modules/salao/contracts';
+import type {
+  SalaoConsultado,
+  SalaoSetupConsultado,
+} from '@/modules/salao/contracts';
 import {
   toSalaoAtualResponse,
   toSalaoPublicoResponse,
+  toSalaoSetupResponse,
 } from '@/modules/salao/salao.mapper';
 
 describe('salao.mapper', () => {
@@ -20,6 +24,24 @@ describe('salao.mapper', () => {
       expect(toSalaoAtualResponse(salao)).toEqual({
         ...salao,
         criado_em: '2026-10-22T12:30:00.000Z',
+      });
+    });
+  });
+
+  describe('toSalaoSetupResponse', () => {
+    it('mapeia o setup do salao para o contrato HTTP', () => {
+      const setup: SalaoSetupConsultado = {
+        temProcedimentoAtivo: true,
+        temDisponibilidade: false,
+        temPix: true,
+        subdominio: 'salao-da-ana',
+      };
+
+      expect(toSalaoSetupResponse(setup)).toEqual({
+        tem_procedimento_ativo: true,
+        tem_disponibilidade: false,
+        tem_pix: true,
+        subdominio: 'salao-da-ana',
       });
     });
   });

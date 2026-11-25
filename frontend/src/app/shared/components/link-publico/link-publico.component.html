@@ -1,0 +1,58 @@
+<div class="link-publico-container" [class.link-publico-container--compacto]="compacto()">
+  @if (!compacto()) {
+    <div class="link-publico-header">
+      <h3>{{ titulo() }}</h3>
+      <p>{{ subtitulo() }}</p>
+    </div>
+  }
+
+  @if (urlFinal(); as url) {
+    <div class="link-publico-corpo">
+      <div class="link-url-box" tabindex="0" aria-label="Link público do salão">
+        <ion-text>{{ url }}</ion-text>
+      </div>
+
+      <div class="link-acoes">
+        <ion-button
+          type="button"
+          fill="solid"
+          color="primary"
+          size="small"
+          [disabled]="copiando()"
+          (click)="copiar()"
+        >
+          @if (copiando()) {
+            <ion-spinner name="crescent" slot="start" aria-hidden="true"></ion-spinner>
+            Copiando...
+          } @else if (copiado()) {
+            <ion-icon name="checkmark-outline" slot="start" aria-hidden="true"></ion-icon>
+            Copiado!
+          } @else {
+            <ion-icon name="copy-outline" slot="start" aria-hidden="true"></ion-icon>
+            Copiar link
+          }
+        </ion-button>
+
+        <ion-button
+          type="button"
+          fill="outline"
+          color="primary"
+          size="small"
+          (click)="compartilhar()"
+        >
+          <ion-icon name="share-social-outline" slot="start" aria-hidden="true"></ion-icon>
+          Compartilhar
+        </ion-button>
+      </div>
+
+      <div class="link-feedback" role="status" aria-live="polite">
+        @if (mensagemFeedback(); as msg) {
+          <ion-text color="success"><small>{{ msg }}</small></ion-text>
+        }
+        @if (erroFeedback(); as erro) {
+          <ion-text color="danger"><small>{{ erro }}</small></ion-text>
+        }
+      </div>
+    </div>
+  }
+</div>

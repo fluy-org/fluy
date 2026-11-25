@@ -3,6 +3,7 @@ import type {
   criarSalaoSchema,
   salaoPublicoResponseSchema,
   salaoResponseSchema,
+  salaoSetupResponseSchema,
   subdominioIndisponivelSchema,
 } from './salao.schema.js';
 
@@ -14,3 +15,4 @@ export type SalaoPublicoResponseDto = z.infer<
 export type SubdominioIndisponivelDto = z.infer<
   typeof subdominioIndisponivelSchema
 >;
+export type SalaoSetupResponseDto = z.infer<typeof salaoSetupResponseSchema>;

@@ -9,8 +9,19 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { calendarOutline, addOutline } from 'ionicons/icons';
 import {
+  calendarOutline,
+  addOutline,
+  alertCircleOutline,
+  closeOutline,
+  arrowForwardOutline,
+  warningOutline,
+} from 'ionicons/icons';
+import {
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonContent,
   IonHeader,
   IonModal,
@@ -21,10 +32,12 @@ import {
 } from '@ionic/angular/standalone';
 import { ApiError } from '@app/core/errors/api-error';
 import { HeaderComponent } from '@app/shared/components/header/header.component';
+import { LinkPublicoComponent } from '@app/shared/components/link-publico/link-publico.component';
 import { AgendamentoCardComponent } from '@app/features/salao/agenda/components/agendamento-card/agendamento-card.component';
 import { CalendarioMesComponent } from '@app/features/salao/agenda/components/calendario-mes/calendario-mes.component';
 import { NavegacaoDiaComponent } from '@app/features/salao/agenda/components/navegacao-dia/navegacao-dia.component';
 import { AgendaService } from '@app/features/salao/agenda/services/agenda.service';
+import { PrimeirosPassosService } from '@app/features/salao/primeiros-passos/services/primeiros-passos.service';
 import {
   agruparPorEncerramento,
   calcularIntervaloDoMes,
@@ -45,8 +58,13 @@ import type { EstadoPaginaAgenda } from '@app/features/salao/agenda/contracts';
     AgendamentoCardComponent,
     CalendarioMesComponent,
     HeaderComponent,
+    LinkPublicoComponent,
     NavegacaoDiaComponent,
     IonButton,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
     IonContent,
     IonHeader,
     IonModal,
@@ -56,13 +74,23 @@ import type { EstadoPaginaAgenda } from '@app/features/salao/agenda/contracts';
 })
 export class AgendaPage implements OnInit, OnDestroy {
   constructor() {
-    addIcons({ calendarOutline, addOutline });
+    addIcons({
+      calendarOutline,
+      addOutline,
+      alertCircleOutline,
+      closeOutline,
+      arrowForwardOutline,
+      warningOutline,
+    });
   }
   private readonly agendaService = inject(AgendaService);
+  private readonly primeirosPassosService = inject(PrimeirosPassosService);
   private readonly router = inject(Router);
 
   readonly agendaDoDia = this.agendaService.agendaDoDia;
   readonly resumoDoPeriodo = this.agendaService.resumoDoPeriodo;
+  readonly setup = this.primeirosPassosService.setup;
+  readonly bannerPixDispensado = signal(false);
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
   readonly offline = signal(false);
@@ -108,6 +136,44 @@ export class AgendaPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     void this.carregar();
+    void this.primeirosPassosService
+      .carregar()
+      .then((setup) => {
+        this.bannerPixDispensado.set(
+          this.verificarBannerPixDispensado(setup.subdominio),
+        );
+      })
+      .catch(() => {});
+  }
+
+  dispensarBannerPix(): void {
+    const subdominio = this.setup()?.subdominio ?? 'geral';
+    const daquiATresDias = Date.now() + 3 * 24 * 60 * 60 * 1000;
+    try {
+      localStorage.setItem(
+        `fluy:banner-pix-dispensado-ate:${subdominio}`,
+        daquiATresDias.toString(),
+      );
+    } catch {
+      // Ignora erro de local storage indisponível
+    }
+    this.bannerPixDispensado.set(true);
+  }
+
+  private verificarBannerPixDispensado(subdominio?: string): boolean {
+    const sub = subdominio ?? this.setup()?.subdominio ?? 'geral';
+    try {
+      const salvo = localStorage.getItem(
+        `fluy:banner-pix-dispensado-ate:${sub}`,
+      );
+      if (!salvo) {
+        return false;
+      }
+      const timestamp = Number(salvo);
+      return !isNaN(timestamp) && Date.now() < timestamp;
+    } catch {
+      return false;
+    }
   }
 
   ngOnDestroy(): void {
@@ -116,6 +182,14 @@ export class AgendaPage implements OnInit, OnDestroy {
 
   ionViewDidEnter(): void {
     this.iniciarPolling();
+    void this.primeirosPassosService
+      .carregar()
+      .then((setup) => {
+        this.bannerPixDispensado.set(
+          this.verificarBannerPixDispensado(setup.subdominio),
+        );
+      })
+      .catch(() => {});
   }
 
   ionViewDidLeave(): void {

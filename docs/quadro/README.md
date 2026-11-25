@@ -29,7 +29,7 @@ As tarefas nasceram de duas fontes, em 12/11/2026:
 | [FLY-003](./tarefas/FLY-003-reserva-pendente-e-expirada.md) | Reserva pendente e expirada: cliente travada | Cliente · Pagamento | Alta | Concluída | Agente Orquestrador |
 | [FLY-004](./tarefas/FLY-004-checkout-da-cliente.md) | Checkout simples e só de pagamento | Cliente · Pagamento | Alta | Concluída | Agente Orquestrador |
 | [FLY-005](./tarefas/FLY-005-confiabilidade-do-pagamento-online.md) | Confiabilidade do pagamento: prazo, confirmação e avisos | Backend · Pagamento | Alta | Concluída | Agente Orquestrador |
-| [FLY-006](./tarefas/FLY-006-primeiros-passos-do-salao.md) | Primeiros passos, link em destaque e aviso de Pix | Salão · Configuração inicial | Alta | A fazer | — |
+| [FLY-006](./tarefas/FLY-006-primeiros-passos-do-salao.md) | Primeiros passos, link em destaque e aviso de Pix | Salão · Configuração inicial | Alta | Concluída | Agente Orquestrador |
 | [FLY-007](./tarefas/FLY-007-dados-do-salao.md) | Dados do salão: criação mais clara e edição posterior | Salão · Configuração inicial | Alta | A fazer | — |
 | [FLY-008](./tarefas/FLY-008-campo-de-whatsapp.md) | Campo de WhatsApp: máscara única e validação brasileira | Transversal | Alta | A fazer | — |
 | [FLY-009](./tarefas/FLY-009-configuracoes-e-pix.md) | Configurações: Pix compreensível e regras validadas | Salão · Configurações | Média | A fazer | — |

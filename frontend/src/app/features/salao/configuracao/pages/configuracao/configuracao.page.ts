@@ -33,10 +33,9 @@ import {
   IonText,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { copyOutline } from 'ionicons/icons';
 import { ApiError } from '@app/core/errors/api-error';
 import { HeaderComponent } from '@app/shared/components/header/header.component';
+import { LinkPublicoComponent } from '@app/shared/components/link-publico/link-publico.component';
 import { ConfiguracaoService } from '@app/features/salao/configuracao/services/configuracao.service';
 
 @Component({
@@ -47,6 +46,7 @@ import { ConfiguracaoService } from '@app/features/salao/configuracao/services/c
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
+    LinkPublicoComponent,
     IonButton,
     IonCard,
     IonCardContent,
@@ -74,8 +74,6 @@ export class ConfiguracaoPage implements OnInit {
   readonly mensagemSucesso = signal<string | null>(null);
   readonly salao = signal<SalaoResponseDto | null>(null);
   readonly carregandoLinkPublico = signal(true);
-  readonly copiandoLinkPublico = signal(false);
-  readonly mensagemLinkPublico = signal<string | null>(null);
   readonly erroLinkPublico = signal<string | null>(null);
   readonly linkPublico = computed(() => {
     const subdominio = this.salao()?.subdominio;
@@ -132,10 +130,6 @@ export class ConfiguracaoPage implements OnInit {
     { validators: zodValidator(atualizarRecebimentoPixSchema) },
   );
 
-  constructor() {
-    addIcons({ copyOutline });
-  }
-
   ngOnInit(): void {
     void this.carregarRecebimento();
     void this.carregarConfiguracao();
@@ -185,35 +179,6 @@ export class ConfiguracaoPage implements OnInit {
       this.erroRecebimento.set(erro.message);
     } finally {
       this.salvandoRecebimento.set(false);
-    }
-  }
-
-  async copiarLinkPublico(): Promise<void> {
-    const link = this.linkPublico();
-
-    if (!link || this.copiandoLinkPublico()) {
-      return;
-    }
-
-    this.copiandoLinkPublico.set(true);
-    this.mensagemLinkPublico.set(null);
-    this.erroLinkPublico.set(null);
-
-    try {
-      if (!navigator.clipboard?.writeText) {
-        throw new Error('Clipboard API indisponível.');
-      }
-
-      await navigator.clipboard.writeText(link);
-      this.mensagemLinkPublico.set(
-        'Link copiado! Agora é só enviar para suas clientes.',
-      );
-    } catch {
-      this.erroLinkPublico.set(
-        'Não foi possível copiar automaticamente. Selecione o link acima e copie manualmente.',
-      );
-    } finally {
-      this.copiandoLinkPublico.set(false);
     }
   }
 
